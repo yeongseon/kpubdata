@@ -12,7 +12,9 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from typing import Any
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+from typing import Any, cast
 
 import httpx
 
@@ -107,6 +109,7 @@ class HttpTransport:
 
         total_attempts = self._config.max_retries + 1
         for attempt in range(1, total_attempts + 1):
+            retry_delay: float | None = None
             try:
                 logger.debug(
                     "HTTP request start",
@@ -170,6 +173,10 @@ class HttpTransport:
                         f"HTTP status error {status_code} for {method} {url}"
                     ) from exc
 
+                retry_after = cast(str | None, exc.response.headers.get("Retry-After"))
+                if retry_after is not None:
+                    retry_delay = _parse_retry_after(retry_after)
+
             except httpx.RequestError as exc:
                 logger.debug(
                     "HTTP request error",
@@ -185,7 +192,10 @@ class HttpTransport:
                         f"Request failed after {attempt} attempts: {method} {url}"
                     ) from exc
 
-            delay = self._config.retry_backoff_factor * (2 ** (attempt - 1))
+            if retry_delay is not None:
+                delay = retry_delay
+            else:
+                delay = self._config.retry_backoff_factor * (2 ** (attempt - 1))
             logger.debug(
                 "Retrying HTTP request",
                 extra={
@@ -203,6 +213,32 @@ class HttpTransport:
 
 def _is_retryable_status(status_code: int) -> bool:
     return status_code == 429 or 500 <= status_code <= 599
+
+
+def _parse_retry_after(header_value: str) -> float | None:
+    """Parse Retry-After header value as delay in seconds.
+
+    Supports both delta-seconds and HTTP-date formats per RFC 7231 §7.1.3.
+    Returns None if the value cannot be parsed.
+    """
+
+    normalized = header_value.strip()
+
+    try:
+        return max(float(int(normalized)), 0.0)
+    except ValueError:
+        pass
+
+    try:
+        retry_at = parsedate_to_datetime(normalized)
+    except (TypeError, ValueError, IndexError, OverflowError):
+        return None
+
+    if retry_at.tzinfo is None:
+        retry_at = retry_at.replace(tzinfo=timezone.utc)
+
+    now = datetime.now(timezone.utc)
+    return max((retry_at - now).total_seconds(), 0.0)
 
 
 __all__ = ["HttpTransport", "TransportConfig"]
