@@ -347,3 +347,36 @@ class TestDataGoAdapterCatalogueOperations:
             assert dataset.query_support is not None
             assert dataset.query_support.pagination is PaginationMode.OFFSET
             assert dataset.query_support.max_page_size == 1000
+
+
+class TestDataGoAdapterXml:
+    def test_query_records_xml_multi_item(self, configured_adapter) -> None:
+        adapter, dataset, _ = configured_adapter(["success_xml.xml"], content_type="text/xml")
+        batch = adapter.query_records(dataset, Query())
+
+        assert len(batch.items) == 2
+        assert batch.items[0]["stationName"] == "종로구"
+        assert batch.items[1]["stationName"] == "강남구"
+        assert batch.total_count == 2
+
+    def test_query_records_xml_single_item(self, configured_adapter) -> None:
+        adapter, dataset, _ = configured_adapter(
+            ["success_xml_single_item.xml"], content_type="text/xml"
+        )
+        batch = adapter.query_records(dataset, Query())
+
+        assert len(batch.items) == 1
+        assert batch.items[0]["stationName"] == "종로구"
+        assert batch.total_count == 1
+
+    def test_call_raw_xml_response(self, configured_adapter) -> None:
+        adapter, dataset, _ = configured_adapter(["success_xml.xml"], content_type="text/xml")
+        result = adapter.call_raw(dataset, "getVilageFcst", {})
+
+        assert isinstance(result, dict)
+        assert result["response"]["header"]["resultCode"] == "00"
+
+    def test_xml_error_maps_to_exception(self, configured_adapter) -> None:
+        adapter, dataset, _ = configured_adapter(["error_xml_auth_30.xml"], content_type="text/xml")
+        with pytest.raises(AuthError):
+            _ = adapter.query_records(dataset, Query())

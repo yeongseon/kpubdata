@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <header>
+    <resultCode>30</resultCode>
+    <resultMsg>REGISTERED SERVICE KEY IS NOT.</resultMsg>
+  </header>
+  <body/>
+</response>
