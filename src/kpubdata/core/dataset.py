@@ -15,7 +15,7 @@ class Dataset:
     """Bound dataset that routes operations to a provider adapter."""
 
     def __init__(self, ref: DatasetRef, adapter: ProviderAdapter, transport: HttpTransport) -> None:
-        """Initialize bound dataset with resolved ref, adapter, and transport."""
+        """Initialize a dataset bound to its canonical ref and adapter."""
 
         self._ref = ref
         self._adapter = adapter
@@ -52,7 +52,13 @@ class Dataset:
         return self._ref.operations
 
     def list(self, **filters: Any) -> RecordBatch:
-        """Query records from this dataset via canonical list semantics."""
+        """Query records from this dataset using canonical list semantics.
+
+        Pass provider-specific query parameters as keyword arguments.
+
+        Raises:
+            UnsupportedCapabilityError: If this dataset does not support ``list``.
+        """
 
         if Operation.LIST not in self._ref.operations:
             raise UnsupportedCapabilityError(
@@ -65,7 +71,13 @@ class Dataset:
         return self._adapter.query_records(self._ref, query)
 
     def get(self, **key: Any) -> dict[str, object] | None:
-        """Get a single record by key, if supported."""
+        """Return a single record matching the provided key fields.
+
+        Return ``None`` when no matching record is found.
+
+        Raises:
+            UnsupportedCapabilityError: If this dataset does not support ``get``.
+        """
 
         if Operation.GET not in self._ref.operations:
             raise UnsupportedCapabilityError(
@@ -78,12 +90,16 @@ class Dataset:
         return self._adapter.get_record(self._ref, key_payload)
 
     def schema(self) -> SchemaDescriptor | None:
-        """Get canonical schema descriptor if available from adapter."""
+        """Return canonical schema metadata when the provider exposes it."""
 
         return self._adapter.get_schema(self._ref)
 
     def call_raw(self, operation: str, **params: Any) -> object:
-        """Execute provider-native raw operation against the bound dataset."""
+        """Execute a provider-native operation without canonical normalization.
+
+        Use this escape hatch for provider features not represented in the
+        canonical model.
+        """
 
         payload: dict[str, object] = {k: v for k, v in params.items()}
         return self._adapter.call_raw(self._ref, operation, payload)

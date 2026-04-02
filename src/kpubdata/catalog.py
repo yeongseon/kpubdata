@@ -20,7 +20,11 @@ class Catalog:
         self._registry = registry
 
     def list(self, *, provider: str | None = None) -> builtins.list[DatasetRef]:
-        """List all known datasets, optionally filtered by provider."""
+        """Return discoverable datasets, optionally filtered by provider.
+
+        Raises:
+            ProviderNotRegisteredError: If ``provider`` is given but unknown.
+        """
 
         if provider is not None:
             adapter = self._get_adapter(provider)
@@ -33,7 +37,11 @@ class Catalog:
         return datasets
 
     def search(self, text: str, *, provider: str | None = None) -> builtins.list[DatasetRef]:
-        """Search datasets by text using case-insensitive id/name matching."""
+        """Search datasets by case-insensitive id or name matching.
+
+        Raises:
+            ProviderNotRegisteredError: If ``provider`` is given but unknown.
+        """
 
         needle = text.casefold()
         candidates = self.list(provider=provider)
@@ -44,7 +52,12 @@ class Catalog:
         ]
 
     def resolve(self, dataset_id: str) -> tuple[ProviderAdapter, DatasetRef]:
-        """Resolve ``provider.dataset_key`` into a concrete adapter and dataset."""
+        """Resolve ``provider.dataset_key`` into an adapter and dataset ref.
+
+        Raises:
+            DatasetNotFoundError: If the dataset id is malformed or not found.
+            ProviderNotRegisteredError: If the provider is not registered.
+        """
 
         provider_name, dataset_key = self._split_dataset_id(dataset_id)
         adapter = self._get_adapter(provider_name)
