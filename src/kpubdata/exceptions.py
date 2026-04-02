@@ -32,6 +32,7 @@ class PublicDataError(Exception):
         self.detail = detail
 
     def __repr__(self) -> str:
+        """Return a structured repr including provider and transport metadata."""
         parts = [f"{type(self).__name__}({self.args[0]!r}"]
         if self.provider:
             parts.append(f"provider={self.provider!r}")
