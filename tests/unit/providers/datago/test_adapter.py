@@ -380,3 +380,101 @@ class TestDataGoAdapterXml:
         adapter, dataset, _ = configured_adapter(["error_xml_auth_30.xml"], content_type="text/xml")
         with pytest.raises(AuthError):
             _ = adapter.query_records(dataset, Query())
+
+
+class TestDataGoAdapterGetSchema:
+    def test_get_schema_returns_none_without_fields(self) -> None:
+        adapter = DataGoAdapter()
+        dataset = adapter.get_dataset("village_fcst")
+        schema = adapter.get_schema(dataset)
+        assert schema is None
+
+    def test_get_schema_returns_descriptor_with_fields(self) -> None:
+        custom_dataset = DatasetRef(
+            id="datago.test_schema",
+            provider="datago",
+            dataset_key="test_schema",
+            name="Test Schema Dataset",
+            representation=Representation.API_JSON,
+            operations=frozenset(),
+            raw_metadata=MappingProxyType(
+                {
+                    "base_url": "https://example.test",
+                    "fields": [
+                        {
+                            "name": "stationName",
+                            "title": "측정소명",
+                            "type": "string",
+                            "description": "Name of monitoring station",
+                        },
+                        {
+                            "name": "pm10Value",
+                            "title": "미세먼지 농도",
+                            "type": "string",
+                            "description": "PM10 concentration",
+                            "nullable": True,
+                        },
+                    ],
+                }
+            ),
+        )
+        adapter = DataGoAdapter(catalogue=[custom_dataset])
+        schema = adapter.get_schema(custom_dataset)
+
+        assert schema is not None
+        assert schema.dataset is custom_dataset
+        assert len(schema.fields) == 2
+        assert schema.fields[0].name == "stationName"
+        assert schema.fields[0].title == "측정소명"
+        assert schema.fields[0].type == "string"
+        assert schema.fields[0].description == "Name of monitoring station"
+        assert schema.fields[0].nullable is None
+        assert schema.fields[1].name == "pm10Value"
+        assert schema.fields[1].nullable is True
+        assert schema.raw["source"] == "catalogue"
+
+    def test_get_schema_skips_invalid_field_entries(self) -> None:
+        custom_dataset = DatasetRef(
+            id="datago.test_bad_fields",
+            provider="datago",
+            dataset_key="test_bad_fields",
+            name="Test Bad Fields",
+            representation=Representation.API_JSON,
+            operations=frozenset(),
+            raw_metadata=MappingProxyType(
+                {
+                    "base_url": "https://example.test",
+                    "fields": [
+                        {"name": "valid_field", "type": "string"},
+                        "not_a_dict",
+                        {"title": "missing_name"},
+                        {"name": "", "type": "string"},
+                    ],
+                }
+            ),
+        )
+        adapter = DataGoAdapter(catalogue=[custom_dataset])
+        schema = adapter.get_schema(custom_dataset)
+
+        assert schema is not None
+        assert len(schema.fields) == 1
+        assert schema.fields[0].name == "valid_field"
+
+    def test_get_schema_empty_fields_returns_none(self) -> None:
+        custom_dataset = DatasetRef(
+            id="datago.test_empty",
+            provider="datago",
+            dataset_key="test_empty",
+            name="Test Empty Fields",
+            representation=Representation.API_JSON,
+            operations=frozenset(),
+            raw_metadata=MappingProxyType(
+                {
+                    "base_url": "https://example.test",
+                    "fields": [],
+                }
+            ),
+        )
+        adapter = DataGoAdapter(catalogue=[custom_dataset])
+        schema = adapter.get_schema(custom_dataset)
+        assert schema is None
