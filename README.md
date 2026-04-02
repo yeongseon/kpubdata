@@ -1,8 +1,92 @@
 # KPubData
 
 > Korean public data access framework for Python 3.10+
->
-> A dialect-inspired, dataset-oriented framework that gives Python users a consistent way to discover and query Korean public-data services without pretending every provider works the same way.
+
+A dialect-inspired, dataset-oriented framework that gives Python users a consistent
+way to discover and query Korean public-data services without pretending every
+provider works the same way.
+
+## Installation
+
+```bash
+pip install kpubdata
+```
+
+## Quickstart
+
+### 1. Configure your API key
+
+Get a free API key from [data.go.kr](https://www.data.go.kr), then either pass it
+directly or set an environment variable:
+
+```bash
+export KPUBDATA_DATAGO_API_KEY="your-service-key"
+```
+
+### 2. Create a client
+
+```python
+from kpubdata import Client
+
+# From environment variables
+client = Client.from_env()
+
+# Or pass keys explicitly
+client = Client(provider_keys={"datago": "YOUR_API_KEY"})
+```
+
+### 3. Discover datasets
+
+```python
+# List all available datasets
+for ds in client.datasets.list():
+    print(ds.id, ds.name)
+
+# Search by keyword
+for ds in client.datasets.search("forecast"):
+    print(ds.id, ds.name, ds.operations)
+```
+
+### 4. Query records
+
+```python
+ds = client.dataset("datago.village_fcst")
+
+result = ds.list(
+    base_date="20250401",
+    base_time="0500",
+    nx="55",
+    ny="127",
+)
+
+for item in result.items:
+    print(item)
+```
+
+### 5. Raw API escape hatch
+
+When the normalized layer doesn't cover what you need, drop down to the raw API:
+
+```python
+ds = client.dataset("datago.air_quality")
+
+raw = ds.call_raw(
+    "getCtprvnRltmMesureDnsty",
+    sidoName="서울",
+    numOfRows="5",
+)
+print(raw)
+```
+
+### Available datasets (v0.1)
+
+| Dataset ID | Name | Description |
+|---|---|---|
+| `datago.village_fcst` | 동네예보 조회서비스 | KMA short-range forecast |
+| `datago.ultra_srt_ncst` | 초단기실황 조회서비스 | KMA ultra short-term nowcast |
+| `datago.air_quality` | 대기오염정보 조회서비스 | Real-time air quality (PM2.5, PM10) |
+| `datago.bus_arrival` | 경기도 버스도착정보 조회서비스 | Gyeonggi-do bus arrival info |
+| `datago.hospital_info` | 병원정보서비스 | Hospital / medical institution lookup |
 
 ## Project definition
 
@@ -83,35 +167,6 @@ Client
   -> RecordBatch or Record
 ```
 
-## Example usage
-
-```python
-from kpubdata import Client
-
-client = Client.from_env()
-
-result = client.dataset("molit.apartment_trades").list(
-    lawd_code="11680",
-    deal_ym="202503",
-)
-
-for item in result.items:
-    print(item)
-
-print(result.raw)
-```
-
-## Example with discovery
-
-```python
-from kpubdata import Client
-
-client = Client.from_env()
-
-for ds in client.datasets.search("지하철"):
-    print(ds.id, ds.name, ds.capabilities)
-```
-
 ## Document map
 
 - `VALIDATION.md` — why the architecture is valid
@@ -123,7 +178,6 @@ for ds in client.datasets.search("지하철"):
 - `PACKAGING.md` — packaging and release strategy
 - `AGENTS.md` — repo rules for agentic/Codex development
 - `ROADMAP.md` — staged delivery plan
-- `pyproject.toml` — initial packaging skeleton
 
 ## Initial delivery target
 
@@ -132,7 +186,7 @@ for ds in client.datasets.search("지하철"):
 - Python 3.10+
 - sync-only core
 - canonical query/result/error/capability model
-- provider adapters for 3 distinct service families
+- provider adapter for data.go.kr (5 datasets)
 - XML + JSON support
 - raw access path
 - pytest + type checking + lint gate
@@ -147,4 +201,3 @@ for ds in client.datasets.search("지하철"):
 ### v0.3
 
 - thin MCP adapter on top of the stable core
-
