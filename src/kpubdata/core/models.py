@@ -22,6 +22,8 @@ def _dataclass(
     slots: bool = False,
     frozen: bool = False,
 ) -> Callable[[type[_T]], type[_T]]:
+    """Return a decorator that applies ``dataclasses.dataclass`` with fixed options."""
+
     def _decorate(cls: type[_T]) -> type[_T]:
         return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)  # pyright: ignore[reportCallIssue]
 
@@ -29,10 +31,12 @@ def _dataclass(
 
 
 def _empty_proxy() -> MappingProxyType[str, Any]:
+    """Return an empty immutable string-keyed mapping proxy."""
     return MappingProxyType({})
 
 
 def _empty_object_proxy() -> MappingProxyType[str, object]:
+    """Return an empty immutable object-valued mapping proxy."""
     return MappingProxyType({})
 
 
@@ -60,6 +64,7 @@ class DatasetRef:
         return op in self.operations
 
     def __repr__(self) -> str:
+        """Return a concise developer-friendly representation."""
         ops = ", ".join(sorted(operation.value for operation in self.operations))
         return f"DatasetRef(id={self.id!r}, provider={self.provider!r}, ops=[{ops}])"
 
