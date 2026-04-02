@@ -1,0 +1,52 @@
+[
+  {
+    "dataset_key": "village_fcst",
+    "name": "동네예보 조회서비스 (Village Forecast)",
+    "base_url": "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0",
+    "default_operation": "getVilageFcst",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "Korea Meteorological Administration short-range forecast"
+  },
+  {
+    "dataset_key": "ultra_srt_ncst",
+    "name": "초단기실황 조회서비스 (Ultra Short-term Nowcast)",
+    "base_url": "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0",
+    "default_operation": "getUltraSrtNcst",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "KMA ultra short-term observed weather conditions"
+  },
+  {
+    "dataset_key": "air_quality",
+    "name": "대기오염정보 조회서비스 (Air Quality)",
+    "base_url": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
+    "default_operation": "getCtprvnRltmMesureDnsty",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "returnType",
+    "description": "AirKorea real-time particulate matter and atmospheric pollution"
+  },
+  {
+    "dataset_key": "bus_arrival",
+    "name": "경기도 버스도착정보 조회서비스 (Bus Arrival)",
+    "base_url": "http://apis.data.go.kr/6410000/busarrivalservice",
+    "default_operation": "getBusArrivalList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "Gyeonggi-do real-time bus arrival information"
+  },
+  {
+    "dataset_key": "hospital_info",
+    "name": "병원정보서비스 (Hospital Information)",
+    "base_url": "http://apis.data.go.kr/B551182/hospInfoServicev2",
+    "default_operation": "getHospBasisList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "Hospital basic information and medical institution lookup"
+  }
+]
