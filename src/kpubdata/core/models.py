@@ -38,7 +38,12 @@ def _empty_object_proxy() -> MappingProxyType[str, object]:
 
 @_dataclass(slots=True, frozen=True)
 class DatasetRef:
-    """Canonical immutable reference to a provider dataset."""
+    """Canonical immutable reference to a provider dataset.
+
+    Attributes:
+        query_support: Structured list-query feature metadata, if known.
+        raw_metadata: Provider-native discovery metadata for debugging.
+    """
 
     id: str
     provider: str
@@ -61,7 +66,12 @@ class DatasetRef:
 
 @_dataclass(slots=True)
 class Query:
-    """Provider-agnostic query object for listing records."""
+    """Provider-agnostic query object for listing records.
+
+    Attributes:
+        filters: Provider-specific filter payload merged into query translation.
+        extra: Additional provider-native parameters not covered canonically.
+    """
 
     filters: dict[str, Any] = field(default_factory=dict)
     page: int | None = None
@@ -76,7 +86,14 @@ class Query:
 
 @_dataclass(slots=True)
 class RecordBatch:
-    """Batch of normalized records returned from a dataset query."""
+    """Batch of normalized records returned from a dataset query.
+
+    Attributes:
+        next_page: Next offset page number for offset pagination.
+        next_cursor: Opaque cursor token for cursor pagination.
+        raw: Provider-native response payload used to derive this batch.
+        meta: Additional adapter metadata that does not fit canonical fields.
+    """
 
     items: list[dict[str, Any]]
     dataset: DatasetRef
@@ -98,7 +115,11 @@ class RecordBatch:
 
 @_dataclass(slots=True)
 class FieldDescriptor:
-    """Describes a single field in a dataset schema."""
+    """Describe a single field in a dataset schema.
+
+    Attributes:
+        raw: Provider-native field metadata retained for advanced use.
+    """
 
     name: str
     title: str | None = None
@@ -110,7 +131,11 @@ class FieldDescriptor:
 
 @_dataclass(slots=True)
 class SchemaDescriptor:
-    """Describes the exposed schema metadata for a dataset."""
+    """Describe schema metadata exposed for a dataset.
+
+    Attributes:
+        raw: Provider-native schema metadata retained without normalization.
+    """
 
     dataset: DatasetRef
     fields: list[FieldDescriptor]
