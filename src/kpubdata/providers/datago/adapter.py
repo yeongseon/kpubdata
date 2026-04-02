@@ -10,7 +10,13 @@ from typing import NoReturn, cast
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
-from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
+from kpubdata.core.models import (
+    DatasetRef,
+    FieldDescriptor,
+    Query,
+    RecordBatch,
+    SchemaDescriptor,
+)
 from kpubdata.core.representation import Representation
 from kpubdata.exceptions import (
     AuthError,
@@ -140,10 +146,49 @@ class DataGoAdapter:
 
         raise NotImplementedError("TODO: implement datago get_record")
 
-    def get_schema(self, _dataset: DatasetRef) -> SchemaDescriptor | None:
-        """Get schema metadata for a data.go.kr dataset."""
+    def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
+        """Get schema metadata for a data.go.kr dataset.
 
-        raise NotImplementedError("TODO: implement datago get_schema")
+        Returns schema from curated catalogue metadata when available.
+        data.go.kr has no live schema discovery endpoint, so this
+        returns ``None`` for datasets without explicitly curated field
+        definitions in the catalogue.
+        """
+        fields_raw = dataset.raw_metadata.get("fields")
+        if not isinstance(fields_raw, list) or not fields_raw:
+            return None
+
+        field_descriptors: list[FieldDescriptor] = []
+        for entry_obj in fields_raw:
+            if not isinstance(entry_obj, dict):
+                continue
+            entry = cast(dict[str, object], entry_obj)
+            name_raw = entry.get("name")
+            if not isinstance(name_raw, str) or not name_raw:
+                continue
+            title_raw = entry.get("title")
+            type_raw = entry.get("type")
+            desc_raw = entry.get("description")
+            nullable_raw = entry.get("nullable")
+            field_descriptors.append(
+                FieldDescriptor(
+                    name=name_raw,
+                    title=title_raw if isinstance(title_raw, str) else None,
+                    type=type_raw if isinstance(type_raw, str) else None,
+                    description=desc_raw if isinstance(desc_raw, str) else None,
+                    nullable=nullable_raw if isinstance(nullable_raw, bool) else None,
+                    raw=MappingProxyType({k: v for k, v in entry.items() if k != "name"}),
+                )
+            )
+
+        if not field_descriptors:
+            return None
+
+        return SchemaDescriptor(
+            dataset=dataset,
+            fields=field_descriptors,
+            raw=MappingProxyType({"source": "catalogue"}),
+        )
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
         """Call provider-native data.go.kr API operation."""
