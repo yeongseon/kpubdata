@@ -1,0 +1,265 @@
+from __future__ import annotations
+
+# pyright: reportImplicitOverride=false, reportPrivateUsage=false
+import http.server
+import json
+import threading
+import time
+from collections.abc import Generator
+from dataclasses import dataclass
+from typing import cast
+
+import pytest
+from typing_extensions import TypedDict
+
+from kpubdata.exceptions import TransportError, TransportTimeoutError
+from kpubdata.transport.decode import decode_json, detect_content_type
+from kpubdata.transport.http import HttpTransport, TransportConfig
+
+
+class Scenario(TypedDict, total=False):
+    status: int
+    body: str | bytes
+    content_type: str
+    delay: float
+
+
+class MockThreadingHTTPServer(http.server.ThreadingHTTPServer):
+    hit_count: int
+    hit_lock: threading.Lock
+    last_body: bytes
+    last_headers: dict[str, str]
+
+    def __init__(
+        self,
+        server_address: tuple[str, int],
+        request_handler: type[http.server.BaseHTTPRequestHandler],
+    ) -> None:
+        super().__init__(server_address, request_handler)
+        self.scenarios: list[Scenario] = []
+        self.hit_count = 0
+        self.hit_lock = threading.Lock()
+        self.last_body = b""
+        self.last_headers = {}
+
+
+class MockHandler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, format: str, *args: object) -> None:  # noqa: A002, ARG002
+        return
+
+    def do_GET(self) -> None:  # noqa: N802
+        self._handle_request()
+
+    def do_POST(self) -> None:  # noqa: N802
+        self._handle_request()
+
+    def _handle_request(self) -> None:
+        server = cast(MockThreadingHTTPServer, self.server)
+        length = int(self.headers.get("Content-Length", "0"))
+        request_body = self.rfile.read(length) if length else b""
+
+        with server.hit_lock:
+            server.hit_count += 1
+            server.last_body = request_body
+            server.last_headers = {k.lower(): v for k, v in self.headers.items()}
+            scenario: Scenario = server.scenarios.pop(0) if server.scenarios else {}
+
+        delay = scenario.get("delay", 0.0)
+        if delay > 0:
+            time.sleep(delay)
+
+        status = scenario.get("status", 200)
+        body = scenario.get("body", "")
+        payload = body if isinstance(body, bytes) else body.encode("utf-8")
+        content_type = scenario.get("content_type", "text/plain; charset=utf-8")
+
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+
+        try:
+            _ = self.wfile.write(payload)
+        except BrokenPipeError:
+            return
+
+
+@dataclass
+class MockServer:
+    base_url: str
+    scenarios: list[Scenario]
+    server: MockThreadingHTTPServer
+
+    @property
+    def hit_count(self) -> int:
+        return self.server.hit_count
+
+    @property
+    def last_body(self) -> bytes:
+        return self.server.last_body
+
+    @property
+    def last_headers(self) -> dict[str, str]:
+        return self.server.last_headers
+
+
+@pytest.fixture
+def mock_server() -> Generator[MockServer, None, None]:
+    server = MockThreadingHTTPServer(("127.0.0.1", 0), MockHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    try:
+        yield MockServer(
+            base_url=f"http://127.0.0.1:{server.server_port}",
+            scenarios=server.scenarios,
+            server=server,
+        )
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=1)
+
+
+@pytest.fixture
+def transport_config() -> TransportConfig:
+    return TransportConfig(timeout=2.0, max_retries=2, retry_backoff_factor=0)
+
+
+def test_get_success(mock_server: MockServer, transport_config: TransportConfig) -> None:
+    mock_server.scenarios.append(
+        {
+            "status": 200,
+            "body": '{"ok": true}',
+            "content_type": "application/json",
+        }
+    )
+
+    with HttpTransport(transport_config) as transport:
+        response = transport.request("GET", f"{mock_server.base_url}/ok")
+
+    assert response.status_code == 200
+    assert response.text == '{"ok": true}'
+    assert detect_content_type(response) == "json"
+    assert decode_json(response.text) == {"ok": True}
+
+
+def test_post_with_json_body(mock_server: MockServer, transport_config: TransportConfig) -> None:
+    mock_server.scenarios.append({"status": 200, "body": "ok"})
+
+    with HttpTransport(transport_config) as transport:
+        response = transport.request(
+            "POST",
+            f"{mock_server.base_url}/submit",
+            json_body={"key": "value"},
+        )
+
+    assert response.status_code == 200
+    assert json.loads(mock_server.last_body.decode("utf-8")) == {"key": "value"}
+    assert mock_server.last_headers["content-type"].startswith("application/json")
+
+
+def test_retry_on_500_then_success(
+    mock_server: MockServer, transport_config: TransportConfig
+) -> None:
+    mock_server.scenarios.extend(
+        [
+            {"status": 500, "body": "server error"},
+            {"status": 200, "body": "ok"},
+        ]
+    )
+
+    with HttpTransport(transport_config) as transport:
+        response = transport.request("GET", f"{mock_server.base_url}/retry-500")
+
+    assert response.status_code == 200
+    assert mock_server.hit_count == 2
+
+
+def test_retry_on_429_then_success(
+    mock_server: MockServer, transport_config: TransportConfig
+) -> None:
+    mock_server.scenarios.extend(
+        [
+            {"status": 429, "body": "rate limited"},
+            {"status": 200, "body": "ok"},
+        ]
+    )
+
+    with HttpTransport(transport_config) as transport:
+        response = transport.request("GET", f"{mock_server.base_url}/retry-429")
+
+    assert response.status_code == 200
+    assert mock_server.hit_count == 2
+
+
+def test_no_retry_on_404(mock_server: MockServer, transport_config: TransportConfig) -> None:
+    mock_server.scenarios.append({"status": 404, "body": "not found"})
+
+    with HttpTransport(transport_config) as transport, pytest.raises(TransportError):
+        _ = transport.request("GET", f"{mock_server.base_url}/not-found")
+
+    assert mock_server.hit_count == 1
+
+
+def test_timeout_then_success(mock_server: MockServer) -> None:
+    mock_server.scenarios.extend(
+        [
+            {"status": 200, "body": "slow", "delay": 5.0},
+            {"status": 200, "body": "ok"},
+        ]
+    )
+    config = TransportConfig(timeout=0.3, max_retries=2, retry_backoff_factor=0)
+
+    with HttpTransport(config) as transport:
+        response = transport.request("GET", f"{mock_server.base_url}/timeout-then-success")
+
+    assert response.status_code == 200
+    assert response.text == "ok"
+    assert mock_server.hit_count == 2
+
+
+def test_timeout_exhausted(mock_server: MockServer) -> None:
+    mock_server.scenarios.extend(
+        [
+            {"status": 200, "body": "slow-1", "delay": 5.0},
+            {"status": 200, "body": "slow-2", "delay": 5.0},
+            {"status": 200, "body": "slow-3", "delay": 5.0},
+        ]
+    )
+    config = TransportConfig(timeout=0.3, max_retries=2, retry_backoff_factor=0)
+
+    with HttpTransport(config) as transport, pytest.raises(TransportTimeoutError):
+        _ = transport.request("GET", f"{mock_server.base_url}/timeout-exhausted")
+
+    assert mock_server.hit_count == 3
+
+
+def test_retryable_status_exhausted(
+    mock_server: MockServer, transport_config: TransportConfig
+) -> None:
+    mock_server.scenarios.extend(
+        [
+            {"status": 500, "body": "boom-1"},
+            {"status": 500, "body": "boom-2"},
+            {"status": 500, "body": "boom-3"},
+        ]
+    )
+
+    with HttpTransport(transport_config) as transport, pytest.raises(TransportError):
+        _ = transport.request("GET", f"{mock_server.base_url}/retryable-exhausted")
+
+    assert mock_server.hit_count == 3
+
+
+def test_context_manager_lifecycle(
+    mock_server: MockServer, transport_config: TransportConfig
+) -> None:
+    mock_server.scenarios.append({"status": 200, "body": "ok"})
+
+    transport = HttpTransport(transport_config)
+    with transport as t:
+        response = t.request("GET", f"{mock_server.base_url}/context")
+        assert response.status_code == 200
+
+    assert transport._client is None
