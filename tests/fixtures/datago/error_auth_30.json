@@ -1,0 +1,9 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "30",
+      "resultMsg": "KEY IS NOT REGISTERED ERROR."
+    },
+    "body": null
+  }
+}
