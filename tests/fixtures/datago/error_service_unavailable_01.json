@@ -1,0 +1,9 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "01",
+      "resultMsg": "APPLICATION ERROR."
+    },
+    "body": null
+  }
+}

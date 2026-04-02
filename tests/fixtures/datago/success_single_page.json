@@ -1,0 +1,35 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "stationName": "종로구",
+            "dataTime": "2024-01-15 14:00",
+            "pm10Value": "45",
+            "pm25Value": "22"
+          },
+          {
+            "stationName": "강남구",
+            "dataTime": "2024-01-15 14:00",
+            "pm10Value": "38",
+            "pm25Value": "19"
+          },
+          {
+            "stationName": "서초구",
+            "dataTime": "2024-01-15 14:00",
+            "pm10Value": "42",
+            "pm25Value": "21"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 3
+    }
+  }
+}
