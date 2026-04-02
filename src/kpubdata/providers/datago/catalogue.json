@@ -7,7 +7,12 @@
     "representation": "api_json",
     "service_key_param": "serviceKey",
     "format_param": "dataType",
-    "description": "Korea Meteorological Administration short-range forecast"
+    "description": "Korea Meteorological Administration short-range forecast",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   },
   {
     "dataset_key": "ultra_srt_ncst",
@@ -17,7 +22,12 @@
     "representation": "api_json",
     "service_key_param": "serviceKey",
     "format_param": "dataType",
-    "description": "KMA ultra short-term observed weather conditions"
+    "description": "KMA ultra short-term observed weather conditions",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   },
   {
     "dataset_key": "air_quality",
@@ -27,7 +37,12 @@
     "representation": "api_json",
     "service_key_param": "serviceKey",
     "format_param": "returnType",
-    "description": "AirKorea real-time particulate matter and atmospheric pollution"
+    "description": "AirKorea real-time particulate matter and atmospheric pollution",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   },
   {
     "dataset_key": "bus_arrival",
@@ -37,7 +52,12 @@
     "representation": "api_json",
     "service_key_param": "serviceKey",
     "format_param": "_type",
-    "description": "Gyeonggi-do real-time bus arrival information"
+    "description": "Gyeonggi-do real-time bus arrival information",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   },
   {
     "dataset_key": "hospital_info",
@@ -47,6 +67,11 @@
     "representation": "api_json",
     "service_key_param": "serviceKey",
     "format_param": "_type",
-    "description": "Hospital basic information and medical institution lookup"
+    "description": "Hospital basic information and medical institution lookup",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]
