@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Mapping, Sequence
 from importlib.resources import files
 from types import MappingProxyType
@@ -29,6 +30,8 @@ from kpubdata.exceptions import (
 )
 from kpubdata.transport.decode import decode_json, decode_xml, detect_content_type
 from kpubdata.transport.http import HttpTransport, TransportConfig
+
+logger = logging.getLogger("kpubdata.provider.datago")
 
 
 class DataGoAdapter:
@@ -288,6 +291,10 @@ class DataGoAdapter:
         result_msg_raw = header_dict.get("resultMsg")
         result_msg = (
             result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
+        )
+        logger.debug(
+            "data.go.kr result",
+            extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
         )
         if result_code != "00":
             self._raise_for_result_code(result_code, result_msg, dataset_id)

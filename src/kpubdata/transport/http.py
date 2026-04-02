@@ -21,6 +21,17 @@ import httpx
 from kpubdata.exceptions import TransportError, TransportTimeoutError
 
 logger = logging.getLogger("kpubdata.transport")
+_SENSITIVE_PARAM_KEYS = {
+    "servicekey",
+    "service_key",
+    "api_key",
+    "apikey",
+    "token",
+    "authorization",
+    "secret",
+    "password",
+    "key",
+}
 
 
 @dataclass
@@ -121,6 +132,16 @@ class HttpTransport:
                     },
                 )
 
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        "HTTP request params",
+                        extra={
+                            "method": method,
+                            "url": url,
+                            "params": _sanitize_params(params),
+                        },
+                    )
+
                 response = self.client.request(
                     method=method,
                     url=url,
@@ -140,6 +161,17 @@ class HttpTransport:
                         "attempt": attempt,
                     },
                 )
+
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        "HTTP response preview",
+                        extra={
+                            "status_code": response.status_code,
+                            "content_type": response.headers.get("content-type", ""),
+                            "content_length": len(response.content),
+                            "preview": _response_preview(response),
+                        },
+                    )
                 return response
 
             except httpx.TimeoutException as exc:
@@ -213,6 +245,37 @@ class HttpTransport:
 
 def _is_retryable_status(status_code: int) -> bool:
     return status_code == 429 or 500 <= status_code <= 599
+
+
+def _sanitize_params(params: dict[str, Any] | None) -> dict[str, str]:
+    if params is None:
+        return {}
+
+    sanitized: dict[str, str] = {}
+    for key, value in params.items():
+        if key.casefold() in _SENSITIVE_PARAM_KEYS:
+            sanitized[key] = "[REDACTED]"
+        else:
+            sanitized[key] = str(value)
+    return sanitized
+
+
+def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:
+    content_type = response.headers.get("content-type", "").casefold()
+    is_text = (
+        content_type.startswith("text/")
+        or "json" in content_type
+        or "xml" in content_type
+        or "javascript" in content_type
+    )
+
+    if not is_text:
+        return f"[binary content, {len(response.content)} bytes]"
+
+    try:
+        return response.text[:max_chars]
+    except (LookupError, UnicodeDecodeError, ValueError):
+        return "[decode error]"
 
 
 def _parse_retry_after(header_value: str) -> float | None:
