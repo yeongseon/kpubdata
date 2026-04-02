@@ -1,0 +1,103 @@
+# Packaging and release strategy — KPubData
+
+## 1. Packaging goals
+
+- modern Python packaging
+- Python 3.10+
+- minimal core dependencies
+- optional extras for heavier integrations
+- reproducible local development for human and agentic workflows
+
+## 2. Recommended choices
+
+### Build backend
+
+Use `hatchling` as the build backend.
+
+Why:
+
+- simple and modern
+- PEP 517/518 friendly
+- good fit for a typed library with `src/` layout
+
+### Project metadata
+
+Use PEP 621 metadata in `pyproject.toml`.
+
+### Environment/workflow tool
+
+Use `uv` for local sync/install/test workflows.
+
+This keeps packaging standards-based while making developer workflows fast.
+
+## 3. Python support policy
+
+- minimum: Python 3.10
+- tested: 3.10, 3.11, 3.12, 3.13
+
+## 4. Dependency policy
+
+### Core dependencies
+
+Keep core lean.
+
+Expected core set:
+
+- `httpx` or `requests`-style HTTP client (choose one)
+- XML parsing support only if truly needed in core
+- typing/runtime helpers only when justified
+
+### Optional extras
+
+- `xml`
+- `pandas`
+- `mcp`
+- `dev`
+- `docs`
+
+## 5. Recommended package structure
+
+```text
+src/
+  kpubdata/
+```
+
+Reasons:
+
+- avoids accidental import-from-project-root mistakes
+- works well with modern build backends and type checking
+
+## 6. Build and release steps
+
+### Local
+
+```bash
+uv sync --extra dev
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy src
+uv run pytest
+uv run python -m build
+```
+
+### Release
+
+1. bump version
+2. update changelog
+3. run full quality gates
+4. build sdist + wheel
+5. publish to TestPyPI/PyPI
+
+## 7. Versioning policy
+
+Use SemVer with public API discipline.
+
+- `0.x`: fast iteration, but still document breaking changes
+- `1.0`: only when the public Python API and adapter contract feel stable
+
+## 8. Naming policy
+
+- project name: `KPubData`
+- package/import name: `kpubdata`
+- repository name: preferably `kpubdata` or `kpubdata-framework`
+
