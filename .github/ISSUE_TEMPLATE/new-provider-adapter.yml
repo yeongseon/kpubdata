@@ -1,0 +1,105 @@
+name: New Provider Adapter
+description: Propose or track a new Korean public data provider adapter
+title: "[Provider] "
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## New Provider Adapter Request
+
+        Use this template to propose adding a new Korean public data provider.
+
+  - type: input
+    id: provider-name
+    attributes:
+      label: Provider Name
+      description: The official name of the data provider (Korean and English)
+      placeholder: "e.g., 서울열린데이터광장 (Seoul Open Data)"
+    validations:
+      required: true
+
+  - type: input
+    id: base-url
+    attributes:
+      label: API Base URL
+      description: The base URL for the provider's API
+      placeholder: "e.g., http://openapi.seoul.go.kr:8088"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: auth-type
+    attributes:
+      label: Authentication Type
+      options:
+        - API Key (query parameter)
+        - API Key (header)
+        - OAuth 2.0
+        - No auth
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: response-format
+    attributes:
+      label: Response Format
+      multiple: true
+      options:
+        - JSON
+        - XML
+        - CSV
+        - Excel
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: datasets
+    attributes:
+      label: Key Datasets
+      description: List the most important datasets this provider offers
+      placeholder: |
+        - 서울시 실시간 대기환경 (Real-time air quality)
+        - 서울시 공공자전거 대여소 (Public bike stations)
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-docs
+    attributes:
+      label: API Documentation Links
+      description: Links to official API documentation
+      placeholder: "https://..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any quirks, rate limits, or special considerations
+      placeholder: |
+        - Rate limit: 1000 calls/day
+        - Requires registration at data.go.kr
+        - Some endpoints return EUC-KR encoding
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Implementation Checklist
+      description: Track progress (maintainer use)
+      options:
+        - label: "API research and documentation"
+        - label: "Adapter class with `name` property"
+        - label: "`list_datasets()` implementation"
+        - label: "`query_records()` with pagination"
+        - label: "`get_schema()` implementation"
+        - label: "`call_raw()` escape hatch"
+        - label: "Fixture responses captured"
+        - label: "Unit tests with fixtures"
+        - label: "Contract tests passing"
+        - label: "Capabilities documented honestly"
