@@ -1,6 +1,8 @@
 # KPubData
 
-> Korean public data access framework for Python 3.10+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![CI](https://github.com/yeongseon/kpubdata/actions/workflows/ci.yml/badge.svg)](https://github.com/yeongseon/kpubdata/actions/workflows/ci.yml)
 
 A dialect-inspired, dataset-oriented framework that gives Python users a consistent
 way to discover and query Korean public-data services without pretending every
@@ -183,7 +185,6 @@ Client
 
 ### v0.1
 
-- Python 3.10+
 - sync-only core
 - canonical query/result/error/capability model
 - provider adapter for data.go.kr (5 datasets)
