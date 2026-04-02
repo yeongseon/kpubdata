@@ -23,10 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Schema metadata via `dataset.schema()` (catalogue-backed)
 - XML and JSON response decoding with automatic content-type detection
 - HTTP transport with configurable retry and exponential backoff
+- Rate-limit aware retry with `Retry-After` header support (delta-seconds and HTTP-date)
+- DEBUG-level request/response logging with credential redaction (`_sanitize_params`)
 - Environment-based configuration (`KPUBDATA_DATAGO_API_KEY`)
 - Provider adapter protocol with registration-time validation
 - Contract test framework for adapter conformance
 - GitHub Actions CI (lint, type check, test on Python 3.10–3.13, build)
-- 90%+ unit test coverage for core framework modules (206 tests)
+- 90%+ unit test coverage for core framework modules (217 tests)
 - PEP 257 docstrings for full public API surface
 - MIT LICENSE
