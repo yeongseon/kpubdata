@@ -16,7 +16,91 @@ The model should be:
 
 Canonical objects standardize the **framework contract**, not every semantic detail of every provider.
 
-## 3. Core types
+## 3. 타입별 상세 설명 (이것은 무엇인가?)
+
+KPubData에서 사용하는 핵심 타입들을 일상적인 도서관 비유로 설명합니다.
+
+### 3.1 DatasetRef (도서 카드)
+- **비유**: 도서관의 **"도서 목록 카드"**와 같습니다. 책이 어느 서가에 있는지, 대출이 가능한지(지원하는 기능), 어떤 내용인지 알려줍니다.
+- **역할**: 이 데이터셋이 어디에 있고(Provider), 고유한 이름(ID)은 무엇인지, 어떤 형식(Representation)인지 정보를 담고 있습니다.
+
+### 3.2 Query (검색 조건)
+- **비유**: 도서관에서 책을 찾을 때 쓰는 **"검색 조건"**입니다. "2024년에 나온 소설 중 서울에서 발간된 것" 같은 조건이죠.
+- **역할**: 사용자가 원하는 데이터를 필터링하기 위한 조건들(날짜, 지역, 페이지 번호 등)을 한데 모아둡니다.
+
+### 3.3 RecordBatch (검색 결과 목록)
+- **비유**: 검색 결과로 나온 **"책 목록 한 뭉치"**입니다. 실제 데이터(책 내용)뿐만 아니라 "총 몇 권이 나왔는지", "다음 페이지가 있는지" 같은 정보도 함께 들어있습니다.
+- **역할**: 실제 데이터 행(rows)과 메타정보를 함께 전달하는 운반체입니다.
+
+### 3.4 SchemaDescriptor (데이터 설계도)
+- **비유**: 데이터의 **"설계도" 또는 "명세서"**입니다. 이 데이터 목록의 첫 번째 칸은 '날짜'이고 숫자로 되어 있다는 것을 알려줍니다.
+- **역할**: 각 칼럼(Field)의 이름, 타입, 설명 등을 정의하여 사용자가 데이터를 이해할 수 있게 돕습니다.
+
+### 3.5 PublicDataError (에러 분류 체계)
+- **비유**: 도서관에서 발생할 수 있는 **"사고 유형"**입니다. "카드가 없어요(AuthError)", "책이 없어요(DatasetNotFoundError)", "서가가 닫혔어요(ServiceUnavailableError)" 등으로 분류합니다.
+- **역할**: 에러가 왜 발생했는지 구체적으로 알려주어 프로그래머가 적절히 대처할 수 있게 합니다.
+
+## 4. 실제 사용 예시 (코드)
+
+### 4.1 타입을 직접 만들어보는 예시
+```python
+from kpubdata.core.models import Query, DatasetRef
+from kpubdata.core.capability import Operation
+from kpubdata.core.representation import Representation
+
+# 1. 데이터셋 정보를 직접 정의할 때 (DatasetRef)
+ref = DatasetRef(
+    id="datago.village_fcst",
+    provider="datago",
+    dataset_key="village_fcst",
+    name="동네예보",
+    representation=Representation.OPENAPI,
+    operations=frozenset([Operation.LIST])
+)
+
+# 2. 검색 조건을 만들 때 (Query)
+query = Query(
+    filters={"base_date": "20250401", "nx": "55"},
+    page=1,
+    page_size=10
+)
+```
+
+### 4.2 타입을 사용하는 시나리오
+```python
+# 사용자가 데이터를 조회하면 RecordBatch가 돌아옵니다.
+batch = ds.list(nx=55, ny=127)
+
+print(f"총 {batch.total_count}개의 데이터가 있습니다.")
+for item in batch.items:
+    print(item["category"], item["fcstValue"])
+```
+
+## 5. 타입 관계도 (Relationship Diagram)
+
+```text
+[ Client ]
+    |
+    +-- (id) --> [ Catalog ] -- (resolve) --> [ DatasetRef ] (도서 카드)
+                                                   |
+                                                   v
+[ Dataset (Bound Object) ] <-----------------------+
+    |
+    +-- (list) --+--> [ Query ] (검색 조건)
+    |            |
+    |            +--> [ ProviderAdapter ] -- (HTTP Request) --> [ Public Data API ]
+    |                                                                   |
+    |            <-- (RecordBatch) <------------------- (HTTP Response) +
+    |                    |
+    |                    +-- [ Items (list[dict]) ] (실제 데이터)
+    |                    +-- [ Metadata ] (메타정보)
+    |
+    +-- (schema) ----> [ SchemaDescriptor ] (데이터 설계도)
+                         |
+                         +-- [ FieldDescriptor ] (칼럼 정보)
+```
+
+## 6. Core types (Original)
 
 ### 3.1 Capability
 

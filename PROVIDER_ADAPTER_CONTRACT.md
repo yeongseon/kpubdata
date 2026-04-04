@@ -18,7 +18,94 @@ Every adapter must be responsible for:
 - raw-call support
 - honest capability declaration
 
-## 3. Minimal protocol
+## 3. 어댑터란 무엇인가? (초보자용 설명)
+
+어댑터(Adapter)는 일종의 **"변압기"나 "여행용 멀티 플러그"**와 같습니다.
+
+한국에서 쓰던 220V 가전제품을 110V를 쓰는 일본에서 쓰려면 돼지코(어댑터)가 필요하죠? 가전제품(사용자 코드)은 그대로인데, 전기 콘센트(공공데이터 API) 모양이 다르기 때문입니다.
+
+KPubData의 어댑터는 각 기관(공공데이터포털, 서울시 등)마다 제각각인 API의 "모양"을 우리 프레임워크가 약속한 "표준 모양"으로 맞춰주는 역할을 합니다.
+
+## 4. 새 어댑터 개발 튜토리얼 (Step-by-Step)
+
+새로운 공공데이터 기관을 연동하고 싶다면 다음 순서대로 진행하세요.
+
+### 0단계: 연동할 API 결정
+어떤 데이터를 가져올지 정하고, 해당 API의 문서를 준비합니다. (예: `data.go.kr`의 기상청 예보 서비스)
+
+### 1단계: API 문서 분석
+- 요청 주소(URL)는 무엇인가?
+- 어떤 파라미터가 필수인가? (서비스키, 페이지 번호 등)
+- 응답 형식이 무엇인가? (JSON, XML)
+- 에러가 나면 어떤 코드가 돌아오는가?
+
+### 2단계: 파일 생성
+`src/kpubdata/providers/` 폴더 아래에 기관 이름을 따서 폴더를 만듭니다.
+```text
+src/kpubdata/providers/my_provider/
+├── __init__.py
+├── adapter.py      # 여기에 핵심 로직 작성
+└── catalogue.json  # 지원하는 데이터셋 목록
+```
+
+### 3단계: 기본 구조 작성 (adapter.py)
+```python
+class MyProviderAdapter:
+    def __init__(self, config):
+        self._config = config
+
+    @property
+    def name(self) -> str:
+        return "my_provider"
+```
+
+### 4단계: `list_datasets` 구현
+사용자가 `client.datasets.list()`를 했을 때 보여줄 목록을 반환합니다. 보통 `catalogue.json`에서 읽어옵니다.
+
+### 5단계: `query_records` 구현
+가장 중요한 부분입니다. 표준 `Query` 객체를 받아서 실제 API를 호출하고, 결과를 `RecordBatch`로 포장합니다.
+```python
+def query_records(self, dataset, query):
+    # 1. 파라미터 변환 (KPubData -> 기관 API)
+    params = {"ServiceKey": "...", "pageNo": query.page}
+    # 2. HTTP 요청 전송 (Transport 사용)
+    response = self._transport.request("GET", url, params=params)
+    # 3. 결과 파싱 및 표준화
+    items = self._parse_items(response.content)
+    # 4. RecordBatch로 반환
+    return RecordBatch(items=items, dataset=dataset)
+```
+
+### 6단계: `call_raw` 구현 (비상구)
+표준화되지 않은 기능을 쓰고 싶은 사용자를 위해 원본 데이터를 그대로 돌려주는 함수입니다.
+```python
+def call_raw(self, dataset, operation, params):
+    # 어떠한 가공도 하지 않고 원본 응답을 반환합니다.
+    return self._transport.request("GET", url, params=params).json()
+```
+
+### 7단계: 에러 처리
+API가 주는 에러 코드를 보고 `AuthError`, `RateLimitError` 등 KPubData가 정의한 에러로 바꿔서 던져줍니다.
+
+### 8단계: 테스트 작성
+- `tests/fixtures/`에 실제 API 응답 샘플을 저장합니다.
+- 유닛 테스트(`tests/unit/`)에서 이 샘플을 잘 파싱하는지 검증합니다.
+
+### 9단계: Capabilities(기능) 선언
+이 어댑터가 페이징(`PAGEABLE`)을 지원하는지, 검색(`FILTERABLE`)이 되는지 정직하게 써줍니다.
+
+## 5. 기존 어댑터 분석: `datago`
+
+가장 모범적인 사례인 `datago` 어댑터를 참고하세요.
+
+- **`src/kpubdata/providers/datago/adapter.py`**:
+  - `_validate_envelope`: 응답이 깨졌는지, 에러가 들어있는지 공통으로 체크합니다.
+  - `_normalize_items`: XML과 JSON에서 아이템 목록을 뽑아내는 복잡한 로직을 처리합니다.
+  - `_raise_for_result_code`: 기상청 등의 에러 코드(`01`, `02` 등)를 이해하기 쉬운 이름으로 바꿉니다.
+
+**이 파일을 복사해서 새로운 어댑터를 만들기 시작하는 것을 추천합니다!**
+
+## 6. Minimal protocol (Original)
 
 ```python
 from typing import Protocol
