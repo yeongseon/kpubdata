@@ -1,12 +1,12 @@
-# KPubData
+# KPubData — Korea Public Data
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![CI](https://github.com/yeongseon/kpubdata/actions/workflows/ci.yml/badge.svg)](https://github.com/yeongseon/kpubdata/actions/workflows/ci.yml)
 
-A dialect-inspired, dataset-oriented framework that gives Python users a consistent
-way to discover and query Korean public-data services without pretending every
-provider works the same way.
+**KPubData (Korea Public Data)** is a dialect-inspired, dataset-oriented Python framework
+that gives users a consistent way to discover and query Korean public-data services
+without pretending every provider works the same way.
 
 ## Installation
 
@@ -92,7 +92,7 @@ print(raw)
 
 ## Project definition
 
-KPubData is a **Python data access framework** for Korean public data.
+KPubData (Korea Public Data) is a **Python data access framework** for Korean public data.
 
 It is **not** a fake universal API that forces every provider into the same parameter model.
 Instead, it provides:
