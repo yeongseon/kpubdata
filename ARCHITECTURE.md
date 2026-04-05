@@ -454,6 +454,7 @@ Do **not** change the core just because one adapter is weird.
 | [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
 | [PACKAGING.md](./PACKAGING.md) | 패키징 및 배포 전략 |
 | [architecture-diagrams.md](./docs/architecture-diagrams.md) | 아키텍처 다이어그램 |
+| [product-family-architecture.md](./docs/product-family-architecture.md) | **제품군 전체 시스템 아키텍처 (3개 저장소 관계도)** |
 
 ### KPubData Product Family
 | 저장소 | 문서 | 설명 |
