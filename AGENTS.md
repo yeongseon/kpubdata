@@ -32,6 +32,15 @@ The project is a Python 3.10+ framework with a small stable public API and provi
 - **Commit messages**: Always in English.
 - **Issue / PR titles and descriptions**: Korean is acceptable; English is also fine.
 
+## Branch rules
+
+- Default branch is `main`. **Never push directly to `main`.**
+- Always work on a feature branch and open a PR.
+- Branch naming: `feat/issue-<number>-<short-description>`, `fix/issue-<number>-<short-description>`, `docs/<short-description>`
+- Never force-push to `main`. Never delete `main`.
+- Never rename or delete branches you did not create.
+- If unsure about any git operation, **ask first — do not guess.**
+
 ## When to write a plan
 
 Before multi-file or architecture-affecting work, create or update a task plan in a local plan file.
@@ -227,6 +236,6 @@ flowchart TD
 ### KPubData Product Family
 | 저장소 | 문서 | 설명 |
 | :--- | :--- | :--- |
-| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [AGENTS.md](https://github.com/yeongseon/kpubdata-builder/blob/master/AGENTS.md) | Builder 에이전트 가이드 |
+| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [AGENTS.md](https://github.com/yeongseon/kpubdata-builder/blob/main/AGENTS.md) | Builder 에이전트 가이드 |
 | [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [AGENTS.md](https://github.com/yeongseon/kpubdata-studio/blob/main/AGENTS.md) | Studio 에이전트 가이드 |
 
