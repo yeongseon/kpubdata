@@ -25,6 +25,13 @@ The project is a Python 3.10+ framework with a small stable public API and provi
 - Keep provider complexity in provider adapters.
 - Update tests and docs with every behavior change.
 
+## Language policy
+
+- **Documentation**: Write in Korean by default. English expansion is planned for future releases.
+- **Code**: All code (variable names, function names, comments, docstrings) must be in English.
+- **Commit messages**: Always in English.
+- **Issue / PR titles and descriptions**: Korean is acceptable; English is also fine.
+
 ## When to write a plan
 
 Before multi-file or architecture-affecting work, create or update a task plan in a local plan file.
