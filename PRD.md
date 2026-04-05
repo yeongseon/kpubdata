@@ -287,3 +287,21 @@ client.getRTMSDataSvcAptTradeDev(...)
 - keep raw access mandatory
 - require architecture documentation for public-surface changes
 
+---
+
+## 📚 관련 문서
+
+### 이 저장소 내 문서
+| 문서 | 설명 |
+| :--- | :--- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | 시스템 아키텍처 설계 |
+| [ROADMAP.md](./ROADMAP.md) | 프로젝트 로드맵 및 단계별 계획 |
+| [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
+
+### KPubData Product Family
+| 저장소 | 문서 | 설명 |
+| :--- | :--- | :--- |
+| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [PRD.md](https://github.com/yeongseon/kpubdata-builder/blob/master/PRD.md) | Builder 제품 요구사항 |
+| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [PRD.md](https://github.com/yeongseon/kpubdata-studio/blob/main/PRD.md) | Studio 제품 요구사항 |
+
+

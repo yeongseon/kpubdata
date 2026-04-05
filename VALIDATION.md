@@ -93,3 +93,15 @@ The validation above was checked against official documentation from:
 - Public Data Portal service type filters: https://www.data.go.kr/
 - Seoul Open Data service metadata example: https://data.seoul.go.kr/dataList/OA-2250/S/1/datasetView.do
 - Requests raw response docs: https://requests.readthedocs.io/en/latest/user/quickstart/
+
+---
+
+## 📚 관련 문서
+
+### 이 저장소 내 문서
+| 문서 | 설명 |
+| :--- | :--- |
+| [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
+| [CANONICAL_MODEL.md](./CANONICAL_MODEL.md) | 표준 데이터 모델 정의 |
+| [PROVIDER_ADAPTER_CONTRACT.md](./PROVIDER_ADAPTER_CONTRACT.md) | 어댑터 구현 규약 |
+

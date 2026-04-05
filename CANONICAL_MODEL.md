@@ -16,6 +16,48 @@ The model should be:
 
 Canonical objects standardize the **framework contract**, not every semantic detail of every provider.
 
+```mermaid
+classDiagram
+    class DatasetRef {
+        +str id
+        +str provider
+        +str dataset_key
+        +str name
+        +Representation representation
+        +frozenset[Capability] capabilities
+    }
+    class Query {
+        +dict filters
+        +int page
+        +int page_size
+        +str cursor
+        +str start_date
+        +str end_date
+    }
+    class RecordBatch {
+        +list[dict] items
+        +DatasetRef dataset
+        +int total_count
+        +int next_page
+        +Any raw
+    }
+    class SchemaDescriptor {
+        +DatasetRef dataset
+        +list[FieldDescriptor] fields
+    }
+    class FieldDescriptor {
+        +str name
+        +str title
+        +str type
+        +str description
+    }
+
+    DatasetRef "1" --o "1" RecordBatch
+    DatasetRef "1" --o "1" SchemaDescriptor
+    SchemaDescriptor "1" --* "many" FieldDescriptor
+    Query ..> RecordBatch : produces
+```
+
 ## 3. 타입별 상세 설명 (이것은 무엇인가?)
 
 KPubData에서 사용하는 핵심 타입들을 일상적인 도서관 비유로 설명합니다.
@@ -31,6 +73,15 @@ KPubData에서 사용하는 핵심 타입들을 일상적인 도서관 비유로
 ### 3.3 RecordBatch (검색 결과 목록)
 - **비유**: 검색 결과로 나온 **"책 목록 한 뭉치"**입니다. 실제 데이터(책 내용)뿐만 아니라 "총 몇 권이 나왔는지", "다음 페이지가 있는지" 같은 정보도 함께 들어있습니다.
 - **역할**: 실제 데이터 행(rows)과 메타정보를 함께 전달하는 운반체입니다.
+
+```mermaid
+flowchart LR
+    Ref[DatasetRef] --> Q[Query]
+    Q --> List[dataset.list]
+    List --> RB[RecordBatch]
+    RB --> Items[items: list of dict]
+    RB --> Meta[total_count, next_page]
+```
 
 ### 3.4 SchemaDescriptor (데이터 설계도)
 - **비유**: 데이터의 **"설계도" 또는 "명세서"**입니다. 이 데이터 목록의 첫 번째 칸은 '날짜'이고 숫자로 되어 있다는 것을 알려줍니다.
@@ -131,6 +182,24 @@ class Representation(str, Enum):
     SHEET = "sheet"
     DOWNLOAD = "download"
     OTHER = "other"
+```
+
+```mermaid
+graph TD
+    subgraph Capabilities [Dataset Capabilities]
+        LIST[LIST: Browse multiple records]
+        GET[GET: Fetch single record by ID]
+        SCHEMA[SCHEMA: Metadata about fields]
+        RAW[RAW: Provider escape hatch]
+        PAGEABLE[PAGEABLE: Supports pagination]
+        FILTERABLE[FILTERABLE: Supports filtering]
+    end
+
+    subgraph Reps [Representations]
+        OPENAPI[OPENAPI: REST/HTTP API]
+        FILE[FILE: JSON/XML/CSV file]
+        SHEET[SHEET: Google/Excel sheet]
+    end
 ```
 
 ### 3.3 DatasetRef
@@ -271,4 +340,17 @@ Normalize only what is broadly useful across providers:
 - item list envelope
 
 Do not erase provider-native detail.
+
+---
+
+## 📚 관련 문서
+
+### 이 저장소 내 문서
+| 문서 | 설명 |
+| :--- | :--- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | 시스템 아키텍처 설계 |
+| [PROVIDER_ADAPTER_CONTRACT.md](./PROVIDER_ADAPTER_CONTRACT.md) | 어댑터 구현 규약 |
+| [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
+| [VALIDATION.md](./VALIDATION.md) | 아키텍처 타당성 검증 |
+
 

@@ -101,3 +101,15 @@ Use SemVer with public API discipline.
 - package/import name: `kpubdata`
 - repository name: preferably `kpubdata` or `kpubdata-framework`
 
+---
+
+## 📚 관련 문서
+
+### 이 저장소 내 문서
+| 문서 | 설명 |
+| :--- | :--- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | 시스템 아키텍처 설계 |
+| [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
+| [VALIDATION.md](./VALIDATION.md) | 아키텍처 타당성 검증 |
+
+

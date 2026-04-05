@@ -26,6 +26,25 @@ Every adapter must be responsible for:
 
 KPubData의 어댑터는 각 기관(공공데이터포털, 서울시 등)마다 제각각인 API의 "모양"을 우리 프레임워크가 약속한 "표준 모양"으로 맞춰주는 역할을 합니다.
 
+```mermaid
+sequenceDiagram
+    participant U as 사용자 (User)
+    participant D as 데이터셋 (Dataset)
+    participant A as 어댑터 (Adapter)
+    participant T as 전송 계층 (Transport)
+    participant P as 공공 API (Public API)
+
+    U->>D: 데이터 요청 (list/get)
+    D->>A: 요청 전달
+    A->>A: 표준 Query -> 기관용 파라미터 변환
+    A->>T: HTTP 요청 실행
+    T->>P: 실제 API 호출
+    P-->>T: 원본 응답 (XML/JSON)
+    T-->>A: 파이썬 객체로 변환된 데이터
+    A->>A: 결과 파싱 및 표준화 (RecordBatch)
+    A-->>U: RecordBatch 반환
+```
+
 ## 4. 새 어댑터 개발 튜토리얼 (Step-by-Step)
 
 새로운 공공데이터 기관을 연동하고 싶다면 다음 순서대로 진행하세요.
@@ -94,6 +113,19 @@ API가 주는 에러 코드를 보고 `AuthError`, `RateLimitError` 등 KPubData
 ### 9단계: Capabilities(기능) 선언
 이 어댑터가 페이징(`PAGEABLE`)을 지원하는지, 검색(`FILTERABLE`)이 되는지 정직하게 써줍니다.
 
+```mermaid
+flowchart TD
+    S0[0단계: 연동할 API 결정] --> S1[1단계: API 문서 분석]
+    S1 --> S2[2단계: 폴더 및 파일 생성]
+    S2 --> S3[3단계: adapter.py 기본 구조 작성]
+    S3 --> S4[4단계: list_datasets 구현]
+    S4 --> S5[5단계: query_records 구현]
+    S5 --> S6[6단계: call_raw 비상구 구현]
+    S6 --> S7[7단계: 기관별 에러 처리]
+    S7 --> S8[8단계: 피스처 및 테스트 작성]
+    S8 --> S9[9단계: 기능 Capabilities 선언]
+```
+
 ## 5. 기존 어댑터 분석: `datago`
 
 가장 모범적인 사례인 `datago` 어댑터를 참고하세요.
@@ -120,6 +152,21 @@ class ProviderAdapter(Protocol):
     def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None: ...
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None: ...
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object: ...
+```
+
+```mermaid
+classDiagram
+    class ProviderAdapter {
+        <<interface>>
+        +str name
+        +list_datasets() list~DatasetRef~
+        +search_datasets(text: str) list~DatasetRef~
+        +get_dataset(dataset_id: str) DatasetRef
+        +query_records(dataset: DatasetRef, query: Query) RecordBatch
+        +get_record(dataset: DatasetRef, key: dict) dict
+        +get_schema(dataset: DatasetRef) SchemaDescriptor
+        +call_raw(dataset: DatasetRef, op: str, params: dict) object
+    }
 ```
 
 ## 4. Capability rules
@@ -161,6 +208,13 @@ Every adapter must include:
 - contract tests for declared capabilities
 - fixture-based tests for representative success/failure responses
 
+```mermaid
+graph LR
+    UT[유닛 테스트 Unit Tests] --> MAP[매핑/파싱 로직 검증]
+    CT[계약 테스트 Contract Tests] --> CAP[표준 기능 준수 확인]
+    FT[피스처 테스트 Fixture Tests] --> RESP[실제 API 응답 처리 검증]
+```
+
 ## 9. When to extend the core instead of the adapter
 
 Only extend the core when:
@@ -181,4 +235,18 @@ Otherwise, keep the complexity local to the adapter.
 6. map provider errors
 7. add fixtures and tests
 8. document capabilities and caveats
+
+---
+
+## 📚 관련 문서
+
+### 이 저장소 내 문서
+| 문서 | 설명 |
+| :--- | :--- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | 시스템 아키텍처 설계 |
+| [CANONICAL_MODEL.md](./CANONICAL_MODEL.md) | 표준 데이터 모델 정의 |
+| [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
+| [VALIDATION.md](./VALIDATION.md) | 아키텍처 타당성 검증 |
+| [AGENTS.md](./AGENTS.md) | 어댑터 개발 가이드 및 에이전트 규칙 |
+
 

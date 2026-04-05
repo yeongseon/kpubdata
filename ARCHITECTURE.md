@@ -4,6 +4,26 @@
 
 KPubData uses a **dialect-inspired layered architecture**.
 
+```mermaid
+graph TD
+    User([User / Developer]) --> PublicAPI[Public API Layer: Client]
+    PublicAPI --> Catalog[Catalog Layer: Dataset Discovery]
+    Catalog --> Adapter[Adapter Layer: Provider Specifics]
+    Adapter --> Transport[Transport Layer: HTTP/Parsing]
+    Transport --> ExternalAPI{{Public Data API / External}}
+
+    subgraph Core [Standard Core]
+        direction LR
+        Models[Canonical Models]
+        Caps[Capabilities]
+        Errors[Error Hierarchy]
+    end
+
+    PublicAPI -.-> Core
+    Catalog -.-> Core
+    Adapter -.-> Core
+```
+
 It borrows the philosophy of systems like SQLAlchemy:
 
 - keep a small and stable core
@@ -14,6 +34,26 @@ It borrows the philosophy of systems like SQLAlchemy:
 It does **not** try to recreate SQL itself or a universal query language.
 
 ## 2. Core idea
+
+```mermaid
+sequenceDiagram
+    participant U as User / Client
+    participant C as Catalog / Client.datasets
+    participant A as ProviderAdapter
+    participant T as HttpTransport
+    participant P as Public API (External)
+
+    U->>C: Search/Get Dataset
+    C-->>U: Return Dataset Object
+    U->>A: Request Records (list/get)
+    A->>A: Transform Canonical -> Provider Params
+    A->>T: Send Request
+    T->>P: HTTP Request (GET/POST)
+    P-->>T: Raw Response (XML/JSON)
+    T-->>A: Decoded Python dict
+    A->>A: Normalize -> RecordBatch
+    A-->>U: Return RecordBatch
+```
 
 ```text
 Client
@@ -115,6 +155,19 @@ A: `transport/decode.py`에서 데이터의 겉모습을 보고 자동으로 판
 **Q: 에러가 발생하면 어떤 순서로 처리되나요?**
 A: 먼저 인터넷 문제(TransportError)인지 확인하고, 그 다음 기관 서버의 응답 코드(AuthError, RateLimitError 등)를 확인하여 KPubData 표준 에러로 변환해 사용자에게 던집니다.
 
+```mermaid
+flowchart TD
+    Req[Start HTTP Request] --> Transport{Transport Check}
+    Transport -- Network Failure --> TError[TransportError]
+    Transport -- HTTP Error --> PCheck{Payload Check}
+    PCheck -- 200 OK + API Error --> AError[Provider Specific Error]
+    PCheck -- Success --> Parse[Parse Data]
+    AError --> CError[Canonical Error: PublicDataError]
+    TError --> CError
+    Parse -- Unexpected Format --> TError
+    CError --> User([User / Developer])
+```
+
 **Q: 테스트는 어떤 종류가 있고 뭘 검증하나요?**
 A:
 - **Unit Test**: 개별 함수가 잘 작동하는지 확인합니다.
@@ -126,6 +179,22 @@ A:
 ### 3.1 Core layer
 
 Stable contracts shared across the whole framework.
+
+```mermaid
+graph LR
+    subgraph CoreLayer [Core / src.kpubdata.core]
+        Capability --> DatasetRef
+        Query --> DatasetRef
+        DatasetRef --> RecordBatch
+        RecordBatch --> SchemaDescriptor
+        SchemaDescriptor --> FieldDescriptor
+    end
+
+    Client --> CoreLayer
+    Catalog --> CoreLayer
+    Adapter --> CoreLayer
+    Transport --> CoreLayer
+```
 
 Contains:
 
@@ -265,6 +334,28 @@ Therefore, every adapter must provide a raw escape hatch.
 
 ## 8. Recommended package structure
 
+```mermaid
+graph TD
+    root[src/kpubdata/] --> core[core/]
+    root --> transport[transport/]
+    root --> providers[providers/]
+    root --> adapters[adapters/ - Extensions]
+    root --> client[client.py]
+    root --> catalog[catalog.py]
+
+    core --> core_files[capability.py, dataset.py, query.py, result.py, schema.py]
+    transport --> transport_files[http.py, auth.py, parse.py, retry.py]
+    providers --> datago[datago/]
+    providers --> seoul[seoul/]
+    providers --> airkorea[airkorea/]
+
+    subgraph Adapters [Provider Implementation]
+    datago
+    seoul
+    airkorea
+    end
+```
+
 ```text
 src/kpubdata/
   client.py
@@ -350,4 +441,24 @@ Do **not** change the core just because one adapter is weird.
 - keep canonical models minimal
 - keep provider-specific richness in metadata and raw channels
 - treat representation (`openapi`, `file`, `sheet`, `download`) as real metadata, not a footnote
+
+---
+
+## 📚 관련 문서
+
+### 이 저장소 내 문서
+| 문서 | 설명 |
+| :--- | :--- |
+| [CANONICAL_MODEL.md](./CANONICAL_MODEL.md) | 표준 데이터 모델 정의 |
+| [PROVIDER_ADAPTER_CONTRACT.md](./PROVIDER_ADAPTER_CONTRACT.md) | 어댑터 구현 규약 |
+| [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
+| [PACKAGING.md](./PACKAGING.md) | 패키징 및 배포 전략 |
+| [architecture-diagrams.md](./docs/architecture-diagrams.md) | 아키텍처 다이어그램 |
+
+### KPubData Product Family
+| 저장소 | 문서 | 설명 |
+| :--- | :--- | :--- |
+| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-builder/blob/master/ARCHITECTURE.md) | Builder 아키텍처 |
+| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-studio/blob/main/ARCHITECTURE.md) | Studio 아키텍처 |
+
 

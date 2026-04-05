@@ -37,3 +37,20 @@ Extensibility.
 - docs/examples sufficient for external users
 - breakage policy and versioning discipline established
 
+---
+
+## 📚 관련 문서
+
+### 이 저장소 내 문서
+| 문서 | 설명 |
+| :--- | :--- |
+| [PRD.md](./PRD.md) | 제품 요구사항 정의 |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | 시스템 아키텍처 설계 |
+| [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
+
+### KPubData Product Family
+| 저장소 | 문서 | 설명 |
+| :--- | :--- | :--- |
+| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [ROADMAP.md](https://github.com/yeongseon/kpubdata-builder/blob/master/ROADMAP.md) | Builder 로드맵 |
+| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [ROADMAP.md](https://github.com/yeongseon/kpubdata-studio/blob/main/ROADMAP.md) | Studio 로드맵 |
+

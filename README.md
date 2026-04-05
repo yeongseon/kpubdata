@@ -169,17 +169,42 @@ Client
   -> RecordBatch or Record
 ```
 
-## Document map
+## 📖 문서 가이드 (Document Guide)
 
-- `VALIDATION.md` — why the architecture is valid
-- `PRD.md` — product requirements
-- `ARCHITECTURE.md` — system architecture
-- `CANONICAL_MODEL.md` — core data model
-- `API_SPEC.md` — public Python API proposal
-- `PROVIDER_ADAPTER_CONTRACT.md` — adapter contract and authoring rules
-- `PACKAGING.md` — packaging and release strategy
-- `AGENTS.md` — repo rules for agentic/Codex development
-- `ROADMAP.md` — staged delivery plan
+KPubData의 설계 철학과 사용 방법을 안내하는 문서 목록입니다.
+
+### 핵심 설계
+- [ARCHITECTURE.md](./ARCHITECTURE.md): 시스템 전체 구조와 구성 요소 간의 상호작용 설계
+- [CANONICAL_MODEL.md](./CANONICAL_MODEL.md): 다양한 API 응답을 하나로 통합하는 표준 데이터 모델 정의
+- [PROVIDER_ADAPTER_CONTRACT.md](./PROVIDER_ADAPTER_CONTRACT.md): 새로운 데이터 제공 기관(Provider) 추가를 위한 어댑터 구현 규약
+
+### API & 검증
+- [API_SPEC.md](./API_SPEC.md): 사용자가 직접 사용하는 파이썬 API 명세 및 사용법
+- [VALIDATION.md](./VALIDATION.md): 아키텍처 설계의 타당성 검증 및 핵심 결정 사항
+
+### 개발 가이드
+- [AGENTS.md](./AGENTS.md): AI 에이전트와 함께 개발할 때 준수해야 할 규칙 및 가이드
+- [CONTRIBUTING.md](./CONTRIBUTING.md): 프로젝트 기여 방법 및 개발 환경 설정 안내
+- [PACKAGING.md](./PACKAGING.md): 패키징 구조 및 배포 전략
+
+### 프로젝트 관리
+- [PRD.md](./PRD.md): 제품 요구사항 정의 및 핵심 가치
+- [ROADMAP.md](./ROADMAP.md): 단계별 기능 구현 및 출시 계획
+
+### 상세 참고 자료
+- [architecture-diagrams.md](./docs/architecture-diagrams.md): 아키텍처 시각화 다이어그램
+- [datago-api-reference.md](./docs/datago-api-reference.md): 공공데이터포털(data.go.kr) API 연동 참고 자료
+- [ADRs](./docs/adrs/): 주요 기술적 결정 이력 (Architecture Decision Records)
+
+---
+
+## 📚 관련 문서
+
+### KPubData Product Family
+| 저장소 | 문서 | 설명 |
+| :--- | :--- | :--- |
+| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-builder/blob/master/ARCHITECTURE.md) | Builder 아키텍처 |
+| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-studio/blob/main/ARCHITECTURE.md) | Studio 아키텍처 |
 
 ## Initial delivery target
 
