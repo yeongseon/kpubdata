@@ -24,6 +24,10 @@ The project is a Python 3.10+ framework with a small stable public API and provi
 - Do not mark a capability as supported unless tests prove it.
 - Keep provider complexity in provider adapters.
 - Update tests and docs with every behavior change.
+- `SUPPORTED_DATA.md`는 지원 Provider/Dataset 현황의 단일 기준 문서(single source of truth)다.
+- Provider/Dataset의 지원 상태 또는 검증 수준이 바뀌면, 같은 PR에서 `SUPPORTED_DATA.md`를 반드시 업데이트한다.
+- `✅ 지원`은 fixture/unit/contract 테스트가 통과했을 때만 표시한다.
+- `🌐 실API 검증`은 실 API integration 테스트가 존재하고 통과했을 때만 표시한다. 그 전에는 `🧪 테스트 검증`으로 유지한다.
 
 ## Language policy
 
@@ -194,6 +198,7 @@ graph TD
 5. [ ] `call_raw`가 항상 원본 데이터를 반환하도록 보장
 6. [ ] `tests/unit/adapters/`에 유닛 테스트 추가
 7. [ ] `tests/contract/`에 계약 테스트(Contract Test) 추가
+8. [ ] `SUPPORTED_DATA.md` 업데이트 (`상태`, `검증`, `인증`, `공식 문서`, `비고`)
 
 ```mermaid
 flowchart TD
@@ -204,7 +209,8 @@ flowchart TD
     F4 --> F5[5. call_raw 보장]
     F5 --> F6[6. 유닛 테스트 추가]
     F6 --> F7[7. 계약 테스트 통과 확인]
-    F7 --> End[완료]
+    F7 --> F8[8. SUPPORTED_DATA.md 업데이트]
+    F8 --> End[완료]
 ```
 
 ### 핵심 추상 클래스 설명

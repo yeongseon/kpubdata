@@ -7,19 +7,24 @@
 > - ✅ 지원: 구현 완료 + fixture/unit/contract 테스트 통과
 > - 🔄 진행 중: 구현 중이지만 아직 테스트가 완료되지 않음
 > - 📋 예정: 후보 단계 (이슈 등록 또는 아이디어)
+>
+> **검증 정의**
+>
+> - 🧪 테스트 검증: fixture 기반 unit 테스트 + contract 테스트 통과
+> - 🌐 실API 검증: 위 조건 + 실 API integration 테스트 통과 ([#80](https://github.com/yeongseon/kpubdata/issues/80))
 
 ## 현재 지원
 
-| 상태 | Provider | Dataset ID | 데이터셋명 | 인증 | 공식 문서 | 비고 |
-|---|---|---|---|---|---|---|
-| ✅ 지원 | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| ✅ 지원 | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
-| ✅ 지원 | 공공데이터포털 (`datago`) | `ultra_srt_ncst` | 초단기실황 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
-| ✅ 지원 | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| ✅ 지원 | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| ✅ 지원 | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| ✅ 지원 | 한국은행 ECOS (`bok`) | `base_rate` | 한국은행 기준금리 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | |
-| ✅ 지원 | 통계청 KOSIS (`kosis`) | `population_migration` | 시도별 이동자수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | |
+| 상태 | 검증 | Provider | Dataset ID | 데이터셋명 | 인증 | 공식 문서 | 비고 |
+|---|---|---|---|---|---|---|---|
+| ✅ 지원 | 🧪 테스트 검증 | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| ✅ 지원 | 🧪 테스트 검증 | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
+| ✅ 지원 | 🧪 테스트 검증 | 공공데이터포털 (`datago`) | `ultra_srt_ncst` | 초단기실황 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
+| ✅ 지원 | 🧪 테스트 검증 | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| ✅ 지원 | 🧪 테스트 검증 | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| ✅ 지원 | 🧪 테스트 검증 | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| ✅ 지원 | 🧪 테스트 검증 | 한국은행 ECOS (`bok`) | `base_rate` | 한국은행 기준금리 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | |
+| ✅ 지원 | 🧪 테스트 검증 | 통계청 KOSIS (`kosis`) | `population_migration` | 시도별 이동자수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | |
 
 ## 진행 예정 / 진행 중
 
