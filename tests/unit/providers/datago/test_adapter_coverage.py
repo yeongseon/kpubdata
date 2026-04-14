@@ -9,6 +9,7 @@ from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
 from kpubdata.core.representation import Representation
 from kpubdata.exceptions import ParseError, ProviderResponseError
+from kpubdata.providers._common import build_dataset_ref, coerce_int, require_string_field
 from kpubdata.providers.datago.adapter import DataGoAdapter
 from kpubdata.transport.http import HttpTransport
 
@@ -246,11 +247,11 @@ def test_normalize_items_returns_empty_for_unsupported_wrapper() -> None:
 
 
 def test_coerce_int_returns_default_for_non_numeric_string() -> None:
-    assert DataGoAdapter._coerce_int("not-a-number", 7) == 7
+    assert coerce_int("not-a-number", 7) == 7
 
 
 def test_coerce_int_returns_default_for_non_string_non_int() -> None:
-    assert DataGoAdapter._coerce_int(3.14, 11) == 11
+    assert coerce_int(3.14, 11) == 11
 
 
 class _FakeCatalogueFile:
@@ -271,42 +272,43 @@ class _FakePackageFiles:
 
 
 def test_load_default_catalogue_raises_when_top_level_json_not_list(monkeypatch) -> None:
-    import kpubdata.providers.datago.adapter as adapter_module
+    import kpubdata.providers._common as common_module
 
-    monkeypatch.setattr(adapter_module, "files", lambda _pkg: _FakePackageFiles("{}"))
+    monkeypatch.setattr(common_module, "files", lambda _pkg: _FakePackageFiles("{}"))
 
     with pytest.raises(ValueError, match="top-level JSON array"):
         _ = DataGoAdapter._load_default_catalogue()
 
 
 def test_load_default_catalogue_raises_when_entry_not_dict(monkeypatch) -> None:
-    import kpubdata.providers.datago.adapter as adapter_module
+    import kpubdata.providers._common as common_module
 
-    monkeypatch.setattr(adapter_module, "files", lambda _pkg: _FakePackageFiles("[1]"))
+    monkeypatch.setattr(common_module, "files", lambda _pkg: _FakePackageFiles("[1]"))
 
     with pytest.raises(ValueError, match="entries must be JSON objects"):
         _ = DataGoAdapter._load_default_catalogue()
 
 
 def test_load_default_catalogue_raises_when_entry_key_not_string(monkeypatch) -> None:
-    import kpubdata.providers.datago.adapter as adapter_module
+    import kpubdata.providers._common as common_module
 
-    monkeypatch.setattr(adapter_module, "files", lambda _pkg: _FakePackageFiles("[]"))
-    monkeypatch.setattr(adapter_module.json, "loads", lambda _text: [{1: "bad-key"}])
+    monkeypatch.setattr(common_module, "files", lambda _pkg: _FakePackageFiles("[]"))
+    monkeypatch.setattr(common_module.json, "loads", lambda _text: [{1: "bad-key"}])
 
     with pytest.raises(ValueError, match="entry keys must be strings"):
         _ = DataGoAdapter._load_default_catalogue()
 
 
 def test_build_dataset_ref_parses_string_max_page_size() -> None:
-    dataset = DataGoAdapter._build_dataset_ref(
+    dataset = build_dataset_ref(
+        "datago",
         {
             "dataset_key": "test",
             "name": "Test",
             "representation": "api_json",
             "query_support": {"pagination": "offset", "max_page_size": "250"},
             "base_url": "https://example.test",
-        }
+        },
     )
 
     assert dataset.query_support is not None
@@ -315,16 +317,17 @@ def test_build_dataset_ref_parses_string_max_page_size() -> None:
 
 def test_build_dataset_ref_raises_for_invalid_max_page_size_type() -> None:
     with pytest.raises(ValueError, match="max_page_size must be int-like"):
-        _ = DataGoAdapter._build_dataset_ref(
+        _ = build_dataset_ref(
+            "datago",
             {
                 "dataset_key": "test",
                 "name": "Test",
                 "representation": "api_json",
                 "query_support": {"pagination": "offset", "max_page_size": {}},
-            }
+            },
         )
 
 
 def test_require_string_field_raises_when_field_missing() -> None:
     with pytest.raises(ValueError, match="missing non-empty string field"):
-        _ = DataGoAdapter._require_string_field({}, "dataset_key")
+        _ = require_string_field({}, "dataset_key", "datago")
