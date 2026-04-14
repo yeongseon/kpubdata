@@ -11,12 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Core framework: `Client`, `Dataset`, `Catalog`, `Query`, `RecordBatch` public API
 - Canonical error hierarchy with structured context (`PublicDataError` and subclasses)
-- `DataGoAdapter` for data.go.kr with 5 curated datasets:
+- `DataGoAdapter` for data.go.kr with 6 curated datasets:
   - `datago.village_fcst` — KMA short-range forecast
   - `datago.ultra_srt_ncst` — KMA ultra short-term nowcast
   - `datago.air_quality` — real-time air quality (PM2.5/PM10)
   - `datago.bus_arrival` — Gyeonggi-do bus arrival info
   - `datago.hospital_info` — hospital/medical institution lookup
+  - `datago.apt_trade` — MOLIT apartment trade price
+- `BokAdapter` for ecos.bok.or.kr (Bank of Korea):
+  - `bok.base_rate` — BOK base interest rate historical data
+- `KosisAdapter` for kosis.kr (KOSTAT):
+  - `kosis.population_migration` — inter-regional population migration statistics
+- Environment-based configuration for all providers (`KPUBDATA_BOK_API_KEY`, `KPUBDATA_KOSIS_API_KEY`)
 - Dataset discovery via `client.datasets.list()` and `client.datasets.search()`
 - Record querying via `client.dataset("datago.village_fcst").list(**params)`
 - Raw API escape hatch via `dataset.call_raw(operation, **params)`
@@ -29,6 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provider adapter protocol with registration-time validation
 - Contract test framework for adapter conformance
 - GitHub Actions CI (lint, type check, test on Python 3.10–3.13, build)
-- 90%+ unit test coverage for core framework modules (217 tests)
+- 90%+ unit test coverage for core framework modules (291 tests)
 - PEP 257 docstrings for full public API surface
 - MIT LICENSE
