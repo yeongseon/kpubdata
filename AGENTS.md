@@ -232,6 +232,7 @@ flowchart TD
 | [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
 | [PRD.md](./PRD.md) | 제품 요구사항 정의 |
 | [PACKAGING.md](./PACKAGING.md) | 패키징 및 배포 전략 |
+| [SUPPORTED_DATA.md](./SUPPORTED_DATA.md) | 지원 공공데이터 현황 및 진행 상태 |
 
 ### KPubData Product Family
 | 저장소 | 문서 | 설명 |
