@@ -1,0 +1,25 @@
+[
+  {
+    "dataset_key": "base_rate",
+    "name": "한국은행 기준금리 (BOK Base Rate)",
+    "base_url": "https://ecos.bok.or.kr/api/StatisticSearch",
+    "default_operation": "StatisticSearch",
+    "representation": "api_json",
+    "stat_code": "722Y001",
+    "item_code1": "0101000",
+    "description": "Bank of Korea base interest rate historical data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "TIME", "title": "기간", "type": "string"},
+      {"name": "DATA_VALUE", "title": "기준금리", "type": "string"},
+      {"name": "UNIT_NAME", "title": "단위", "type": "string"},
+      {"name": "STAT_CODE", "title": "통계표코드", "type": "string"},
+      {"name": "ITEM_CODE1", "title": "항목코드", "type": "string"},
+      {"name": "ITEM_NAME1", "title": "항목명", "type": "string"}
+    ]
+  }
+]

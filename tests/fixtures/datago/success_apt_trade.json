@@ -1,0 +1,43 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "dealAmount": "82,500",
+            "buildYear": "2008",
+            "dealYear": "2024",
+            "dealMonth": "1",
+            "dealDay": "5",
+            "umdNm": "개포동",
+            "aptNm": "래미안 블레스티지",
+            "excluUseAr": "84.82",
+            "floor": "12",
+            "jibun": "12-2",
+            "sggCd": "11680"
+          },
+          {
+            "dealAmount": "45,000",
+            "buildYear": "1995",
+            "dealYear": "2024",
+            "dealMonth": "1",
+            "dealDay": "12",
+            "umdNm": "역삼동",
+            "aptNm": "역삼 래미안",
+            "excluUseAr": "59.91",
+            "floor": "8",
+            "jibun": "677",
+            "sggCd": "11680"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
