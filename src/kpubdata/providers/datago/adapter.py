@@ -2,23 +2,17 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from collections.abc import Mapping, Sequence
-from importlib.resources import files
-from types import MappingProxyType
 from typing import NoReturn, cast
 
 from kpubdata.config import KPubDataConfig
-from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
 from kpubdata.core.models import (
     DatasetRef,
-    FieldDescriptor,
     Query,
     RecordBatch,
     SchemaDescriptor,
 )
-from kpubdata.core.representation import Representation
 from kpubdata.exceptions import (
     AuthError,
     DatasetNotFoundError,
@@ -28,6 +22,7 @@ from kpubdata.exceptions import (
     RateLimitError,
     ServiceUnavailableError,
 )
+from kpubdata.providers._common import build_schema_from_metadata, coerce_int, load_catalogue
 from kpubdata.transport.decode import decode_json, decode_xml, detect_content_type
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
@@ -124,8 +119,8 @@ class DataGoAdapter:
             body, items = self._validate_envelope(payload, dataset.id)
             all_items.extend(items)
 
-            total_count = self._coerce_int(body.get("totalCount"), 0)
-            current_num_of_rows = self._coerce_int(body.get("numOfRows"), page_size)
+            total_count = coerce_int(body.get("totalCount"), 0)
+            current_num_of_rows = coerce_int(body.get("numOfRows"), page_size)
 
             if not items:
                 break
@@ -157,41 +152,7 @@ class DataGoAdapter:
         returns ``None`` for datasets without explicitly curated field
         definitions in the catalogue.
         """
-        fields_raw = dataset.raw_metadata.get("fields")
-        if not isinstance(fields_raw, list) or not fields_raw:
-            return None
-
-        field_descriptors: list[FieldDescriptor] = []
-        for entry_obj in fields_raw:
-            if not isinstance(entry_obj, dict):
-                continue
-            entry = cast(dict[str, object], entry_obj)
-            name_raw = entry.get("name")
-            if not isinstance(name_raw, str) or not name_raw:
-                continue
-            title_raw = entry.get("title")
-            type_raw = entry.get("type")
-            desc_raw = entry.get("description")
-            nullable_raw = entry.get("nullable")
-            field_descriptors.append(
-                FieldDescriptor(
-                    name=name_raw,
-                    title=title_raw if isinstance(title_raw, str) else None,
-                    type=type_raw if isinstance(type_raw, str) else None,
-                    description=desc_raw if isinstance(desc_raw, str) else None,
-                    nullable=nullable_raw if isinstance(nullable_raw, bool) else None,
-                    raw=MappingProxyType({k: v for k, v in entry.items() if k != "name"}),
-                )
-            )
-
-        if not field_descriptors:
-            return None
-
-        return SchemaDescriptor(
-            dataset=dataset,
-            fields=field_descriptors,
-            raw=MappingProxyType({"source": "catalogue"}),
-        )
+        return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
         """Call provider-native data.go.kr API operation."""
@@ -342,113 +303,8 @@ class DataGoAdapter:
         return []
 
     @staticmethod
-    def _coerce_int(value: object, default: int) -> int:
-        if isinstance(value, int):
-            return value
-        if isinstance(value, str):
-            try:
-                return int(value)
-            except ValueError:
-                return default
-        return default
-
-    @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
-        package_files = files("kpubdata.providers.datago")
-        catalogue_text = package_files.joinpath("catalogue.json").read_text(encoding="utf-8")
-        parsed_catalogue = cast(object, json.loads(catalogue_text))
-        if not isinstance(parsed_catalogue, list):
-            msg = "datago catalogue.json must contain a top-level JSON array"
-            raise ValueError(msg)
-
-        catalogue_entries = cast(list[object], parsed_catalogue)
-        datasets: list[DatasetRef] = []
-        for entry_object in catalogue_entries:
-            if not isinstance(entry_object, dict):
-                msg = "datago catalogue entries must be JSON objects"
-                raise ValueError(msg)
-            typed_entry_object = cast(dict[object, object], entry_object)
-            entry: dict[str, object] = {}
-            for key, value in typed_entry_object.items():
-                if not isinstance(key, str):
-                    msg = "datago catalogue entry keys must be strings"
-                    raise ValueError(msg)
-                entry[key] = value
-            datasets.append(DataGoAdapter._build_dataset_ref(entry))
-        return tuple(datasets)
-
-    @staticmethod
-    def _build_dataset_ref(entry: dict[str, object]) -> DatasetRef:
-        dataset_key = DataGoAdapter._require_string_field(entry, "dataset_key")
-        name = DataGoAdapter._require_string_field(entry, "name")
-        representation_value = DataGoAdapter._require_string_field(entry, "representation")
-        representation = Representation(representation_value)
-        ops_raw_obj = entry.get("operations", [])
-        ops_raw = ops_raw_obj if isinstance(ops_raw_obj, list) else []
-        operations = frozenset(
-            Operation(op)
-            for op in ops_raw
-            if isinstance(op, str) and op in {member.value for member in Operation}
-        )
-
-        qs_raw_obj = entry.get("query_support")
-        query_support = None
-        if isinstance(qs_raw_obj, dict):
-            qs_raw = cast(dict[str, object], qs_raw_obj)
-            pagination_raw = qs_raw.get("pagination", "none")
-            pagination = (
-                PaginationMode(pagination_raw)
-                if isinstance(pagination_raw, str)
-                and pagination_raw in {member.value for member in PaginationMode}
-                else PaginationMode.NONE
-            )
-            max_page_size = None
-            if "max_page_size" in qs_raw:
-                max_page_size_raw = qs_raw["max_page_size"]
-                if isinstance(max_page_size_raw, int):
-                    max_page_size = max_page_size_raw
-                elif isinstance(max_page_size_raw, str):
-                    max_page_size = int(max_page_size_raw)
-                else:
-                    msg = "datago query_support.max_page_size must be int-like"
-                    raise ValueError(msg)
-            query_support = QuerySupport(
-                pagination=pagination,
-                max_page_size=max_page_size,
-            )
-
-        raw_metadata = MappingProxyType(
-            {
-                key: value
-                for key, value in entry.items()
-                if key
-                not in (
-                    "dataset_key",
-                    "name",
-                    "representation",
-                    "operations",
-                    "query_support",
-                )
-            }
-        )
-
-        return DatasetRef(
-            id=f"datago.{dataset_key}",
-            provider="datago",
-            dataset_key=dataset_key,
-            name=name,
-            representation=representation,
-            operations=operations,
-            query_support=query_support,
-            raw_metadata=raw_metadata,
-        )
-
-    @staticmethod
-    def _require_string_field(entry: Mapping[str, object], field_name: str) -> str:
-        value = entry.get(field_name)
-        if isinstance(value, str) and value:
-            return value
-        raise ValueError(f"datago catalogue entry missing non-empty string field: {field_name}")
+        return load_catalogue("kpubdata.providers.datago", "datago")
 
 
 __all__ = ["DataGoAdapter"]
