@@ -14,7 +14,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import Any, cast
+from typing import cast
 
 import httpx
 
@@ -97,10 +97,10 @@ class HttpTransport:
         method: str,
         url: str,
         *,
-        params: dict[str, Any] | None = None,
+        params: dict[str, str] | None = None,
         headers: dict[str, str] | None = None,
         content: bytes | None = None,
-        json_body: Any = None,
+        json_body: object = None,
     ) -> httpx.Response:
         """Execute HTTP request with retry logic.
 
@@ -247,7 +247,7 @@ def _is_retryable_status(status_code: int) -> bool:
     return status_code == 429 or 500 <= status_code <= 599
 
 
-def _sanitize_params(params: dict[str, Any] | None) -> dict[str, str]:
+def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
     if params is None:
         return {}
 
