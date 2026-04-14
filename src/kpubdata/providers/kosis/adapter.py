@@ -174,7 +174,7 @@ class KosisAdapter:
         response = self._transport.request("GET", url)
 
         try:
-            decoded = cast(object, decode_json(response.content))
+            decoded: object = decode_json(response.content)
         except ValueError as exc:
             raise ParseError("Failed to parse KOSIS response", provider="kosis") from exc
 

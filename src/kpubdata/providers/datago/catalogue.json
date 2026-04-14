@@ -73,5 +73,20 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "apt_trade",
+    "name": "아파트매매 실거래자료 (Apartment Trade)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev",
+    "default_operation": "getRTMSDataSvcAptTradeDev",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT apartment trade real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]

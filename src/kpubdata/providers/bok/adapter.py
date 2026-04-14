@@ -21,7 +21,7 @@ from kpubdata.exceptions import (
     ServiceUnavailableError,
 )
 from kpubdata.providers._common import build_schema_from_metadata, coerce_int, load_catalogue
-from kpubdata.transport.decode import decode_json, detect_content_type
+from kpubdata.transport.decode import decode_json
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.provider.bok")
@@ -197,12 +197,7 @@ class BokAdapter:
         response = self._transport.request("GET", url)
 
         try:
-            content_type = detect_content_type(response)
-            decoded_obj: object = (
-                cast(object, decode_json(response.content))
-                if content_type == "json"
-                else cast(object, decode_json(response.content))
-            )
+            decoded_obj: object = decode_json(response.content)
         except ValueError as exc:
             raise ParseError("Failed to parse BOK ECOS response", provider="bok") from exc
 
@@ -280,13 +275,13 @@ class BokAdapter:
 
     def _resolve_string_param(self, query: Query, key: str) -> str | None:
         if key in query.extra:
-            value = cast(object, query.extra[key])
-            if isinstance(value, str) and value:
-                return value
+            extra_value = query.extra[key]
+            if isinstance(extra_value, str) and extra_value:
+                return extra_value
         if key in query.filters:
-            value = cast(object, query.filters[key])
-            if isinstance(value, str) and value:
-                return value
+            filter_value = query.filters[key]
+            if isinstance(filter_value, str) and filter_value:
+                return filter_value
         return None
 
     def _require_dataset_metadata(self, dataset: DatasetRef, key: str) -> str:

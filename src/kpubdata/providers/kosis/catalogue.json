@@ -1,0 +1,26 @@
+[
+  {
+    "dataset_key": "population_migration",
+    "name": "시도별 이동자수 (Population Migration by Region)",
+    "base_url": "https://kosis.kr/openapi/Param/statisticsParameterData.do",
+    "default_operation": "statisticsParameterData",
+    "representation": "api_json",
+    "org_id": "101",
+    "tbl_id": "DT_1B26003_A01",
+    "description": "KOSTAT inter-regional population migration statistics",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "PRD_DE", "title": "기간", "type": "string"},
+      {"name": "C1", "title": "지역코드", "type": "string"},
+      {"name": "C1_NM", "title": "지역명", "type": "string"},
+      {"name": "ITM_ID", "title": "항목코드", "type": "string"},
+      {"name": "ITM_NM", "title": "항목명", "type": "string"},
+      {"name": "DT", "title": "값", "type": "string"},
+      {"name": "UNIT_NM", "title": "단위", "type": "string"}
+    ]
+  }
+]
