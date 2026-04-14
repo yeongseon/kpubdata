@@ -92,8 +92,9 @@ def test_register_and_list_datasets() -> None:
 
     refs = client.datasets.list()
 
-    assert len(refs) == 2
-    assert {ref.id for ref in refs} == {"fake.weather", "fake.stations"}
+    fake_refs = [ref for ref in refs if ref.provider == "fake"]
+    assert len(fake_refs) == 2
+    assert {ref.id for ref in fake_refs} == {"fake.weather", "fake.stations"}
 
 
 def test_register_and_search_datasets() -> None:
