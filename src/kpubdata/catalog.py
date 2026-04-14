@@ -37,19 +37,24 @@ class Catalog:
         return datasets
 
     def search(self, text: str, *, provider: str | None = None) -> builtins.list[DatasetRef]:
-        """Search datasets by case-insensitive id or name matching.
+        """Search datasets by delegating to each adapter's search logic.
+
+        Each adapter implements its own ``search_datasets(text)`` method,
+        allowing provider-specific search semantics.
 
         Raises:
             ProviderNotRegisteredError: If ``provider`` is given but unknown.
         """
 
-        needle = text.casefold()
-        candidates = self.list(provider=provider)
-        return [
-            dataset
-            for dataset in candidates
-            if needle in dataset.id.casefold() or needle in dataset.name.casefold()
-        ]
+        if provider is not None:
+            adapter = self._get_adapter(provider)
+            return adapter.search_datasets(text)
+
+        results: builtins.list[DatasetRef] = []
+        for provider_name in self._registry:
+            adapter = self._get_adapter(provider_name)
+            results.extend(adapter.search_datasets(text))
+        return results
 
     def resolve(self, dataset_id: str) -> tuple[ProviderAdapter, DatasetRef]:
         """Resolve ``provider.dataset_key`` into an adapter and dataset ref.
