@@ -8,18 +8,16 @@ from kpubdata.core.capability import Operation
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.exceptions import UnsupportedCapabilityError
-from kpubdata.transport.http import HttpTransport
 
 
 class Dataset:
     """Bound dataset that routes operations to a provider adapter."""
 
-    def __init__(self, ref: DatasetRef, adapter: ProviderAdapter, transport: HttpTransport) -> None:
+    def __init__(self, ref: DatasetRef, adapter: ProviderAdapter) -> None:
         """Initialize a dataset bound to its canonical ref and adapter."""
 
         self._ref = ref
         self._adapter = adapter
-        self._transport = transport
 
     @property
     def ref(self) -> DatasetRef:
