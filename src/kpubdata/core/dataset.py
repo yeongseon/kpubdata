@@ -7,6 +7,10 @@ from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescripto
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.exceptions import UnsupportedCapabilityError
 
+_CANONICAL_QUERY_KEYS = frozenset(
+    {"page", "page_size", "cursor", "start_date", "end_date", "fields", "sort"}
+)
+
 
 class Dataset:
     """Bound dataset that routes operations to a provider adapter."""
@@ -47,10 +51,13 @@ class Dataset:
 
         return self._ref.operations
 
-    def list(self, **filters: object) -> RecordBatch:
+    def list(self, **kwargs: object) -> RecordBatch:
         """Query records from this dataset using canonical list semantics.
 
-        Pass provider-specific query parameters as keyword arguments.
+        Canonical query parameters (``page``, ``page_size``, ``cursor``,
+        ``start_date``, ``end_date``, ``fields``, ``sort``) are extracted
+        into the corresponding ``Query`` fields.  Remaining kwargs are
+        passed as provider-specific ``filters``.
 
         Raises:
             UnsupportedCapabilityError: If this dataset does not support ``list``.
@@ -63,7 +70,44 @@ class Dataset:
                 dataset_id=self._ref.id,
                 operation=Operation.LIST.value,
             )
-        query = Query(filters=filters)
+
+        page: int | None = None
+        page_size: int | None = None
+        cursor: str | None = None
+        start_date: str | None = None
+        end_date: str | None = None
+        fields_list: list[str] | None = None
+        sort_list: list[str] | None = None
+        filters: dict[str, object] = {}
+
+        for key, value in kwargs.items():
+            if key == "page" and isinstance(value, int):
+                page = value
+            elif key == "page_size" and isinstance(value, int):
+                page_size = value
+            elif key == "cursor" and isinstance(value, str):
+                cursor = value
+            elif key == "start_date" and isinstance(value, str):
+                start_date = value
+            elif key == "end_date" and isinstance(value, str):
+                end_date = value
+            elif key == "fields" and isinstance(value, list):
+                fields_list = value
+            elif key == "sort" and isinstance(value, list):
+                sort_list = value
+            else:
+                filters[key] = value
+
+        query = Query(
+            filters=filters,
+            page=page,
+            page_size=page_size,
+            cursor=cursor,
+            start_date=start_date,
+            end_date=end_date,
+            fields=fields_list,
+            sort=sort_list,
+        )
         return self._adapter.query_records(self._ref, query)
 
     def get(self, **key: object) -> dict[str, object] | None:
