@@ -95,3 +95,45 @@ class TestDataset:
         adapter = MockAdapter()
         ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
         assert "mock.test" in repr(ds)
+
+    def test_list_separates_canonical_query_fields(self) -> None:
+        adapter = MockAdapter()
+        ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
+
+        ds.list(
+            start_date="202401",
+            end_date="202412",
+            page=2,
+            page_size=50,
+            region="서울",
+        )
+
+        assert adapter.last_query is not None
+        assert adapter.last_query.start_date == "202401"
+        assert adapter.last_query.end_date == "202412"
+        assert adapter.last_query.page == 2
+        assert adapter.last_query.page_size == 50
+        assert adapter.last_query.filters == {"region": "서울"}
+
+    def test_list_canonical_fields_not_in_filters(self) -> None:
+        adapter = MockAdapter()
+        ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
+
+        ds.list(cursor="abc", fields=["name", "age"], sort=["name"])
+
+        assert adapter.last_query is not None
+        assert adapter.last_query.cursor == "abc"
+        assert adapter.last_query.fields == ["name", "age"]
+        assert adapter.last_query.sort == ["name"]
+        assert adapter.last_query.filters == {}
+
+    def test_list_only_filters_no_canonical(self) -> None:
+        adapter = MockAdapter()
+        ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
+
+        ds.list(lawd_code="11680", deal_ym="202503")
+
+        assert adapter.last_query is not None
+        assert adapter.last_query.page is None
+        assert adapter.last_query.start_date is None
+        assert adapter.last_query.filters == {"lawd_code": "11680", "deal_ym": "202503"}
