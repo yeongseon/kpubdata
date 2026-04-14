@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
-from typing import Any
+from collections.abc import Callable
+from typing import Any, cast
 
 from kpubdata.catalog import Catalog
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.dataset import Dataset
+from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.registry import ProviderRegistry
 from kpubdata.transport.http import HttpTransport, TransportConfig
+
+_BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
+    ("datago", "kpubdata.providers.datago", "DataGoAdapter"),
+    ("bok", "kpubdata.providers.bok", "BokAdapter"),
+    ("kosis", "kpubdata.providers.kosis", "KosisAdapter"),
+)
 
 
 class Client:
@@ -26,6 +34,7 @@ class Client:
 
         Use ``provider_keys`` to supply credentials directly, and configure
         transport behavior with ``timeout`` and ``max_retries``.
+        Built-in providers (datago, bok, kosis) are lazily registered by default.
         """
 
         self._config = KPubDataConfig(
@@ -38,6 +47,7 @@ class Client:
         self._transport = HttpTransport(
             TransportConfig(timeout=self._config.timeout, max_retries=self._config.max_retries),
         )
+        self._register_builtin_providers()
         self._catalog = Catalog(self._registry)
 
     @classmethod
@@ -85,7 +95,7 @@ class Client:
         adapter, ref = self._catalog.resolve(dataset_id)
         return Dataset(ref=ref, adapter=adapter)
 
-    def register_provider(self, adapter: Any) -> None:
+    def register_provider(self, adapter: object) -> None:
         """Register a provider adapter in this client's registry.
 
         Raises:
@@ -94,6 +104,30 @@ class Client:
         """
 
         self._registry.register(adapter)
+
+    def _register_builtin_providers(self) -> None:
+        config = self._config
+        transport = self._transport
+
+        for provider_name, module_path, class_name in _BUILTIN_PROVIDERS:
+
+            def _make_factory(
+                mod: str, cls: str, cfg: KPubDataConfig, tpt: HttpTransport
+            ) -> Callable[[], ProviderAdapter]:
+                def _factory() -> ProviderAdapter:
+                    import importlib
+
+                    module = importlib.import_module(mod)
+                    adapter_cls = getattr(module, cls)
+                    return cast(ProviderAdapter, adapter_cls(config=cfg, transport=tpt))
+
+                return _factory
+
+            self._registry.register_lazy(
+                provider_name,
+                _make_factory(module_path, class_name, config, transport),
+                skip_if_exists=True,
+            )
 
     def __repr__(self) -> str:
         """Return concise representation with known providers."""

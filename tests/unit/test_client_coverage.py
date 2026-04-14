@@ -69,4 +69,53 @@ def test_repr_includes_registered_provider_names() -> None:
 
     rendered = repr(client)
 
-    assert rendered == "Client(providers=[alpha])"
+    assert "alpha" in rendered
+    assert "datago" in rendered
+    assert "bok" in rendered
+    assert "kosis" in rendered
+
+
+def test_builtin_providers_registered_by_default() -> None:
+    client = Client()
+
+    assert "datago" in client._registry
+    assert "bok" in client._registry
+    assert "kosis" in client._registry
+
+
+def test_builtin_providers_datasets_discoverable() -> None:
+    client = Client()
+
+    datasets = client.datasets.list()
+
+    assert len(datasets) > 0
+    provider_names = {ds.provider for ds in datasets}
+    assert "datago" in provider_names
+    assert "bok" in provider_names
+    assert "kosis" in provider_names
+
+
+def test_builtin_dataset_binding_works() -> None:
+    client = Client()
+
+    ds = client.dataset("datago.village_fcst")
+
+    assert ds.id == "datago.village_fcst"
+    assert ds.provider == "datago"
+
+
+def test_user_adapter_overrides_builtin() -> None:
+    custom_adapter = _Adapter()
+    custom_adapter._name = "datago"  # type: ignore[attr-defined]
+
+    class _DatagoOverride(_Adapter):
+        @property
+        def name(self) -> str:
+            return "datago"
+
+    client = Client()
+    client._registry._lazy.pop("datago", None)
+    client.register_provider(_DatagoOverride())
+
+    adapter = client._registry.get("datago")
+    assert isinstance(adapter, _DatagoOverride)

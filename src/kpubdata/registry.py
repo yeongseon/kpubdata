@@ -49,8 +49,14 @@ class ProviderRegistry:
                 raise ValueError(f"Provider '{provider_name}' is already registered")
             self._adapters[provider_name] = adapter
 
-    def register_lazy(self, name: str, factory: Any) -> None:
-        """Register a lazy-loaded adapter via callable factory."""
+    def register_lazy(self, name: str, factory: Any, *, skip_if_exists: bool = False) -> None:
+        """Register a lazy-loaded adapter via callable factory.
+
+        When ``skip_if_exists`` is True, silently skip registration if the
+        provider name is already registered (eager or lazy).  This is used
+        by ``Client`` to register built-in providers without conflicting
+        with user-registered adapters.
+        """
         normalized_name = name.strip().lower()
         if not normalized_name:
             msg = "Provider name cannot be empty"
@@ -61,6 +67,8 @@ class ProviderRegistry:
 
         with self._lock:
             if normalized_name in self._adapters or normalized_name in self._lazy:
+                if skip_if_exists:
+                    return
                 raise ValueError(f"Provider '{normalized_name}' is already registered")
             self._lazy[normalized_name] = factory
 
