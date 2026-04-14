@@ -9,7 +9,6 @@ from kpubdata.core.dataset import Dataset
 from kpubdata.core.models import DatasetRef, Query, RecordBatch
 from kpubdata.core.representation import Representation
 from kpubdata.exceptions import UnsupportedCapabilityError
-from kpubdata.transport.http import HttpTransport
 
 
 class MockAdapter:
@@ -61,7 +60,7 @@ def _ref(ops: frozenset[Operation] | None = None) -> DatasetRef:
 class TestDataset:
     def test_list(self) -> None:
         adapter = MockAdapter()
-        ds = Dataset(ref=_ref(), adapter=adapter, transport=HttpTransport())  # type: ignore[arg-type]
+        ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
         result = ds.list(code="11680")
         assert len(result) == 1
         assert adapter.last_query is not None
@@ -69,34 +68,30 @@ class TestDataset:
 
     def test_list_unsupported(self) -> None:
         adapter = MockAdapter()
-        ds = Dataset(
-            ref=_ref(frozenset({Operation.RAW})), adapter=adapter, transport=HttpTransport()
-        )  # type: ignore[arg-type]
+        ds = Dataset(ref=_ref(frozenset({Operation.RAW})), adapter=adapter)  # type: ignore[arg-type]
         with pytest.raises(UnsupportedCapabilityError, match="list"):
             ds.list()
 
     def test_get(self) -> None:
         adapter = MockAdapter()
-        ds = Dataset(ref=_ref(), adapter=adapter, transport=HttpTransport())  # type: ignore[arg-type]
+        ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
         record = ds.get(id="1")
         assert record == {"id": "1"}
 
     def test_get_unsupported(self) -> None:
         adapter = MockAdapter()
-        ds = Dataset(
-            ref=_ref(frozenset({Operation.LIST})), adapter=adapter, transport=HttpTransport()
-        )  # type: ignore[arg-type]
+        ds = Dataset(ref=_ref(frozenset({Operation.LIST})), adapter=adapter)  # type: ignore[arg-type]
         with pytest.raises(UnsupportedCapabilityError, match="get"):
             ds.get(id="1")
 
     def test_call_raw(self) -> None:
         adapter = MockAdapter()
-        ds = Dataset(ref=_ref(), adapter=adapter, transport=HttpTransport())  # type: ignore[arg-type]
+        ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
         result = ds.call_raw("list", param="value")
         assert result == {"raw": True}
         assert adapter.last_raw_op == "list"
 
     def test_repr(self) -> None:
         adapter = MockAdapter()
-        ds = Dataset(ref=_ref(), adapter=adapter, transport=HttpTransport())  # type: ignore[arg-type]
+        ds = Dataset(ref=_ref(), adapter=adapter)  # type: ignore[arg-type]
         assert "mock.test" in repr(ds)

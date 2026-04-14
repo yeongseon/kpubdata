@@ -83,7 +83,7 @@ class Client:
         """
 
         adapter, ref = self._catalog.resolve(dataset_id)
-        return Dataset(ref=ref, adapter=adapter, transport=self._transport)
+        return Dataset(ref=ref, adapter=adapter)
 
     def register_provider(self, adapter: Any) -> None:
         """Register a provider adapter in this client's registry.

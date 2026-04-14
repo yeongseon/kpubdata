@@ -4,7 +4,6 @@ from kpubdata.core.capability import Operation
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.representation import Representation
-from kpubdata.transport.http import HttpTransport
 
 
 class _Adapter:
@@ -43,6 +42,6 @@ def test_ref_property_returns_bound_reference() -> None:
         representation=Representation.API_JSON,
         operations=frozenset({Operation.LIST}),
     )
-    dataset = Dataset(ref=ref, adapter=_Adapter(), transport=HttpTransport())
+    dataset = Dataset(ref=ref, adapter=_Adapter())
 
     assert dataset.ref is ref
