@@ -103,6 +103,23 @@ class TestCatalog:
         result = catalog.search("ALPHA")
         assert len(result) == 2
 
+    def test_search_with_provider_filter(self) -> None:
+        catalog = self._build()
+        result = catalog.search("dataset", provider="alpha")
+        assert len(result) == 2
+        assert all(r.provider == "alpha" for r in result)
+
+    def test_search_delegates_to_adapter(self) -> None:
+        catalog = self._build()
+        result = catalog.search("subway")
+        assert len(result) == 1
+        assert result[0].name == "Beta Subway Data"
+
+    def test_search_no_match_returns_empty(self) -> None:
+        catalog = self._build()
+        result = catalog.search("nonexistent_xyz")
+        assert result == []
+
     def test_resolve(self) -> None:
         catalog = self._build()
         adapter, ref = catalog.resolve("beta.subway")
