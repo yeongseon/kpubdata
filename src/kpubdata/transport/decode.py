@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import json
 from importlib import import_module
-from typing import Any
+
+import httpx
 
 
-def detect_content_type(response: Any) -> str:
+def detect_content_type(response: httpx.Response) -> str:
     """Detect whether response is JSON, XML, or other based on content-type header."""
     header_value_obj = response.headers.get("content-type", "")
     content_type = str(header_value_obj).lower()
@@ -18,7 +19,7 @@ def detect_content_type(response: Any) -> str:
     return "other"
 
 
-def decode_json(data: str | bytes) -> Any:
+def decode_json(data: str | bytes) -> object:
     """Decode JSON with clear error on failure."""
     try:
         payload = data.decode("utf-8") if isinstance(data, bytes) else data
@@ -33,7 +34,7 @@ def decode_json(data: str | bytes) -> Any:
         raise ValueError(msg) from exc
 
 
-def decode_xml(data: str | bytes) -> dict[str, Any]:
+def decode_xml(data: str | bytes) -> dict[str, object]:
     """Decode XML to dict.
 
     Raises:
@@ -56,7 +57,7 @@ def decode_xml(data: str | bytes) -> dict[str, Any]:
         raise ValueError(msg) from exc
 
     try:
-        parsed: Any = xmltodict.parse(payload)
+        parsed: object = xmltodict.parse(payload)
     except Exception as exc:  # noqa: BLE001
         msg = "Failed to decode XML payload"
         raise ValueError(msg) from exc

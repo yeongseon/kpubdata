@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from kpubdata.core.capability import Operation
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.protocol import ProviderAdapter
@@ -51,7 +49,7 @@ class Dataset:
 
         return self._ref.operations
 
-    def list(self, **filters: Any) -> RecordBatch:
+    def list(self, **filters: object) -> RecordBatch:
         """Query records from this dataset using canonical list semantics.
 
         Pass provider-specific query parameters as keyword arguments.
@@ -70,7 +68,7 @@ class Dataset:
         query = Query(filters=filters)
         return self._adapter.query_records(self._ref, query)
 
-    def get(self, **key: Any) -> dict[str, object] | None:
+    def get(self, **key: object) -> dict[str, object] | None:
         """Return a single record matching the provided key fields.
 
         Return ``None`` when no matching record is found.
@@ -94,7 +92,7 @@ class Dataset:
 
         return self._adapter.get_schema(self._ref)
 
-    def call_raw(self, operation: str, **params: Any) -> object:
+    def call_raw(self, operation: str, **params: object) -> object:
         """Execute a provider-native operation without canonical normalization.
 
         Use this escape hatch for provider features not represented in the

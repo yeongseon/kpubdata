@@ -6,7 +6,7 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass as _stdlib_dataclass
 from dataclasses import field
 from types import MappingProxyType
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from typing_extensions import dataclass_transform
 
@@ -30,7 +30,7 @@ def _dataclass(
     return _decorate
 
 
-def _empty_proxy() -> MappingProxyType[str, Any]:
+def _empty_proxy() -> MappingProxyType[str, object]:
     """Return an empty immutable string-keyed mapping proxy."""
     return MappingProxyType({})
 
@@ -56,7 +56,7 @@ class DatasetRef:
     representation: Representation
     operations: frozenset[Operation] = frozenset()
     query_support: QuerySupport | None = None
-    raw_metadata: MappingProxyType[str, Any] = field(default_factory=_empty_proxy)
+    raw_metadata: MappingProxyType[str, object] = field(default_factory=_empty_proxy)
 
     def supports(self, op: Operation) -> bool:
         """Return whether this dataset supports the requested operation."""
@@ -78,7 +78,7 @@ class Query:
         extra: Additional provider-native parameters not covered canonically.
     """
 
-    filters: dict[str, Any] = field(default_factory=dict)
+    filters: dict[str, object] = field(default_factory=dict)
     page: int | None = None
     page_size: int | None = None
     cursor: str | None = None
@@ -86,7 +86,7 @@ class Query:
     end_date: str | None = None
     fields: list[str] | None = None
     sort: list[str] | None = None
-    extra: dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, object] = field(default_factory=dict)
 
 
 @_dataclass(slots=True)
@@ -100,18 +100,18 @@ class RecordBatch:
         meta: Additional adapter metadata that does not fit canonical fields.
     """
 
-    items: list[dict[str, Any]]
+    items: list[dict[str, object]]
     dataset: DatasetRef
     total_count: int | None = None
     next_page: int | None = None
     next_cursor: str | None = None
-    raw: Any | None = None
-    meta: dict[str, Any] = field(default_factory=dict)
+    raw: object | None = None
+    meta: dict[str, object] = field(default_factory=dict)
 
     def __len__(self) -> int:
         return len(self.items)
 
-    def __iter__(self) -> Iterator[dict[str, Any]]:
+    def __iter__(self) -> Iterator[dict[str, object]]:
         return iter(self.items)
 
     def __bool__(self) -> bool:

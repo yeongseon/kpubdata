@@ -18,7 +18,7 @@ class PublicDataError(Exception):
         status_code: int | None = None,
         provider_code: str | None = None,
         retryable: bool = False,
-        detail: Any = None,
+        detail: object = None,
     ) -> None:
         """Initialize an error with optional provider and transport metadata."""
 
