@@ -1,0 +1,50 @@
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Provider to test'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - datago
+          - bok
+          - kosis
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    name: Integration Tests (${{ github.event.inputs.provider }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run integration tests
+        env:
+          KPUBDATA_DATAGO_API_KEY: ${{ secrets.KPUBDATA_DATAGO_API_KEY }}
+          KPUBDATA_BOK_API_KEY: ${{ secrets.KPUBDATA_BOK_API_KEY }}
+          KPUBDATA_KOSIS_API_KEY: ${{ secrets.KPUBDATA_KOSIS_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.provider }}" = "all" ]; then
+            uv run pytest -m integration -ra -v
+          else
+            uv run pytest -m integration -ra -v -k "${{ github.event.inputs.provider }}"
+          fi
