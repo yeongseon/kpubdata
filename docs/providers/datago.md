@@ -94,6 +94,13 @@ curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?ser
 - 제공 기관: 기상청
 - 주요 파라미터: `base_date` (발표일자), `base_time` (발표시각), `nx` (예보지점 X 좌표), `ny` (예보지점 Y 좌표)
 
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| base_date | 필수 | 발표일자 (YYYYMMDD) | "20250401" |
+| base_time | 필수 | 발표시각 (HHMM) | "0500" |
+| nx | 필수 | 예보지점 X좌표 | 55 |
+| ny | 필수 | 예보지점 Y좌표 | 127 |
+
 ```python
 from kpubdata import Client
 
@@ -112,6 +119,13 @@ for item in result.items[:5]:
 - 제공 기관: 기상청
 - 주요 파라미터: `base_date`, `base_time`, `nx`, `ny`
 
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| base_date | 필수 | 발표일자 (YYYYMMDD) | "20250401" |
+| base_time | 필수 | 발표시각 (HHMM) | "0600" |
+| nx | 필수 | 예보지점 X좌표 | 55 |
+| ny | 필수 | 예보지점 Y좌표 | 127 |
+
 ```python
 ds = client.dataset("datago.ultra_srt_ncst")
 result = ds.list(base_date="20250401", base_time="0600", nx="55", ny="127")
@@ -123,6 +137,11 @@ result = ds.list(base_date="20250401", base_time="0600", nx="55", ny="127")
 
 - 제공 기관: 한국환경공단
 - 주요 파라미터: `sidoName` (시도 명칭), `numOfRows` (한 페이지 결과 수)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| sidoName | 필수 | 시도명 | "서울" |
+| numOfRows | 선택 | 조회건수 | "5" |
 
 ```python
 ds = client.dataset("datago.air_quality")
@@ -136,6 +155,10 @@ raw = ds.call_raw("getCtprvnRltmMesureDnsty", sidoName="서울", numOfRows="5")
 - 제공 기관: 경기도
 - 주요 파라미터: `stationId` (정류소 아이디)
 
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| stationId | 필수 | 정류소 ID | "200000078" |
+
 ```python
 ds = client.dataset("datago.bus_arrival")
 raw = ds.call_raw("getBusArrivalList", stationId="200000078")
@@ -148,6 +171,10 @@ raw = ds.call_raw("getBusArrivalList", stationId="200000078")
 - 제공 기관: 건강보험심사평가원
 - 주요 파라미터: `numOfRows` (조회 건수)
 
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| numOfRows | 선택 | 조회건수 | "10" |
+
 ```python
 ds = client.dataset("datago.hospital_info")
 raw = ds.call_raw("getHospBasisList", numOfRows="10")
@@ -159,6 +186,17 @@ raw = ds.call_raw("getHospBasisList", numOfRows="10")
 
 - 제공 기관: 국토교통부
 - 주요 파라미터: `LAWD_CD` (법정동 코드 앞 5자리), `DEAL_YMD` (계약년월)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| LAWD_CD | 필수 | 법정동코드 앞5자리 | "11110" |
+| DEAL_YMD | 필수 | 계약년월 (YYYYMM) | "202401" |
+
+**참고 (LAWD_CD 법정동 코드):**
+- 서울 종로구: 11110
+- 서울 강남구: 11680
+- 경기도 수원시 장안구: 41111
+- 각 지역의 코드는 [행정표준코드관리시스템](https://www.code.go.kr)에서 확인할 수 있습니다.
 
 ```python
 ds = client.dataset("datago.apt_trade")
@@ -182,6 +220,33 @@ for item in result.items[:5]:
 
 증상: API 키를 발급받았으나 호출 시 401 에러 또는 "SERVICE_KEY_IS_NOT_REGISTERED_ERROR" 메시지가 반환됩니다.
 
+**실제 에러 예시 (Terminal/curl):**
+```text
+$ curl "http://apis.data.go.kr/..."
+HTTP/1.1 401 Unauthorized
+Content-Type: text/xml
+...
+<OpenAPI_ServiceResponse>
+    <cmmMsgHeader>
+        <errMsg>SERVICE KEY IS NOT REGISTERED.</errMsg>
+        <returnAuthMsg>SERVICE_KEY_IS_NOT_REGISTERED_ERROR</returnAuthMsg>
+        <returnReasonCode>30</returnReasonCode>
+    </cmmMsgHeader>
+</OpenAPI_ServiceResponse>
+```
+
+**실제 에러 예시 (Python/KPubData):**
+```python
+Traceback (most recent call last):
+  File "example.py", line 8, in <module>
+    result = ds.list(base_date="20250401", ...)
+  File "kpubdata/core/dataset.py", line 45, in list
+    return self.adapter.list(query)
+  File "kpubdata/adapters/datago/base.py", line 112, in list
+    raise AuthError("SERVICE_KEY_IS_NOT_REGISTERED_ERROR (30)")
+kpubdata.exceptions.AuthError: SERVICE_KEY_IS_NOT_REGISTERED_ERROR (30)
+```
+
 원인 및 해결:
 
 1. **키 활성화 대기**: 키 발급 후 1~2시간의 동기화 시간이 필요합니다. 시간이 지난 후 다시 시도하세요.
@@ -191,6 +256,17 @@ for item in result.items[:5]:
 ### 에러코드 30: SERVICE_KEY_IS_NOT_REGISTERED_ERROR
 
 인증키가 해당 API에 등록되지 않았거나, 아직 동기화되지 않은 상태입니다.
+
+**XML 응답 예시:**
+```xml
+<OpenAPI_ServiceResponse>
+    <cmmMsgHeader>
+        <errMsg>SERVICE KEY IS NOT REGISTERED.</errMsg>
+        <returnAuthMsg>SERVICE_KEY_IS_NOT_REGISTERED_ERROR</returnAuthMsg>
+        <returnReasonCode>30</returnReasonCode>
+    </cmmMsgHeader>
+</OpenAPI_ServiceResponse>
+```
 
 - 활용신청 완료 여부를 마이페이지에서 확인합니다.
 - 발급 직후라면 1~2시간 후 재시도합니다.

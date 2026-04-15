@@ -163,10 +163,21 @@ print(raw[0].keys())
 
 ## 트러블슈팅
 
-### API 키 만료 에러
+### API 키 만료 에러 (실제 출력)
 - **현상**: 에러코드 12 ("인증KEY의 기간이 만료되었습니다") 발생
 - **원인**: KOSIS API 키는 보안을 위해 일정 기간이 지나면 자동 만료됩니다.
+- 실제 Python 에러 출력:
+```python
+result = ds.list(start_date="202401", end_date="202401")
+# kpubdata.exceptions.AuthError: 인증KEY의 기간이 만료되었습니다 (provider_code: 12)
+```
 - **해결**: [KOSIS 마이페이지]의 인증키 관리 메뉴에서 해당 키의 "연장" 버튼을 클릭하면 즉시 다시 사용할 수 있습니다.
+
+### 잘못된 통계표 ID
+```python
+# 존재하지 않는 tblId를 사용한 경우
+# kpubdata.exceptions.InvalidRequestError: 해당 자료가 없습니다 (provider_code: 10)
+```
 
 ### 대량 데이터 처리
 - **현상**: 단일 월 조회임에도 응답 속도가 느리거나 데이터 양이 많음

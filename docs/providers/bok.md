@@ -174,6 +174,33 @@ print(raw.keys())  # dict_keys(['StatisticSearch'])
 | `test_usage_compare_year_over_year` | 연도별 비교 | 통과 |
 | `test_usage_single_month_query` | 단일 월 조회 | 통과 |
 
+## 트러블슈팅
+
+### 날짜 형식 오류 (ERROR-101)
+- 현상: `start_date`를 `"20240101"` (YYYYMMDD)로 보내면 에러 발생
+- 올바른 형식: `"202401"` (YYYYMM, 월별 데이터이므로)
+- 실제 에러 출력:
+```python
+# 잘못된 예 (YYYYMMDD → 에러 발생)
+result = ds.list(start_date="20240101", end_date="20241231")
+# ProviderResponseError: BOK ECOS returned error (CODE: ERROR-101)
+
+# 올바른 예 (YYYYMM)
+result = ds.list(start_date="202401", end_date="202412")
+```
+
+### API 키 오류
+- 현상: 잘못된 키 사용 시
+```
+kpubdata.exceptions.AuthError: 인증키가 유효하지 않습니다.
+```
+
+### 호출 한도 초과
+- 현상: 일 10,000건 초과 시
+```
+kpubdata.exceptions.RateLimitError: 일일 호출한도를 초과하였습니다.
+```
+
 ## 관련 문서
 
 - [한국은행 ECOS Open API](https://ecos.bok.or.kr/api/)
