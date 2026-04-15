@@ -238,7 +238,7 @@ Otherwise, keep the complexity local to the adapter.
 
 ---
 
-## 📚 관련 문서
+## 관련 문서
 
 ### 이 저장소 내 문서
 | 문서 | 설명 |
@@ -248,5 +248,4 @@ Otherwise, keep the complexity local to the adapter.
 | [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
 | [VALIDATION.md](./VALIDATION.md) | 아키텍처 타당성 검증 |
 | [AGENTS.md](./AGENTS.md) | 어댑터 개발 가이드 및 에이전트 규칙 |
-
 

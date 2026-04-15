@@ -96,7 +96,7 @@ The validation above was checked against official documentation from:
 
 ---
 
-## 📚 관련 문서
+## 관련 문서
 
 ### 이 저장소 내 문서
 | 문서 | 설명 |
@@ -104,4 +104,3 @@ The validation above was checked against official documentation from:
 | [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
 | [CANONICAL_MODEL.md](./CANONICAL_MODEL.md) | 표준 데이터 모델 정의 |
 | [PROVIDER_ADAPTER_CONTRACT.md](./PROVIDER_ADAPTER_CONTRACT.md) | 어댑터 구현 규약 |
-

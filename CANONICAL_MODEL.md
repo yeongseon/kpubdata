@@ -343,7 +343,7 @@ Do not erase provider-native detail.
 
 ---
 
-## 📚 관련 문서
+## 관련 문서
 
 ### 이 저장소 내 문서
 | 문서 | 설명 |
@@ -352,5 +352,4 @@ Do not erase provider-native detail.
 | [PROVIDER_ADAPTER_CONTRACT.md](./PROVIDER_ADAPTER_CONTRACT.md) | 어댑터 구현 규약 |
 | [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
 | [VALIDATION.md](./VALIDATION.md) | 아키텍처 타당성 검증 |
-
 
