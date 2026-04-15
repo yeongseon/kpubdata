@@ -184,9 +184,9 @@ codes (most responses return HTTP 200 even on error).
 
 | Parameter | Required | Description |
 |---|---|---|
-| `serviceKey` | ✅ | API key |
-| `pageNo` | ✅ (always send) | Page number (default 1) |
-| `numOfRows` | ✅ (always send) | Page size (default 10) |
+| `serviceKey` | | API key |
+| `pageNo` | (always send) | Page number (default 1) |
+| `numOfRows` | (always send) | Page size (default 10) |
 | `resultType` | | `json` or `xml` (default XML) |
 | *dataset-specific* | varies | Search filters, date ranges, etc. |
 

@@ -26,8 +26,8 @@ The project is a Python 3.10+ framework with a small stable public API and provi
 - Update tests and docs with every behavior change.
 - `SUPPORTED_DATA.md`는 지원 Provider/Dataset 현황의 단일 기준 문서(single source of truth)다.
 - Provider/Dataset의 지원 상태 또는 검증 수준이 바뀌면, 같은 PR에서 `SUPPORTED_DATA.md`를 반드시 업데이트한다.
-- `✅ 지원`은 fixture/unit/contract 테스트가 통과했을 때만 표시한다.
-- `🌐 실API 검증`은 실 API integration 테스트가 존재하고 통과했을 때만 표시한다. 그 전에는 `🧪 테스트 검증`으로 유지한다.
+- `지원`은 fixture/unit/contract 테스트가 통과했을 때만 표시한다.
+- `실API 검증`은 실 API integration 테스트가 존재하고 통과했을 때만 표시한다. 그 전에는 `테스트 검증`으로 유지한다.
 
 ## Language policy
 
@@ -225,7 +225,7 @@ flowchart TD
 
 ---
 
-## 📚 관련 문서
+## 관련 문서
 
 ### 이 저장소 내 문서
 | 문서 | 설명 |
@@ -245,4 +245,3 @@ flowchart TD
 | :--- | :--- | :--- |
 | [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [AGENTS.md](https://github.com/yeongseon/kpubdata-builder/blob/main/AGENTS.md) | Builder 에이전트 가이드 |
 | [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [AGENTS.md](https://github.com/yeongseon/kpubdata-studio/blob/main/AGENTS.md) | Studio 에이전트 가이드 |
-
