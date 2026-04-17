@@ -196,12 +196,12 @@ def test_request_and_decode_raises_parse_error_when_decode_fails(monkeypatch) ->
 
     monkeypatch.setattr(adapter_module, "detect_content_type", lambda _resp: "unknown")
 
-    def _raises_value_error(_content: bytes) -> dict[str, object]:
-        raise ValueError("bad payload")
+    def _raises_parse_error(_content: bytes) -> dict[str, object]:
+        raise ParseError("bad payload")
 
-    monkeypatch.setattr(adapter_module, "decode_json", _raises_value_error)
+    monkeypatch.setattr(adapter_module, "decode_json", _raises_parse_error)
 
-    with pytest.raises(ParseError, match="Failed to parse"):
+    with pytest.raises(ParseError, match="bad payload"):
         _ = adapter._request_and_decode("https://example.test", {})
 
 

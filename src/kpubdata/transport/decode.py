@@ -7,6 +7,8 @@ from importlib import import_module
 
 import httpx
 
+from ..exceptions import ParseError
+
 
 def detect_content_type(response: httpx.Response) -> str:
     """Detect whether response is JSON, XML, or other based on content-type header."""
@@ -25,13 +27,13 @@ def decode_json(data: str | bytes) -> object:
         payload = data.decode("utf-8") if isinstance(data, bytes) else data
     except UnicodeDecodeError as exc:
         msg = "Failed to decode JSON bytes as UTF-8"
-        raise ValueError(msg) from exc
+        raise ParseError(msg) from exc
 
     try:
         return json.loads(payload)
     except json.JSONDecodeError as exc:
         msg = "Failed to decode JSON payload"
-        raise ValueError(msg) from exc
+        raise ParseError(msg) from exc
 
 
 def decode_xml(data: str | bytes) -> dict[str, object]:
@@ -39,7 +41,7 @@ def decode_xml(data: str | bytes) -> dict[str, object]:
 
     Raises:
         ImportError: If ``xmltodict`` is not installed.
-        ValueError: If parsing fails.
+        ParseError: If parsing fails.
     """
     try:
         xmltodict = import_module("xmltodict")
@@ -54,19 +56,19 @@ def decode_xml(data: str | bytes) -> dict[str, object]:
         payload = data.decode("utf-8") if isinstance(data, bytes) else data
     except UnicodeDecodeError as exc:
         msg = "Failed to decode XML bytes as UTF-8"
-        raise ValueError(msg) from exc
+        raise ParseError(msg) from exc
 
     try:
         parsed: object = xmltodict.parse(payload)
     except Exception as exc:  # noqa: BLE001
         msg = "Failed to decode XML payload"
-        raise ValueError(msg) from exc
+        raise ParseError(msg) from exc
 
     if isinstance(parsed, dict):
         return parsed
 
     msg = "XML payload did not decode into a dictionary"
-    raise ValueError(msg)
+    raise ParseError(msg)
 
 
 __all__ = ["decode_json", "decode_xml", "detect_content_type"]

@@ -198,8 +198,9 @@ class BokAdapter:
 
         try:
             decoded_obj: object = decode_json(response.content)
-        except ValueError as exc:
-            raise ParseError("Failed to parse BOK ECOS response", provider="bok") from exc
+        except ParseError as exc:
+            exc.provider = "bok"
+            raise
 
         if isinstance(decoded_obj, dict):
             return cast(dict[str, object], decoded_obj)

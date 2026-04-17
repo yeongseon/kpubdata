@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from kpubdata.exceptions import ParseError
 from kpubdata.transport.decode import decode_json, decode_xml, detect_content_type
 
 
@@ -33,7 +34,7 @@ class TestDecodeJson:
         assert decode_json(b'{"a": 1}') == {"a": 1}
 
     def test_invalid(self) -> None:
-        with pytest.raises(ValueError, match="decode JSON"):
+        with pytest.raises(ParseError, match="decode JSON"):
             decode_json("not json")
 
 
@@ -71,8 +72,8 @@ class TestDecodeXml:
         assert isinstance(item, dict)
         assert item["stationName"] == "종로구"
 
-    def test_invalid_xml_raises_value_error(self) -> None:
-        with pytest.raises(ValueError, match="Failed to decode XML"):
+    def test_invalid_xml_raises_parse_error(self) -> None:
+        with pytest.raises(ParseError, match="Failed to decode XML"):
             decode_xml("<<<not xml>>>")
 
     def test_missing_xmltodict_raises_import_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -85,5 +86,5 @@ class TestDecodeXml:
 
     def test_bytes_utf8_decode_error(self) -> None:
         bad_bytes = b"\xff\xfe<root/>"
-        with pytest.raises(ValueError, match="UTF-8"):
+        with pytest.raises(ParseError, match="UTF-8"):
             decode_xml(bad_bytes)
