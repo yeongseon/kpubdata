@@ -1,0 +1,61 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "sggCd": "11440",
+            "umdNm": "연남동",
+            "mhouseNm": "연남그린빌",
+            "jibun": "487-12",
+            "buildYear": "2003",
+            "excluUseAr": "59.74",
+            "landAr": "31.20",
+            "dealYear": "2024",
+            "dealMonth": "2",
+            "dealDay": "6",
+            "dealAmount": "58,000",
+            "floor": "3",
+            "cdealType": "-",
+            "cdealDay": "",
+            "dealingGbn": "중개거래",
+            "estateAgentSggNm": "서울 마포구",
+            "rgstDate": "20240212",
+            "slerGbn": "개인",
+            "buyerGbn": "개인",
+            "houseType": "연립"
+          },
+          {
+            "sggCd": "11215",
+            "umdNm": "면목동",
+            "mhouseNm": "면목하이츠빌",
+            "jibun": "102-8",
+            "buildYear": "2010",
+            "excluUseAr": "72.11",
+            "landAr": "40.55",
+            "dealYear": "2024",
+            "dealMonth": "3",
+            "dealDay": "18",
+            "dealAmount": "41,500",
+            "floor": "4",
+            "cdealType": "-",
+            "cdealDay": "",
+            "dealingGbn": "직거래",
+            "estateAgentSggNm": "",
+            "rgstDate": "20240320",
+            "slerGbn": "개인",
+            "buyerGbn": "개인",
+            "houseType": "다세대"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

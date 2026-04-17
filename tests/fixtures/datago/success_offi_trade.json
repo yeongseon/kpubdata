@@ -1,0 +1,57 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "sggCd": "11680",
+            "sggNm": "강남구",
+            "umdNm": "논현동",
+            "jibun": "211-21",
+            "offiNm": "논현 아이파크",
+            "excluUseAr": "29.76",
+            "dealYear": "2024",
+            "dealMonth": "1",
+            "dealDay": "19",
+            "dealAmount": "31,500",
+            "floor": "11",
+            "buildYear": "2018",
+            "cdealType": "-",
+            "cdealDay": "",
+            "dealingGbn": "중개거래",
+            "estateAgentSggNm": "서울 강남구",
+            "slerGbn": "개인",
+            "buyerGbn": "개인"
+          },
+          {
+            "sggCd": "26110",
+            "sggNm": "해운대구",
+            "umdNm": "우동",
+            "jibun": "1505",
+            "offiNm": "센텀스카이비즈",
+            "excluUseAr": "42.13",
+            "dealYear": "2024",
+            "dealMonth": "2",
+            "dealDay": "27",
+            "dealAmount": "22,800",
+            "floor": "18",
+            "buildYear": "2015",
+            "cdealType": "-",
+            "cdealDay": "",
+            "dealingGbn": "직거래",
+            "estateAgentSggNm": "",
+            "slerGbn": "법인",
+            "buyerGbn": "개인"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

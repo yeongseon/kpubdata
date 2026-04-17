@@ -88,5 +88,110 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "apt_rent",
+    "name": "아파트 전월세 실거래자료 (Apartment Rent)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcAptRent",
+    "default_operation": "getRTMSDataSvcAptRent",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT apartment rent real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "offi_trade",
+    "name": "오피스텔 매매 실거래자료 (Officetel Trade)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcOffiTrade",
+    "default_operation": "getRTMSDataSvcOffiTrade",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT officetel trade real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "offi_rent",
+    "name": "오피스텔 전월세 실거래자료 (Officetel Rent)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcOffiRent",
+    "default_operation": "getRTMSDataSvcOffiRent",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT officetel rent real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "rh_trade",
+    "name": "연립다세대 매매 실거래자료 (Row House Trade)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcRHTrade",
+    "default_operation": "getRTMSDataSvcRHTrade",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT row house trade real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "rh_rent",
+    "name": "연립다세대 전월세 실거래자료 (Row House Rent)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcRHRent",
+    "default_operation": "getRTMSDataSvcRHRent",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT row house rent real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "sh_trade",
+    "name": "단독/다가구 매매 실거래자료 (Single House Trade)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcSHTrade",
+    "default_operation": "getRTMSDataSvcSHTrade",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT single house trade real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "sh_rent",
+    "name": "단독/다가구 전월세 실거래자료 (Single House Rent)",
+    "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcSHRent",
+    "default_operation": "getRTMSDataSvcSHRent",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "MOLIT single house rent real transaction data",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]

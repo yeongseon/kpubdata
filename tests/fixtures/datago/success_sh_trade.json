@@ -1,0 +1,55 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "sggCd": "11305",
+            "umdNm": "우이동",
+            "houseType": "단독",
+            "jibun": "120-18",
+            "totalFloorAr": "146.32",
+            "plottageAr": "181.00",
+            "dealYear": "2024",
+            "dealMonth": "2",
+            "dealDay": "22",
+            "dealAmount": "95,000",
+            "buildYear": "1998",
+            "cdealType": "-",
+            "cdealDay": "",
+            "dealingGbn": "중개거래",
+            "estateAgentSggNm": "서울 강북구",
+            "slerGbn": "개인",
+            "buyerGbn": "개인"
+          },
+          {
+            "sggCd": "31200",
+            "umdNm": "달동",
+            "houseType": "다가구",
+            "jibun": "638-12",
+            "totalFloorAr": "198.57",
+            "plottageAr": "165.40",
+            "dealYear": "2024",
+            "dealMonth": "4",
+            "dealDay": "9",
+            "dealAmount": "73,500",
+            "buildYear": "2005",
+            "cdealType": "-",
+            "cdealDay": "",
+            "dealingGbn": "직거래",
+            "estateAgentSggNm": "",
+            "slerGbn": "개인",
+            "buyerGbn": "법인"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

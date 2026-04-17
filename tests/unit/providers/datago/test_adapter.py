@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from types import MappingProxyType
-from typing import cast
+from typing import Protocol, cast
 
 import pytest
 
@@ -19,6 +19,16 @@ from kpubdata.exceptions import (
 )
 from kpubdata.providers.datago.adapter import DataGoAdapter
 from kpubdata.transport.http import HttpTransport
+
+REAL_ESTATE_DATASET_KEYS = [
+    "apt_rent",
+    "offi_trade",
+    "offi_rent",
+    "rh_trade",
+    "rh_rent",
+    "sh_trade",
+    "sh_rent",
+]
 
 
 class FakeResponse:
@@ -78,6 +88,14 @@ def _build_adapter_with_transport(
     )
     dataset = adapter.get_dataset("village_fcst")
     return adapter, dataset, transport
+
+
+class AdapterFactory(Protocol):
+    def __call__(
+        self,
+        fixture_names: list[str],
+        content_type: str = "application/json",
+    ) -> tuple[DataGoAdapter, DatasetRef, object]: ...
 
 
 class TestDataGoAdapterDiscovery:
@@ -156,6 +174,51 @@ class TestDataGoAdapterDiscovery:
 
         dataset = adapter.get_dataset("village_fcst")
         assert dataset.id == "datago.village_fcst"
+
+
+class TestDataGoAdapterRealEstateDatasets:
+    def test_catalogue_contains_all_real_estate_datasets(self) -> None:
+        adapter = DataGoAdapter()
+
+        dataset_keys = {dataset.dataset_key for dataset in adapter.list_datasets()}
+
+        assert set(REAL_ESTATE_DATASET_KEYS).issubset(dataset_keys)
+
+    @pytest.mark.parametrize("dataset_key", REAL_ESTATE_DATASET_KEYS)
+    def test_get_dataset_for_each_real_estate_key(self, dataset_key: str) -> None:
+        adapter = DataGoAdapter()
+
+        dataset = adapter.get_dataset(dataset_key)
+
+        assert dataset.id == f"datago.{dataset_key}"
+        assert dataset.dataset_key == dataset_key
+
+    @pytest.mark.parametrize("dataset_key", REAL_ESTATE_DATASET_KEYS)
+    def test_real_estate_datasets_have_correct_operations(self, dataset_key: str) -> None:
+        adapter = DataGoAdapter()
+
+        dataset = adapter.get_dataset(dataset_key)
+
+        assert Operation.LIST in dataset.operations
+        assert Operation.RAW in dataset.operations
+
+    @pytest.mark.parametrize("dataset_key", REAL_ESTATE_DATASET_KEYS)
+    def test_real_estate_datasets_have_offset_pagination(self, dataset_key: str) -> None:
+        adapter = DataGoAdapter()
+
+        dataset = adapter.get_dataset(dataset_key)
+
+        assert dataset.query_support is not None
+        assert dataset.query_support.pagination is PaginationMode.OFFSET
+        assert dataset.query_support.max_page_size == 1000
+
+    def test_search_datasets_finds_real_estate(self) -> None:
+        adapter = DataGoAdapter()
+
+        results = adapter.search_datasets("실거래")
+        result_keys = {dataset.dataset_key for dataset in results}
+
+        assert set(REAL_ESTATE_DATASET_KEYS).issubset(result_keys)
 
 
 class TestDataGoAdapterQueryRecords:
@@ -355,7 +418,7 @@ class TestDataGoAdapterCatalogueOperations:
 
 
 class TestDataGoAdapterXml:
-    def test_query_records_xml_multi_item(self, configured_adapter) -> None:
+    def test_query_records_xml_multi_item(self, configured_adapter: AdapterFactory) -> None:
         adapter, dataset, _ = configured_adapter(["success_xml.xml"], content_type="text/xml")
         batch = adapter.query_records(dataset, Query())
 
@@ -364,7 +427,7 @@ class TestDataGoAdapterXml:
         assert batch.items[1]["stationName"] == "강남구"
         assert batch.total_count == 2
 
-    def test_query_records_xml_single_item(self, configured_adapter) -> None:
+    def test_query_records_xml_single_item(self, configured_adapter: AdapterFactory) -> None:
         adapter, dataset, _ = configured_adapter(
             ["success_xml_single_item.xml"], content_type="text/xml"
         )
@@ -374,14 +437,14 @@ class TestDataGoAdapterXml:
         assert batch.items[0]["stationName"] == "종로구"
         assert batch.total_count == 1
 
-    def test_call_raw_xml_response(self, configured_adapter) -> None:
+    def test_call_raw_xml_response(self, configured_adapter: AdapterFactory) -> None:
         adapter, dataset, _ = configured_adapter(["success_xml.xml"], content_type="text/xml")
         result = adapter.call_raw(dataset, "getVilageFcst", {})
 
         assert isinstance(result, dict)
         assert result["response"]["header"]["resultCode"] == "00"
 
-    def test_xml_error_maps_to_exception(self, configured_adapter) -> None:
+    def test_xml_error_maps_to_exception(self, configured_adapter: AdapterFactory) -> None:
         adapter, dataset, _ = configured_adapter(["error_xml_auth_30.xml"], content_type="text/xml")
         with pytest.raises(AuthError):
             _ = adapter.query_records(dataset, Query())
