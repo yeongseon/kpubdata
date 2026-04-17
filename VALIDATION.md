@@ -96,6 +96,26 @@ The validation above was checked against official documentation from:
 
 ---
 
+### 아키텍처 검증 흐름
+
+```mermaid
+graph TD
+    Decision1[방언 기반 아키텍처] --> Decision2[데이터셋 중심 설계]
+    Decision2 --> Decision3[UX 표준화]
+    Decision3 --> Decision4[Raw Escape Hatch]
+    Decision4 --> Decision5[Capability 기반 설계]
+```
+
+### 검증 요약
+
+| 검증 항목 | 결론 | 근거 |
+|---|---|---|
+| 방언 기반 아키텍처 | 적합 | SQLAlchemy Dialect 패턴 |
+| 데이터셋 중심 설계 | 적합 | 공공데이터포털 메타데이터 구조 |
+| UX 표준화 | 적합 | 일관된 Python 진입점 |
+| Raw escape hatch | 필수 | Requests raw 응답 패턴 |
+| Capability 기반 설계 | 적합 | 기능별 차이 명시 |
+
 ## 관련 문서
 
 ### 이 저장소 내 문서

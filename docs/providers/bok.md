@@ -4,6 +4,21 @@
 
 한국은행 경제통계시스템(ECOS)은 우리나라의 주요 경제지표를 조회할 수 있는 오픈 API 서비스입니다. KPubData는 ECOS의 복잡한 URL 경로 기반 파라미터 구조를 추상화하여, 표준화된 인터페이스로 경제 통계 데이터를 쉽게 조회할 수 있게 합니다.
 
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as BokAdapter
+    participant E as ECOS API
+    participant R as RecordBatch
+
+    C->>A: 데이터 요청 (list)
+    A->>A: URL 경로 구성 (Path construction)
+    A->>E: HTTP 요청 (JSON)
+    E-->>A: JSON 응답 반환
+    A->>R: RecordBatch로 변환
+    R-->>C: 결과 반환
+```
+
 - KPubData provider 이름: `bok`
 - API 기반 URL: https://ecos.bok.or.kr/api/
 

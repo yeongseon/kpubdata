@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### 버전 요약
+
+| 버전 | 상태 | 주요 내용 |
+|---|---|---|
+| v0.1 (Unreleased) | 개발 중 | 코어 프레임워크, datago·bok·kosis 어댑터 |
+| v0.2 (계획) | 미착수 | 메타데이터 보강, 플러그인, Pandas 어댑터 |
+| v0.3 (계획) | 미착수 | MCP 어댑터, Provider 확장 |
+
 ## [Unreleased]
 
 ### Added

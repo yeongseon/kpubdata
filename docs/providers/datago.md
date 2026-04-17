@@ -4,6 +4,20 @@
 
 공공데이터포털(data.go.kr)은 대한민국 정부에서 운영하는 공공데이터 통합 플랫폼입니다. 기상청, 국토교통부, 한국환경공단 등 수많은 기관의 데이터를 Open API 형태로 제공합니다.
 
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as DataGoAdapter
+    participant D as data.go.kr API
+    participant R as RecordBatch
+
+    C->>A: 데이터 요청 (list)
+    A->>D: HTTP 요청 (XML/JSON)
+    D-->>A: 원본 데이터 응답
+    A->>A: 파싱 및 정규화
+    A->>R: RecordBatch 반환
+```
+
 - KPubData provider 이름: `datago`
 - API 기반 URL: https://apis.data.go.kr
 

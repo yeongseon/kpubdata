@@ -14,6 +14,14 @@ The model should be:
 
 ## 2. Design rule
 
+| 모델 | 설명 | 주요 필드 |
+|---|---|---|
+| `DatasetRef` | 데이터셋 참조 | id, name, provider, representation, capabilities |
+| `Query` | 조회 조건 | filters, page, page_size, cursor, start_date, end_date |
+| `RecordBatch` | 결과 뭉치 | items, dataset, total_count, next_page, raw |
+| `SchemaDescriptor` | 스키마 정보 | dataset, fields |
+| `FieldDescriptor` | 필드 정의 | name, title, type, description, nullable |
+
 Canonical objects standardize the **framework contract**, not every semantic detail of every provider.
 
 ```mermaid

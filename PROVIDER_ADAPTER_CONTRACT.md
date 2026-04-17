@@ -8,6 +8,15 @@ A provider adapter is the place where backend-specific behavior belongs.
 
 ## 2. Responsibilities
 
+| 기능 (Capability) | 설명 | 필수 여부 |
+|---|---|---|
+| `list` | 목록 조회 지원 | 선택 |
+| `get` | ID 기반 단건 조회 지원 | 선택 |
+| `schema` | 필드 메타데이터(스키마) 제공 | 선택 |
+| `raw` | 원본 API 직접 호출 (비상구) | 필수 |
+| `pageable` | 페이지네이션 지원 | 선택 |
+| `filterable` | 필터링(검색) 지원 | 선택 |
+
 Every adapter must be responsible for:
 
 - auth/key injection
