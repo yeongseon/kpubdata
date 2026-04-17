@@ -82,11 +82,55 @@ uv run python -m build
 
 ### Release
 
-1. bump version
-2. update changelog
-3. run full quality gates
-4. build sdist + wheel
-5. publish to TestPyPI/PyPI
+GitHub Actions `Publish to PyPI` workflow를 통해 배포합니다.
+
+#### 방법 1: 수동 트리거 (권장)
+
+1. GitHub → Actions → **Publish to PyPI** → **Run workflow**
+2. 옵션 선택:
+   - **bump**: `patch` (0.1.0 → 0.1.1), `minor` (0.1.0 → 0.2.0), `pre` (0.1.0 → 0.1.1a0)
+   - **dry_run**: 체크하면 PyPI 배포 없이 빌드만 확인
+3. workflow가 자동으로 수행하는 작업:
+   - `pyproject.toml` 버전 bump + commit + tag
+   - quality gates 실행 (ruff, mypy, pytest)
+   - sdist + wheel 빌드
+   - GitHub Release 생성 (자동 release notes)
+   - PyPI 배포 (trusted publisher / OIDC)
+
+#### 방법 2: GitHub Release 수동 생성
+
+1. 직접 `pyproject.toml` 버전 수정 + commit + push
+2. GitHub → Releases → **Create a new release**
+3. 태그: `v{version}` (예: `v0.2.0`)
+4. Release 생성 시 workflow가 자동으로 빌드 + PyPI 배포
+
+#### 배포 전 체크리스트
+
+- [ ] main 브랜치에 모든 변경사항 merge 완료
+- [ ] CI 통과 확인 (ruff, mypy, pytest)
+- [ ] `SUPPORTED_DATA.md` 최신 상태
+
+#### 배포 흐름도
+
+```mermaid
+flowchart TD
+    A[변경사항 main에 merge] --> B{배포 방식}
+    B -->|수동 트리거| C[Actions > Run workflow]
+    C --> D[bump type 선택]
+    D --> E[자동: 버전 bump + commit + tag]
+    B -->|Release 생성| F[수동: 버전 수정 + Release 생성]
+    E --> G[Quality gates]
+    F --> G
+    G --> H[Build sdist + wheel]
+    H --> I[GitHub Release 생성]
+    I --> J[PyPI 배포]
+```
+
+#### 환경 설정
+
+- **PyPI trusted publisher**: GitHub Actions OIDC — 별도 API 토큰 불필요
+- **GitHub environment**: `pypi` (Settings → Environments)
+- **Workflow 파일**: `.github/workflows/publish-pypi.yml`
 
 ## 7. Versioning policy
 
