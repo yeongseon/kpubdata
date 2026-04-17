@@ -47,30 +47,43 @@ jobs:
 
       - name: Bump version
         id: bump
+        shell: bash
         run: |
-          current=$(grep -oP 'version = "\K[^"]+' pyproject.toml)
-          IFS='.' read -r major minor patch_raw <<< "$current"
+          current=$(python3 -c "
+          import re, pathlib
+          m = re.search(r'version = \"([^\"]+)\"', pathlib.Path('pyproject.toml').read_text())
+          print(m.group(1))
+          ")
+          echo "Current version: ${current}"
 
-          patch="${patch_raw%%a*}"
-          pre="${patch_raw#*a}"
+          bump="${{ inputs.bump }}"
+          new_version=$(python3 -c "
+          import re
+          v = '${current}'
+          parts = v.split('.')
+          major, minor = int(parts[0]), int(parts[1])
+          patch_raw = parts[2]
 
-          case "${{ inputs.bump }}" in
-            patch)
-              new_version="${major}.${minor}.$((patch + 1))"
-              ;;
-            minor)
-              new_version="${major}.$((minor + 1)).0"
-              ;;
-            pre)
-              if [[ "$patch_raw" == *a* ]]; then
-                new_version="${major}.${minor}.${patch}a$((pre + 1))"
-              else
-                new_version="${major}.${minor}.$((patch + 1))a0"
-              fi
-              ;;
-          esac
+          if '${bump}' == 'patch':
+              patch = int(re.match(r'\d+', patch_raw).group())
+              print(f'{major}.{minor}.{patch + 1}')
+          elif '${bump}' == 'minor':
+              print(f'{major}.{minor + 1}.0')
+          elif '${bump}' == 'pre':
+              if 'a' in patch_raw:
+                  patch, pre = patch_raw.split('a')
+                  print(f'{major}.{minor}.{patch}a{int(pre) + 1}')
+              else:
+                  patch = int(patch_raw)
+                  print(f'{major}.{minor}.{patch + 1}a0')
+          ")
 
-          sed -i "s/version = \"${current}\"/version = \"${new_version}\"/" pyproject.toml
+          python3 -c "
+          import pathlib
+          p = pathlib.Path('pyproject.toml')
+          p.write_text(p.read_text().replace('version = \"${current}\"', 'version = \"${new_version}\"'))
+          "
+
           echo "new_version=${new_version}" >> "$GITHUB_OUTPUT"
           echo "tag=v${new_version}" >> "$GITHUB_OUTPUT"
           echo "Bumped: ${current} → ${new_version}"
