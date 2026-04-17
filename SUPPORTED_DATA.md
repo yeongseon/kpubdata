@@ -12,25 +12,30 @@
 >
 > - 테스트 검증: fixture 기반 unit 테스트 + contract 테스트 통과
 > - 실API 검증: 위 조건 + 실 API integration 테스트 통과 ([#80](https://github.com/yeongseon/kpubdata/issues/80))
+>
+> **실API 최종 검증일**
+>
+> - 실API 검증을 마지막으로 성공한 날짜 (`YYYY-MM-DD`). 테스트 검증만 완료된 데이터셋은 `-`로 표기합니다.
+> - 검증일이 90일을 초과한 데이터셋은 재검증을 권장합니다.
 
 ## 현재 지원
 
-| 상태 | 검증 | Provider | Dataset ID | 데이터셋명 | 인증 | 공식 문서 | 비고 |
-|---|---|---|---|---|---|---|---|
-| 지원 | 테스트 검증 | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
-| 지원 | 테스트 검증 | 공공데이터포털 (`datago`) | `ultra_srt_ncst` | 초단기실황 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
-| 지원 | 테스트 검증 | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| 지원 | 테스트 검증 | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| 지원 | 테스트 검증 | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| 지원 | 실API 검증 | 한국은행 ECOS (`bok`) | `base_rate` | 한국은행 기준금리 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | |
-| 지원 | 실API 검증 | 통계청 KOSIS (`kosis`) | `population_migration` | 시도별 이동자수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | |
-| 지원 | 실API 검증 | 지방재정365 (`lofin`) | `expenditure_budget` | 세출결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: AJGCF |
-| 지원 | 실API 검증 | 지방재정365 (`lofin`) | `revenue_budget` | 세입결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: IIBBH |
-| 지원 | 실API 검증 | 지방재정365 (`lofin`) | `expenditure_function` | 기능별세출 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: GGNSE |
-| 지원 | 실API 검증 | 지방재정365 (`lofin`) | `debt_ratio` | 채무비율현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: HEDFC |
-| 지원 | 실API 검증 | 지방재정365 (`lofin`) | `fiscal_independence` | 재정자립도현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: JFIED |
-| 지원 | 실API 검증 | 지방재정365 (`lofin`) | `revenue_by_source` | 재원별 회계별 세입결산 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: FIACRV |
+| 상태 | 검증 | 실API 최종 검증일 | Provider | Dataset ID | 데이터셋명 | 인증 | 공식 문서 | 비고 |
+|---|---|---|---|---|---|---|---|---|
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `ultra_srt_ncst` | 초단기실황 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 실API 검증 | 2025-04-15 | 한국은행 ECOS (`bok`) | `base_rate` | 한국은행 기준금리 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | |
+| 지원 | 실API 검증 | 2025-04-15 | 통계청 KOSIS (`kosis`) | `population_migration` | 시도별 이동자수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | |
+| 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `expenditure_budget` | 세출결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: AJGCF |
+| 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `revenue_budget` | 세입결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: IIBBH |
+| 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `expenditure_function` | 기능별세출 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: GGNSE |
+| 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `debt_ratio` | 채무비율현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: HEDFC |
+| 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `fiscal_independence` | 재정자립도현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: JFIED |
+| 지원 | 실API 검증 | 2025-04-17 | 지방재정365 (`lofin`) | `revenue_by_source` | 재원별 회계별 세입결산 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: FIACRV |
 
 ## 진행 예정 / 진행 중
 

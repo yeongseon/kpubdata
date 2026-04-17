@@ -144,7 +144,112 @@ KPubData는 이 모든 은행을 대신 처리해주는 **"통합 키오스크"*
 5.  **5단계: 결과 반환 (Return)**
     - 최종적으로 예쁘게 포장된 `RecordBatch` 객체가 사용자에게 전달됩니다.
 
-## 6. 자주 묻는 질문 (FAQ)
+## 6. 인증 흐름 (Authentication Flow)
+
+### 6.1 개요
+
+공공데이터 API를 사용하려면 각 기관에서 발급한 **인증키(API Key)**가 필요합니다. KPubData는 이 키를 사용자로부터 받아 각 기관이 요구하는 방식으로 HTTP 요청에 주입합니다.
+
+핵심 설계 원칙:
+- **키 저장은 `KPubDataConfig`에 집중**: 모든 기관의 키를 한 곳에서 관리합니다.
+- **키 주입은 각 어댑터에 위임**: 기관마다 키를 넣는 위치와 파라미터 이름이 다르므로, 이 로직은 어댑터가 담당합니다.
+- **환경변수 우선 해석**: 명시적으로 전달된 키 → `KPUBDATA_*` 환경변수 → fallback 환경변수 순으로 탐색합니다.
+
+### 6.2 키 해석 우선순위
+
+```mermaid
+flowchart TD
+    Start[키 요청: require_provider_key] --> E1{명시적으로 전달된 키?}
+    E1 -- 있음 --> Use[키 반환]
+    E1 -- 없음 --> E2{KPUBDATA_{PROVIDER}_API_KEY 환경변수?}
+    E2 -- 있음 --> Use
+    E2 -- 없음 --> E3{"{PROVIDER}_API_KEY" 환경변수?}
+    E3 -- 있음 --> Use
+    E3 -- 없음 --> Err[ConfigError 발생]
+```
+
+```python
+# 1순위: 명시적 전달
+client = Client(provider_keys={"datago": "MY_KEY"})
+
+# 2순위: KPUBDATA_ 접두사 환경변수
+# export KPUBDATA_DATAGO_API_KEY="MY_KEY"
+client = Client.from_env()
+
+# 3순위: 접두사 없는 환경변수 (fallback)
+# export DATAGO_API_KEY="MY_KEY"
+client = Client.from_env()
+```
+
+**관련 코드**: `src/kpubdata/config.py` → `KPubDataConfig.get_provider_key()`, `require_provider_key()`
+
+### 6.3 키의 내부 전달 경로
+
+```mermaid
+sequenceDiagram
+    participant U as 사용자
+    participant C as Client
+    participant Cfg as KPubDataConfig
+    participant A as ProviderAdapter
+    participant T as HttpTransport
+    participant P as 공공 API
+
+    U->>C: Client(provider_keys={"datago": "KEY"})
+    C->>Cfg: KPubDataConfig(provider_keys={...})
+    Note over Cfg: 키를 dict에 보관
+
+    U->>C: dataset("datago.village_fcst").list(...)
+    C->>A: query_records(dataset_ref, query)
+    A->>Cfg: require_provider_key("datago")
+    Cfg-->>A: "KEY" 반환
+    A->>A: _build_params()에서 키를 HTTP 파라미터에 주입
+    A->>T: HTTP 요청 (키 포함)
+    T->>P: GET https://apis.data.go.kr/...?serviceKey=KEY
+    P-->>T: 응답
+```
+
+**핵심 메서드**: 모든 어댑터는 `_require_api_key()` → `self._config.require_provider_key("slug")` 패턴을 사용합니다.
+
+### 6.4 기관별 키 주입 방식
+
+기관마다 키를 HTTP 요청에 넣는 위치와 파라미터 이름이 다릅니다.
+
+| Provider | 파라미터 이름 | 주입 위치 | 예시 | 특이사항 |
+|---|---|---|---|---|
+| `datago` | `serviceKey` | Query parameter | `?serviceKey=KEY` | dataset별 `service_key_param` 메타데이터로 파라미터명 오버라이드 가능 |
+| `bok` | _(URL 경로)_ | URL path segment | `/{KEY}/json/{operation}/...` | 쿼리 파라미터가 아닌 **URL 경로**에 직접 삽입 |
+| `kosis` | `apiKey` | Query parameter | `?apiKey=KEY` | 표준적인 쿼리 파라미터 방식 |
+| `lofin` | `Key` | Query parameter | `?Key=KEY` | 대문자 `K` 필수. `Type=json`도 대문자 `T` 필수 |
+
+```text
+datago:  GET https://apis.data.go.kr/.../getVilageFcst?serviceKey=KEY&...
+bok:     GET https://ecos.bok.or.kr/api/KEY/json/StatisticSearch/...
+kosis:   GET https://kosis.kr/openapi/Idx/indikatorList.do?apiKey=KEY&...
+lofin:   GET https://www.lofin365.go.kr/lf/hub/AJGCF?Key=KEY&Type=json&...
+```
+
+### 6.5 새 어댑터 추가 시 인증 구현 가이드
+
+새로운 데이터 기관을 추가할 때, 인증 관련 구현은 다음 3단계를 따릅니다.
+
+**1단계**: `_require_api_key()` 메서드를 정의합니다.
+```python
+def _require_api_key(self) -> str:
+    return self._config.require_provider_key("your_provider_slug")
+```
+
+**2단계**: 요청 생성 시 키를 해당 기관의 방식에 맞게 주입합니다.
+```python
+# Query parameter 방식 (가장 일반적)
+params = {"apiKey": self._require_api_key(), ...}
+
+# URL path 방식 (bok처럼 경로에 넣는 경우)
+url = f"{base_url}/{self._require_api_key()}/json/{operation}"
+```
+
+**3단계**: `Client`의 `_BUILTIN_PROVIDERS` 튜플에 등록하면, `from_env()`가 자동으로 `KPUBDATA_{SLUG}_API_KEY` 환경변수를 스캔합니다.
+
+## 7. 자주 묻는 질문 (FAQ)
 
 **Q: 새 데이터셋을 추가하려면 어디를 수정하나요?**
 A: 해당 기관의 어댑터(`providers/<provider>/adapter.py`)와 데이터 목록 파일(`catalogue.json`)을 수정하면 됩니다.
