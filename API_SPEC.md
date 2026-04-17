@@ -6,6 +6,18 @@
 from kpubdata import Client
 ```
 
+| API | 메서드 | 반환 타입 | 설명 |
+|---|---|---|---|
+| `Client(...)` | 생성자 | `Client` | API 키 등을 전달하여 명시적 생성 |
+| `Client.from_env()` | 클래스 메서드 | `Client` | 환경 변수에서 키를 읽어 자동 생성 |
+| `client.datasets.list()` | 인스턴스 | `list[DatasetRef]` | 등록된 전체 데이터셋 목록 조회 |
+| `client.datasets.search(q)` | 인스턴스 | `list[DatasetRef]` | 키워드로 데이터셋 검색 |
+| `client.dataset(id)` | 인스턴스 | `Dataset` | ID로 특정 데이터셋 객체 획득 |
+| `dataset.list(**params)` | 인스턴스 | `RecordBatch` | 필터를 사용한 목록 데이터 조회 |
+| `dataset.get(**key)` | 인스턴스 | `dict \| None` | 키 값을 사용한 단건 레코드 조회 |
+| `dataset.schema()` | 인스턴스 | `SchemaDescriptor \| None` | 데이터셋의 필드 정의 정보 조회 |
+| `dataset.call_raw(op, **p)` | 인스턴스 | `Any` | 원본 API를 직접 호출하는 비상구 |
+
 ## 2. Client construction
 
 ### Explicit construction

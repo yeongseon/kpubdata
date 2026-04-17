@@ -1,5 +1,12 @@
 # PRD — KPubData
 
+```mermaid
+graph LR
+    U[사용자] --> C[KPubData Client]
+    C --> A[Provider Adapters]
+    A --> P[공공데이터 API들]
+```
+
 ## 1. Document information
 
 - Product name: `KPubData`

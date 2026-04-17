@@ -2,6 +2,16 @@
 
 ## 1. Architectural style
 
+| 컴포넌트 | 책임 | 위치 |
+|---|---|---|
+| Client | 사용자 진입점 및 클라이언트 생성 | `client.py` |
+| Catalog | 데이터셋 검색 및 해결(Resolution) | `catalog.py` |
+| Dataset | 어댑터가 바인딩된 데이터셋 객체 | `core/dataset.py` |
+| ProviderAdapter | 기관별 변환 및 파싱 로직 | `providers/`, `core/protocol.py` |
+| Transport | HTTP 통신 및 재시도 로직 | `transport/http.py` |
+| Registry | 어댑터 등록 및 관리 | `registry.py` |
+| Decode | JSON/XML 응답 디코딩 | `transport/decode.py` |
+
 KPubData uses a **dialect-inspired layered architecture**.
 
 ```mermaid

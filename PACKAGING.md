@@ -145,6 +145,27 @@ Use SemVer with public API discipline.
 - package/import name: `kpubdata`
 - repository name: preferably `kpubdata` or `kpubdata-framework`
 
+### 빌드 및 배포 파이프라인
+
+```mermaid
+graph LR
+    Dev[개발] --> Lint[Lint/Format]
+    Lint --> Type[Type Check]
+    Type --> Test[Test]
+    Test --> Build[Build]
+    Build --> Release[Release]
+```
+
+### 의존성 요약
+
+| 구분 | 패키지 | 용도 |
+|---|---|---|
+| 코어 | `httpx` | HTTP 클라이언트 |
+| 선택 (xml) | XML 파서 | XML 응답 처리 |
+| 선택 (pandas) | `pandas` | DataFrame 변환 |
+| 선택 (dev) | `ruff`, `mypy`, `pytest` | 개발 도구 |
+| 빌드 | `hatchling` | PEP 517 빌드 백엔드 |
+
 ---
 
 ## 관련 문서

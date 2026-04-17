@@ -3,6 +3,13 @@
 This document summarizes the public API conventions of **data.go.kr**
 (공공데이터포털) as they affect KPubData's `DataGoAdapter`.
 
+```mermaid
+graph TD
+    A[원본 응답 (Raw XML/JSON)] --> B[봉투 (Envelope: Header + Body)]
+    B --> C[데이터 본문 (Body.items.item)]
+    C --> D[표준 결과물 (RecordBatch)]
+```
+
 ## 1. Scope
 
 **v0.1 targets the `apis.data.go.kr` endpoint family only.**

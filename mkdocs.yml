@@ -1,0 +1,69 @@
+site_name: "KPubData"
+site_url: "https://yeongseon.github.io/kpubdata/"
+repo_url: "https://github.com/yeongseon/kpubdata"
+repo_name: "yeongseon/kpubdata"
+docs_dir: docs
+theme:
+  name: material
+  language: ko
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+plugins:
+  - search
+hooks:
+  - docs/_hooks/rewrite_links.py
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/mermaid.js
+nav:
+  - Home: index.md
+  - 빠른 시작: quickstart.md
+  - 사용 가이드:
+      - API 명세: api-spec.md
+      - 지원 데이터 현황: supported-data.md
+  - Provider 가이드:
+      - 공공데이터포털 (datago): providers/datago.md
+      - 한국은행 (BOK): providers/bok.md
+      - 통계청 (KOSIS): providers/kosis.md
+  - 아키텍처:
+      - 시스템 구조: architecture.md
+      - 다이어그램: architecture-diagrams.md
+      - 표준 모델: canonical-model.md
+      - 어댑터 규약: provider-adapter-contract.md
+      - 설계 검증: validation.md
+      - 제품군 아키텍처: product-family-architecture.md
+      - datago API 레퍼런스: datago-api-reference.md
+  - 개발 가이드:
+      - 기여 방법: contributing.md
+      - 패키징: packaging.md
+      - 에이전트 가이드: agents.md
+      - AI 에이전트 워크플로우: tutorial-ai-agent-workflow.md
+  - 프로젝트:
+      - 요구사항 (PRD): prd.md
+      - 로드맵: roadmap.md
+      - 변경 이력: changelog.md
+  - ADR:
+      - 방언 기반 아키텍처: adrs/0001-dialect-inspired-architecture.md
+      - UX 표준화: adrs/0002-standardize-ux-not-native-shape.md
