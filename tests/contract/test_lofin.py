@@ -135,3 +135,27 @@ class TestLofinAdapterContract(ProviderAdapterContract):
             _ = adapter.query_records(dataset, Query())
 
         assert exc_info.value.provider_code == "ERROR-290"
+
+    def test_query_records_fiacrv_dataset(self) -> None:
+        transport = _FixtureTransport(["success_fiacrv.json"])
+        config = KPubDataConfig(provider_keys={"lofin": "test-key"})
+        adapter_module = import_module("kpubdata.providers.lofin.adapter")
+        adapter_class_obj = cast(object, adapter_module.LofinAdapter)
+        if not isinstance(adapter_class_obj, type):
+            raise AssertionError("LofinAdapter is not a class")
+        adapter_class = cast(_AdapterFactory, adapter_class_obj)
+        adapter = adapter_class(
+            config=config,
+            transport=cast(HttpTransport, cast(object, transport)),
+        )
+
+        dataset = adapter.get_dataset("revenue_by_source")
+        result = adapter.query_records(dataset, Query())
+
+        assert result.total_count == 2
+        assert len(result.items) == 2
+        assert result.items[0]["armk_nm"] == "총괄"
+        assert result.items[1]["armk_nm"] == "지방세수입"
+
+        request_url = cast(str, transport.calls[0]["url"])
+        assert "FIACRV" in request_url

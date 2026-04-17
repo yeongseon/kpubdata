@@ -77,6 +77,37 @@
     ]
   },
   {
+    "dataset_key": "revenue_by_source",
+    "name": "지방재정 재원별 회계별 세입결산 (LOFIN Revenue by Source & Account)",
+    "api_code": "FIACRV",
+    "base_url": "https://www.lofin365.go.kr/lf/hub",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "fyr", "title": "회계연도", "type": "string"},
+      {"name": "wa_laf_cd", "title": "광역자치단체코드", "type": "string"},
+      {"name": "wa_laf_hg_nm", "title": "광역자치단체명", "type": "string"},
+      {"name": "laf_cd", "title": "자치단체코드", "type": "string"},
+      {"name": "laf_hg_nm", "title": "자치단체명", "type": "string"},
+      {"name": "armk_cd", "title": "재원분류코드", "type": "string"},
+      {"name": "armk_nm", "title": "재원분류명", "type": "string"},
+      {"name": "lvl_no", "title": "분류레벨", "type": "string"},
+      {"name": "tott_sum_amt", "title": "합계총액", "type": "integer"},
+      {"name": "gen_acnt_tott_amt", "title": "일반회계총액", "type": "integer"},
+      {"name": "pbco_spc_acnt_tott_amt", "title": "공기업특별회계총액", "type": "integer"},
+      {"name": "etc_spc_acnt_tott_amt", "title": "기타특별회계총액", "type": "integer"},
+      {"name": "prsm_amt", "title": "예산액합계", "type": "integer"},
+      {"name": "gen_acnt_prsm_amt", "title": "일반회계예산액", "type": "integer"},
+      {"name": "pbco_spc_acnt_prsm_amt", "title": "공기업특별회계예산액", "type": "integer"},
+      {"name": "etc_spc_acnt_prsm_amt", "title": "기타특별회계예산액", "type": "integer"}
+    ]
+  },
+  {
     "dataset_key": "debt_ratio",
     "name": "지방재정 채무비율현황 (LOFIN Debt Ratio Status)",
     "api_code": "HEDFC",

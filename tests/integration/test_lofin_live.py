@@ -197,3 +197,40 @@ def test_usage_fiscal_independence_rates(live_client: Client) -> None:
         rate1 = item["rate1"]
         assert isinstance(rate1, (int, float))
         assert 0.0 <= rate1 <= 100.0
+
+
+# ---------------------------------------------------------------------------
+# FIACRV (Revenue by Source & Account)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures("require_lofin_key")
+def test_revenue_by_source_returns_record_batch(live_client: Client) -> None:
+    ds = live_client.dataset("lofin.revenue_by_source")
+    result = ds.list(fyr="2023")
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0
+    assert "armk_nm" in result.items[0]
+    assert "tott_sum_amt" in result.items[0]
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures("require_lofin_key")
+def test_revenue_by_source_raw_returns_envelope(live_client: Client) -> None:
+    ds = live_client.dataset("lofin.revenue_by_source")
+    result = ds.call_raw("list", pIndex="1", pSize="5", fyr="2023")
+
+    assert isinstance(result, dict)
+    assert "FIACRV" in result
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures("require_lofin_key")
+def test_revenue_by_source_has_hierarchy_levels(live_client: Client) -> None:
+    ds = live_client.dataset("lofin.revenue_by_source")
+    result = ds.list(fyr="2023", wa_laf_cd="1100000", page_size=50)
+
+    lvl_values = {item["lvl_no"] for item in result.items}
+    assert "1" in lvl_values
