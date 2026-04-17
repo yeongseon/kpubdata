@@ -31,6 +31,8 @@ def test_fixture_single_page(configured_adapter: AdapterFactory) -> None:
 
     assert len(batch.items) == 3
     assert batch.total_count == 3
+    assert batch.next_page is None
+    assert isinstance(batch.raw, dict)
 
 
 def test_fixture_multi_page_pagination(configured_adapter: AdapterFactory) -> None:
@@ -40,8 +42,9 @@ def test_fixture_multi_page_pagination(configured_adapter: AdapterFactory) -> No
 
     batch = adapter.query_records(dataset, Query(page_size=2))
 
-    assert len(batch.items) == 3
-    assert [item["stationName"] for item in batch.items] == ["종로구", "강남구", "서초구"]
+    assert len(batch.items) == 2
+    assert [item["stationName"] for item in batch.items] == ["종로구", "강남구"]
+    assert batch.next_page == 2
 
 
 def test_fixture_single_item_normalization(configured_adapter: AdapterFactory) -> None:
@@ -59,13 +62,13 @@ def test_fixture_empty_response(configured_adapter: AdapterFactory) -> None:
     batch = adapter.query_records(dataset, Query())
 
     assert batch.items == []
-    assert batch.total_count == 0
+    assert batch.total_count is None
 
 
 def test_fixture_string_numerics(configured_adapter: AdapterFactory) -> None:
     adapter, dataset, _ = configured_adapter(["success_string_numerics.json"])
 
-    batch = adapter.query_records(dataset, Query(page=1, page_size=10))
+    batch = adapter.query_records(dataset, Query(page=1, page_size=100))
 
     assert isinstance(batch.total_count, int)
     assert batch.total_count == 1

@@ -115,7 +115,7 @@ class TestLofinAdapterContract(ProviderAdapterContract):
 
         request_url = cast(str, transport.calls[0]["url"])
         assert request_url.startswith("https://www.lofin365.go.kr/lf/hub/AJGCF")
-        assert "?Key=test-key&Type=json&pIndex=1&pSize=10" in request_url
+        assert "?Key=test-key&Type=json&pIndex=1&pSize=100" in request_url
 
     def test_query_records_handles_top_level_auth_error(self) -> None:
         transport = _FixtureTransport(["error_auth.json"])

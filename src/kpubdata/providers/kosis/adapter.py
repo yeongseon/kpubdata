@@ -74,6 +74,7 @@ class KosisAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
+        _page_size = query.page_size or 100
         url = self._build_request_url(dataset, query)
         payload = self._request_and_decode(url)
         items = self._extract_items(payload, dataset.id)
