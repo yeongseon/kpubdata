@@ -16,6 +16,7 @@ _BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("datago", "kpubdata.providers.datago", "DataGoAdapter"),
     ("bok", "kpubdata.providers.bok", "BokAdapter"),
     ("kosis", "kpubdata.providers.kosis", "KosisAdapter"),
+    ("lofin", "kpubdata.providers.lofin", "LofinAdapter"),
 )
 
 
@@ -34,7 +35,7 @@ class Client:
 
         Use ``provider_keys`` to supply credentials directly, and configure
         transport behavior with ``timeout`` and ``max_retries``.
-        Built-in providers (datago, bok, kosis) are lazily registered by default.
+        Built-in providers (datago, bok, kosis, lofin) are lazily registered by default.
         """
 
         self._config = KPubDataConfig(

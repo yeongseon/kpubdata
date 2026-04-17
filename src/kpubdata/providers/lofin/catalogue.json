@@ -1,0 +1,106 @@
+[
+  {
+    "dataset_key": "expenditure_budget",
+    "name": "지방재정 세출결산총괄 (LOFIN Expenditure Budget Summary)",
+    "api_code": "CDDFA",
+    "base_url": "http://lofin.mois.go.kr/HUB",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "FSCL_YY", "title": "회계연도", "type": "string"},
+      {"name": "FSCL_NM", "title": "회계명", "type": "string"},
+      {"name": "SFRND_CODE", "title": "자치단체코드", "type": "string"},
+      {"name": "SFRND_NM", "title": "자치단체명", "type": "string"},
+      {"name": "BUDGET_CRNTAM", "title": "예산현액", "type": "string"},
+      {"name": "EXPNDTRAM", "title": "지출액", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "expenditure_function",
+    "name": "지방재정 기능별세출 (LOFIN Expenditure by Function)",
+    "api_code": "GGNSE",
+    "base_url": "http://lofin.mois.go.kr/HUB",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "FSCL_YY", "title": "회계연도", "type": "string"},
+      {"name": "SFRND_CODE", "title": "자치단체코드", "type": "string"},
+      {"name": "SFRND_NM", "title": "자치단체명", "type": "string"},
+      {"name": "REALM_CODE", "title": "분야코드", "type": "string"},
+      {"name": "REALM_NM", "title": "분야명", "type": "string"},
+      {"name": "SECT_CODE", "title": "부문코드", "type": "string"},
+      {"name": "SECT_NM", "title": "부문명", "type": "string"},
+      {"name": "EXPNDTRAM", "title": "지출액", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "revenue_budget",
+    "name": "지방재정 세입결산총괄 (LOFIN Revenue Budget Summary)",
+    "api_code": "FIACRV",
+    "base_url": "http://lofin.mois.go.kr/HUB",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "FSCL_YY", "title": "회계연도", "type": "string"},
+      {"name": "FSCL_NM", "title": "회계명", "type": "string"},
+      {"name": "SFRND_CODE", "title": "자치단체코드", "type": "string"},
+      {"name": "SFRND_NM", "title": "자치단체명", "type": "string"},
+      {"name": "BUDGET_CRNTAM", "title": "예산현액", "type": "string"},
+      {"name": "RCVAM", "title": "수납액", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "debt_ratio",
+    "name": "지방재정 채무비율현황 (LOFIN Debt Ratio Status)",
+    "api_code": "HEDFC",
+    "base_url": "http://lofin.mois.go.kr/HUB",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "FSCL_YY", "title": "회계연도", "type": "string"},
+      {"name": "SFRND_CODE", "title": "자치단체코드", "type": "string"},
+      {"name": "SFRND_NM", "title": "자치단체명", "type": "string"},
+      {"name": "DEPT_AM", "title": "채무액", "type": "string"},
+      {"name": "DEBT_RATE", "title": "채무비율", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "fiscal_independence",
+    "name": "지방재정 재정자립도현황 (LOFIN Fiscal Independence)",
+    "api_code": "JFIED",
+    "base_url": "http://lofin.mois.go.kr/HUB",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "FSCL_YY", "title": "회계연도", "type": "string"},
+      {"name": "SFRND_CODE", "title": "자치단체코드", "type": "string"},
+      {"name": "SFRND_NM", "title": "자치단체명", "type": "string"},
+      {"name": "FNNC_IDP_RATE", "title": "재정자립도", "type": "string"}
+    ]
+  }
+]

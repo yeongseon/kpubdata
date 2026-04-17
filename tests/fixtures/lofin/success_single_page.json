@@ -1,0 +1,37 @@
+{
+  "CDDFA": [
+    {
+      "list_total_count": 3,
+      "RESULT": {
+        "CODE": "INFO-000",
+        "MESSAGE": "정상 처리되었습니다."
+      },
+      "row": [
+        {
+          "FSCL_YY": "2023",
+          "FSCL_NM": "일반회계",
+          "SFRND_CODE": "1100000",
+          "SFRND_NM": "서울특별시",
+          "BUDGET_CRNTAM": "30000000000",
+          "EXPNDTRAM": "28000000000"
+        },
+        {
+          "FSCL_YY": "2023",
+          "FSCL_NM": "일반회계",
+          "SFRND_CODE": "2600000",
+          "SFRND_NM": "부산광역시",
+          "BUDGET_CRNTAM": "15000000000",
+          "EXPNDTRAM": "14000000000"
+        },
+        {
+          "FSCL_YY": "2023",
+          "FSCL_NM": "일반회계",
+          "SFRND_CODE": "2700000",
+          "SFRND_NM": "대구광역시",
+          "BUDGET_CRNTAM": "10000000000",
+          "EXPNDTRAM": "9500000000"
+        }
+      ]
+    }
+  ]
+}
