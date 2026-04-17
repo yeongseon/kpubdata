@@ -213,7 +213,10 @@ class DataGoAdapter:
                 decoded = decode_xml(response.content)
             else:
                 decoded = decode_json(response.content)
-        except (ImportError, ValueError) as exc:
+        except ParseError as exc:
+            exc.provider = "datago"
+            raise
+        except ImportError as exc:
             raise ParseError("Failed to parse data.go.kr response", provider="datago") from exc
 
         if isinstance(decoded, dict):

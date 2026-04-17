@@ -175,8 +175,9 @@ class KosisAdapter:
 
         try:
             decoded: object = decode_json(response.content)
-        except ValueError as exc:
-            raise ParseError("Failed to parse KOSIS response", provider="kosis") from exc
+        except ParseError as exc:
+            exc.provider = "kosis"
+            raise
 
         if isinstance(decoded, list):
             return cast(list[object], decoded)
