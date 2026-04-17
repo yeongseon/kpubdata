@@ -279,6 +279,9 @@ for item in result.items[:5]:
 | 지방재정365 (`lofin`) | 기능별세출 (`expenditure_function`) | 지원 |
 | 지방재정365 (`lofin`) | 채무비율현황 (`debt_ratio`) | 지원 |
 | 지방재정365 (`lofin`) | 재정자립도현황 (`fiscal_independence`) | 지원 |
+| 지방재정365 (`lofin`) | 재원별 세입결산 (`revenue_by_source`) | 지원 |
+
+> 검증 수준 및 실API 최종 검증일 등 상세 정보는 [SUPPORTED_DATA.md](./SUPPORTED_DATA.md)를 참고하세요.
 
 ## 문서 가이드 (Document Guide)
 
