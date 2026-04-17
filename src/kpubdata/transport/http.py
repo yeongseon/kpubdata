@@ -12,14 +12,19 @@ from __future__ import annotations
 import logging
 import ssl
 import time
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import httpx
+from typing_extensions import override
 
 from kpubdata.exceptions import TransportError, TransportTimeoutError
+
+if TYPE_CHECKING:
+    import ssl
 
 logger = logging.getLogger("kpubdata.transport")
 _SENSITIVE_PARAM_KEYS = {
@@ -47,13 +52,43 @@ class TransportConfig:
     ssl_context: ssl.SSLContext | None = None
 
 
+@dataclass(frozen=True)
+class TransportRequirements:
+    """Declarative transport customization for provider adapters."""
+
+    verify_ssl: bool | None = None
+    headers: Mapping[str, str] | None = None
+    ssl_context_factory: Callable[[], ssl.SSLContext] | None = None
+
+
 class HttpTransport:
     """Managed httpx client with retry, timeout, and structured logging."""
 
-    def __init__(self, config: TransportConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: TransportConfig | None = None,
+        requirements: TransportRequirements | None = None,
+    ) -> None:
         """Initialize transport with optional explicit configuration."""
-        self._config = config or TransportConfig()
+        self._config: TransportConfig = config or TransportConfig()
+        self._requirements: TransportRequirements | None = requirements
         self._client: httpx.Client | None = None
+
+    @classmethod
+    def with_requirements(
+        cls,
+        config: TransportConfig,
+        requirements: TransportRequirements,
+    ) -> HttpTransport:
+        return cls(
+            config=TransportConfig(
+                timeout=config.timeout,
+                max_retries=config.max_retries,
+                retry_backoff_factor=config.retry_backoff_factor,
+                headers=_merge_headers(config.headers, requirements.headers),
+            ),
+            requirements=requirements,
+        )
 
     def __enter__(self) -> HttpTransport:
         """Enter context manager and initialize client eagerly."""
@@ -64,6 +99,7 @@ class HttpTransport:
         """Exit context manager and close managed client."""
         self.close()
 
+    @override
     def __repr__(self) -> str:
         """Return concise debug representation."""
         return (
@@ -75,16 +111,30 @@ class HttpTransport:
             ")"
         )
 
-    def _build_client(self) -> httpx.Client:
-        verify: bool | ssl.SSLContext = self._config.verify_ssl
-        if self._config.ssl_context is not None:
-            verify = self._config.ssl_context
+    def _build_client(self, requirements: TransportRequirements | None = None) -> httpx.Client:
+        effective_requirements = requirements or self._requirements
         return httpx.Client(
             timeout=self._config.timeout,
-            headers=self._config.headers or {},
+            headers=_merge_headers(
+                self._config.headers,
+                None if effective_requirements is None else effective_requirements.headers,
+            )
+            or {},
             follow_redirects=True,
-            verify=verify,
+            verify=self._resolve_verify(effective_requirements),
         )
+
+    def _resolve_verify(self, requirements: TransportRequirements | None) -> bool | ssl.SSLContext:
+        # TransportConfig.ssl_context takes precedence (set directly by adapter)
+        if self._config.ssl_context is not None:
+            return self._config.ssl_context
+        if requirements is None:
+            return self._config.verify_ssl
+        if requirements.ssl_context_factory is not None:
+            return requirements.ssl_context_factory()
+        if requirements.verify_ssl is not None:
+            return requirements.verify_ssl
+        return self._config.verify_ssl
 
     def close(self) -> None:
         """Close client if initialized."""
@@ -157,7 +207,7 @@ class HttpTransport:
                     content=content,
                     json=json_body,
                 )
-                response.raise_for_status()
+                _ = response.raise_for_status()
 
                 logger.debug(
                     "HTTP request success",
@@ -231,10 +281,11 @@ class HttpTransport:
                         f"Request failed after {attempt} attempts: {method} {url}"
                     ) from exc
 
+            delay: float
             if retry_delay is not None:
                 delay = retry_delay
             else:
-                delay = self._config.retry_backoff_factor * (2 ** (attempt - 1))
+                delay = cast(float, self._config.retry_backoff_factor * (2 ** (attempt - 1)))
             logger.debug(
                 "Retrying HTTP request",
                 extra={
@@ -254,6 +305,21 @@ def _is_retryable_status(status_code: int) -> bool:
     return status_code == 429 or 500 <= status_code <= 599
 
 
+def _merge_headers(
+    base_headers: Mapping[str, str] | None,
+    override_headers: Mapping[str, str] | None,
+) -> dict[str, str] | None:
+    if base_headers is None and override_headers is None:
+        return None
+
+    merged_headers: dict[str, str] = {}
+    if base_headers is not None:
+        merged_headers.update(base_headers)
+    if override_headers is not None:
+        merged_headers.update(override_headers)
+    return merged_headers
+
+
 def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
     if params is None:
         return {}
@@ -268,7 +334,7 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
 
 
 def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:
-    content_type = response.headers.get("content-type", "").casefold()
+    content_type = cast(str, response.headers.get("content-type", "")).casefold()
     is_text = (
         content_type.startswith("text/")
         or "json" in content_type
@@ -311,4 +377,4 @@ def _parse_retry_after(header_value: str) -> float | None:
     return max((retry_at - now).total_seconds(), 0.0)
 
 
-__all__ = ["HttpTransport", "TransportConfig"]
+__all__ = ["HttpTransport", "TransportConfig", "TransportRequirements"]

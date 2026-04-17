@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, cast
+from typing import cast
+
+from typing_extensions import override
 
 from kpubdata.catalog import Catalog
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.registry import ProviderRegistry
-from kpubdata.transport.http import HttpTransport, TransportConfig
+from kpubdata.transport.http import HttpTransport, TransportConfig, TransportRequirements
 
 _BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("datago", "kpubdata.providers.datago", "DataGoAdapter"),
@@ -29,7 +31,7 @@ class Client:
         provider_keys: dict[str, str] | None = None,
         timeout: float = 30.0,
         max_retries: int = 3,
-        **extra: Any,
+        **extra: object,
     ) -> None:
         """Initialize a client with explicit provider and transport configuration.
 
@@ -38,21 +40,24 @@ class Client:
         Built-in providers (datago, bok, kosis, lofin) are lazily registered by default.
         """
 
-        self._config = KPubDataConfig(
+        self._config: KPubDataConfig = KPubDataConfig(
             provider_keys=provider_keys or {},
             timeout=timeout,
             max_retries=max_retries,
             extra=dict(extra),
         )
-        self._registry = ProviderRegistry()
-        self._transport = HttpTransport(
-            TransportConfig(timeout=self._config.timeout, max_retries=self._config.max_retries),
+        self._registry: ProviderRegistry = ProviderRegistry()
+        self._transport_config: TransportConfig = TransportConfig(
+            timeout=self._config.timeout,
+            max_retries=self._config.max_retries,
         )
+        self._transport: HttpTransport = HttpTransport(self._transport_config)
+        self._provider_transports: list[HttpTransport] = []
         self._register_builtin_providers()
-        self._catalog = Catalog(self._registry)
+        self._catalog: Catalog = Catalog(self._registry)
 
     @classmethod
-    def from_env(cls, **overrides: Any) -> Client:
+    def from_env(cls, **overrides: object) -> Client:
         """Create a client from environment variables and explicit overrides."""
 
         config = KPubDataConfig.from_env(**overrides)
@@ -78,6 +83,9 @@ class Client:
         """Close underlying transport resources for this client."""
 
         self._transport.close()
+        for provider_transport in self._provider_transports:
+            provider_transport.close()
+        self._provider_transports.clear()
 
     @property
     def datasets(self) -> Catalog:
@@ -109,27 +117,52 @@ class Client:
     def _register_builtin_providers(self) -> None:
         config = self._config
         transport = self._transport
+        transport_config = self._transport_config
+        provider_transports = self._provider_transports
 
         for provider_name, module_path, class_name in _BUILTIN_PROVIDERS:
 
             def _make_factory(
-                mod: str, cls: str, cfg: KPubDataConfig, tpt: HttpTransport
+                mod: str,
+                cls: str,
+                cfg: KPubDataConfig,
+                tpt: HttpTransport,
+                base_transport_config: TransportConfig,
+                owned_transports: list[HttpTransport],
             ) -> Callable[[], ProviderAdapter]:
                 def _factory() -> ProviderAdapter:
                     import importlib
 
                     module = importlib.import_module(mod)
-                    adapter_cls = getattr(module, cls)
-                    return cast(ProviderAdapter, adapter_cls(config=cfg, transport=tpt))
+                    adapter_cls = cast(Callable[..., ProviderAdapter], getattr(module, cls))
+                    adapter = adapter_cls(config=cfg, transport=tpt)
+                    requirements = _get_transport_requirements(adapter)
+                    if requirements is None:
+                        return adapter
+
+                    custom_transport = HttpTransport.with_requirements(
+                        base_transport_config,
+                        requirements,
+                    )
+                    owned_transports.append(custom_transport)
+                    return adapter_cls(config=cfg, transport=custom_transport)
 
                 return _factory
 
             self._registry.register_lazy(
                 provider_name,
-                _make_factory(module_path, class_name, config, transport),
+                _make_factory(
+                    module_path,
+                    class_name,
+                    config,
+                    transport,
+                    transport_config,
+                    provider_transports,
+                ),
                 skip_if_exists=True,
             )
 
+    @override
     def __repr__(self) -> str:
         """Return concise representation with known providers."""
 
@@ -137,3 +170,10 @@ class Client:
 
 
 __all__ = ["Client"]
+
+
+def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequirements | None:
+    requirements = getattr(adapter, "transport_requirements", None)
+    if requirements is None:
+        return None
+    return cast(TransportRequirements | None, requirements)

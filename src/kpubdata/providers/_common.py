@@ -15,6 +15,7 @@ from kpubdata.core.models import (
     SchemaDescriptor,
 )
 from kpubdata.core.representation import Representation
+from kpubdata.exceptions import ConfigError
 
 
 def load_catalogue(package_name: str, provider: str) -> tuple[DatasetRef, ...]:
@@ -24,22 +25,32 @@ def load_catalogue(package_name: str, provider: str) -> tuple[DatasetRef, ...]:
     parsed_catalogue = cast(object, json.loads(catalogue_text))
     if not isinstance(parsed_catalogue, list):
         msg = f"{provider} catalogue.json must contain a top-level JSON array"
-        raise ValueError(msg)
+        raise ConfigError(msg, provider=provider)
 
     catalogue_entries = cast(list[object], parsed_catalogue)
     datasets: list[DatasetRef] = []
     for entry_object in catalogue_entries:
         if not isinstance(entry_object, dict):
             msg = f"{provider} catalogue entries must be JSON objects"
-            raise ValueError(msg)
+            raise ConfigError(msg, provider=provider)
         typed_entry_object = cast(dict[object, object], entry_object)
         entry: dict[str, object] = {}
         for key, value in typed_entry_object.items():
             if not isinstance(key, str):
                 msg = f"{provider} catalogue entry keys must be strings"
-                raise ValueError(msg)
+                raise ConfigError(msg, provider=provider)
             entry[key] = value
         datasets.append(build_dataset_ref(provider, entry))
+
+    dataset_ids = [dataset.id for dataset in datasets]
+    duplicate_ids = sorted(
+        {dataset_id for dataset_id in dataset_ids if dataset_ids.count(dataset_id) > 1}
+    )
+    if duplicate_ids:
+        duplicates = ", ".join(duplicate_ids)
+        msg = f"{provider} catalogue contains duplicate dataset ids: {duplicates}"
+        raise ConfigError(msg, provider=provider)
+
     return tuple(datasets)
 
 
@@ -48,14 +59,25 @@ def build_dataset_ref(provider: str, entry: dict[str, object]) -> DatasetRef:
     dataset_key = require_string_field(entry, "dataset_key", provider)
     name = require_string_field(entry, "name", provider)
     representation_value = require_string_field(entry, "representation", provider)
-    representation = Representation(representation_value)
+    dataset_id = f"{provider}.{dataset_key}"
+    try:
+        representation = Representation(representation_value)
+    except ValueError as exc:
+        msg = f"{provider} catalogue entry has invalid representation: {representation_value}"
+        raise ConfigError(msg, provider=provider, dataset_id=dataset_id) from exc
 
     ops_raw_obj = entry.get("operations", [])
-    ops_raw = ops_raw_obj if isinstance(ops_raw_obj, list) else []
-    valid_ops = {member.value for member in Operation}
-    operations = frozenset(
-        Operation(op) for op in ops_raw if isinstance(op, str) and op in valid_ops
-    )
+    ops_raw = cast(list[object], ops_raw_obj) if isinstance(ops_raw_obj, list) else []
+    operations: set[Operation] = set()
+    for op_raw in ops_raw:
+        if not isinstance(op_raw, str):
+            msg = f"{provider} catalogue entry has non-string operation value: {op_raw!r}"
+            raise ConfigError(msg, provider=provider, dataset_id=dataset_id)
+        try:
+            operations.add(Operation(op_raw))
+        except ValueError as exc:
+            msg = f"{provider} catalogue entry has invalid operation: {op_raw}"
+            raise ConfigError(msg, provider=provider, dataset_id=dataset_id) from exc
 
     query_support = _parse_query_support(entry, provider)
 
@@ -68,12 +90,12 @@ def build_dataset_ref(provider: str, entry: dict[str, object]) -> DatasetRef:
     )
 
     return DatasetRef(
-        id=f"{provider}.{dataset_key}",
+        id=dataset_id,
         provider=provider,
         dataset_key=dataset_key,
         name=name,
         representation=representation,
-        operations=operations,
+        operations=frozenset(operations),
         query_support=query_support,
         raw_metadata=raw_metadata,
     )
@@ -88,11 +110,13 @@ def _parse_query_support(entry: dict[str, object], provider: str) -> QuerySuppor
     qs_raw = cast(dict[str, object], qs_raw_obj)
     pagination_raw = qs_raw.get("pagination", "none")
     valid_pagination = {member.value for member in PaginationMode}
-    pagination = (
-        PaginationMode(pagination_raw)
-        if isinstance(pagination_raw, str) and pagination_raw in valid_pagination
-        else PaginationMode.NONE
-    )
+    if isinstance(pagination_raw, str):
+        if pagination_raw not in valid_pagination:
+            msg = f"{provider} query_support.pagination has invalid value: {pagination_raw}"
+            raise ConfigError(msg, provider=provider)
+        pagination = PaginationMode(pagination_raw)
+    else:
+        pagination = PaginationMode.NONE
 
     max_page_size = None
     if "max_page_size" in qs_raw:
@@ -103,7 +127,7 @@ def _parse_query_support(entry: dict[str, object], provider: str) -> QuerySuppor
             max_page_size = int(max_page_size_raw)
         else:
             msg = f"{provider} query_support.max_page_size must be int-like"
-            raise ValueError(msg)
+            raise ConfigError(msg, provider=provider)
 
     return QuerySupport(pagination=pagination, max_page_size=max_page_size)
 
@@ -165,7 +189,10 @@ def require_string_field(entry: Mapping[str, object], field_name: str, provider:
     value = entry.get(field_name)
     if isinstance(value, str) and value:
         return value
-    raise ValueError(f"{provider} catalogue entry missing non-empty string field: {field_name}")
+    raise ConfigError(
+        f"{provider} catalogue entry missing non-empty string field: {field_name}",
+        provider=provider,
+    )
 
 
 __all__ = [
