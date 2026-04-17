@@ -15,12 +15,29 @@ from kpubdata.exceptions import (
 )
 from kpubdata.providers._common import build_schema_from_metadata, coerce_int, load_catalogue
 from kpubdata.transport.decode import decode_json
-from kpubdata.transport.http import HttpTransport, TransportConfig
+from kpubdata.transport.http import HttpTransport, TransportConfig, TransportRequirements
 
 logger = logging.getLogger("kpubdata.provider.lofin")
 
 
+def _lofin_ssl_context() -> ssl.SSLContext:
+    """Create an SSL context compatible with the LOFIN server.
+
+    The LOFIN server (www.lofin365.go.kr) uses TLSv1.2 with AES256-SHA256,
+    which requires a relaxed security level in OpenSSL 3.x.
+    """
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+    return ctx
+
+
 class LofinAdapter:
+    transport_requirements: TransportRequirements = TransportRequirements(
+        ssl_context_factory=_lofin_ssl_context,
+    )
+
     def __init__(
         self,
         *,
@@ -32,10 +49,7 @@ class LofinAdapter:
         if transport is not None:
             self._transport: HttpTransport = transport
         else:
-            ssl_ctx = ssl.create_default_context()
-            ssl_ctx.check_hostname = False
-            ssl_ctx.verify_mode = ssl.CERT_NONE
-            ssl_ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+            ssl_ctx = _lofin_ssl_context()
             transport_config = TransportConfig(
                 timeout=self._config.timeout,
                 max_retries=self._config.max_retries,
