@@ -74,6 +74,7 @@ class KosisAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
+        _page_size = query.page_size or 100
         url = self._build_request_url(dataset, query)
         payload = self._request_and_decode(url)
         items = self._extract_items(payload, dataset.id)
@@ -85,9 +86,6 @@ class KosisAdapter:
             next_page=None,
             raw=payload,
         )
-
-    def get_record(self, _dataset: DatasetRef, _key: dict[str, object]) -> dict[str, object] | None:
-        raise NotImplementedError("TODO: implement kosis get_record")
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return build_schema_from_metadata(dataset)

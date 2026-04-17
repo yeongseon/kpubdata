@@ -76,7 +76,7 @@ class BokAdapter:
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         page = query.page or 1
-        page_size = query.page_size or 10
+        page_size = query.page_size or 100
         frequency = self._resolve_frequency(query)
         start_date = query.start_date or self._resolve_string_param(query, "start_date")
         end_date = query.end_date or self._resolve_string_param(query, "end_date")
@@ -88,49 +88,36 @@ class BokAdapter:
                 dataset_id=dataset.id,
             )
 
-        all_items: list[dict[str, object]] = []
-        raw_pages: list[dict[str, object]] = []
-        total_count: int | None = None
-
-        while True:
-            start_index = (page - 1) * page_size + 1
-            end_index = page * page_size
-            url = self._build_request_url(
-                dataset,
-                operation=None,
-                start_index=start_index,
-                end_index=end_index,
-                frequency=frequency,
-                start_date=start_date,
-                end_date=end_date,
-            )
-
-            payload = self._request_and_decode(url)
-            raw_pages.append(payload)
-
-            body, items = self._validate_envelope(payload, dataset.id)
-            all_items.extend(items)
-
-            total_count = coerce_int(body.get("list_total_count"), 0)
-            if not items:
-                break
-            if len(items) < page_size:
-                break
-            if page * page_size >= total_count:
-                break
-
-            page += 1
-
-        return RecordBatch(
-            items=all_items,
-            dataset=dataset,
-            total_count=total_count,
-            next_page=None,
-            raw=raw_pages,
+        start_index = (page - 1) * page_size + 1
+        end_index = page * page_size
+        url = self._build_request_url(
+            dataset,
+            operation=None,
+            start_index=start_index,
+            end_index=end_index,
+            frequency=frequency,
+            start_date=start_date,
+            end_date=end_date,
         )
 
-    def get_record(self, _dataset: DatasetRef, _key: dict[str, object]) -> dict[str, object] | None:
-        raise NotImplementedError("TODO: implement bok get_record")
+        payload = self._request_and_decode(url)
+        body, items = self._validate_envelope(payload, dataset.id)
+
+        total_count = coerce_int(body.get("list_total_count"), 0)
+        if (total_count and page * page_size < total_count) or (
+            not total_count and len(items) == page_size
+        ):
+            computed_next = page + 1
+        else:
+            computed_next = None
+
+        return RecordBatch(
+            items=items,
+            dataset=dataset,
+            total_count=total_count if total_count else None,
+            next_page=computed_next,
+            raw=payload,
+        )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return build_schema_from_metadata(dataset)

@@ -29,7 +29,7 @@ class LofinAdapter:
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
         self._config: KPubDataConfig = config or KPubDataConfig()
-        if transport is not None and not isinstance(transport, HttpTransport):
+        if transport is not None:
             self._transport: HttpTransport = transport
         else:
             ssl_ctx = ssl.create_default_context()
@@ -77,42 +77,30 @@ class LofinAdapter:
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         page = query.page or 1
-        page_size = query.page_size or 10
+        page_size = query.page_size or 100
 
-        all_items: list[dict[str, object]] = []
-        raw_pages: list[dict[str, object]] = []
-        total_count: int | None = None
+        url = self._build_request_url(
+            dataset, page=page, page_size=page_size, filters=query.filters
+        )
+        payload = self._request_and_decode(url, dataset.id)
 
-        while True:
-            url = self._build_request_url(
-                dataset, page=page, page_size=page_size, filters=query.filters
-            )
-            payload = self._request_and_decode(url, dataset.id)
-            raw_pages.append(payload)
+        body, items = self._validate_envelope(payload, dataset)
 
-            body, items = self._validate_envelope(payload, dataset)
-            all_items.extend(items)
-
-            total_count = coerce_int(body.get("list_total_count"), 0)
-            if not items:
-                break
-            if len(items) < page_size:
-                break
-            if len(all_items) >= total_count:
-                break
-
-            page += 1
+        total_count = coerce_int(body.get("list_total_count"), 0)
+        if (total_count and page * page_size < total_count) or (
+            not total_count and len(items) == page_size
+        ):
+            computed_next = page + 1
+        else:
+            computed_next = None
 
         return RecordBatch(
-            items=all_items,
+            items=items,
             dataset=dataset,
-            total_count=total_count,
-            next_page=None,
-            raw=raw_pages,
+            total_count=total_count if total_count else None,
+            next_page=computed_next,
+            raw=payload,
         )
-
-    def get_record(self, _dataset: DatasetRef, _key: dict[str, object]) -> dict[str, object] | None:
-        raise NotImplementedError("TODO: implement lofin get_record")
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return build_schema_from_metadata(dataset)
@@ -120,7 +108,7 @@ class LofinAdapter:
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
         _ = operation
         page = self._int_param(params, "pIndex", self._int_param(params, "page", 1))
-        page_size = self._int_param(params, "pSize", self._int_param(params, "page_size", 10))
+        page_size = self._int_param(params, "pSize", self._int_param(params, "page_size", 100))
         extra_keys = {"pIndex", "page", "pSize", "page_size"}
         filters = {k: v for k, v in params.items() if k not in extra_keys}
 
@@ -151,7 +139,7 @@ class LofinAdapter:
         dataset_code = self._require_dataset_metadata(dataset, "api_code")
         api_key = self._require_api_key()
         safe_page = page if page > 0 else 1
-        safe_page_size = page_size if page_size > 0 else 10
+        safe_page_size = page_size if page_size > 0 else 100
         url = (
             f"{base_url_raw}/{dataset_code}"
             f"?Key={api_key}&Type=json&pIndex={safe_page}&pSize={safe_page_size}"

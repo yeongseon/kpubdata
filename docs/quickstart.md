@@ -146,6 +146,29 @@ kosis.population_migration — 시도별 이동자수 (Population Migration)
 - 공공데이터포털(datago): [datago API 키 발급 가이드](./providers/datago.md)
 - 통계청 KOSIS: [KOSIS API 키 발급 가이드](./providers/kosis.md)
 
+## Step 8: 전체 페이지 자동 조회
+
+데이터가 많을 때 `list_all()`을 사용하면 모든 페이지를 자동으로 순회합니다.
+
+```python
+ds = client.dataset("bok.base_rate")
+
+for batch in ds.list_all(start_date="202401", end_date="202412"):
+    print(f"{len(batch.items)}건 조회")
+```
+
+## Step 9: pandas로 데이터 분석하기
+
+```bash
+pip install kpubdata[pandas]
+```
+
+```python
+result = ds.list(start_date="202401", end_date="202412")
+df = result.to_pandas()
+print(df)
+```
+
 ## 다음 단계
 - 각 Provider별 상세 사용법: [docs/providers/](./providers/) 폴더
 - 프로젝트에 기여하기: [CONTRIBUTING.md](../CONTRIBUTING.md)

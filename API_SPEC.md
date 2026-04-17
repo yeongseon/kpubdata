@@ -43,11 +43,20 @@ dataset = client.dataset("molit.apartment_trades")
 result = dataset.list(lawd_code="11680", deal_ym="202503")
 ```
 
-### Single record
+`list()` returns exactly one page of results. When another page is available,
+the returned `RecordBatch.next_page` is set.
+
+### List all pages
 
 ```python
-record = dataset.get(id="...")
+dataset = client.dataset("molit.apartment_trades")
+for batch in dataset.list_all(lawd_code="11680", deal_ym="202503"):
+    for item in batch.items:
+        print(item)
 ```
+
+`list_all()` yields one `RecordBatch` per page and follows `next_page`
+automatically until pagination is exhausted.
 
 ### Schema
 
@@ -82,9 +91,9 @@ Rules:
 
 Returns `RecordBatch`.
 
-### `get()`
+### `list_all()`
 
-Returns one normalized record or `None`.
+Returns a generator of `RecordBatch` values, one per page.
 
 ### `schema()`
 
@@ -101,7 +110,7 @@ KPubData promises stability for:
 - `Client`
 - `Client.from_env()`
 - dataset discovery methods
-- `Dataset.list/get/schema/call_raw`
+- `Dataset.list/list_all/schema/call_raw`
 - canonical model classes
 - canonical error types
 
@@ -157,4 +166,3 @@ client.call_provider_endpoint("seoul", "SearchSTNTimeTableByIDService", ...)
 | :--- | :--- | :--- |
 | [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [API_CONTRACT.md](https://github.com/yeongseon/kpubdata-builder/blob/main/API_CONTRACT.md) | Builder API 규약 |
 | [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [API_CONTRACT.md](https://github.com/yeongseon/kpubdata-studio/blob/main/API_CONTRACT.md) | Studio API 규약 |
-

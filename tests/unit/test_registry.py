@@ -12,16 +12,17 @@ class FakeAdapter:
     """Minimal adapter satisfying the protocol for testing."""
 
     def __init__(self, provider_name: str = "fake") -> None:
-        self._name = provider_name
+        self._name: str = provider_name
 
     @property
     def name(self) -> str:
         return self._name
 
-    def list_datasets(self) -> list:
+    def list_datasets(self) -> list[object]:
         return []
 
-    def search_datasets(self, text: str) -> list:
+    def search_datasets(self, text: str) -> list[object]:
+        _ = text
         return []
 
     def get_dataset(self, dataset_key: str) -> object:
@@ -30,13 +31,11 @@ class FakeAdapter:
     def query_records(self, dataset: object, query: object) -> object:
         return None
 
-    def get_record(self, dataset: object, key: dict) -> dict | None:
-        return None
-
     def get_schema(self, dataset: object) -> object:
         return None
 
-    def call_raw(self, dataset: object, operation: str, params: dict) -> object:
+    def call_raw(self, dataset: object, operation: str, params: dict[str, object]) -> object:
+        _ = dataset, operation, params
         return None
 
 

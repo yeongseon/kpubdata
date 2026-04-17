@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator
+from typing import cast
+
+from typing_extensions import override
+
 from kpubdata.core.capability import Operation
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.protocol import ProviderAdapter
@@ -18,8 +23,8 @@ class Dataset:
     def __init__(self, ref: DatasetRef, adapter: ProviderAdapter) -> None:
         """Initialize a dataset bound to its canonical ref and adapter."""
 
-        self._ref = ref
-        self._adapter = adapter
+        self._ref: DatasetRef = ref
+        self._adapter: ProviderAdapter = adapter
 
     @property
     def ref(self) -> DatasetRef:
@@ -91,10 +96,18 @@ class Dataset:
                 start_date = value
             elif key == "end_date" and isinstance(value, str):
                 end_date = value
-            elif key == "fields" and isinstance(value, list):
-                fields_list = value
-            elif key == "sort" and isinstance(value, list):
-                sort_list = value
+            elif (
+                key == "fields"
+                and isinstance(value, list)
+                and all(isinstance(item, str) for item in cast(list[object], value))
+            ):
+                fields_list = cast(list[str], value)
+            elif (
+                key == "sort"
+                and isinstance(value, list)
+                and all(isinstance(item, str) for item in cast(list[object], value))
+            ):
+                sort_list = cast(list[str], value)
             else:
                 filters[key] = value
 
@@ -110,24 +123,22 @@ class Dataset:
         )
         return self._adapter.query_records(self._ref, query)
 
-    def get(self, **key: object) -> dict[str, object] | None:
-        """Return a single record matching the provided key fields.
-
-        Return ``None`` when no matching record is found.
-
-        Raises:
-            UnsupportedCapabilityError: If this dataset does not support ``get``.
-        """
-
-        if Operation.GET not in self._ref.operations:
+    def list_all(self, **kwargs: object) -> Generator[RecordBatch, None, None]:
+        if Operation.LIST not in self._ref.operations:
             raise UnsupportedCapabilityError(
-                f"Dataset does not support get: {self._ref.id}",
+                f"Dataset does not support list: {self._ref.id}",
                 provider=self._ref.provider,
                 dataset_id=self._ref.id,
-                operation=Operation.GET.value,
+                operation=Operation.LIST.value,
             )
-        key_payload: dict[str, object] = {k: v for k, v in key.items()}
-        return self._adapter.get_record(self._ref, key_payload)
+
+        page_kwargs = dict(kwargs)
+        batch = self.list(**page_kwargs)
+        yield batch
+        while batch.next_page is not None:
+            page_kwargs["page"] = batch.next_page
+            batch = self.list(**page_kwargs)
+            yield batch
 
     def schema(self) -> SchemaDescriptor | None:
         """Return canonical schema metadata when the provider exposes it."""
@@ -144,6 +155,7 @@ class Dataset:
         payload: dict[str, object] = {k: v for k, v in params.items()}
         return self._adapter.call_raw(self._ref, operation, payload)
 
+    @override
     def __repr__(self) -> str:
         """Return concise debug representation."""
 

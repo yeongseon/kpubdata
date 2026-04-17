@@ -39,7 +39,6 @@ That means these should be standardized:
 
 - `client.dataset(id)`
 - `dataset.list(...)`
-- `dataset.get(...)`
 - `dataset.schema()`
 - `dataset.call_raw(...)`
 

@@ -92,11 +92,6 @@ class TestLofinAdapterContract(ProviderAdapterContract):
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("list", {"pIndex": "1", "pSize": "10"})
 
-    def test_get_record_not_implemented(self, adapter: ProviderAdapter) -> None:
-        dataset = adapter.get_dataset("expenditure_budget")
-        with pytest.raises(NotImplementedError):
-            _ = adapter.get_record(dataset, {})
-
     def test_query_records_uses_lofin365_url_and_key_param(self) -> None:
         transport = _FixtureTransport(["success_single_page.json"])
         config = KPubDataConfig(provider_keys={"lofin": "test-key"})
@@ -115,7 +110,7 @@ class TestLofinAdapterContract(ProviderAdapterContract):
 
         request_url = cast(str, transport.calls[0]["url"])
         assert request_url.startswith("https://www.lofin365.go.kr/lf/hub/AJGCF")
-        assert "?Key=test-key&Type=json&pIndex=1&pSize=10" in request_url
+        assert "?Key=test-key&Type=json&pIndex=1&pSize=100" in request_url
 
     def test_query_records_handles_top_level_auth_error(self) -> None:
         transport = _FixtureTransport(["error_auth.json"])

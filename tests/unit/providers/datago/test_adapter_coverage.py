@@ -74,31 +74,21 @@ def test_name_property_returns_datago() -> None:
     assert DataGoAdapter(catalogue=[]).name == "datago"
 
 
-def test_get_record_raises_not_implemented() -> None:
-    adapter = DataGoAdapter(catalogue=[])
-    with pytest.raises(NotImplementedError):
-        _ = adapter.get_record(_dataset({"base_url": "https://example.test"}), {})
-
-
-def test_query_records_advances_page_for_full_page_with_remaining_total(monkeypatch) -> None:
+def test_query_records_sets_next_page_for_full_page_with_remaining_total(monkeypatch) -> None:
     import kpubdata.providers.datago.adapter as adapter_module
 
-    page1 = _ok_payload(items=[{"id": 1}, {"id": 2}], total_count=5, num_of_rows=2)
-    page2 = _ok_payload(items=[{"id": 3}], total_count=5, num_of_rows=2)
-    transport = FakeTransport([FakeResponse(b"{}"), FakeResponse(b"{}")])
+    payload = _ok_payload(items=[{"id": 1}, {"id": 2}], total_count=5, num_of_rows=2)
+    transport = FakeTransport([FakeResponse(b"{}")])
     dataset = _dataset({"base_url": "https://example.test", "default_operation": "list"})
     adapter = _adapter(transport, dataset)
 
-    decoded_pages = [page1, page2]
     monkeypatch.setattr(adapter_module, "detect_content_type", lambda _resp: "json")
-    monkeypatch.setattr(adapter_module, "decode_json", lambda _content: decoded_pages.pop(0))
+    monkeypatch.setattr(adapter_module, "decode_json", lambda _content: payload)
 
-    _ = adapter.query_records(dataset, Query(page_size=2))
+    batch = adapter.query_records(dataset, Query(page_size=2))
 
-    assert len(transport.calls) == 2
-    second_params = transport.calls[1]["params"]
-    assert isinstance(second_params, dict)
-    assert second_params["pageNo"] == "2"
+    assert len(transport.calls) == 1
+    assert batch.next_page == 2
 
 
 def test_query_records_stops_when_page_size_times_page_reaches_total(monkeypatch) -> None:
@@ -112,9 +102,10 @@ def test_query_records_stops_when_page_size_times_page_reaches_total(monkeypatch
     monkeypatch.setattr(adapter_module, "detect_content_type", lambda _resp: "json")
     monkeypatch.setattr(adapter_module, "decode_json", lambda _content: payload)
 
-    _ = adapter.query_records(dataset, Query(page_size=2))
+    batch = adapter.query_records(dataset, Query(page_size=2))
 
     assert len(transport.calls) == 1
+    assert batch.next_page is None
 
 
 def test_get_schema_returns_none_when_all_fields_are_filtered_out() -> None:

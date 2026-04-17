@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import cast
-
 import pytest
 
 from kpubdata.client import Client
@@ -12,11 +10,9 @@ from kpubdata.exceptions import (
     AuthError,
     DatasetNotFoundError,
     ProviderNotRegisteredError,
-    ProviderResponseError,
     PublicDataError,
     RateLimitError,
     ServiceUnavailableError,
-    UnsupportedCapabilityError,
 )
 
 
@@ -37,7 +33,7 @@ class ErrorAdapter:
                 dataset_key="limited",
                 name="Limited Dataset",
                 representation=Representation.API_JSON,
-                operations=frozenset({Operation.LIST, Operation.GET, Operation.RAW}),
+                operations=frozenset({Operation.LIST, Operation.RAW}),
             ),
         }
 
@@ -71,17 +67,6 @@ class ErrorAdapter:
             operation="list",
             provider_code="30",
             retryable=False,
-        )
-
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        _ = key
-        raise ProviderResponseError(
-            message="Unexpected response shape",
-            provider="errorprov",
-            dataset_id=dataset.id,
-            operation="get",
-            status_code=200,
-            detail={"raw": "malformed"},
         )
 
     def get_schema(self, dataset: DatasetRef) -> None:
@@ -148,19 +133,6 @@ def test_rate_limit_from_call_raw() -> None:
     assert exc.operation == "getData"
 
 
-def test_provider_response_error_from_get() -> None:
-    client, _adapter = _build_client()
-
-    with pytest.raises(ProviderResponseError) as exc_info:
-        _ = client.dataset("errorprov.limited").get(id="123")
-
-    exc = exc_info.value
-    assert exc.operation == "get"
-    assert exc.status_code == 200
-    detail = cast(dict[str, str], exc.detail)
-    assert detail == {"raw": "malformed"}
-
-
 def test_service_unavailable_from_schema() -> None:
     client, _adapter = _build_client()
 
@@ -170,18 +142,6 @@ def test_service_unavailable_from_schema() -> None:
     exc = exc_info.value
     assert exc.retryable is True
     assert exc.operation == "schema"
-
-
-def test_unsupported_get_on_failing_dataset() -> None:
-    client, _adapter = _build_client()
-
-    with pytest.raises(UnsupportedCapabilityError) as exc_info:
-        _ = client.dataset("errorprov.failing").get(id="x")
-
-    exc = exc_info.value
-    assert exc.operation == "get"
-    assert exc.provider == "errorprov"
-    assert exc.dataset_id == "errorprov.failing"
 
 
 def test_dataset_not_found() -> None:

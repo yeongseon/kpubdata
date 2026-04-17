@@ -74,8 +74,3 @@ class TestDataGoAdapterContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("getVilageFcst", {})
-
-    def test_get_record_not_implemented(self, adapter: DataGoAdapter) -> None:
-        dataset = adapter.get_dataset("village_fcst")
-        with pytest.raises(NotImplementedError):
-            _ = adapter.get_record(dataset, {})

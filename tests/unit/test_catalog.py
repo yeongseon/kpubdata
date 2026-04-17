@@ -39,13 +39,11 @@ class StubAdapter:
     def query_records(self, dataset: object, query: object) -> object:
         return None
 
-    def get_record(self, dataset: object, key: dict) -> dict | None:
-        return None
-
     def get_schema(self, dataset: object) -> object:
         return None
 
-    def call_raw(self, dataset: object, operation: str, params: dict) -> object:
+    def call_raw(self, dataset: object, operation: str, params: dict[str, object]) -> object:
+        _ = dataset, operation, params
         return None
 
 
@@ -129,9 +127,9 @@ class TestCatalog:
     def test_resolve_invalid_format(self) -> None:
         catalog = self._build()
         with pytest.raises(DatasetNotFoundError, match="Invalid dataset id"):
-            catalog.resolve("nodot")
+            _ = catalog.resolve("nodot")
 
     def test_resolve_not_found(self) -> None:
         catalog = self._build()
         with pytest.raises(DatasetNotFoundError):
-            catalog.resolve("alpha.nonexistent")
+            _ = catalog.resolve("alpha.nonexistent")

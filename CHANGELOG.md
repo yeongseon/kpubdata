@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-04-17
+
+### Added
+- Single-page pagination contract for all adapters (datago, bok, lofin, kosis)
+- `Dataset.list_all()` generator for automatic multi-page iteration
+- `RecordBatch.to_pandas()` for pandas DataFrame conversion (optional `pandas` dependency)
+- Unit tests for BOK and LOFIN adapters
+
+### Changed
+- Default `page_size` increased from 10 to 100
+- **Breaking**: `query_records()` now returns a single page instead of auto-draining all pages
+
+### Removed
+- Unreachable single-record adapter stubs
+- Single-record access from the provider and dataset public APIs
+
+## [0.1.0] - 2025-04-10
+
 ### Added
 
 - Core framework: `Client`, `Dataset`, `Catalog`, `Query`, `RecordBatch` public API

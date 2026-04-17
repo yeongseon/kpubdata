@@ -10,7 +10,6 @@ from kpubdata.core.representation import Representation
 from kpubdata.exceptions import (
     DatasetNotFoundError,
     ProviderNotRegisteredError,
-    UnsupportedCapabilityError,
 )
 
 
@@ -31,7 +30,7 @@ class FakeAdapter:
                 dataset_key="stations",
                 name="Station List",
                 representation=Representation.API_JSON,
-                operations=frozenset({Operation.LIST, Operation.GET, Operation.RAW}),
+                operations=frozenset({Operation.LIST, Operation.RAW}),
             ),
         }
         self.last_query: tuple[DatasetRef, Query] | None = None
@@ -68,9 +67,6 @@ class FakeAdapter:
             dataset=dataset,
             total_count=2,
         )
-
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        return {"dataset": dataset.dataset_key, "record": key, "id": "station-record"}
 
     def get_schema(self, _dataset: DatasetRef) -> None:
         return None
@@ -149,16 +145,6 @@ def test_dataset_call_raw_delegates_to_adapter() -> None:
     assert raw_params == {"param1": "value1"}
 
 
-def test_dataset_get_delegates_to_adapter() -> None:
-    client, _fake = _build_client()
-
-    result = client.dataset("fake.stations").get(station_id="ST001")
-
-    assert isinstance(result, dict)
-    assert result["dataset"] == "stations"
-    assert result["record"] == {"station_id": "ST001"}
-
-
 def test_dataset_schema_returns_none() -> None:
     client, _fake = _build_client()
 
@@ -179,13 +165,6 @@ def test_unknown_dataset_raises() -> None:
 
     with pytest.raises(DatasetNotFoundError):
         _ = client.dataset("fake.nonexistent")
-
-
-def test_unsupported_get_raises() -> None:
-    client, _fake = _build_client()
-
-    with pytest.raises(UnsupportedCapabilityError):
-        _ = client.dataset("fake.weather").get(key="val")
 
 
 def test_from_env_creates_client(monkeypatch: pytest.MonkeyPatch) -> None:

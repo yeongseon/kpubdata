@@ -17,7 +17,6 @@ _REQUIRED_METHODS = (
     "search_datasets",
     "get_dataset",
     "query_records",
-    "get_record",
     "get_schema",
     "call_raw",
 )

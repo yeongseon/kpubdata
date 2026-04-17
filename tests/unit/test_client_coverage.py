@@ -23,9 +23,6 @@ class _Adapter:
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         return RecordBatch(items=[], dataset=dataset)
 
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        return None
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return None
 
@@ -105,9 +102,6 @@ def test_builtin_dataset_binding_works() -> None:
 
 
 def test_user_adapter_overrides_builtin() -> None:
-    custom_adapter = _Adapter()
-    custom_adapter._name = "datago"  # type: ignore[attr-defined]
-
     class _DatagoOverride(_Adapter):
         @property
         def name(self) -> str:

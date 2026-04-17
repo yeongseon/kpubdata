@@ -28,9 +28,6 @@ class _ValidAdapter:
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         return RecordBatch(items=[], dataset=dataset)
 
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        return None
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return None
 
@@ -52,7 +49,6 @@ def _build_non_callable_adapter() -> Any:
             "search_datasets": lambda self, text: [],
             "get_dataset": lambda self, dataset_key: None,
             "query_records": lambda self, dataset, query: None,
-            "get_record": lambda self, dataset, key: None,
             "get_schema": lambda self, dataset: None,
             "call_raw": lambda self, dataset, operation, params: None,
         },

@@ -163,7 +163,7 @@ class TestDataGoAdapterQueryRecords:
         payload = _success_payload(
             items=[{"id": 1}, {"id": 2}, {"id": 3}],
             total_count=3,
-            num_of_rows=10,
+            num_of_rows=100,
             page_no=1,
         )
         adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
@@ -173,41 +173,46 @@ class TestDataGoAdapterQueryRecords:
         assert len(batch.items) == 3
         assert batch.total_count == 3
         assert batch.next_page is None
-        assert isinstance(batch.raw, list)
-        assert len(batch.raw) == 1
+        assert isinstance(batch.raw, dict)
         assert len(transport.calls) == 1
 
-    def test_query_records_multi_page(self) -> None:
-        page1 = _success_payload(
+    def test_query_records_sets_next_page_when_more_pages_exist(self) -> None:
+        payload = _success_payload(
             items=[{"id": 1}, {"id": 2}],
             total_count=5,
             num_of_rows=2,
             page_no=1,
         )
-        page2 = _success_payload(
-            items=[{"id": 3}, {"id": 4}],
-            total_count=5,
-            num_of_rows=2,
-            page_no=2,
-        )
-        page3 = _success_payload(
-            items=[{"id": 5}],
-            total_count=5,
-            num_of_rows=2,
-            page_no=3,
-        )
-        adapter, dataset, transport = _build_adapter_with_transport(
-            [FakeResponse(page1), FakeResponse(page2), FakeResponse(page3)]
-        )
+        adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
 
         batch = adapter.query_records(dataset, Query(page_size=2))
 
-        assert [item["id"] for item in batch.items] == [1, 2, 3, 4, 5]
+        assert [item["id"] for item in batch.items] == [1, 2]
         assert batch.total_count == 5
-        assert len(transport.calls) == 3
+        assert batch.next_page == 2
+        assert len(transport.calls) == 1
+
+    def test_query_records_sets_next_page_without_total_count_for_full_page(self) -> None:
+        payload = _success_payload(
+            items=[{"id": 1}, {"id": 2}], total_count=None, num_of_rows=2, page_no=1
+        )
+        adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
+
+        batch = adapter.query_records(dataset, Query(page_size=2))
+
+        assert batch.total_count is None
+        assert batch.next_page == 2
+
+    def test_query_records_raw_is_single_payload_dict(self) -> None:
+        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=1, page_no=1)
+        adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
+
+        batch = adapter.query_records(dataset, Query(page_size=1))
+
+        assert batch.raw == payload
 
     def test_query_records_single_item_dict(self) -> None:
-        payload = _success_payload(items={"id": 1}, total_count=1, num_of_rows=10, page_no=1)
+        payload = _success_payload(items={"id": 1}, total_count=1, num_of_rows=100, page_no=1)
         adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
 
         batch = adapter.query_records(dataset, Query())
@@ -216,21 +221,21 @@ class TestDataGoAdapterQueryRecords:
         assert batch.total_count == 1
 
     def test_query_records_empty_items(self) -> None:
-        payload = _success_payload(items=None, total_count=0, num_of_rows=10, page_no=1)
+        payload = _success_payload(items=None, total_count=0, num_of_rows=100, page_no=1)
         adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
 
         batch = adapter.query_records(dataset, Query())
 
         assert batch.items == []
-        assert batch.total_count == 0
+        assert batch.total_count is None
 
     def test_query_records_string_numerics(self) -> None:
         payload = _success_payload(
-            items=[{"id": 1}], total_count="1", num_of_rows="10", page_no="1"
+            items=[{"id": 1}], total_count="1", num_of_rows="100", page_no="1"
         )
         adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
 
-        batch = adapter.query_records(dataset, Query(page=1, page_size=10))
+        batch = adapter.query_records(dataset, Query(page=1, page_size=100))
 
         assert batch.total_count == 1
         assert len(batch.items) == 1
@@ -268,7 +273,7 @@ class TestDataGoAdapterQueryRecords:
             _ = adapter.query_records(dataset, Query())
 
     def test_query_records_filters_passed(self) -> None:
-        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=10, page_no=1)
+        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=100, page_no=1)
         adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
 
         _ = adapter.query_records(dataset, Query(filters={"stationName": "Seoul", "page": 1}))
@@ -279,7 +284,7 @@ class TestDataGoAdapterQueryRecords:
         assert params["page"] == "1"
 
     def test_query_records_reserved_keys_protected(self) -> None:
-        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=10, page_no=1)
+        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=100, page_no=1)
         adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
 
         _ = adapter.query_records(
@@ -298,7 +303,7 @@ class TestDataGoAdapterQueryRecords:
         assert isinstance(params, dict)
         assert params["serviceKey"] == "test-key"
         assert params["pageNo"] == "1"
-        assert params["numOfRows"] == "10"
+        assert params["numOfRows"] == "100"
         assert params["x"] == "ok"
 
 

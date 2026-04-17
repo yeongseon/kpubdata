@@ -94,55 +94,38 @@ class DataGoAdapter:
         """Query records from a data.go.kr dataset."""
 
         page = query.page or 1
-        page_size = query.page_size or 10
+        page_size = query.page_size or 100
 
-        all_items: list[dict[str, object]] = []
-        raw_pages: list[dict[str, object]] = []
-        total_count: int | None = None
+        url = self._build_request_url(dataset)
+        params = self._build_base_params(dataset)
+        params["pageNo"] = str(page)
+        params["numOfRows"] = str(page_size)
 
-        while True:
-            url = self._build_request_url(dataset)
-            params = self._build_base_params(dataset)
-            params["pageNo"] = str(page)
-            params["numOfRows"] = str(page_size)
+        reserved = {params_key.lower() for params_key in params}
+        reserved.update({"pageno", "numofrows"})
+        for key, raw_value in query.filters.items():
+            if key.lower() not in reserved:
+                value: object = raw_value
+                params[key] = str(value)
 
-            reserved = {params_key.lower() for params_key in params}
-            reserved.update({"pageno", "numofrows"})
-            for key, raw_value in query.filters.items():
-                if key.lower() not in reserved:
-                    value: object = raw_value
-                    params[key] = str(value)
+        payload = self._request_and_decode(url, params)
+        body, items = self._validate_envelope(payload, dataset.id)
 
-            payload = self._request_and_decode(url, params)
-            raw_pages.append(payload)
-
-            body, items = self._validate_envelope(payload, dataset.id)
-            all_items.extend(items)
-
-            total_count = coerce_int(body.get("totalCount"), 0)
-            current_num_of_rows = coerce_int(body.get("numOfRows"), page_size)
-
-            if not items:
-                break
-            if len(items) < current_num_of_rows:
-                break
-            if page * page_size >= total_count:
-                break
-
-            page += 1
+        total_count = coerce_int(body.get("totalCount"), 0)
+        if (total_count and page * page_size < total_count) or (
+            not total_count and len(items) == page_size
+        ):
+            computed_next = page + 1
+        else:
+            computed_next = None
 
         return RecordBatch(
-            items=all_items,
+            items=items,
             dataset=dataset,
-            total_count=total_count,
-            next_page=None,
-            raw=raw_pages,
+            total_count=total_count if total_count else None,
+            next_page=computed_next,
+            raw=payload,
         )
-
-    def get_record(self, _dataset: DatasetRef, _key: dict[str, object]) -> dict[str, object] | None:
-        """Get a single record from a data.go.kr dataset."""
-
-        raise NotImplementedError("TODO: implement datago get_record")
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         """Get schema metadata for a data.go.kr dataset.
@@ -235,7 +218,9 @@ class DataGoAdapter:
                 dataset_id=dataset_id or None,
             )
 
-        header_obj = response_obj.get("header")
+        response_dict = cast(dict[str, object], response_obj)
+
+        header_obj = response_dict.get("header")
         if not isinstance(header_obj, dict):
             raise ProviderResponseError(
                 "Malformed response envelope: missing header",
@@ -263,7 +248,7 @@ class DataGoAdapter:
         if result_code != "00":
             self._raise_for_result_code(result_code, result_msg, dataset_id)
 
-        body_obj = response_obj.get("body")
+        body_obj = response_dict.get("body")
         body_dict: dict[str, object] = (
             cast(dict[str, object], body_obj) if isinstance(body_obj, dict) else {}
         )
@@ -293,15 +278,23 @@ class DataGoAdapter:
             return []
 
         if isinstance(items_wrapper, dict):
-            item_value = items_wrapper.get("item")
+            item_value = cast(dict[str, object], items_wrapper).get("item")
             if isinstance(item_value, list):
-                return [item for item in item_value if isinstance(item, dict)]
+                normalized_items = cast(list[object], item_value)
+                return [
+                    cast(dict[str, object], item)
+                    for item in normalized_items
+                    if isinstance(item, dict)
+                ]
             if isinstance(item_value, dict):
-                return [item_value]
+                return [cast(dict[str, object], item_value)]
             return []
 
         if isinstance(items_wrapper, list):
-            return [item for item in items_wrapper if isinstance(item, dict)]
+            normalized_items = cast(list[object], items_wrapper)
+            return [
+                cast(dict[str, object], item) for item in normalized_items if isinstance(item, dict)
+            ]
 
         return []
 

@@ -149,7 +149,6 @@ class ProviderAdapter(Protocol):
     def search_datasets(self, text: str) -> list[DatasetRef]: ...
     def get_dataset(self, dataset_id: str) -> DatasetRef: ...
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch: ...
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None: ...
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None: ...
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object: ...
 ```
@@ -163,7 +162,6 @@ classDiagram
         +search_datasets(text: str) list~DatasetRef~
         +get_dataset(dataset_id: str) DatasetRef
         +query_records(dataset: DatasetRef, query: Query) RecordBatch
-        +get_record(dataset: DatasetRef, key: dict) dict
         +get_schema(dataset: DatasetRef) SchemaDescriptor
         +call_raw(dataset: DatasetRef, op: str, params: dict) object
     }
@@ -248,4 +246,3 @@ Otherwise, keep the complexity local to the adapter.
 | [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
 | [VALIDATION.md](./VALIDATION.md) | 아키텍처 타당성 검증 |
 | [AGENTS.md](./AGENTS.md) | 어댑터 개발 가이드 및 에이전트 규칙 |
-

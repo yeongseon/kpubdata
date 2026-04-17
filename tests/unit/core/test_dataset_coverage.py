@@ -23,9 +23,6 @@ class _Adapter:
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         return RecordBatch(items=[], dataset=dataset)
 
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        return None
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return None
 
@@ -45,3 +42,19 @@ def test_ref_property_returns_bound_reference() -> None:
     dataset = Dataset(ref=ref, adapter=_Adapter())
 
     assert dataset.ref is ref
+
+
+def test_list_all_generator_type() -> None:
+    ref = DatasetRef(
+        id="mock.sample",
+        provider="mock",
+        dataset_key="sample",
+        name="Sample",
+        representation=Representation.API_JSON,
+        operations=frozenset({Operation.LIST}),
+    )
+    dataset = Dataset(ref=ref, adapter=_Adapter())
+
+    batches = dataset.list_all()
+
+    assert hasattr(batches, "__iter__")
