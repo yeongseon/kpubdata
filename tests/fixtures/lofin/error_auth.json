@@ -1,12 +1,8 @@
 {
-  "CDDFA": [
+  "RESULT": [
     {
-      "list_total_count": 0,
-      "RESULT": {
-        "CODE": "ERROR-300",
-        "MESSAGE": "인증키가 유효하지 않습니다. 인증키를 확인하세요."
-      },
-      "row": []
+      "CODE": "ERROR-290",
+      "MESSAGE": "인증키가 유효하지 않습니다."
     }
   ]
 }

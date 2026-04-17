@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import ssl
 from collections.abc import Mapping, Sequence
 from typing import NoReturn, cast
 
@@ -28,11 +29,19 @@ class LofinAdapter:
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
         self._config: KPubDataConfig = config or KPubDataConfig()
-        transport_config = TransportConfig(
-            timeout=self._config.timeout,
-            max_retries=self._config.max_retries,
-        )
-        self._transport: HttpTransport = transport or HttpTransport(transport_config)
+        if transport is not None and not isinstance(transport, HttpTransport):
+            self._transport: HttpTransport = transport
+        else:
+            ssl_ctx = ssl.create_default_context()
+            ssl_ctx.check_hostname = False
+            ssl_ctx.verify_mode = ssl.CERT_NONE
+            ssl_ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+            transport_config = TransportConfig(
+                timeout=self._config.timeout,
+                max_retries=self._config.max_retries,
+                ssl_context=ssl_ctx,
+            )
+            self._transport = HttpTransport(transport_config)
 
         datasets = tuple(catalogue) if catalogue is not None else self._load_default_catalogue()
         self._datasets: tuple[DatasetRef, ...] = datasets
@@ -75,8 +84,10 @@ class LofinAdapter:
         total_count: int | None = None
 
         while True:
-            url = self._build_request_url(dataset, page=page, page_size=page_size)
-            payload = self._request_and_decode(url)
+            url = self._build_request_url(
+                dataset, page=page, page_size=page_size, filters=query.filters
+            )
+            payload = self._request_and_decode(url, dataset.id)
             raw_pages.append(payload)
 
             body, items = self._validate_envelope(payload, dataset)
@@ -110,16 +121,25 @@ class LofinAdapter:
         _ = operation
         page = self._int_param(params, "pIndex", self._int_param(params, "page", 1))
         page_size = self._int_param(params, "pSize", self._int_param(params, "page_size", 10))
+        extra_keys = {"pIndex", "page", "pSize", "page_size"}
+        filters = {k: v for k, v in params.items() if k not in extra_keys}
 
-        url = self._build_request_url(dataset, page=page, page_size=page_size)
-        payload = self._request_and_decode(url)
+        url = self._build_request_url(dataset, page=page, page_size=page_size, filters=filters)
+        payload = self._request_and_decode(url, dataset.id)
         _ = self._validate_envelope(payload, dataset)
         return payload
 
     def _require_api_key(self) -> str:
         return self._config.require_provider_key("lofin")
 
-    def _build_request_url(self, dataset: DatasetRef, *, page: int, page_size: int) -> str:
+    def _build_request_url(
+        self,
+        dataset: DatasetRef,
+        *,
+        page: int,
+        page_size: int,
+        filters: dict[str, object] | None = None,
+    ) -> str:
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
             raise ProviderResponseError(
@@ -132,12 +152,16 @@ class LofinAdapter:
         api_key = self._require_api_key()
         safe_page = page if page > 0 else 1
         safe_page_size = page_size if page_size > 0 else 10
-        return (
+        url = (
             f"{base_url_raw}/{dataset_code}"
-            f"?key={api_key}&Type=json&pIndex={safe_page}&pSize={safe_page_size}"
+            f"?Key={api_key}&Type=json&pIndex={safe_page}&pSize={safe_page_size}"
         )
+        if filters:
+            for key, value in filters.items():
+                url += f"&{key}={value}"
+        return url
 
-    def _request_and_decode(self, url: str) -> dict[str, object]:
+    def _request_and_decode(self, url: str, dataset_id: str = "") -> dict[str, object]:
         response = self._transport.request("GET", url)
 
         try:
@@ -146,7 +170,9 @@ class LofinAdapter:
             raise ParseError("Failed to parse LOFIN response", provider="lofin") from exc
 
         if isinstance(decoded_obj, dict):
-            return cast(dict[str, object], decoded_obj)
+            payload = cast(dict[str, object], decoded_obj)
+            self._raise_for_top_level_result(payload, dataset_id)
+            return payload
 
         raise ParseError("Decoded payload is not an object", provider="lofin")
 
@@ -171,10 +197,62 @@ class LofinAdapter:
                 dataset_id=dataset.id,
             )
 
-        body_dict = cast(dict[str, object], first_entry)
-        self._raise_for_result(body_dict, dataset.id)
-        items = self._normalize_rows(body_dict.get("row"))
-        return body_dict, items
+        head_entry = cast(dict[str, object], first_entry)
+        head_obj = head_entry.get("head")
+        if not isinstance(head_obj, list) or not head_obj:
+            legacy_body = cast(dict[str, object], first_entry)
+            self._raise_for_result(legacy_body, dataset.id)
+            items = self._normalize_rows(legacy_body.get("row"))
+            return legacy_body, items
+
+        head_items = cast(list[object], head_obj)
+        metadata: dict[str, object] = {}
+        result_payload: Mapping[str, object] | None = None
+        for head_item in head_items:
+            if not isinstance(head_item, dict):
+                continue
+            head_dict = cast(dict[str, object], head_item)
+            if "list_total_count" in head_dict:
+                metadata["list_total_count"] = head_dict.get("list_total_count")
+            if "RESULT" in head_dict:
+                result_obj = head_dict.get("RESULT")
+                if isinstance(result_obj, Mapping):
+                    result_payload = cast(Mapping[str, object], result_obj)
+
+        if result_payload is None:
+            raise ProviderResponseError(
+                f"Malformed response envelope: missing {dataset_code} RESULT",
+                provider="lofin",
+                dataset_id=dataset.id,
+            )
+
+        self._raise_for_result({"RESULT": dict(result_payload)}, dataset.id)
+
+        rows_entry = body_list[1] if len(body_list) > 1 else None
+        rows_wrapper: object = None
+        if isinstance(rows_entry, dict):
+            rows_dict = cast(dict[str, object], rows_entry)
+            rows_wrapper = rows_dict.get("row")
+
+        items = self._normalize_rows(rows_wrapper)
+        return metadata, items
+
+    def _raise_for_top_level_result(self, payload: Mapping[str, object], dataset_id: str) -> None:
+        result_obj = payload.get("RESULT")
+        if not isinstance(result_obj, list):
+            return
+
+        result_list = cast(list[object], result_obj)
+        if not result_list:
+            return
+
+        first_result = result_list[0]
+        if not isinstance(first_result, Mapping):
+            return
+
+        self._raise_for_result(
+            {"RESULT": dict(cast(Mapping[str, object], first_result))}, dataset_id
+        )
 
     def _raise_for_result(self, payload: Mapping[str, object], dataset_id: str) -> None:
         result_obj = payload.get("RESULT")
@@ -199,7 +277,7 @@ class LofinAdapter:
         self._raise_for_result_code(code, message, dataset_id)
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
-        if code == "ERROR-300":
+        if code in {"ERROR-290", "ERROR-300"}:
             raise AuthError(
                 msg, provider="lofin", provider_code=code, dataset_id=dataset_id or None
             )

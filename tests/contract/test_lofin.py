@@ -9,6 +9,7 @@ import pytest
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
 from kpubdata.core.protocol import ProviderAdapter
+from kpubdata.exceptions import AuthError
 from kpubdata.transport.http import HttpTransport
 from tests.contract.provider_adapter import ProviderAdapterContract
 
@@ -95,3 +96,42 @@ class TestLofinAdapterContract(ProviderAdapterContract):
         dataset = adapter.get_dataset("expenditure_budget")
         with pytest.raises(NotImplementedError):
             _ = adapter.get_record(dataset, {})
+
+    def test_query_records_uses_lofin365_url_and_key_param(self) -> None:
+        transport = _FixtureTransport(["success_single_page.json"])
+        config = KPubDataConfig(provider_keys={"lofin": "test-key"})
+        adapter_module = import_module("kpubdata.providers.lofin.adapter")
+        adapter_class_obj = cast(object, adapter_module.LofinAdapter)
+        if not isinstance(adapter_class_obj, type):
+            raise AssertionError("LofinAdapter is not a class")
+        adapter_class = cast(_AdapterFactory, adapter_class_obj)
+        adapter = adapter_class(
+            config=config,
+            transport=cast(HttpTransport, cast(object, transport)),
+        )
+
+        dataset = adapter.get_dataset("expenditure_budget")
+        _ = adapter.query_records(dataset, Query())
+
+        request_url = cast(str, transport.calls[0]["url"])
+        assert request_url.startswith("https://www.lofin365.go.kr/lf/hub/AJGCF")
+        assert "?Key=test-key&Type=json&pIndex=1&pSize=10" in request_url
+
+    def test_query_records_handles_top_level_auth_error(self) -> None:
+        transport = _FixtureTransport(["error_auth.json"])
+        config = KPubDataConfig(provider_keys={"lofin": "invalid-key"})
+        adapter_module = import_module("kpubdata.providers.lofin.adapter")
+        adapter_class_obj = cast(object, adapter_module.LofinAdapter)
+        if not isinstance(adapter_class_obj, type):
+            raise AssertionError("LofinAdapter is not a class")
+        adapter_class = cast(_AdapterFactory, adapter_class_obj)
+        adapter = adapter_class(
+            config=config,
+            transport=cast(HttpTransport, cast(object, transport)),
+        )
+
+        dataset = adapter.get_dataset("expenditure_budget")
+        with pytest.raises(AuthError) as exc_info:
+            _ = adapter.query_records(dataset, Query())
+
+        assert exc_info.value.provider_code == "ERROR-290"
