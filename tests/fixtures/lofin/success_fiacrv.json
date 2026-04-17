@@ -1,0 +1,50 @@
+{
+  "FIACRV": [
+    {
+      "head": [
+        {"list_total_count": 2},
+        {"RESULT": {"CODE": "INFO-000", "MESSAGE": "정상 처리되었습니다."}}
+      ]
+    },
+    {
+      "row": [
+        {
+          "fyr": "2023",
+          "wa_laf_cd": "1100000",
+          "wa_laf_hg_nm": "서울",
+          "laf_cd": "1100000",
+          "laf_hg_nm": "서울본청",
+          "armk_cd": "00000",
+          "armk_nm": "총괄",
+          "lvl_no": "1",
+          "tott_sum_amt": 50758554122542,
+          "gen_acnt_tott_amt": 36215268788968,
+          "pbco_spc_acnt_tott_amt": 2044885546695,
+          "etc_spc_acnt_tott_amt": 12498399786879,
+          "prsm_amt": 43198111530812,
+          "gen_acnt_prsm_amt": 34286863686638,
+          "pbco_spc_acnt_prsm_amt": 1990186526365,
+          "etc_spc_acnt_prsm_amt": 6921061317809
+        },
+        {
+          "fyr": "2023",
+          "wa_laf_cd": "1100000",
+          "wa_laf_hg_nm": "서울",
+          "laf_cd": "1100000",
+          "laf_hg_nm": "서울본청",
+          "armk_cd": "10000",
+          "armk_nm": "지방세수입",
+          "lvl_no": "2",
+          "tott_sum_amt": 23862799379391,
+          "gen_acnt_tott_amt": 23862799379391,
+          "pbco_spc_acnt_tott_amt": 0,
+          "etc_spc_acnt_tott_amt": 0,
+          "prsm_amt": 22164767618391,
+          "gen_acnt_prsm_amt": 22164767618391,
+          "pbco_spc_acnt_prsm_amt": 0,
+          "etc_spc_acnt_prsm_amt": 0
+        }
+      ]
+    }
+  ]
+}
