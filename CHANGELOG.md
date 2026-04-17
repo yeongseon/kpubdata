@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2025-04-17
+## [0.2.1] - 2025-04-17
+
+_Note: v0.2.0 was tagged but never published to PyPI due to CI formatting failures. v0.2.1 is the first public release of the 0.2.x series._
+
+## [0.2.0] - 2025-04-17 (not published)
 
 ### Added
 - Single-page pagination contract for all adapters (datago, bok, lofin, kosis)

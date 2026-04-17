@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from types import MappingProxyType
+from typing import cast
+
+import pytest
 
 from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
 from kpubdata.core.models import DatasetRef, FieldDescriptor, Query, RecordBatch, SchemaDescriptor
@@ -12,7 +15,6 @@ from kpubdata.core.representation import Representation
 class TestOperation:
     def test_values(self) -> None:
         assert Operation.LIST.value == "list"
-        assert Operation.GET.value == "get"
         assert Operation.RAW.value == "raw"
 
     def test_str_mixin(self) -> None:
@@ -35,38 +37,35 @@ class TestQuerySupport:
 
     def test_frozen(self) -> None:
         qs = QuerySupport(pagination=PaginationMode.OFFSET)
-        try:
+        with pytest.raises(AttributeError):
             qs.pagination = PaginationMode.CURSOR  # type: ignore[misc]
-            raise AssertionError("Should be frozen")
-        except AttributeError:
-            pass
 
 
 class TestDatasetRef:
     def _make_ref(self, **kwargs: object) -> DatasetRef:
-        defaults: dict[str, object] = {
-            "id": "test.dataset",
-            "provider": "test",
-            "dataset_key": "dataset",
-            "name": "Test Dataset",
-            "representation": Representation.API_JSON,
-            "operations": frozenset({Operation.LIST, Operation.RAW}),
-        }
-        defaults.update(kwargs)
-        return DatasetRef(**defaults)  # type: ignore[arg-type]
+        return DatasetRef(
+            id=cast(str, kwargs.get("id", "test.dataset")),
+            provider=cast(str, kwargs.get("provider", "test")),
+            dataset_key=cast(str, kwargs.get("dataset_key", "dataset")),
+            name=cast(str, kwargs.get("name", "Test Dataset")),
+            representation=cast(
+                Representation, kwargs.get("representation", Representation.API_JSON)
+            ),
+            operations=cast(
+                frozenset[Operation],
+                kwargs.get("operations", frozenset({Operation.LIST, Operation.RAW})),
+            ),
+        )
 
     def test_supports(self) -> None:
         ref = self._make_ref()
         assert ref.supports(Operation.LIST) is True
-        assert ref.supports(Operation.GET) is False
+        assert ref.supports(Operation.SCHEMA) is False
 
     def test_frozen(self) -> None:
         ref = self._make_ref()
-        try:
+        with pytest.raises(AttributeError):
             ref.id = "changed"  # type: ignore[misc]
-            raise AssertionError("Should be frozen")
-        except AttributeError:
-            pass
 
     def test_raw_metadata_immutable(self) -> None:
         ref = self._make_ref()
@@ -107,7 +106,7 @@ class TestRecordBatch:
         assert len(batch) == 2
 
     def test_iter(self) -> None:
-        items = [{"a": 1}, {"a": 2}]
+        items: list[dict[str, object]] = [{"a": 1}, {"a": 2}]
         batch = RecordBatch(items=items, dataset=self._make_ref())
         assert list(batch) == items
 

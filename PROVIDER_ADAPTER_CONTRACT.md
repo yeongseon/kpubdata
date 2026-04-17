@@ -34,7 +34,7 @@ sequenceDiagram
     participant T as 전송 계층 (Transport)
     participant P as 공공 API (Public API)
 
-    U->>D: 데이터 요청 (list/get)
+    U->>D: 데이터 요청 (list)
     D->>A: 요청 전달
     A->>A: 표준 Query -> 기관용 파라미터 변환
     A->>T: HTTP 요청 실행

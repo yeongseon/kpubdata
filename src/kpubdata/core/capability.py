@@ -19,7 +19,7 @@ def _dataclass(
     frozen: bool = False,
 ) -> Callable[[type[_T]], type[_T]]:
     def _decorate(cls: type[_T]) -> type[_T]:
-        return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)  # pyright: ignore[reportCallIssue]
+        return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)
 
     return _decorate
 
@@ -28,7 +28,6 @@ class Operation(str, Enum):
     """Major operations a dataset can support."""
 
     LIST = "list"
-    GET = "get"
     SCHEMA = "schema"
     RAW = "raw"
     DOWNLOAD = "download"
