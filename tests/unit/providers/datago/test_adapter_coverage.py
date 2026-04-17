@@ -8,7 +8,7 @@ import pytest
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
 from kpubdata.core.representation import Representation
-from kpubdata.exceptions import ParseError, ProviderResponseError
+from kpubdata.exceptions import ConfigError, ParseError, ProviderResponseError
 from kpubdata.providers._common import build_dataset_ref, coerce_int, require_string_field
 from kpubdata.providers.datago.adapter import DataGoAdapter
 from kpubdata.transport.http import HttpTransport
@@ -276,7 +276,7 @@ def test_load_default_catalogue_raises_when_top_level_json_not_list(monkeypatch)
 
     monkeypatch.setattr(common_module, "files", lambda _pkg: _FakePackageFiles("{}"))
 
-    with pytest.raises(ValueError, match="top-level JSON array"):
+    with pytest.raises(ConfigError, match="top-level JSON array"):
         _ = DataGoAdapter._load_default_catalogue()
 
 
@@ -285,7 +285,7 @@ def test_load_default_catalogue_raises_when_entry_not_dict(monkeypatch) -> None:
 
     monkeypatch.setattr(common_module, "files", lambda _pkg: _FakePackageFiles("[1]"))
 
-    with pytest.raises(ValueError, match="entries must be JSON objects"):
+    with pytest.raises(ConfigError, match="entries must be JSON objects"):
         _ = DataGoAdapter._load_default_catalogue()
 
 
@@ -295,7 +295,7 @@ def test_load_default_catalogue_raises_when_entry_key_not_string(monkeypatch) ->
     monkeypatch.setattr(common_module, "files", lambda _pkg: _FakePackageFiles("[]"))
     monkeypatch.setattr(common_module.json, "loads", lambda _text: [{1: "bad-key"}])
 
-    with pytest.raises(ValueError, match="entry keys must be strings"):
+    with pytest.raises(ConfigError, match="entry keys must be strings"):
         _ = DataGoAdapter._load_default_catalogue()
 
 
@@ -316,7 +316,7 @@ def test_build_dataset_ref_parses_string_max_page_size() -> None:
 
 
 def test_build_dataset_ref_raises_for_invalid_max_page_size_type() -> None:
-    with pytest.raises(ValueError, match="max_page_size must be int-like"):
+    with pytest.raises(ConfigError, match="max_page_size must be int-like"):
         _ = build_dataset_ref(
             "datago",
             {
@@ -329,5 +329,5 @@ def test_build_dataset_ref_raises_for_invalid_max_page_size_type() -> None:
 
 
 def test_require_string_field_raises_when_field_missing() -> None:
-    with pytest.raises(ValueError, match="missing non-empty string field"):
+    with pytest.raises(ConfigError, match="missing non-empty string field"):
         _ = require_string_field({}, "dataset_key", "datago")
