@@ -24,7 +24,7 @@ classDiagram
         +str dataset_key
         +str name
         +Representation representation
-        +frozenset[Capability] capabilities
+        +frozenset[Operation] operations
     }
     class Query {
         +dict filters
@@ -160,7 +160,6 @@ from enum import Enum
 
 class Capability(str, Enum):
     LIST = "list"
-    GET = "get"
     SCHEMA = "schema"
     RAW = "raw"
     PAGEABLE = "pageable"
@@ -188,7 +187,6 @@ class Representation(str, Enum):
 graph TD
     subgraph Capabilities [Dataset Capabilities]
         LIST[LIST: Browse multiple records]
-        GET[GET: Fetch single record by ID]
         SCHEMA[SCHEMA: Metadata about fields]
         RAW[RAW: Provider escape hatch]
         PAGEABLE[PAGEABLE: Supports pagination]
@@ -215,13 +213,13 @@ class DatasetRef:
     dataset_key: str
     name: str
     representation: Representation
-    capabilities: frozenset[Capability] = frozenset()
+    operations: frozenset[Operation] = frozenset()
     raw_metadata: dict[str, Any] = field(default_factory=dict)
 ```
 
 Notes:
 
-- `id` is the stable bound identifier, e.g. `molit.apartment_trades`
+- `id` is the stable bound identifier, e.g. `datago.apt_trade`
 - `representation` matters because the same logical dataset may be offered in more than one form
 
 ### 3.4 Query

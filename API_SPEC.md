@@ -14,7 +14,7 @@ from kpubdata import Client
 client = Client(
     provider_keys={
         "datago": "...",
-        "seoul": "...",
+        "bok": "...",
     },
     timeout=10.0,
 )
@@ -31,7 +31,7 @@ client = Client.from_env()
 ```python
 client.datasets.list()
 client.datasets.search("지하철")
-client.dataset("molit.apartment_trades")
+client.dataset("datago.apt_trade")
 ```
 
 ## 4. Bound dataset operations
@@ -39,8 +39,8 @@ client.dataset("molit.apartment_trades")
 ### List/query
 
 ```python
-dataset = client.dataset("molit.apartment_trades")
-result = dataset.list(lawd_code="11680", deal_ym="202503")
+dataset = client.dataset("datago.apt_trade")
+result = dataset.list(LAWD_CD="11680", DEAL_YMD="202503")
 ```
 
 `list()` returns exactly one page of results. When another page is available,
@@ -49,8 +49,8 @@ the returned `RecordBatch.next_page` is set.
 ### List all pages
 
 ```python
-dataset = client.dataset("molit.apartment_trades")
-for batch in dataset.list_all(lawd_code="11680", deal_ym="202503"):
+dataset = client.dataset("datago.apt_trade")
+for batch in dataset.list_all(LAWD_CD="11680", DEAL_YMD="202503"):
     for item in batch.items:
         print(item)
 ```
@@ -67,7 +67,7 @@ schema = dataset.schema()
 ### Raw
 
 ```python
-raw = dataset.call_raw(operation="list", lawd_code="11680", deal_ym="202503")
+raw = dataset.call_raw(operation="list", LAWD_CD="11680", DEAL_YMD="202503")
 ```
 
 ## 5. Convenience aliases
@@ -77,7 +77,7 @@ Optional convenience aliases may be added for common datasets, but only if they 
 Example:
 
 ```python
-client.apartment_trades.list(lawd_code="11680", deal_ym="202503")
+client.apt_trade.list(LAWD_CD="11680", DEAL_YMD="202503")
 ```
 
 Rules:
@@ -94,6 +94,12 @@ Returns `RecordBatch`.
 ### `list_all()`
 
 Returns a generator of `RecordBatch` values, one per page.
+
+### `to_pandas()`
+
+`RecordBatch.to_pandas()` converts items to a pandas DataFrame.
+Requires optional `pandas` dependency (`pip install kpubdata[pandas]`).
+Returns `object` (a `pandas.DataFrame` at runtime).
 
 ### `schema()`
 
@@ -134,19 +140,19 @@ Avoid turning the public API into:
 Preferred:
 
 ```python
-client.dataset("seoul.subway.arrivals").list(station_name="강남")
+client.dataset("datago.village_fcst").list(base_date="20250401", base_time="0500", nx="55", ny="127")
 ```
 
 Acceptable advanced usage:
 
 ```python
-client.dataset("seoul.subway.arrivals").call_raw(operation="list", stationNm="강남")
+client.dataset("datago.village_fcst").call_raw("getVilageFcst", base_date="20250401", base_time="0500", nx="55", ny="127")
 ```
 
 Discouraged as the main public entry point:
 
 ```python
-client.call_provider_endpoint("seoul", "SearchSTNTimeTableByIDService", ...)
+client.call_provider_endpoint("datago", "getVilageFcst", ...)
 ```
 
 ---

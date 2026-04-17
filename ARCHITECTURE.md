@@ -107,7 +107,7 @@ KPubData는 이 모든 은행을 대신 처리해주는 **"통합 키오스크"*
 
 ### 4.3 Provider Adapter (통역사)
 *   **이 레이어가 하는 일**: 기관별로 제각각인 API 요청 방식을 KPubData 표준 방식으로 변환합니다. 한국어를 영어로, 영어를 한국어로 바꿔주는 통역사와 같습니다.
-*   **핵심 파일**: `providers/datago/adapter.py`, `providers/seoul/adapter.py`
+*   **핵심 파일**: `providers/datago/adapter.py`, `providers/bok/adapter.py`
 *   **수정 상황 예시**: 기상청 API의 주소가 바뀌었거나, 결과 데이터의 이름이 `nx`에서 `grid_x`로 변경되었을 때.
 *   **코드 예시**:
     ```python
@@ -451,13 +451,15 @@ graph TD
     core --> core_files[capability.py, dataset.py, query.py, result.py, schema.py]
     transport --> transport_files[http.py, auth.py, parse.py, retry.py]
     providers --> datago[datago/]
-    providers --> seoul[seoul/]
-    providers --> airkorea[airkorea/]
+    providers --> bok[bok/]
+    providers --> kosis[kosis/]
+    providers --> lofin[lofin/]
 
     subgraph Adapters [Provider Implementation]
     datago
-    seoul
-    airkorea
+    bok
+    kosis
+    lofin
     end
 ```
 
@@ -485,13 +487,12 @@ src/kpubdata/
       adapter.py
       discovery.py
       mappings.py
-    seoul/
+    bok/
       adapter.py
-      discovery.py
-      mappings.py
-    airkorea/
+    kosis/
       adapter.py
-      discovery.py
+    lofin/
+      adapter.py
       mappings.py
   adapters/
     pandas.py
@@ -512,7 +513,7 @@ Client.datasets.search("지하철")
 ### 9.2 Query flow
 
 ```text
-client.dataset("molit.apartment_trades").list(...)
+client.dataset("datago.apt_trade").list(...)
   -> Dataset.list(...)
   -> build Query
   -> ProviderAdapter.query_records(dataset_ref, query)

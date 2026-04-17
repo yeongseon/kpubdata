@@ -114,7 +114,7 @@ class TestDatasetRefFromCatalogue:
         ref = _make_ref(first_entry)
 
         assert ref.supports(Operation.LIST) is True
-        assert ref.supports(Operation.GET) is False
+        assert ref.supports(Operation.SCHEMA) is False
 
     def test_is_frozen(self) -> None:
         first_entry, _ = _load_catalogue_entries()
