@@ -135,8 +135,13 @@ class Dataset:
         page_kwargs = dict(kwargs)
         batch = self.list(**page_kwargs)
         yield batch
-        while batch.next_page is not None:
-            page_kwargs["page"] = batch.next_page
+        while batch.next_page is not None or batch.next_cursor is not None:
+            if batch.next_cursor is not None:
+                page_kwargs["cursor"] = batch.next_cursor
+                _ = page_kwargs.pop("page", None)
+            else:
+                page_kwargs["page"] = batch.next_page
+                _ = page_kwargs.pop("cursor", None)
             batch = self.list(**page_kwargs)
             yield batch
 

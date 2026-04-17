@@ -76,6 +76,12 @@ class TestDataset:
         with pytest.raises(UnsupportedCapabilityError, match="list"):
             _ = ds.list()
 
+    def test_list_all_unsupported(self) -> None:
+        adapter = MockAdapter()
+        ds = Dataset(ref=_ref(frozenset({Operation.RAW})), adapter=adapter)
+        with pytest.raises(UnsupportedCapabilityError, match="list"):
+            _ = list(ds.list_all())
+
     def test_call_raw(self) -> None:
         adapter = MockAdapter()
         ds = Dataset(ref=_ref(), adapter=adapter)
@@ -170,3 +176,34 @@ class TestDataset:
 
         assert len(batches) == 1
         assert batches[0].items == [{"page": 1}]
+
+    def test_list_all_cursor_pagination(self) -> None:
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        adapter.batches = [
+            RecordBatch(items=[{"cursor": "a"}], dataset=dataset_ref, next_cursor="abc"),
+            RecordBatch(items=[{"cursor": "b"}], dataset=dataset_ref, next_cursor="def"),
+            RecordBatch(items=[{"cursor": "c"}], dataset=dataset_ref, next_cursor=None),
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        batches = list(ds.list_all(region="서울"))
+
+        assert [batch.items[0]["cursor"] for batch in batches] == ["a", "b", "c"]
+        assert adapter.last_query is not None
+        assert adapter.last_query.cursor == "def"
+        assert adapter.last_query.page is None
+        assert adapter.last_query.filters == {"region": "서울"}
+
+    def test_list_all_cursor_single_page(self) -> None:
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        adapter.batches = [
+            RecordBatch(items=[{"cursor": "a"}], dataset=dataset_ref, next_cursor=None)
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        batches = list(ds.list_all())
+
+        assert len(batches) == 1
+        assert batches[0].items == [{"cursor": "a"}]

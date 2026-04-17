@@ -210,46 +210,26 @@ sequenceDiagram
 
 **핵심 메서드**: 모든 어댑터는 `_require_api_key()` → `self._config.require_provider_key("slug")` 패턴을 사용합니다.
 
-### 6.4 기관별 키 주입 방식
+## 7. 페이지네이션 전략 (Pagination Strategy)
 
-기관마다 키를 HTTP 요청에 넣는 위치와 파라미터 이름이 다릅니다.
+KPubData는 대량의 데이터를 효율적으로 가져오기 위해 두 가지 페이지네이션 전략을 사용합니다.
 
-| Provider | 파라미터 이름 | 주입 위치 | 예시 | 특이사항 |
-|---|---|---|---|---|
-| `datago` | `serviceKey` | Query parameter | `?serviceKey=KEY` | dataset별 `service_key_param` 메타데이터로 파라미터명 오버라이드 가능 |
-| `bok` | _(URL 경로)_ | URL path segment | `/{KEY}/json/{operation}/...` | 쿼리 파라미터가 아닌 **URL 경로**에 직접 삽입 |
-| `kosis` | `apiKey` | Query parameter | `?apiKey=KEY` | 표준적인 쿼리 파라미터 방식 |
-| `lofin` | `Key` | Query parameter | `?Key=KEY` | 대문자 `K` 필수. `Type=json`도 대문자 `T` 필수 |
+### 7.1 전략 종류
+- **오프셋 기반 (Offset-based)**: 페이지 번호를 이용해 데이터를 요청합니다. `next_page` 값이 반환됩니다.
+- **커서 기반 (Cursor-based)**: 특정 지점을 가리키는 포인터(커서)를 이용해 다음 데이터를 요청합니다. `next_cursor` 값이 반환됩니다.
 
-```text
-datago:  GET https://apis.data.go.kr/.../getVilageFcst?serviceKey=KEY&...
-bok:     GET https://ecos.bok.or.kr/api/KEY/json/StatisticSearch/...
-kosis:   GET https://kosis.kr/openapi/Idx/indikatorList.do?apiKey=KEY&...
-lofin:   GET https://www.lofin365.go.kr/lf/hub/AJGCF?Key=KEY&Type=json&...
-```
+### 7.2 동작 원리 및 휴리스틱 (Heuristic)
+어댑터는 가용한 정보에 따라 다음과 같이 다음 페이지 존재 여부를 결정합니다.
+1. **정밀 계산**: `total_count` 정보를 알 수 있는 경우(예: bok, lofin), 현재까지 가져온 개수와 전체 개수를 비교해 `next_page`를 정확히 계산합니다.
+2. **Best-effort 휴리스틱**: 전체 개수 정보가 없는 경우(예: datago), `len(items) == page_size` 공식을 사용합니다.
+   - 현재 페이지의 아이템 개수가 요청한 페이지 크기와 같다면, 다음 페이지가 더 있을 것으로 가정합니다.
+   - 이 방식은 마지막 데이터가 딱 페이지 크기에 맞춰 끝날 경우, 실제로 데이터가 없는 다음 페이지를 한 번 더 호출하는 **추가 fetch(Extra empty fetch)**가 발생할 수 있습니다. 이는 문서화된 트레이드오프(trade-off)입니다.
 
-### 6.5 새 어댑터 추가 시 인증 구현 가이드
+### 7.3 list_all()의 처리
+사용자가 `list_all()` 메서드를 호출하면, KPubData는 어댑터가 반환하는 전략(`next_cursor` 우선, 없으면 `next_page`)을 자동으로 판단하여 모든 데이터를 순회합니다.
 
-새로운 데이터 기관을 추가할 때, 인증 관련 구현은 다음 3단계를 따릅니다.
+## 8. 자주 묻는 질문 (FAQ)
 
-**1단계**: `_require_api_key()` 메서드를 정의합니다.
-```python
-def _require_api_key(self) -> str:
-    return self._config.require_provider_key("your_provider_slug")
-```
-
-**2단계**: 요청 생성 시 키를 해당 기관의 방식에 맞게 주입합니다.
-```python
-# Query parameter 방식 (가장 일반적)
-params = {"apiKey": self._require_api_key(), ...}
-
-# URL path 방식 (bok처럼 경로에 넣는 경우)
-url = f"{base_url}/{self._require_api_key()}/json/{operation}"
-```
-
-**3단계**: `Client`의 `_BUILTIN_PROVIDERS` 튜플에 등록하면, `from_env()`가 자동으로 `KPUBDATA_{SLUG}_API_KEY` 환경변수를 스캔합니다.
-
-## 7. 자주 묻는 질문 (FAQ)
 
 **Q: 새 데이터셋을 추가하려면 어디를 수정하나요?**
 A: 해당 기관의 어댑터(`providers/<provider>/adapter.py`)와 데이터 목록 파일(`catalogue.json`)을 수정하면 됩니다.

@@ -34,7 +34,7 @@ class _FakeDataFrame:
 
 
 class _FakePandasModule(ModuleType):
-    DataFrame: type[_FakeDataFrame]
+    DataFrame: type[_FakeDataFrame] = _FakeDataFrame
 
 
 def _fake_pandas_module() -> _FakePandasModule:
@@ -80,3 +80,31 @@ def test_to_pandas_import_error() -> None:
         pytest.raises(ImportError, match=r"pandas is required for to_pandas\(\)"),
     ):
         _ = batch.to_pandas()
+
+
+def test_to_pandas_real_pandas_if_available() -> None:
+    from typing import Protocol, cast
+
+    class _DataFrameLike(Protocol):
+        shape: tuple[int, int]
+        columns: list[str]
+
+    class _PandasModule(Protocol):
+        DataFrame: type[_DataFrameLike]
+
+    pd = cast(_PandasModule, pytest.importorskip("pandas"))
+
+    batch = RecordBatch(
+        items=[
+            {"name": "Alice", "age": 30},
+            {"name": "Bob", "age": 31},
+            {"name": "Carol", "age": 32},
+        ],
+        dataset=_dataset_ref(),
+    )
+
+    df = batch.to_pandas()
+
+    assert isinstance(df, pd.DataFrame)
+    assert df.shape == (3, 2)
+    assert list(df.columns) == ["name", "age"]
