@@ -167,7 +167,15 @@ classDiagram
     }
 ```
 
-## 4. Capability rules
+## 4. 페이지네이션 반환 규약 (Pagination Return Contract)
+
+어댑터는 `query_records` 결과로 반환되는 `RecordBatch`에 다음 페이지 정보를 포함해야 합니다.
+
+- **`next_page` 또는 `next_cursor` 반환**: 어댑터는 반드시 둘 중 하나를 반환하거나, 마지막 페이지인 경우 둘 다 `None`을 반환해야 합니다.
+- **우선순위**: `list_all()`은 `next_cursor`가 존재할 경우 이를 우선적으로 사용하며, 없을 경우 `next_page`를 사용합니다.
+- **권장 방식**: 가급적 `total_count` 기반의 정밀한 계산 방식을 선호합니다. 하지만 전체 개수 정보를 알 수 없는 경우 `len(items) == page_size` 휴리스틱을 사용하는 것도 허용됩니다.
+
+## 5. Capability rules
 
 - declare only what the adapter truly supports
 - if an operation is unavailable, raise `UnsupportedCapabilityError`
