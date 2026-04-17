@@ -130,7 +130,7 @@ class RecordBatch:
             import pandas as pd  # type: ignore[import-untyped]
         except ImportError:
             raise ImportError(
-                "pandas is required for to_pandas(). " "Install with: pip install kpubdata[pandas]"
+                "pandas is required for to_pandas(). Install with: pip install kpubdata[pandas]"
             ) from None
         return pd.DataFrame(self.items)
 
