@@ -157,16 +157,7 @@ Acceptance:
 - includes `raw`
 - includes metadata about pagination and provider
 
-### FR-6. Single-record access
-
-Supported datasets may expose a single-record get operation.
-
-Acceptance:
-
-- `dataset.get(...)`
-- unsupported datasets raise `UnsupportedCapabilityError`
-
-### FR-7. Schema/metadata access
+### FR-6. Schema/metadata access
 
 Datasets may expose schema or field metadata.
 
@@ -175,7 +166,7 @@ Acceptance:
 - `dataset.schema()`
 - returns `SchemaDescriptor | None`
 
-### FR-8. Raw access
+### FR-7. Raw access
 
 Every provider adapter must expose a raw-call path.
 
@@ -303,4 +294,3 @@ client.getRTMSDataSvcAptTradeDev(...)
 | :--- | :--- | :--- |
 | [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [PRD.md](https://github.com/yeongseon/kpubdata-builder/blob/main/PRD.md) | Builder 제품 요구사항 |
 | [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [PRD.md](https://github.com/yeongseon/kpubdata-studio/blob/main/PRD.md) | Studio 제품 요구사항 |
-

@@ -87,9 +87,6 @@ class KosisAdapter:
             raw=payload,
         )
 
-    def get_record(self, _dataset: DatasetRef, _key: dict[str, object]) -> dict[str, object] | None:
-        raise NotImplementedError("TODO: implement kosis get_record")
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return build_schema_from_metadata(dataset)
 

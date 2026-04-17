@@ -58,12 +58,6 @@ for batch in dataset.list_all(lawd_code="11680", deal_ym="202503"):
 `list_all()` yields one `RecordBatch` per page and follows `next_page`
 automatically until pagination is exhausted.
 
-### Single record
-
-```python
-record = dataset.get(id="...")
-```
-
 ### Schema
 
 ```python
@@ -101,10 +95,6 @@ Returns `RecordBatch`.
 
 Returns a generator of `RecordBatch` values, one per page.
 
-### `get()`
-
-Returns one normalized record or `None`.
-
 ### `schema()`
 
 Returns `SchemaDescriptor | None`.
@@ -120,7 +110,7 @@ KPubData promises stability for:
 - `Client`
 - `Client.from_env()`
 - dataset discovery methods
-- `Dataset.list/list_all/get/schema/call_raw`
+- `Dataset.list/list_all/schema/call_raw`
 - canonical model classes
 - canonical error types
 

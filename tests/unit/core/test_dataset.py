@@ -40,10 +40,6 @@ class MockAdapter:
             return self.batches.pop(0)
         return RecordBatch(items=[{"k": "v"}], dataset=dataset)
 
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        _ = dataset, key
-        return {"id": "1"}
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         _ = dataset
         return None
@@ -61,7 +57,7 @@ def _ref(ops: frozenset[Operation] | None = None) -> DatasetRef:
         dataset_key="test",
         name="Test",
         representation=Representation.API_JSON,
-        operations=ops or frozenset({Operation.LIST, Operation.GET, Operation.RAW}),
+        operations=ops or frozenset({Operation.LIST, Operation.RAW}),
     )
 
 
@@ -79,18 +75,6 @@ class TestDataset:
         ds = Dataset(ref=_ref(frozenset({Operation.RAW})), adapter=adapter)
         with pytest.raises(UnsupportedCapabilityError, match="list"):
             _ = ds.list()
-
-    def test_get(self) -> None:
-        adapter = MockAdapter()
-        ds = Dataset(ref=_ref(), adapter=adapter)
-        record = ds.get(id="1")
-        assert record == {"id": "1"}
-
-    def test_get_unsupported(self) -> None:
-        adapter = MockAdapter()
-        ds = Dataset(ref=_ref(frozenset({Operation.LIST})), adapter=adapter)
-        with pytest.raises(UnsupportedCapabilityError, match="get"):
-            _ = ds.get(id="1")
 
     def test_call_raw(self) -> None:
         adapter = MockAdapter()

@@ -218,7 +218,6 @@ classDiagram
         +search_datasets()
         +get_dataset()
         +query_records()
-        +get_record()
         +get_schema()
         +call_raw()
     }
@@ -227,7 +226,6 @@ classDiagram
         +search_datasets()
         +get_dataset()
         +query_records()
-        +get_record()
         +get_schema()
         +call_raw()
     }
@@ -244,7 +242,6 @@ classDiagram
     }
     class Dataset {
         +list()
-        +get()
         +schema()
         +call_raw()
     }
@@ -418,9 +415,8 @@ graph TB
         M2["search_datasets(text) -> list[DatasetRef]"]
         M3["get_dataset(key) -> DatasetRef"]
         M4["query_records(dataset, query) -> RecordBatch"]
-        M5["get_record(dataset, key) -> dict"]
-        M6["get_schema(dataset) -> SchemaDescriptor"]
-        M7["call_raw(dataset, operation, params) -> object"]
+        M5["get_schema(dataset) -> SchemaDescriptor"]
+        M6["call_raw(dataset, operation, params) -> object"]
     end
 
     Protocol --- Implementation

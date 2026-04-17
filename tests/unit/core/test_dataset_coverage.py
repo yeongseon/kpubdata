@@ -23,9 +23,6 @@ class _Adapter:
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         return RecordBatch(items=[], dataset=dataset)
 
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        return None
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         return None
 

@@ -80,11 +80,6 @@ class TestKosisAdapterContract(ProviderAdapterContract):
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("statisticsParameterData", {})
 
-    def test_get_record_not_implemented(self, adapter: ProviderAdapter) -> None:
-        dataset = adapter.get_dataset("population_migration")
-        with pytest.raises(NotImplementedError):
-            _ = adapter.get_record(dataset, {})
-
     def test_query_records_empty_array_returns_empty_batch(self) -> None:
         adapter = _build_adapter(["success_empty.json"])
         dataset = adapter.get_dataset("population_migration")

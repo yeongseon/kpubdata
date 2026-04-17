@@ -127,11 +127,6 @@ class DataGoAdapter:
             raw=payload,
         )
 
-    def get_record(self, _dataset: DatasetRef, _key: dict[str, object]) -> dict[str, object] | None:
-        """Get a single record from a data.go.kr dataset."""
-
-        raise NotImplementedError("TODO: implement datago get_record")
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         """Get schema metadata for a data.go.kr dataset.
 

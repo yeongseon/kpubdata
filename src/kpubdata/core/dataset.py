@@ -140,25 +140,6 @@ class Dataset:
             batch = self.list(**page_kwargs)
             yield batch
 
-    def get(self, **key: object) -> dict[str, object] | None:
-        """Return a single record matching the provided key fields.
-
-        Return ``None`` when no matching record is found.
-
-        Raises:
-            UnsupportedCapabilityError: If this dataset does not support ``get``.
-        """
-
-        if Operation.GET not in self._ref.operations:
-            raise UnsupportedCapabilityError(
-                f"Dataset does not support get: {self._ref.id}",
-                provider=self._ref.provider,
-                dataset_id=self._ref.id,
-                operation=Operation.GET.value,
-            )
-        key_payload: dict[str, object] = {k: v for k, v in key.items()}
-        return self._adapter.get_record(self._ref, key_payload)
-
     def schema(self) -> SchemaDescriptor | None:
         """Return canonical schema metadata when the provider exposes it."""
 

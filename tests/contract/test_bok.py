@@ -93,8 +93,3 @@ class TestBokAdapterContract(ProviderAdapterContract):
             "StatisticSearch",
             {"start_date": "202401", "end_date": "202403", "frequency": "M"},
         )
-
-    def test_get_record_not_implemented(self, adapter: ProviderAdapter) -> None:
-        dataset = adapter.get_dataset("base_rate")
-        with pytest.raises(NotImplementedError):
-            _ = adapter.get_record(dataset, {})

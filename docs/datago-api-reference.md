@@ -207,9 +207,9 @@ codes (most responses return HTTP 200 even on error).
 6. **`call_raw`** — pass through arbitrary params and return the
    **minimally processed** provider response dict. Do not flatten or
    canonicalize — this preserves the raw escape hatch.
-7. **Unsupported capabilities** — `get_record` and `get_schema` are
-   **not supported** by default unless dataset metadata explicitly
-   proves otherwise. Do not mark these as supported.
+7. **Unsupported capabilities** — `get_schema` is **not supported** by
+   default unless dataset metadata explicitly proves otherwise. Do not
+   mark it as supported.
 8. **Item normalization** — always coerce `items.item` to `list[dict]`
    as described in §4.3.
 

@@ -117,6 +117,23 @@ class RecordBatch:
     def __bool__(self) -> bool:
         return bool(self.items)
 
+    def to_pandas(self) -> object:
+        """Convert items to a pandas ``DataFrame``.
+
+        Requires the ``pandas`` optional dependency.
+        Install with: ``pip install kpubdata[pandas]``
+
+        Returns:
+            A ``pandas.DataFrame`` built from :attr:`items`.
+        """
+        try:
+            import pandas as pd  # type: ignore[import-untyped]
+        except ImportError:
+            raise ImportError(
+                "pandas is required for to_pandas(). " "Install with: pip install kpubdata[pandas]"
+            ) from None
+        return pd.DataFrame(self.items)
+
 
 @_dataclass(slots=True)
 class FieldDescriptor:

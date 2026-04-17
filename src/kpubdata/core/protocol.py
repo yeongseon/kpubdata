@@ -41,11 +41,6 @@ class ProviderAdapter(Protocol):
 
         ...
 
-    def get_record(self, dataset: DatasetRef, key: dict[str, object]) -> dict[str, object] | None:
-        """Return a single normalized record by key or ``None`` if missing."""
-
-        ...
-
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         """Return canonical schema metadata if supported."""
 

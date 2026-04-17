@@ -74,12 +74,6 @@ def test_name_property_returns_datago() -> None:
     assert DataGoAdapter(catalogue=[]).name == "datago"
 
 
-def test_get_record_raises_not_implemented() -> None:
-    adapter = DataGoAdapter(catalogue=[])
-    with pytest.raises(NotImplementedError):
-        _ = adapter.get_record(_dataset({"base_url": "https://example.test"}), {})
-
-
 def test_query_records_sets_next_page_for_full_page_with_remaining_total(monkeypatch) -> None:
     import kpubdata.providers.datago.adapter as adapter_module
 
