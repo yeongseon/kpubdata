@@ -10,6 +10,7 @@ This layer does NOT handle:
 from __future__ import annotations
 
 import logging
+import ssl
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -42,6 +43,8 @@ class TransportConfig:
     max_retries: int = 3
     retry_backoff_factor: float = 0.5
     headers: dict[str, str] | None = None
+    verify_ssl: bool = True
+    ssl_context: ssl.SSLContext | None = None
 
 
 class HttpTransport:
@@ -73,10 +76,14 @@ class HttpTransport:
         )
 
     def _build_client(self) -> httpx.Client:
+        verify: bool | ssl.SSLContext = self._config.verify_ssl
+        if self._config.ssl_context is not None:
+            verify = self._config.ssl_context
         return httpx.Client(
             timeout=self._config.timeout,
             headers=self._config.headers or {},
             follow_redirects=True,
+            verify=verify,
         )
 
     def close(self) -> None:

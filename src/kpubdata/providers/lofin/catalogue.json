@@ -1,0 +1,127 @@
+[
+  {
+    "dataset_key": "expenditure_budget",
+    "name": "지방재정 세출결산총괄 (LOFIN Expenditure Budget Summary)",
+    "api_code": "AJGCF",
+    "base_url": "https://www.lofin365.go.kr/lf/hub",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "fyr", "title": "회계연도", "type": "string"},
+      {"name": "wa_laf_cd", "title": "광역자치단체코드", "type": "string"},
+      {"name": "wa_laf_hg_nm", "title": "광역자치단체명", "type": "string"},
+      {"name": "laf_cd", "title": "자치단체코드", "type": "string"},
+      {"name": "laf_hg_nm", "title": "자치단체명", "type": "string"},
+      {"name": "tot_pfa_amt", "title": "세출결산총액", "type": "string"},
+      {"name": "pfa_amt1", "title": "세출결산금액1", "type": "string"},
+      {"name": "pfa_amt2", "title": "세출결산금액2", "type": "string"},
+      {"name": "pfa_amt3", "title": "세출결산금액3", "type": "string"},
+      {"name": "pfa_amt4", "title": "세출결산금액4", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "expenditure_function",
+    "name": "지방재정 기능별세출 (LOFIN Expenditure by Function)",
+    "api_code": "GGNSE",
+    "base_url": "https://www.lofin365.go.kr/lf/hub",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "fyr", "title": "회계연도", "type": "string"},
+      {"name": "wa_laf_cd", "title": "광역자치단체코드", "type": "string"},
+      {"name": "wa_laf_hg_nm", "title": "광역자치단체명", "type": "string"},
+      {"name": "laf_cd", "title": "자치단체코드", "type": "string"},
+      {"name": "laf_hg_nm", "title": "자치단체명", "type": "string"},
+      {"name": "fld_cd", "title": "분야코드", "type": "string"},
+      {"name": "fld_nm", "title": "분야명", "type": "string"},
+      {"name": "pol_bizct", "title": "정책사업", "type": "string"},
+      {"name": "fin_acv_amt", "title": "최종실적액", "type": "string"},
+      {"name": "padm_oper_exps", "title": "행정운영경비", "type": "string"},
+      {"name": "rgstr_dt", "title": "등록일시", "type": "string"},
+      {"name": "rgstr_usr_id", "title": "등록사용자ID", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "revenue_budget",
+    "name": "지방재정 세입결산총괄 (LOFIN Revenue Budget Summary)",
+    "api_code": "IIBBH",
+    "base_url": "https://www.lofin365.go.kr/lf/hub",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "fyr", "title": "회계연도", "type": "string"},
+      {"name": "wa_laf_cd", "title": "광역자치단체코드", "type": "string"},
+      {"name": "wa_laf_hg_nm", "title": "광역자치단체명", "type": "string"},
+      {"name": "laf_cd", "title": "자치단체코드", "type": "string"},
+      {"name": "laf_hg_nm", "title": "자치단체명", "type": "string"},
+      {"name": "total", "title": "세입결산총액", "type": "string"},
+      {"name": "pfa_amt1", "title": "세입결산금액1", "type": "string"},
+      {"name": "pfa_amt2", "title": "세입결산금액2", "type": "string"},
+      {"name": "pfa_amt3", "title": "세입결산금액3", "type": "string"},
+      {"name": "pfa_amt4", "title": "세입결산금액4", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "debt_ratio",
+    "name": "지방재정 채무비율현황 (LOFIN Debt Ratio Status)",
+    "api_code": "HEDFC",
+    "base_url": "https://www.lofin365.go.kr/lf/hub",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "fyr", "title": "회계연도", "type": "string"},
+      {"name": "wa_laf_cd", "title": "광역자치단체코드", "type": "string"},
+      {"name": "wa_laf_hg_nm", "title": "광역자치단체명", "type": "string"},
+      {"name": "laf_cd", "title": "자치단체코드", "type": "string"},
+      {"name": "laf_hg_nm", "title": "자치단체명", "type": "string"},
+      {"name": "pfa_amt1", "title": "채무액", "type": "string"},
+      {"name": "pfa_amt2", "title": "예산규모", "type": "string"},
+      {"name": "rate", "title": "채무비율", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "fiscal_independence",
+    "name": "지방재정 재정자립도현황 (LOFIN Fiscal Independence)",
+    "api_code": "JFIED",
+    "base_url": "https://www.lofin365.go.kr/lf/hub",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "fyr", "title": "회계연도", "type": "string"},
+      {"name": "wa_laf_cd", "title": "광역자치단체코드", "type": "string"},
+      {"name": "wa_laf_hg_nm", "title": "광역자치단체명", "type": "string"},
+      {"name": "laf_cd", "title": "자치단체코드", "type": "string"},
+      {"name": "laf_hg_nm", "title": "자치단체명", "type": "string"},
+      {"name": "pfa_amt1", "title": "자주재원", "type": "string"},
+      {"name": "pfa_amt2", "title": "일반회계규모", "type": "string"},
+      {"name": "rate1", "title": "재정자립도", "type": "string"},
+      {"name": "pfa_amt3", "title": "자체수입", "type": "string"},
+      {"name": "rate2", "title": "자체수입비율", "type": "string"}
+    ]
+  }
+]
