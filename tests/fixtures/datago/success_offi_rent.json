@@ -1,0 +1,57 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "sggCd": "11680",
+            "sggNm": "강남구",
+            "umdNm": "삼성동",
+            "jibun": "158-20",
+            "offiNm": "삼성 서초리버뷰",
+            "excluUseAr": "27.41",
+            "dealYear": "2024",
+            "dealMonth": "4",
+            "dealDay": "3",
+            "deposit": "30,000",
+            "monthlyRent": "120",
+            "floor": "14",
+            "buildYear": "2020",
+            "contractType": "신규",
+            "contractTerm": "202404-202504",
+            "useRRRight": "N",
+            "preDeposit": "0",
+            "preMonthlyRent": "0"
+          },
+          {
+            "sggCd": "41131",
+            "sggNm": "성남수정구",
+            "umdNm": "창곡동",
+            "jibun": "509",
+            "offiNm": "위례중앙타워",
+            "excluUseAr": "35.92",
+            "dealYear": "2024",
+            "dealMonth": "4",
+            "dealDay": "21",
+            "deposit": "20,000",
+            "monthlyRent": "95",
+            "floor": "7",
+            "buildYear": "2017",
+            "contractType": "갱신",
+            "contractTerm": "202404-202604",
+            "useRRRight": "Y",
+            "preDeposit": "18,000",
+            "preMonthlyRent": "90"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

@@ -4,6 +4,7 @@ from typing import Protocol, cast
 
 import pytest
 
+from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
 from kpubdata.exceptions import (
     AuthError,
@@ -12,8 +13,9 @@ from kpubdata.exceptions import (
     ServiceUnavailableError,
 )
 from kpubdata.providers.datago.adapter import DataGoAdapter
+from kpubdata.transport.http import HttpTransport
 
-from .conftest import FixtureTransport, load_json_fixture
+from .conftest import FixtureTransport, load_fixture_bytes, load_json_fixture
 
 
 class AdapterFactory(Protocol):
@@ -22,6 +24,30 @@ class AdapterFactory(Protocol):
         fixture_names: list[str],
         content_type: str = "application/json",
     ) -> tuple[DataGoAdapter, DatasetRef, FixtureTransport]: ...
+
+
+def _build_real_estate_adapter(
+    fixture_name: str, dataset_key: str
+) -> tuple[DataGoAdapter, DatasetRef]:
+    data = load_fixture_bytes(fixture_name)
+
+    class _FakeResponse:
+        def __init__(self) -> None:
+            self.headers: dict[str, str] = {"content-type": "application/json"}
+            self.content: bytes = data
+            self.text: str = data.decode("utf-8")
+
+    class _FakeTransport:
+        def request(self, _method: str, _url: str, **_kwargs: object) -> _FakeResponse:
+            return _FakeResponse()
+
+    config = KPubDataConfig(provider_keys={"datago": "test-key"})
+    adapter = DataGoAdapter(
+        config=config,
+        transport=cast(HttpTransport, cast(object, _FakeTransport())),
+    )
+    dataset = adapter.get_dataset(dataset_key)
+    return adapter, dataset
 
 
 def test_fixture_single_page(configured_adapter: AdapterFactory) -> None:
@@ -138,3 +164,77 @@ def test_fixture_call_raw_returns_full_envelope(configured_adapter: AdapterFacto
     assert isinstance(response, dict)
     assert "header" in response
     assert "body" in response
+
+
+def test_fixture_apt_rent_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_apt_rent.json", "apt_rent")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "deposit" in batch.items[0]
+    assert "monthlyRent" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_offi_trade_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_offi_trade.json", "offi_trade")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "dealAmount" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_offi_rent_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_offi_rent.json", "offi_rent")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "deposit" in batch.items[0]
+    assert "monthlyRent" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_rh_trade_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_rh_trade.json", "rh_trade")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "dealAmount" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_rh_rent_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_rh_rent.json", "rh_rent")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "deposit" in batch.items[0]
+    assert "monthlyRent" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_sh_trade_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_sh_trade.json", "sh_trade")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "dealAmount" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_sh_rent_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_sh_rent.json", "sh_rent")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "deposit" in batch.items[0]
+    assert "monthlyRent" in batch.items[0]
+    assert batch.total_count == 2

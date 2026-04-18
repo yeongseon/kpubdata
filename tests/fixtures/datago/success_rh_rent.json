@@ -1,0 +1,57 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "sggCd": "11410",
+            "umdNm": "홍제동",
+            "mhouseNm": "홍제한솔빌",
+            "jibun": "330-45",
+            "buildYear": "2007",
+            "excluUseAr": "49.58",
+            "dealYear": "2024",
+            "dealMonth": "1",
+            "dealDay": "25",
+            "deposit": "35,000",
+            "monthlyRent": "25",
+            "floor": "2",
+            "contractTerm": "202401-202601",
+            "contractType": "갱신",
+            "useRRRight": "Y",
+            "preDeposit": "33,000",
+            "preMonthlyRent": "20",
+            "houseType": "다세대"
+          },
+          {
+            "sggCd": "28237",
+            "umdNm": "송도동",
+            "mhouseNm": "송도센트럴빌",
+            "jibun": "23-7",
+            "buildYear": "2014",
+            "excluUseAr": "66.02",
+            "dealYear": "2024",
+            "dealMonth": "3",
+            "dealDay": "11",
+            "deposit": "20,000",
+            "monthlyRent": "70",
+            "floor": "5",
+            "contractTerm": "202403-202503",
+            "contractType": "신규",
+            "useRRRight": "N",
+            "preDeposit": "0",
+            "preMonthlyRent": "0",
+            "houseType": "연립"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "sggCd": "11590",
+            "umdNm": "방배동",
+            "houseType": "단독",
+            "totalFloorAr": "132.45",
+            "dealYear": "2024",
+            "dealMonth": "1",
+            "dealDay": "30",
+            "deposit": "50,000",
+            "monthlyRent": "120",
+            "buildYear": "2001",
+            "contractTerm": "202401-202601",
+            "contractType": "신규",
+            "useRRRight": "N",
+            "preDeposit": "0",
+            "preMonthlyRent": "0"
+          },
+          {
+            "sggCd": "11710",
+            "umdNm": "풍납동",
+            "houseType": "다가구",
+            "totalFloorAr": "185.90",
+            "dealYear": "2024",
+            "dealMonth": "3",
+            "dealDay": "17",
+            "deposit": "30,000",
+            "monthlyRent": "95",
+            "buildYear": "2012",
+            "contractTerm": "202403-202503",
+            "contractType": "갱신",
+            "useRRRight": "Y",
+            "preDeposit": "28,000",
+            "preMonthlyRent": "90"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

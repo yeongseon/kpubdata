@@ -1,0 +1,55 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "sggCd": "11680",
+            "umdNm": "역삼동",
+            "aptNm": "역삼자이",
+            "jibun": "754-1",
+            "excluUseAr": "84.97",
+            "dealYear": "2024",
+            "dealMonth": "2",
+            "dealDay": "14",
+            "deposit": "120,000",
+            "monthlyRent": "80",
+            "floor": "15",
+            "buildYear": "2016",
+            "contractTerm": "202402-202502",
+            "contractType": "갱신",
+            "useRRRight": "N",
+            "preDeposit": "115,000",
+            "preMonthlyRent": "75"
+          },
+          {
+            "sggCd": "41135",
+            "umdNm": "백현동",
+            "aptNm": "판교푸르지오그랑블",
+            "jibun": "531",
+            "excluUseAr": "59.88",
+            "dealYear": "2024",
+            "dealMonth": "3",
+            "dealDay": "8",
+            "deposit": "90,000",
+            "monthlyRent": "55",
+            "floor": "9",
+            "buildYear": "2011",
+            "contractTerm": "202403-202503",
+            "contractType": "신규",
+            "useRRRight": "N",
+            "preDeposit": "0",
+            "preMonthlyRent": "0"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
