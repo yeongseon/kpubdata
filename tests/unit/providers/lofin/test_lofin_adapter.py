@@ -83,3 +83,38 @@ def test_query_records_uses_heuristic_next_page_without_total_count() -> None:
 
     assert batch.total_count is None
     assert batch.next_page == 2
+
+
+def test_transport_requirements_includes_ssl_context_factory() -> None:
+    """LofinAdapter exposes transport_requirements with an SSL context factory."""
+    reqs = LofinAdapter.transport_requirements
+    assert reqs is not None
+    assert reqs.ssl_context_factory is not None
+
+    ctx = reqs.ssl_context_factory()
+    import ssl
+
+    assert isinstance(ctx, ssl.SSLContext)
+
+
+def test_client_applies_lofin_ssl_context() -> None:
+    """Client detects LofinAdapter.transport_requirements and builds custom transport."""
+    from unittest.mock import patch
+
+    from kpubdata.client import Client
+    from kpubdata.transport.http import HttpTransport
+
+    with patch.object(
+        HttpTransport, "with_requirements", wraps=HttpTransport.with_requirements
+    ) as spy:
+        client = Client()
+        _ = client.datasets.list()
+
+    assert spy.call_count >= 1
+    for call in spy.call_args_list:
+        reqs = call[0][1] if len(call[0]) > 1 else call.kwargs.get("requirements")
+        if reqs and reqs.ssl_context_factory is not None:
+            return
+    raise AssertionError(
+        "HttpTransport.with_requirements was never called with ssl_context_factory"
+    )
