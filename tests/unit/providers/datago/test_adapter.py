@@ -335,6 +335,33 @@ class TestDataGoAdapterQueryRecords:
         with pytest.raises(ServiceUnavailableError):
             _ = adapter.query_records(dataset, Query())
 
+    def test_query_records_accepts_three_digit_success_code_000(self) -> None:
+        payload = {
+            "response": {
+                "header": {"resultCode": "000", "resultMsg": "OK"},
+                "body": {
+                    "items": {"item": [{"dealAmount": "82,500", "aptNm": "래미안"}]},
+                    "totalCount": 1,
+                    "numOfRows": 100,
+                    "pageNo": 1,
+                },
+            }
+        }
+        adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
+
+        batch = adapter.query_records(dataset, Query(page=1, page_size=100))
+
+        assert len(batch.items) == 1
+        assert batch.items[0]["aptNm"] == "래미안"
+
+    def test_query_records_accepts_two_digit_success_code_00(self) -> None:
+        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=100, page_no=1)
+        adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
+
+        batch = adapter.query_records(dataset, Query(page=1, page_size=100))
+
+        assert len(batch.items) == 1
+
     def test_query_records_filters_passed(self) -> None:
         payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=100, page_no=1)
         adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])

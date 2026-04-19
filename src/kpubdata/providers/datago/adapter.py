@@ -29,6 +29,19 @@ from kpubdata.transport.http import HttpTransport, TransportConfig
 logger = logging.getLogger("kpubdata.provider.datago")
 
 
+def _is_success_code(code: str) -> bool:
+    """Return True for any data.go.kr resultCode that signals success.
+
+    Different endpoint families use different widths for the "no error" code:
+    "00" (most APIs) and "000" (RTMS family under apis.data.go.kr/1613000).
+    Both — and any zero-valued numeric variant — should be treated as success.
+    """
+    try:
+        return int(code) == 0
+    except ValueError:
+        return False
+
+
 class DataGoAdapter:
     """Adapter for data.go.kr (공공데이터포털).
 
@@ -245,7 +258,7 @@ class DataGoAdapter:
             "data.go.kr result",
             extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
         )
-        if result_code != "00":
+        if not _is_success_code(result_code):
             self._raise_for_result_code(result_code, result_msg, dataset_id)
 
         body_obj = response_dict.get("body")
