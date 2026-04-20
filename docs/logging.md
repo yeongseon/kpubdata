@@ -12,6 +12,7 @@ KPubData는 파이썬 표준 [`logging`](https://docs.python.org/3/library/loggi
 | `kpubdata.registry` | `registry.py` | 어댑터 등록(즉시/지연), 조회 성공·실패, 지연 어댑터 인스턴스화 |
 | `kpubdata.catalog` | `catalog.py` | 데이터셋 목록·검색·해석(resolve) 호출과 결과 건수 |
 | `kpubdata.dataset` | `core/dataset.py` | `list()`, `list_all()`, `call_raw()`, `schema()` 호출 흐름 |
+| `kpubdata.config` | `config.py` | Provider API 키 조회 실패 등 설정 검증 |
 | `kpubdata.transport` | `transport/http.py`, `transport/retry.py` | HTTP 요청/응답, 재시도, 상태 코드, `Retry-After` 처리 |
 | `kpubdata.transport.decode` | `transport/decode.py` | JSON/XML 디코딩 실패 컨텍스트, 미인식 content-type |
 | `kpubdata.provider.datago` | `providers/datago/adapter.py` | datago 요청 진입, `resultCode` 검증 |
@@ -64,11 +65,22 @@ logging.getLogger("kpubdata.provider.datago").setLevel(logging.DEBUG)
 | `kpubdata.registry` | `provider`, `adapter_type` |
 | `kpubdata.catalog` | `provider`, `provider_filter`, `text`, `dataset_id`, `count` |
 | `kpubdata.dataset` | `dataset_id`, `provider`, `page`, `page_size`, `cursor`, `filter_keys`, `item_count`, `total_count`, `next_page`, `next_cursor`, `iteration`, `iterations`, `operation`, `param_keys` |
-| `kpubdata.transport` | `method`, `url`, `attempt`, `max_retries`, `status_code`, `params`, `content_type`, `content_length`, `preview`, `delay_seconds`, `exception_type` |
+| `kpubdata.config` | `provider` |
+| `kpubdata.transport` | `method`, `url`, `attempt`, `max_retries`, `status_code`, `params`, `content_type`, `content_length`, `preview`, `delay_seconds`, `exception_type`, `dataset_id`, `provider` |
 | `kpubdata.transport.decode` | `byte_length`, `char_length`, `preview`, `line`, `column`, `root_type`, `content_type`, `exception_type` |
-| `kpubdata.provider.*` | `dataset_id`, `page`, `page_size`, `operation`, `param_keys`, `result_code`, `result_msg` (datago) |
+| `kpubdata.provider.*` | `dataset_id`, `provider`, `page`, `page_size`, `total_count`, `result_code`, `result_msg`, `code`, `message`, `operation` |
 
 JSON 포맷터와 결합하면 곧바로 관측(observability) 파이프라인에 연결할 수 있습니다.
+
+## 실패 경로 디버깅 (Debugging failure paths)
+
+라이브 API 재현 시 원인 파악을 쉽게 하기 위해, 주요 실패 경로는 이제 예외를 던지기 **직전**에 DEBUG 로그를 남깁니다.
+
+- `DatasetNotFoundError`, `InvalidRequestError`, `ParseError`
+- Provider별 envelope/API 오류 (`result_code`/`result_msg`, `code`/`message`)
+- 정상 envelope 이지만 `items=[]` 인 빈 결과 응답
+
+이 로그들은 `dataset_id`를 공통으로 포함하며, 가능한 경우 `provider`, `page`, `page_size`, `total_count` 같은 상관관계 키를 함께 기록합니다. `kpubdata.transport`도 선택적으로 `dataset_id`/`provider`를 받아 HTTP 요청 시작·성공·재시도·오류 로그에 같은 컨텍스트를 첨부하므로, 어댑터 실패와 실제 HTTP 호출을 한 흐름으로 추적할 수 있습니다.
 
 ```python
 import json
