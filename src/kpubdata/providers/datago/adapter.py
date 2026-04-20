@@ -98,6 +98,10 @@ class DataGoAdapter:
         if dataset is not None:
             return dataset
 
+        logger.debug(
+            "Datago dataset not found",
+            extra={"dataset_id": f"datago.{dataset_key}", "provider": "datago"},
+        )
         raise DatasetNotFoundError(
             f"Dataset not found: datago.{dataset_key}",
             provider="datago",
@@ -108,6 +112,10 @@ class DataGoAdapter:
         """Query records from a data.go.kr dataset."""
 
         if self._is_generic(dataset):
+            logger.debug(
+                "Datago list called with unsupported operation (generic)",
+                extra={"dataset_id": dataset.id},
+            )
             raise InvalidRequestError(
                 "datago.generic does not support list(); use call_raw with _base_url instead",
                 provider="datago",
@@ -138,7 +146,7 @@ class DataGoAdapter:
                 value: object = raw_value
                 params[key] = str(value)
 
-        payload = self._request_and_decode(url, params)
+        payload = self._request_and_decode(url, params, dataset.id)
         body, items = self._validate_envelope(payload, dataset.id)
 
         total_count = coerce_int(body.get("totalCount"), 0)
@@ -148,6 +156,17 @@ class DataGoAdapter:
             computed_next = page + 1
         else:
             computed_next = None
+
+        if not items:
+            logger.debug(
+                "Datago envelope: zero items",
+                extra={
+                    "dataset_id": dataset.id,
+                    "page": page,
+                    "page_size": page_size,
+                    "total_count": total_count,
+                },
+            )
 
         return RecordBatch(
             items=items,
@@ -199,6 +218,10 @@ class DataGoAdapter:
         if is_generic:
             base_url_override = params.get("_base_url")
             if not isinstance(base_url_override, str) or not base_url_override:
+                logger.debug(
+                    "Datago.generic missing _base_url in call_raw params",
+                    extra={"dataset_id": dataset.id},
+                )
                 raise InvalidRequestError(
                     "datago.generic requires '_base_url' to be passed in params",
                     provider="datago",
@@ -206,6 +229,10 @@ class DataGoAdapter:
                 )
             envelope_flag = params.get("_envelope", True)
             if not isinstance(envelope_flag, bool):
+                logger.debug(
+                    "Datago.generic '_envelope' must be a bool",
+                    extra={"dataset_id": dataset.id},
+                )
                 raise InvalidRequestError(
                     "datago.generic '_envelope' must be a bool (True or False)",
                     provider="datago",
@@ -264,7 +291,7 @@ class DataGoAdapter:
                     continue
                 request_params[key] = str(value)
 
-            payload = self._request_and_decode(url, request_params)
+            payload = self._request_and_decode(url, request_params, dataset.id)
             if validate_envelope:
                 _ = self._validate_envelope(payload, dataset.id)
             return payload
@@ -277,7 +304,7 @@ class DataGoAdapter:
             if key != service_key_param:
                 request_params[key] = str(value)
 
-        payload = self._request_and_decode(url, request_params)
+        payload = self._request_and_decode(url, request_params, dataset.id)
         _ = self._validate_envelope(payload, dataset.id)
         return payload
 
@@ -331,9 +358,17 @@ class DataGoAdapter:
         )
         return {service_key_param: api_key, format_param: "json"}
 
-    def _request_and_decode(self, url: str, params: Mapping[str, object]) -> dict[str, object]:
+    def _request_and_decode(
+        self, url: str, params: Mapping[str, object], dataset_id: str = ""
+    ) -> dict[str, object]:
         string_params = {key: str(value) for key, value in params.items()}
-        response = self._transport.request("GET", url, params=string_params)
+        response = self._transport.request(
+            "GET",
+            url,
+            params=string_params,
+            dataset_id=dataset_id,
+            provider="datago",
+        )
 
         try:
             content_type = detect_content_type(response)
@@ -345,6 +380,7 @@ class DataGoAdapter:
                 decoded = decode_json(response.content)
         except ParseError as exc:
             exc.provider = "datago"
+            logger.debug("Datago response parsing failed", extra={"dataset_id": dataset_id})
             raise
         except ImportError as exc:
             raise ParseError("Failed to parse data.go.kr response", provider="datago") from exc
@@ -352,6 +388,10 @@ class DataGoAdapter:
         if isinstance(decoded, dict):
             return cast(dict[str, object], decoded)
 
+        logger.debug(
+            "Datago decoded payload invalid type",
+            extra={"dataset_id": dataset_id},
+        )
         raise ParseError("Decoded payload is not an object", provider="datago")
 
     def _validate_envelope(
@@ -359,6 +399,10 @@ class DataGoAdapter:
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
         response_obj = payload.get("response")
         if not isinstance(response_obj, dict):
+            logger.debug(
+                "Datago envelope missing response/body",
+                extra={"dataset_id": dataset_id},
+            )
             raise ProviderResponseError(
                 "Malformed response envelope: missing response",
                 provider="datago",
@@ -403,13 +447,18 @@ class DataGoAdapter:
         return body_dict, items
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
+        extra = {"dataset_id": dataset_id, "result_code": code, "result_msg": msg}
         if code in {"30", "31", "20", "32"}:
+            logger.debug("Datago API envelope error", extra=extra)
             raise AuthError(msg, provider="datago", provider_code=code)
         if code == "22":
+            logger.debug("Datago API envelope error", extra=extra)
             raise RateLimitError(msg, provider="datago", provider_code=code, retryable=False)
         if code == "10":
+            logger.debug("Datago API envelope error", extra=extra)
             raise InvalidRequestError(msg, provider="datago", provider_code=code)
         if code == "12":
+            logger.debug("Datago API envelope error", extra=extra)
             raise DatasetNotFoundError(
                 msg,
                 provider="datago",
@@ -417,7 +466,9 @@ class DataGoAdapter:
                 dataset_id=dataset_id,
             )
         if code in {"01", "02"}:
+            logger.debug("Datago API envelope error", extra=extra)
             raise ServiceUnavailableError(msg, provider="datago", provider_code=code)
+        logger.debug("Datago API envelope error", extra=extra)
         raise ProviderResponseError(msg, provider="datago", provider_code=code)
 
     def _normalize_items(self, items_wrapper: object) -> list[dict[str, object]]:

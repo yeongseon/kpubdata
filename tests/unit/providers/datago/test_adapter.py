@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from types import MappingProxyType
 from typing import Protocol, cast
 
@@ -32,7 +33,7 @@ REAL_ESTATE_DATASET_KEYS = [
 
 
 class FakeResponse:
-    def __init__(self, payload: dict[str, object], content_type: str = "application/json") -> None:
+    def __init__(self, payload: object, content_type: str = "application/json") -> None:
         self.headers: dict[str, str] = {"content-type": content_type}
         self.text: str = json.dumps(payload)
         self.content: bytes = self.text.encode()
@@ -291,6 +292,23 @@ class TestDataGoAdapterQueryRecords:
 
         assert batch.items == []
         assert batch.total_count is None
+
+    def test_query_records_empty_items_logs_debug(self, caplog: pytest.LogCaptureFixture) -> None:
+        payload = _success_payload(items=None, total_count=0, num_of_rows=100, page_no=1)
+        adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
+
+        caplog.set_level(logging.DEBUG, logger="kpubdata.provider.datago")
+        _ = adapter.query_records(dataset, Query())
+
+        record = next(
+            record
+            for record in caplog.records
+            if record.getMessage() == "Datago envelope: zero items"
+        )
+        assert record.__dict__["dataset_id"] == dataset.id
+        assert record.__dict__["page"] == 1
+        assert record.__dict__["page_size"] == 100
+        assert record.__dict__["total_count"] == 0
 
     def test_query_records_string_numerics(self) -> None:
         payload = _success_payload(
