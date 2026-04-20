@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Generator
 from typing import cast
 
@@ -11,6 +12,8 @@ from kpubdata.core.capability import Operation
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.exceptions import UnsupportedCapabilityError
+
+logger = logging.getLogger("kpubdata.dataset")
 
 _CANONICAL_QUERY_KEYS = frozenset(
     {"page", "page_size", "cursor", "start_date", "end_date", "fields", "sort"}
@@ -121,7 +124,34 @@ class Dataset:
             fields=fields_list,
             sort=sort_list,
         )
-        return self._adapter.query_records(self._ref, query)
+        logger.debug(
+            "Dataset.list dispatching",
+            extra={
+                "dataset_id": self._ref.id,
+                "provider": self._ref.provider,
+                "page": page,
+                "page_size": page_size,
+                "cursor": cursor,
+                "start_date": start_date,
+                "end_date": end_date,
+                "fields": fields_list,
+                "sort": sort_list,
+                "filter_keys": sorted(filters.keys()),
+            },
+        )
+        batch = self._adapter.query_records(self._ref, query)
+        logger.debug(
+            "Dataset.list completed",
+            extra={
+                "dataset_id": self._ref.id,
+                "provider": self._ref.provider,
+                "item_count": len(batch.items),
+                "total_count": batch.total_count,
+                "next_page": batch.next_page,
+                "next_cursor": batch.next_cursor,
+            },
+        )
+        return batch
 
     def list_all(self, **kwargs: object) -> Generator[RecordBatch, None, None]:
         if Operation.LIST not in self._ref.operations:
@@ -132,22 +162,52 @@ class Dataset:
                 operation=Operation.LIST.value,
             )
 
+        logger.debug(
+            "Dataset.list_all starting",
+            extra={
+                "dataset_id": self._ref.id,
+                "provider": self._ref.provider,
+                "filter_keys": sorted(kwargs.keys()),
+            },
+        )
         page_kwargs = dict(kwargs)
         batch = self.list(**page_kwargs)
         yield batch
+        page_index = 1
         while batch.next_page is not None or batch.next_cursor is not None:
+            page_index += 1
             if batch.next_cursor is not None:
                 page_kwargs["cursor"] = batch.next_cursor
                 _ = page_kwargs.pop("page", None)
             else:
                 page_kwargs["page"] = batch.next_page
                 _ = page_kwargs.pop("cursor", None)
+            logger.debug(
+                "Dataset.list_all advancing",
+                extra={
+                    "dataset_id": self._ref.id,
+                    "iteration": page_index,
+                    "next_page": page_kwargs.get("page"),
+                    "next_cursor": page_kwargs.get("cursor"),
+                },
+            )
             batch = self.list(**page_kwargs)
             yield batch
+        logger.debug(
+            "Dataset.list_all completed",
+            extra={
+                "dataset_id": self._ref.id,
+                "iterations": page_index,
+            },
+        )
 
     def schema(self) -> SchemaDescriptor | None:
         """Return canonical schema metadata when the provider exposes it."""
 
+        logger.debug(
+            "Dataset.schema requested",
+            extra={"dataset_id": self._ref.id, "provider": self._ref.provider},
+        )
         return self._adapter.get_schema(self._ref)
 
     def call_raw(self, operation: str, **params: object) -> object:
@@ -158,6 +218,15 @@ class Dataset:
         """
 
         payload: dict[str, object] = {k: v for k, v in params.items()}
+        logger.debug(
+            "Dataset.call_raw dispatching",
+            extra={
+                "dataset_id": self._ref.id,
+                "provider": self._ref.provider,
+                "operation": operation,
+                "param_keys": sorted(payload.keys()),
+            },
+        )
         return self._adapter.call_raw(self._ref, operation, payload)
 
     @override

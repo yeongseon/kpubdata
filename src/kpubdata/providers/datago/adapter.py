@@ -108,6 +108,15 @@ class DataGoAdapter:
 
         page = query.page or 1
         page_size = query.page_size or 100
+        logger.debug(
+            "datago query_records",
+            extra={
+                "dataset_id": dataset.id,
+                "page": page,
+                "page_size": page_size,
+                "filter_keys": sorted(query.filters.keys()),
+            },
+        )
 
         url = self._build_request_url(dataset)
         params = self._build_base_params(dataset)
@@ -153,6 +162,14 @@ class DataGoAdapter:
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
         """Call provider-native data.go.kr API operation."""
 
+        logger.debug(
+            "datago call_raw",
+            extra={
+                "dataset_id": dataset.id,
+                "operation": operation,
+                "param_keys": sorted(params.keys()),
+            },
+        )
         url = self._build_request_url(dataset, operation)
         request_params = self._build_base_params(dataset)
 

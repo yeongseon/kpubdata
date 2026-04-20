@@ -92,6 +92,15 @@ class LofinAdapter:
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         page = query.page or 1
         page_size = query.page_size or 100
+        logger.debug(
+            "lofin query_records",
+            extra={
+                "dataset_id": dataset.id,
+                "page": page,
+                "page_size": page_size,
+                "filter_keys": sorted(query.filters.keys()),
+            },
+        )
 
         url = self._build_request_url(
             dataset, page=page, page_size=page_size, filters=query.filters
@@ -121,6 +130,14 @@ class LofinAdapter:
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
         _ = operation
+        logger.debug(
+            "lofin call_raw",
+            extra={
+                "dataset_id": dataset.id,
+                "operation": operation,
+                "param_keys": sorted(params.keys()),
+            },
+        )
         page = self._int_param(params, "pIndex", self._int_param(params, "page", 1))
         page_size = self._int_param(params, "pSize", self._int_param(params, "page_size", 100))
         extra_keys = {"pIndex", "page", "pSize", "page_size"}

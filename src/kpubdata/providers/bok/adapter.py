@@ -80,6 +80,17 @@ class BokAdapter:
         frequency = self._resolve_frequency(query)
         start_date = query.start_date or self._resolve_string_param(query, "start_date")
         end_date = query.end_date or self._resolve_string_param(query, "end_date")
+        logger.debug(
+            "bok query_records",
+            extra={
+                "dataset_id": dataset.id,
+                "page": page,
+                "page_size": page_size,
+                "frequency": frequency,
+                "start_date": start_date,
+                "end_date": end_date,
+            },
+        )
 
         if start_date is None or end_date is None:
             raise InvalidRequestError(
@@ -123,6 +134,14 @@ class BokAdapter:
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
+        logger.debug(
+            "bok call_raw",
+            extra={
+                "dataset_id": dataset.id,
+                "operation": operation,
+                "param_keys": sorted(params.keys()),
+            },
+        )
         frequency = self._string_param(params, "frequency") or "M"
         start_date = self._require_param(params, "start_date")
         end_date = self._require_param(params, "end_date")

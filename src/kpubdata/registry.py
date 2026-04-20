@@ -6,11 +6,14 @@ at registration time, not at call time.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Iterator
 from threading import RLock
 from typing import Any
 
 from kpubdata.exceptions import ProviderNotRegisteredError
+
+logger = logging.getLogger("kpubdata.registry")
 
 _REQUIRED_METHODS = (
     "list_datasets",
@@ -47,6 +50,10 @@ class ProviderRegistry:
             if provider_name in self._adapters or provider_name in self._lazy:
                 raise ValueError(f"Provider '{provider_name}' is already registered")
             self._adapters[provider_name] = adapter
+        logger.debug(
+            "Registered eager provider adapter",
+            extra={"provider": provider_name, "adapter_type": type(adapter).__name__},
+        )
 
     def register_lazy(self, name: str, factory: Any, *, skip_if_exists: bool = False) -> None:
         """Register a lazy-loaded adapter via callable factory.
@@ -67,9 +74,17 @@ class ProviderRegistry:
         with self._lock:
             if normalized_name in self._adapters or normalized_name in self._lazy:
                 if skip_if_exists:
+                    logger.debug(
+                        "Skipped lazy registration; provider already present",
+                        extra={"provider": normalized_name},
+                    )
                     return
                 raise ValueError(f"Provider '{normalized_name}' is already registered")
             self._lazy[normalized_name] = factory
+        logger.debug(
+            "Registered lazy provider adapter",
+            extra={"provider": normalized_name},
+        )
 
     def get(self, name: str) -> Any:
         """Retrieve adapter by provider name."""
@@ -82,8 +97,13 @@ class ProviderRegistry:
             factory = self._lazy.pop(normalized_name, None)
 
         if factory is None:
+            logger.debug("Provider lookup failed", extra={"provider": normalized_name})
             raise ProviderNotRegisteredError(f"Provider '{name}' is not registered")
 
+        logger.debug(
+            "Materializing lazy provider adapter",
+            extra={"provider": normalized_name},
+        )
         lazy_adapter = factory()
         self._validate_adapter(lazy_adapter)
         adapter_name = str(lazy_adapter.name).strip().lower()
@@ -94,6 +114,13 @@ class ProviderRegistry:
 
         with self._lock:
             self._adapters[normalized_name] = lazy_adapter
+        logger.debug(
+            "Materialized lazy provider adapter",
+            extra={
+                "provider": normalized_name,
+                "adapter_type": type(lazy_adapter).__name__,
+            },
+        )
         return lazy_adapter
 
     def __contains__(self, name: str) -> bool:

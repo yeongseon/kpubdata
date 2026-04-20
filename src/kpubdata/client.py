@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from typing import cast
 
@@ -13,6 +14,8 @@ from kpubdata.core.dataset import Dataset
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.registry import ProviderRegistry
 from kpubdata.transport.http import HttpTransport, TransportConfig, TransportRequirements
+
+logger = logging.getLogger("kpubdata.client")
 
 _BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("datago", "kpubdata.providers.datago", "DataGoAdapter"),
@@ -55,6 +58,15 @@ class Client:
         self._provider_transports: list[HttpTransport] = []
         self._register_builtin_providers()
         self._catalog: Catalog = Catalog(self._registry)
+        logger.debug(
+            "Client initialized",
+            extra={
+                "providers": sorted(self._registry),
+                "timeout": self._config.timeout,
+                "max_retries": self._config.max_retries,
+                "explicit_provider_keys": sorted(self._config.provider_keys.keys()),
+            },
+        )
 
     @classmethod
     def from_env(cls, **overrides: object) -> Client:
@@ -82,6 +94,10 @@ class Client:
     def close(self) -> None:
         """Close underlying transport resources for this client."""
 
+        logger.debug(
+            "Client closing",
+            extra={"owned_provider_transports": len(self._provider_transports)},
+        )
         self._transport.close()
         for provider_transport in self._provider_transports:
             provider_transport.close()
@@ -101,7 +117,16 @@ class Client:
             ProviderNotRegisteredError: If the provider is not registered.
         """
 
+        logger.debug("Binding dataset", extra={"dataset_id": dataset_id})
         adapter, ref = self._catalog.resolve(dataset_id)
+        logger.debug(
+            "Dataset bound",
+            extra={
+                "dataset_id": ref.id,
+                "provider": ref.provider,
+                "operations": sorted(op.value for op in ref.operations),
+            },
+        )
         return Dataset(ref=ref, adapter=adapter)
 
     def register_provider(self, adapter: object) -> None:
@@ -112,6 +137,10 @@ class Client:
             ValueError: If the provider is already registered.
         """
 
+        logger.debug(
+            "Registering external provider adapter",
+            extra={"adapter_type": type(adapter).__name__},
+        )
         self._registry.register(adapter)
 
     def _register_builtin_providers(self) -> None:
