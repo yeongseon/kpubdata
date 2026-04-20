@@ -70,6 +70,10 @@ class LocaldataAdapter:
         if dataset is not None:
             return dataset
 
+        logger.debug(
+            "Localdata dataset not found",
+            extra={"dataset_id": f"localdata.{dataset_key}", "provider": "localdata"},
+        )
         raise DatasetNotFoundError(
             f"Dataset not found: localdata.{dataset_key}",
             provider="localdata",
@@ -101,7 +105,7 @@ class LocaldataAdapter:
                 value: object = raw_value
                 params[key] = str(value)
 
-        payload = self._request_and_decode(url, params)
+        payload = self._request_and_decode(url, params, dataset.id)
 
         body, items = self._validate_envelope(payload, dataset.id)
         total_count = coerce_int(body.get("totalCount"), 0)
@@ -111,6 +115,17 @@ class LocaldataAdapter:
             computed_next = page + 1
         else:
             computed_next = None
+
+        if not items:
+            logger.debug(
+                "Localdata envelope: zero items",
+                extra={
+                    "dataset_id": dataset.id,
+                    "page": page,
+                    "page_size": page_size,
+                    "total_count": total_count,
+                },
+            )
 
         return RecordBatch(
             items=items,
@@ -140,7 +155,7 @@ class LocaldataAdapter:
             if key != service_key_param:
                 request_params[key] = str(value)
 
-        payload = self._request_and_decode(url, request_params)
+        payload = self._request_and_decode(url, request_params, dataset.id)
         _ = self._validate_envelope(payload, dataset.id)
         return payload
 
@@ -150,6 +165,10 @@ class LocaldataAdapter:
     def _build_request_url(self, dataset: DatasetRef, operation: str | None = None) -> str:
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
+            logger.debug(
+                "Localdata dataset metadata missing base_url",
+                extra={"dataset_id": dataset.id},
+            )
             raise ProviderResponseError(
                 "Dataset metadata missing base_url",
                 provider="localdata",
@@ -175,9 +194,17 @@ class LocaldataAdapter:
         )
         return {service_key_param: api_key, format_param: "json"}
 
-    def _request_and_decode(self, url: str, params: Mapping[str, object]) -> dict[str, object]:
+    def _request_and_decode(
+        self, url: str, params: Mapping[str, object], dataset_id: str
+    ) -> dict[str, object]:
         string_params = {key: str(value) for key, value in params.items()}
-        response = self._transport.request("GET", url, params=string_params)
+        response = self._transport.request(
+            "GET",
+            url,
+            params=string_params,
+            dataset_id=dataset_id,
+            provider="localdata",
+        )
 
         try:
             content_type = detect_content_type(response)
@@ -189,6 +216,7 @@ class LocaldataAdapter:
                 decoded = decode_json(response.content)
         except ParseError as exc:
             exc.provider = "localdata"
+            logger.debug("Localdata response parsing failed", extra={"dataset_id": dataset_id})
             raise
         except ImportError as exc:
             raise ParseError("Failed to parse localdata response", provider="localdata") from exc
@@ -196,6 +224,7 @@ class LocaldataAdapter:
         if isinstance(decoded, dict):
             return cast(dict[str, object], decoded)
 
+        logger.debug("Localdata decoded payload invalid type", extra={"dataset_id": dataset_id})
         raise ParseError("Decoded payload is not an object", provider="localdata")
 
     def _validate_envelope(

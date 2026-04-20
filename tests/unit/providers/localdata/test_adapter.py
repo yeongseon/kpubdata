@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
+from types import MappingProxyType
 from typing import cast
+
+import pytest
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
-from kpubdata.exceptions import AuthError
+from kpubdata.exceptions import AuthError, ProviderResponseError
 from kpubdata.providers.localdata.adapter import LocaldataAdapter
 from kpubdata.transport.http import HttpTransport
 
@@ -101,6 +105,27 @@ def test_query_records_handles_empty_response() -> None:
     assert batch.next_page is None
 
 
+def test_query_records_handles_empty_response_logs_debug(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    payload = _load_fixture("empty_response.json")
+    adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
+
+    caplog.set_level(logging.DEBUG, logger="kpubdata.provider.localdata")
+    batch = adapter.query_records(dataset, Query())
+
+    assert batch.items == []
+    record = next(
+        record
+        for record in caplog.records
+        if record.getMessage() == "Localdata envelope: zero items"
+    )
+    assert record.__dict__["dataset_id"] == dataset.id
+    assert record.__dict__["page"] == 1
+    assert record.__dict__["page_size"] == 100
+    assert record.__dict__["total_count"] == 0
+
+
 def test_query_records_sets_next_page_with_total_count() -> None:
     payload = _load_fixture("general_restaurant_success.json")
     adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
@@ -146,3 +171,30 @@ def test_adapter_lists_two_datasets() -> None:
         "general_restaurant",
         "rest_cafe",
     ]
+
+
+def test_build_request_url_missing_base_url_logs_debug(caplog: pytest.LogCaptureFixture) -> None:
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    dataset = DatasetRef(
+        id=dataset.id,
+        provider=dataset.provider,
+        dataset_key=dataset.dataset_key,
+        name=dataset.name,
+        representation=dataset.representation,
+        operations=dataset.operations,
+        raw_metadata=MappingProxyType(
+            {k: v for k, v in dataset.raw_metadata.items() if k != "base_url"}
+        ),
+        query_support=dataset.query_support,
+    )
+
+    caplog.set_level(logging.DEBUG, logger="kpubdata.provider.localdata")
+    with pytest.raises(ProviderResponseError, match="base_url"):
+        adapter.query_records(dataset, Query())
+
+    record = next(
+        record
+        for record in caplog.records
+        if record.getMessage() == "Localdata dataset metadata missing base_url"
+    )
+    assert record.__dict__["dataset_id"] == dataset.id
