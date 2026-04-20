@@ -35,3 +35,8 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Agent / scratch artifacts
+.sisyphus/
+.playwright-mcp/
+tmp/

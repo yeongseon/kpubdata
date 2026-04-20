@@ -72,3 +72,80 @@ def test_datago_apt_trade(require_datago_key: None, live_client: Client) -> None
 
     assert isinstance(result, RecordBatch)
     assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_apt_rent(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.apt_rent")
+
+    result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_offi_trade(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.offi_trade")
+
+    result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_offi_rent(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.offi_rent")
+
+    result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_rh_trade(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.rh_trade")
+
+    result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_rh_rent(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.rh_rent")
+
+    result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_sh_trade(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.sh_trade")
+
+    result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_sh_rent(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.sh_rent")
+
+    result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert isinstance(result.items, list)
