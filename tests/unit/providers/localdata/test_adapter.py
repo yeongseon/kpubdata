@@ -61,7 +61,7 @@ def test_query_records_parses_success_fixture() -> None:
     assert batch.total_count == 3
     assert batch.next_page is None
     assert batch.raw == payload
-    assert batch.items[0]["bplcNm"] == "한밥식당"
+    assert batch.items[0]["BPLC_NM"] == "한밥식당"
     assert len(transport.calls) == 1
 
 
@@ -106,10 +106,9 @@ def test_query_records_passes_local_code_filter() -> None:
 
     _ = adapter.query_records(dataset, Query(filters={"localCode": "41135"}))
 
-    request_url = cast(str, transport.calls[0]["url"])
-    assert "authKey=test-key" in request_url
-    assert "opnSvcId=07_24_04_P" in request_url
-    assert "resultType=json" in request_url
-    assert "pageIndex=1" in request_url
-    assert "pageSize=100" in request_url
-    assert "localCode=41135" in request_url
+    request_params = cast(dict[str, str], transport.calls[0]["params"])
+    assert request_params["serviceKey"] == "test-key"
+    assert request_params["type"] == "json"
+    assert request_params["pageNo"] == "1"
+    assert request_params["numOfRows"] == "100"
+    assert request_params["localCode"] == "41135"

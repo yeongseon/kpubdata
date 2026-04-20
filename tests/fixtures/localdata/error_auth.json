@@ -1,20 +1,8 @@
 {
-  "result": {
+  "response": {
     "header": {
-      "process": {
-        "code": "30",
-        "message": "인증키(authKey)가 유효하지 않습니다."
-      },
-      "paging": {
-        "pageIndex": "1",
-        "pageSize": "100",
-        "totalCount": "0"
-      }
-    },
-    "body": {
-      "rows": {
-        "row": []
-      }
+      "resultCode": "30",
+      "resultMsg": "등록되지 않은 서비스키입니다."
     }
   }
 }

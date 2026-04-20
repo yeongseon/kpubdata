@@ -1,20 +1,12 @@
 {
-  "result": {
+  "response": {
     "header": {
-      "process": {
-        "code": "00",
-        "message": "정상 처리되었습니다."
-      },
-      "paging": {
-        "pageIndex": "1",
-        "pageSize": "100",
-        "totalCount": "0"
-      }
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
     },
     "body": {
-      "rows": {
-        "row": []
-      }
+      "totalCount": 0,
+      "items": null
     }
   }
 }

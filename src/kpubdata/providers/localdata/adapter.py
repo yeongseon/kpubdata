@@ -9,14 +9,24 @@ from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescripto
 from kpubdata.exceptions import (
     AuthError,
     DatasetNotFoundError,
+    InvalidRequestError,
     ParseError,
     ProviderResponseError,
+    RateLimitError,
+    ServiceUnavailableError,
 )
 from kpubdata.providers._common import build_schema_from_metadata, coerce_int, load_catalogue
-from kpubdata.transport.decode import decode_json
+from kpubdata.transport.decode import decode_json, decode_xml, detect_content_type
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.provider.localdata")
+
+
+def _is_success_code(code: str) -> bool:
+    try:
+        return int(code) == 0
+    except ValueError:
+        return False
 
 
 class LocaldataAdapter:
@@ -79,13 +89,22 @@ class LocaldataAdapter:
             },
         )
 
-        url = self._build_request_url(
-            dataset, page=page, page_size=page_size, filters=query.filters
-        )
-        payload = self._request_and_decode(url, dataset.id)
+        url = self._build_request_url(dataset)
+        params = self._build_base_params(dataset)
+        params["pageNo"] = str(page)
+        params["numOfRows"] = str(page_size)
 
-        paging, items = self._validate_envelope(payload, dataset.id)
-        total_count = coerce_int(paging.get("totalCount"), 0)
+        reserved = {params_key.lower() for params_key in params}
+        reserved.update({"pageno", "numofrows"})
+        for key, raw_value in query.filters.items():
+            if key.lower() not in reserved:
+                value: object = raw_value
+                params[key] = str(value)
+
+        payload = self._request_and_decode(url, params)
+
+        body, items = self._validate_envelope(payload, dataset.id)
+        total_count = coerce_int(body.get("totalCount"), 0)
         if (total_count and page * page_size < total_count) or (
             not total_count and len(items) == page_size
         ):
@@ -105,7 +124,6 @@ class LocaldataAdapter:
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        _ = operation
         logger.debug(
             "localdata call_raw",
             extra={
@@ -114,31 +132,22 @@ class LocaldataAdapter:
                 "param_keys": sorted(params.keys()),
             },
         )
-        page = self._int_param(params, "pageIndex", self._int_param(params, "page", 1))
-        page_size = self._int_param(
-            params,
-            "pageSize",
-            self._int_param(params, "page_size", 100),
-        )
-        extra_keys = {"pageIndex", "page", "pageSize", "page_size"}
-        filters = {k: v for k, v in params.items() if k not in extra_keys}
+        url = self._build_request_url(dataset, operation)
+        request_params = self._build_base_params(dataset)
 
-        url = self._build_request_url(dataset, page=page, page_size=page_size, filters=filters)
-        payload = self._request_and_decode(url, dataset.id)
+        service_key_param = str(dataset.raw_metadata.get("service_key_param", "serviceKey"))
+        for key, value in params.items():
+            if key != service_key_param:
+                request_params[key] = str(value)
+
+        payload = self._request_and_decode(url, request_params)
         _ = self._validate_envelope(payload, dataset.id)
         return payload
 
     def _require_api_key(self) -> str:
         return self._config.require_provider_key("localdata")
 
-    def _build_request_url(
-        self,
-        dataset: DatasetRef,
-        *,
-        page: int,
-        page_size: int,
-        filters: dict[str, object] | None = None,
-    ) -> str:
+    def _build_request_url(self, dataset: DatasetRef, operation: str | None = None) -> str:
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
             raise ProviderResponseError(
@@ -147,52 +156,62 @@ class LocaldataAdapter:
                 dataset_id=dataset.id,
             )
 
-        opn_svc_id = self._require_dataset_metadata(dataset, "opn_svc_id")
-        api_key = self._require_api_key()
-        safe_page = page if page > 0 else 1
-        safe_page_size = page_size if page_size > 0 else 100
-        if safe_page_size > 500:
-            safe_page_size = 500
-        url = (
-            f"{base_url_raw}"
-            f"?authKey={api_key}&opnSvcId={opn_svc_id}&resultType=json"
-            f"&pageIndex={safe_page}&pageSize={safe_page_size}"
-        )
-        if filters:
-            for key, value in filters.items():
-                if key in {"authKey", "opnSvcId", "resultType", "pageIndex", "pageSize"}:
-                    continue
-                url += f"&{key}={value}"
-        return url
+        selected_operation = operation or dataset.raw_metadata.get("default_operation")
+        if isinstance(selected_operation, str) and selected_operation:
+            return f"{base_url_raw}/{selected_operation}"
+        return base_url_raw
 
-    def _request_and_decode(self, url: str, dataset_id: str = "") -> dict[str, object]:
-        response = self._transport.request("GET", url)
+    def _build_base_params(self, dataset: DatasetRef) -> dict[str, str]:
+        api_key = self._require_api_key()
+        service_key_param_raw = dataset.raw_metadata.get("service_key_param", "serviceKey")
+        format_param_raw = dataset.raw_metadata.get("format_param", "type")
+        service_key_param = (
+            service_key_param_raw
+            if isinstance(service_key_param_raw, str) and service_key_param_raw
+            else "serviceKey"
+        )
+        format_param = (
+            format_param_raw if isinstance(format_param_raw, str) and format_param_raw else "type"
+        )
+        return {service_key_param: api_key, format_param: "json"}
+
+    def _request_and_decode(self, url: str, params: Mapping[str, object]) -> dict[str, object]:
+        string_params = {key: str(value) for key, value in params.items()}
+        response = self._transport.request("GET", url, params=string_params)
 
         try:
-            decoded_obj: object = decode_json(response.content)
-        except ValueError as exc:
-            raise ParseError("Failed to parse Localdata response", provider="localdata") from exc
+            content_type = detect_content_type(response)
+            if content_type == "json":
+                decoded = decode_json(response.content)
+            elif content_type == "xml":
+                decoded = decode_xml(response.content)
+            else:
+                decoded = decode_json(response.content)
+        except ParseError as exc:
+            exc.provider = "localdata"
+            raise
+        except ImportError as exc:
+            raise ParseError("Failed to parse localdata response", provider="localdata") from exc
 
-        if isinstance(decoded_obj, dict):
-            payload = cast(dict[str, object], decoded_obj)
-            self._raise_for_process(payload, dataset_id)
-            return payload
+        if isinstance(decoded, dict):
+            return cast(dict[str, object], decoded)
 
         raise ParseError("Decoded payload is not an object", provider="localdata")
 
     def _validate_envelope(
-        self, payload: dict[str, object], dataset_id: str
+        self, payload: dict[str, object], dataset_id: str = ""
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        result_obj = payload.get("result")
-        if not isinstance(result_obj, dict):
+        response_obj = payload.get("response")
+        if not isinstance(response_obj, dict):
             raise ProviderResponseError(
-                "Malformed response envelope: missing result",
+                "Malformed response envelope: missing response",
                 provider="localdata",
                 dataset_id=dataset_id or None,
             )
 
-        result_dict = cast(dict[str, object], result_obj)
-        header_obj = result_dict.get("header")
+        response_dict = cast(dict[str, object], response_obj)
+
+        header_obj = response_dict.get("header")
         if not isinstance(header_obj, dict):
             raise ProviderResponseError(
                 "Malformed response envelope: missing header",
@@ -201,95 +220,74 @@ class LocaldataAdapter:
             )
 
         header_dict = cast(dict[str, object], header_obj)
-        process_obj = header_dict.get("process")
-        if not isinstance(process_obj, Mapping):
+        result_code = header_dict.get("resultCode")
+        if not isinstance(result_code, str):
             raise ProviderResponseError(
-                "Malformed response envelope: missing process",
+                "Malformed response envelope: missing resultCode",
                 provider="localdata",
                 dataset_id=dataset_id or None,
             )
-        self._raise_for_process_code(cast(Mapping[str, object], process_obj), dataset_id)
 
-        paging_obj = header_dict.get("paging")
-        paging = cast(dict[str, object], paging_obj) if isinstance(paging_obj, dict) else {}
-
-        body_obj = result_dict.get("body")
-        body_dict = cast(dict[str, object], body_obj) if isinstance(body_obj, dict) else {}
-        rows_obj = body_dict.get("rows")
-        rows_dict = cast(dict[str, object], rows_obj) if isinstance(rows_obj, dict) else {}
-        items = self._normalize_rows(rows_dict.get("row"))
-        return paging, items
-
-    def _raise_for_process(self, payload: Mapping[str, object], dataset_id: str) -> None:
-        result_obj = payload.get("result")
-        if not isinstance(result_obj, Mapping):
-            return
-
-        result_dict = cast(Mapping[str, object], result_obj)
-        header_obj = result_dict.get("header")
-        if not isinstance(header_obj, Mapping):
-            return
-
-        header_dict = cast(Mapping[str, object], header_obj)
-        process_obj = header_dict.get("process")
-        if not isinstance(process_obj, Mapping):
-            return
-
-        self._raise_for_process_code(cast(Mapping[str, object], process_obj), dataset_id)
-
-    def _raise_for_process_code(self, process_obj: Mapping[str, object], dataset_id: str) -> None:
-        code_raw = process_obj.get("code")
-        message_raw = process_obj.get("message")
-        code = code_raw if isinstance(code_raw, str) else "ERROR"
-        message = message_raw if isinstance(message_raw, str) else "Provider returned error"
-        logger.debug(
-            "localdata process",
-            extra={"result_code": code, "result_msg": message, "dataset_id": dataset_id},
+        result_msg_raw = header_dict.get("resultMsg")
+        result_msg = (
+            result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
         )
-        if code == "00":
-            return
-        self._raise_for_result_code(code, message, dataset_id)
+        logger.debug(
+            "localdata result",
+            extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
+        )
+        if not _is_success_code(result_code):
+            self._raise_for_result_code(result_code, result_msg, dataset_id)
+
+        body_obj = response_dict.get("body")
+        body_dict: dict[str, object] = (
+            cast(dict[str, object], body_obj) if isinstance(body_obj, dict) else {}
+        )
+        items = self._normalize_items(body_dict.get("items"))
+        return body_dict, items
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
-        if code in {"30", "99"}:
-            raise AuthError(
+        if code in {"30", "31", "20", "32"}:
+            raise AuthError(msg, provider="localdata", provider_code=code)
+        if code == "22":
+            raise RateLimitError(msg, provider="localdata", provider_code=code, retryable=False)
+        if code == "10":
+            raise InvalidRequestError(msg, provider="localdata", provider_code=code)
+        if code == "12":
+            raise DatasetNotFoundError(
                 msg,
                 provider="localdata",
                 provider_code=code,
-                dataset_id=dataset_id or None,
+                dataset_id=dataset_id,
             )
-        raise ProviderResponseError(
-            msg,
-            provider="localdata",
-            provider_code=code,
-            dataset_id=dataset_id or None,
-        )
+        if code in {"01", "02"}:
+            raise ServiceUnavailableError(msg, provider="localdata", provider_code=code)
+        raise ProviderResponseError(msg, provider="localdata", provider_code=code)
 
-    def _require_dataset_metadata(self, dataset: DatasetRef, key: str) -> str:
-        value = dataset.raw_metadata.get(key)
-        if isinstance(value, str) and value:
-            return value
-        raise ProviderResponseError(
-            f"Dataset metadata missing {key}",
-            provider="localdata",
-            dataset_id=dataset.id,
-        )
-
-    def _normalize_rows(self, rows_wrapper: object) -> list[dict[str, object]]:
-        if rows_wrapper is None:
+    def _normalize_items(self, items_wrapper: object) -> list[dict[str, object]]:
+        if items_wrapper is None:
             return []
-        if isinstance(rows_wrapper, list):
-            rows = cast(list[object], rows_wrapper)
-            return [cast(dict[str, object], item) for item in rows if isinstance(item, dict)]
-        if isinstance(rows_wrapper, dict):
-            return [cast(dict[str, object], rows_wrapper)]
-        return []
 
-    @classmethod
-    def _int_param(cls, params: Mapping[str, object], key: str, default: int) -> int:
-        value = params.get(key)
-        coerced = coerce_int(value, default)
-        return coerced if coerced > 0 else default
+        if isinstance(items_wrapper, dict):
+            item_value = cast(dict[str, object], items_wrapper).get("item")
+            if isinstance(item_value, list):
+                normalized_items = cast(list[object], item_value)
+                return [
+                    cast(dict[str, object], item)
+                    for item in normalized_items
+                    if isinstance(item, dict)
+                ]
+            if isinstance(item_value, dict):
+                return [cast(dict[str, object], item_value)]
+            return []
+
+        if isinstance(items_wrapper, list):
+            normalized_items = cast(list[object], items_wrapper)
+            return [
+                cast(dict[str, object], item) for item in normalized_items if isinstance(item, dict)
+            ]
+
+        return []
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:

@@ -35,6 +35,10 @@
 | 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
 | 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
 | 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `general_restaurant` | 일반음식점 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공 (data.go.kr 이관), service_name 추정치 — 실API 검증 필요 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `coffee_shop` | 커피숍 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공 (data.go.kr 이관), service_name 추정치 — 실API 검증 필요 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `bakery` | 제과점 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공 (data.go.kr 이관), service_name 추정치 — 실API 검증 필요 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `retail_store` | 소매점 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공 (data.go.kr 이관), service_name 추정치 — 실API 검증 필요 |
 | 지원 | 실API 검증 | 2025-04-15 | 한국은행 ECOS (`bok`) | `base_rate` | 한국은행 기준금리 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | |
 | 지원 | 실API 검증 | 2025-04-15 | 통계청 KOSIS (`kosis`) | `population_migration` | 시도별 이동자수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | |
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `expenditure_budget` | 세출결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: AJGCF |
@@ -48,10 +52,6 @@
 
 | 상태 | Provider | Dataset ID | 데이터셋명 | 메모 |
 |---|---|---|---|---|
-| 진행 중 | 지방행정인허가 (`localdata`) | `general_restaurant` | 일반음식점 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
-| 진행 중 | 지방행정인허가 (`localdata`) | `coffee_shop` | 커피숍 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
-| 진행 중 | 지방행정인허가 (`localdata`) | `bakery` | 제과점 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
-| 진행 중 | 지방행정인허가 (`localdata`) | `retail_store` | 소매점 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
 | 예정 | 기상청 | `weather_forecast` | 동네예보 | provider/adapter 구조 확정 후 착수 |
 
 ## 갱신 규칙
