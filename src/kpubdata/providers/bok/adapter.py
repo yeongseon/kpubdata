@@ -68,6 +68,10 @@ class BokAdapter:
         if dataset is not None:
             return dataset
 
+        logger.debug(
+            "BOK dataset not found",
+            extra={"dataset_id": f"bok.{dataset_key}", "provider": "bok"},
+        )
         raise DatasetNotFoundError(
             f"Dataset not found: bok.{dataset_key}",
             provider="bok",
@@ -93,6 +97,10 @@ class BokAdapter:
         )
 
         if start_date is None or end_date is None:
+            logger.debug(
+                "BOK ECOS invalid query: missing start/end date",
+                extra={"dataset_id": dataset.id},
+            )
             raise InvalidRequestError(
                 "BOK ECOS queries require start_date and end_date",
                 provider="bok",
@@ -111,7 +119,7 @@ class BokAdapter:
             end_date=end_date,
         )
 
-        payload = self._request_and_decode(url)
+        payload = self._request_and_decode(url, dataset.id)
         body, items = self._validate_envelope(payload, dataset.id)
 
         total_count = coerce_int(body.get("list_total_count"), 0)
@@ -121,6 +129,17 @@ class BokAdapter:
             computed_next = page + 1
         else:
             computed_next = None
+
+        if not items:
+            logger.debug(
+                "BOK envelope: zero items",
+                extra={
+                    "dataset_id": dataset.id,
+                    "page": page,
+                    "page_size": page_size,
+                    "total_count": total_count,
+                },
+            )
 
         return RecordBatch(
             items=items,
@@ -143,8 +162,8 @@ class BokAdapter:
             },
         )
         frequency = self._string_param(params, "frequency") or "M"
-        start_date = self._require_param(params, "start_date")
-        end_date = self._require_param(params, "end_date")
+        start_date = self._require_param(params, "start_date", dataset.id)
+        end_date = self._require_param(params, "end_date", dataset.id)
         start_index = self._int_param(params, "start_index", 1)
         end_index = self._int_param(params, "end_index", 10)
 
@@ -157,7 +176,7 @@ class BokAdapter:
             start_date=start_date,
             end_date=end_date,
         )
-        payload = self._request_and_decode(url)
+        payload = self._request_and_decode(url, dataset.id)
         _ = self._validate_envelope(payload, dataset.id)
         return payload
 
@@ -177,6 +196,10 @@ class BokAdapter:
     ) -> str:
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
+            logger.debug(
+                "BOK ECOS dataset metadata missing base_url",
+                extra={"dataset_id": dataset.id},
+            )
             raise ProviderResponseError(
                 "Dataset metadata missing base_url",
                 provider="bok",
@@ -185,6 +208,10 @@ class BokAdapter:
 
         selected_operation = operation or dataset.raw_metadata.get("default_operation")
         if not isinstance(selected_operation, str) or not selected_operation:
+            logger.debug(
+                "BOK ECOS dataset metadata missing default_operation",
+                extra={"dataset_id": dataset.id},
+            )
             raise ProviderResponseError(
                 "Dataset metadata missing default_operation",
                 provider="bok",
@@ -199,18 +226,20 @@ class BokAdapter:
             f"{start_index}/{end_index}/{stat_code}/{frequency}/{start_date}/{end_date}/{item_code1}"
         )
 
-    def _request_and_decode(self, url: str) -> dict[str, object]:
-        response = self._transport.request("GET", url)
+    def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
+        response = self._transport.request("GET", url, dataset_id=dataset_id, provider="bok")
 
         try:
             decoded_obj: object = decode_json(response.content)
         except ParseError as exc:
             exc.provider = "bok"
+            logger.debug("BOK ECOS response parsing failed", extra={"dataset_id": dataset_id})
             raise
 
         if isinstance(decoded_obj, dict):
             return cast(dict[str, object], decoded_obj)
 
+        logger.debug("BOK ECOS decoded payload invalid type", extra={"dataset_id": dataset_id})
         raise ParseError("Decoded payload is not an object", provider="bok")
 
     def _validate_envelope(
@@ -319,11 +348,17 @@ class BokAdapter:
         return None
 
     @classmethod
-    def _require_param(cls, params: Mapping[str, object], key: str) -> str:
+    def _require_param(cls, params: Mapping[str, object], key: str, dataset_id: str) -> str:
         value = cls._string_param(params, key)
         if value is not None:
             return value
-        raise InvalidRequestError(f"BOK ECOS raw calls require {key}", provider="bok")
+        logger.debug(
+            "BOK ECOS raw call missing required parameter",
+            extra={"dataset_id": dataset_id},
+        )
+        raise InvalidRequestError(
+            f"BOK ECOS raw calls require {key}", provider="bok", dataset_id=dataset_id
+        )
 
     @classmethod
     def _int_param(cls, params: Mapping[str, object], key: str, default: int) -> int:

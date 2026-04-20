@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import cast
+
+import pytest
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
+from kpubdata.exceptions import InvalidRequestError
 from kpubdata.providers.bok.adapter import BokAdapter
 from kpubdata.transport.http import HttpTransport
 
@@ -84,3 +88,38 @@ def test_query_records_uses_heuristic_next_page_without_total_count() -> None:
 
     assert batch.total_count is None
     assert batch.next_page == 2
+
+
+def test_query_records_missing_dates_logs_debug(caplog: pytest.LogCaptureFixture) -> None:
+    adapter, dataset, _ = _build_adapter_with_transport([])
+
+    caplog.set_level(logging.DEBUG, logger="kpubdata.provider.bok")
+    with pytest.raises(InvalidRequestError, match="start_date and end_date"):
+        adapter.query_records(dataset, Query())
+
+    record = next(
+        record
+        for record in caplog.records
+        if record.getMessage() == "BOK ECOS invalid query: missing start/end date"
+    )
+    assert record.__dict__["dataset_id"] == dataset.id
+
+
+def test_query_records_zero_items_logs_debug(caplog: pytest.LogCaptureFixture) -> None:
+    payload = _success_payload(items=[], total_count=0)
+    adapter, dataset, _ = _build_adapter_with_transport([FakeResponse(payload)])
+
+    caplog.set_level(logging.DEBUG, logger="kpubdata.provider.bok")
+    batch = adapter.query_records(
+        dataset,
+        Query(page=1, page_size=10, start_date="202401", end_date="202403"),
+    )
+
+    assert batch.items == []
+    record = next(
+        record for record in caplog.records if record.getMessage() == "BOK envelope: zero items"
+    )
+    assert record.__dict__["dataset_id"] == dataset.id
+    assert record.__dict__["page"] == 1
+    assert record.__dict__["page_size"] == 10
+    assert record.__dict__["total_count"] == 0
