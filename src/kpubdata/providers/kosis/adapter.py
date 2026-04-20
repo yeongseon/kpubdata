@@ -67,6 +67,10 @@ class KosisAdapter:
         if dataset is not None:
             return dataset
 
+        logger.debug(
+            "KOSIS dataset not found",
+            extra={"dataset_id": f"kosis.{dataset_key}", "provider": "kosis"},
+        )
         raise DatasetNotFoundError(
             f"Dataset not found: kosis.{dataset_key}",
             provider="kosis",
@@ -87,8 +91,19 @@ class KosisAdapter:
             },
         )
         url = self._build_request_url(dataset, query)
-        payload = self._request_and_decode(url)
+        payload = self._request_and_decode(url, dataset.id)
         items = self._extract_items(payload, dataset.id)
+
+        if not items:
+            logger.debug(
+                "KOSIS envelope: zero items",
+                extra={
+                    "dataset_id": dataset.id,
+                    "page": query.page,
+                    "page_size": _page_size,
+                    "total_count": len(items),
+                },
+            )
 
         return RecordBatch(
             items=items,
@@ -111,7 +126,7 @@ class KosisAdapter:
             },
         )
         url = self._build_raw_url(dataset, operation, params)
-        payload = self._request_and_decode(url)
+        payload = self._request_and_decode(url, dataset.id)
         if isinstance(payload, dict):
             self._raise_for_error_payload(cast(dict[str, object], payload), dataset.id)
         return payload
@@ -123,6 +138,9 @@ class KosisAdapter:
         start_date = query.start_date
         end_date = query.end_date
         if not isinstance(start_date, str) or not start_date:
+            logger.debug(
+                "KOSIS invalid query: missing start_date", extra={"dataset_id": dataset.id}
+            )
             raise InvalidRequestError(
                 "KOSIS queries require start_date",
                 provider="kosis",
@@ -187,13 +205,14 @@ class KosisAdapter:
         query_string = urlencode(params)
         return f"{base_url}?{query_string}"
 
-    def _request_and_decode(self, url: str) -> object:
-        response = self._transport.request("GET", url)
+    def _request_and_decode(self, url: str, dataset_id: str) -> object:
+        response = self._transport.request("GET", url, dataset_id=dataset_id, provider="kosis")
 
         try:
             decoded: object = decode_json(response.content)
         except ParseError as exc:
             exc.provider = "kosis"
+            logger.debug("KOSIS response parsing failed", extra={"dataset_id": dataset_id})
             raise
 
         if isinstance(decoded, list):
@@ -201,6 +220,7 @@ class KosisAdapter:
         if isinstance(decoded, dict):
             return cast(dict[str, object], decoded)
 
+        logger.debug("KOSIS response parsing failed", extra={"dataset_id": dataset_id})
         raise ParseError("Decoded payload is neither an object nor an array", provider="kosis")
 
     def _extract_items(self, payload: object, dataset_id: str) -> list[dict[str, object]]:
@@ -208,6 +228,10 @@ class KosisAdapter:
             self._raise_for_error_payload(cast(dict[str, object], payload), dataset_id)
 
         if not isinstance(payload, list):
+            logger.debug(
+                "KOSIS envelope malformed: expected array payload",
+                extra={"dataset_id": dataset_id},
+            )
             raise ProviderResponseError(
                 "Malformed KOSIS response: expected array payload",
                 provider="kosis",
@@ -224,8 +248,8 @@ class KosisAdapter:
         message = message_raw if isinstance(message_raw, str) else "KOSIS returned an error"
 
         logger.debug(
-            "KOSIS error response",
-            extra={"provider_code": code, "message": message, "dataset_id": dataset_id},
+            "KOSIS API envelope error",
+            extra={"dataset_id": dataset_id, "code": code, "message": message},
         )
 
         if code == "30":
