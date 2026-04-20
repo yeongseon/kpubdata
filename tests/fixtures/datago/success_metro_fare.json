@@ -1,0 +1,31 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "0000",
+      "resultMsg": "OK"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "startStation": "150",
+            "endStation": "201",
+            "fareCash": 1400,
+            "fareCard": 1370,
+            "fareTransfer": 0
+          },
+          {
+            "startStation": "150",
+            "endStation": "202",
+            "fareCash": 1500,
+            "fareCard": 1470,
+            "fareTransfer": 0
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

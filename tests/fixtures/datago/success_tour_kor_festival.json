@@ -1,0 +1,37 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "0000",
+      "resultMsg": "OK"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "addr1": "서울특별시 중구 을지로 281",
+            "contentid": "2784665",
+            "contenttypeid": "15",
+            "eventstartdate": "20250401",
+            "eventenddate": "20250430",
+            "title": "서울 봄꽃 축제",
+            "mapx": "127.0092",
+            "mapy": "37.5665"
+          },
+          {
+            "addr1": "부산광역시 해운대구",
+            "contentid": "2784666",
+            "contenttypeid": "15",
+            "eventstartdate": "20250410",
+            "eventenddate": "20250420",
+            "title": "해운대 모래축제",
+            "mapx": "129.1604",
+            "mapy": "35.1587"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

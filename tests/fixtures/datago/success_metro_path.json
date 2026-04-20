@@ -1,0 +1,38 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "0000",
+      "resultMsg": "OK"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "seq": 1,
+            "stationCode": "150",
+            "stationName": "서울역",
+            "lineNum": "1",
+            "transferYn": "N"
+          },
+          {
+            "seq": 2,
+            "stationCode": "151",
+            "stationName": "시청",
+            "lineNum": "1",
+            "transferYn": "N"
+          },
+          {
+            "seq": 3,
+            "stationCode": "201",
+            "stationName": "시청",
+            "lineNum": "2",
+            "transferYn": "Y"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 3
+    }
+  }
+}

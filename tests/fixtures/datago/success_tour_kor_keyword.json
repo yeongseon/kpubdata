@@ -1,0 +1,33 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "0000",
+      "resultMsg": "OK"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "addr1": "서울특별시 종로구 종로 99",
+            "contentid": "126508",
+            "contenttypeid": "14",
+            "title": "종로 한옥마을",
+            "mapx": "126.9885",
+            "mapy": "37.5826"
+          },
+          {
+            "addr1": "서울특별시 종로구 자하문로",
+            "contentid": "126509",
+            "contenttypeid": "12",
+            "title": "북촌 한옥마을",
+            "mapx": "126.9849",
+            "mapy": "37.5826"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

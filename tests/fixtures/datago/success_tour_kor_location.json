@@ -1,0 +1,35 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "0000",
+      "resultMsg": "OK"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "addr1": "서울특별시 중구 을지로 281",
+            "contentid": "127947",
+            "contenttypeid": "14",
+            "dist": "523.5",
+            "mapx": "127.0091751069",
+            "mapy": "37.5664729927",
+            "title": "동대문디자인플라자(DDP)"
+          },
+          {
+            "addr1": "서울특별시 중구 동호로 249",
+            "contentid": "126508",
+            "contenttypeid": "14",
+            "dist": "812.4",
+            "mapx": "127.0050019520",
+            "mapy": "37.5639088906",
+            "title": "장충체육관"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
