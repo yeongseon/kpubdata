@@ -72,6 +72,14 @@ class Dataset:
         """
 
         if Operation.LIST not in self._ref.operations:
+            logger.debug(
+                "Dataset does not support LIST",
+                extra={
+                    "dataset_id": self._ref.id,
+                    "provider": self._ref.provider,
+                    "operation": "list",
+                },
+            )
             raise UnsupportedCapabilityError(
                 f"Dataset does not support list: {self._ref.id}",
                 provider=self._ref.provider,

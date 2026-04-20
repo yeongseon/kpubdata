@@ -8,6 +8,7 @@ Key lookup order for provider keys:
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from dataclasses import dataclass, field
@@ -16,6 +17,7 @@ from typing import Any
 from kpubdata.exceptions import ConfigError
 
 _ENV_KEY_PATTERN = re.compile(r"^KPUBDATA_([A-Z0-9_]+)_API_KEY$")
+logger = logging.getLogger("kpubdata.config")
 
 
 @dataclass
@@ -65,6 +67,7 @@ class KPubDataConfig:
         key = self.get_provider_key(provider)
         if key is not None:
             return key
+        logger.debug("Missing provider API key", extra={"provider": provider})
         raise ConfigError(f"Missing provider API key for '{provider}'")
 
     @classmethod

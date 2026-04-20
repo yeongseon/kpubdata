@@ -16,11 +16,15 @@ class TestKPubDataConfig:
         cfg = KPubDataConfig(provider_keys={"datago": "mykey"})
         assert cfg.get_provider_key("datago") == "mykey"
 
-    def test_missing_key_returns_none(self) -> None:
+    def test_missing_key_returns_none(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("KPUBDATA_DATAGO_API_KEY", raising=False)
+        monkeypatch.delenv("DATAGO_API_KEY", raising=False)
         cfg = KPubDataConfig()
         assert cfg.get_provider_key("datago") is None
 
-    def test_require_key_raises(self) -> None:
+    def test_require_key_raises(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("KPUBDATA_DATAGO_API_KEY", raising=False)
+        monkeypatch.delenv("DATAGO_API_KEY", raising=False)
         cfg = KPubDataConfig()
         with pytest.raises(ConfigError, match="Missing provider API key"):
             cfg.require_provider_key("datago")
