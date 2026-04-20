@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Generator
 
 import pytest
 
@@ -13,6 +14,16 @@ def require_datago_key() -> str:
     if not key:
         pytest.skip("KPUBDATA_DATAGO_API_KEY not set")
     return key
+
+
+@pytest.fixture
+def require_realestate_key() -> Generator[None, None, None]:
+    if os.environ.get("KPUBDATA_DATAGO_REALESTATE_ENABLED") != "1":
+        pytest.skip(
+            "Set KPUBDATA_DATAGO_REALESTATE_ENABLED=1 once "
+            + "국토부 RTMS APIs have been 활용신청 approved on this key"
+        )
+    yield
 
 
 @pytest.fixture(scope="session")
