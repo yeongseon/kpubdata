@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -7,6 +8,7 @@ import pytest
 
 from kpubdata.client import Client
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
+from kpubdata.transport.cache import ResponseCache
 from kpubdata.transport.http import HttpTransport, TransportRequirements
 
 
@@ -126,3 +128,25 @@ def test_builtin_provider_with_transport_requirements_builds_custom_transport(
         follow_redirects=True,
         verify=False,
     )
+
+
+def test_custom_transport_inherits_cache_settings(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _AdapterWithRequirements.instances.clear()
+    monkeypatch.setattr(
+        "kpubdata.client._BUILTIN_PROVIDERS", (("dummy", "dummy.module", "DummyAdapter"),)
+    )
+    cache = ResponseCache(base_dir=tmp_path)
+
+    with patch(
+        "importlib.import_module",
+        return_value=SimpleNamespace(DummyAdapter=_AdapterWithRequirements),
+    ):
+        client = Client(cache=cache, cache_ttl_seconds=123)
+        _ = client.datasets.list()
+
+    adapter = _AdapterWithRequirements.instances[-1]
+    assert isinstance(adapter, _AdapterWithRequirements)
+    assert adapter.transport.cache is cache
+    assert adapter.transport.cache_ttl_seconds == 123

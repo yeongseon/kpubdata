@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import Callable
 from typing import cast
 
@@ -13,6 +14,7 @@ from kpubdata.config import KPubDataConfig
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.registry import ProviderRegistry
+from kpubdata.transport.cache import ResponseCache
 from kpubdata.transport.http import HttpTransport, TransportConfig, TransportRequirements
 
 logger = logging.getLogger("kpubdata.client")
@@ -35,6 +37,8 @@ class Client:
         provider_keys: dict[str, str] | None = None,
         timeout: float = 30.0,
         max_retries: int = 3,
+        cache: bool | ResponseCache = False,
+        cache_ttl_seconds: int = 86400,
         **extra: object,
     ) -> None:
         """Initialize a client with explicit provider and transport configuration.
@@ -51,11 +55,18 @@ class Client:
             extra=dict(extra),
         )
         self._registry: ProviderRegistry = ProviderRegistry()
+        resolved_cache = _resolve_cache(cache)
         self._transport_config: TransportConfig = TransportConfig(
             timeout=self._config.timeout,
             max_retries=self._config.max_retries,
+            cache=resolved_cache,
+            cache_ttl_seconds=cache_ttl_seconds,
         )
-        self._transport: HttpTransport = HttpTransport(self._transport_config)
+        self._transport: HttpTransport = HttpTransport(
+            self._transport_config,
+            cache=resolved_cache,
+            cache_ttl_seconds=cache_ttl_seconds,
+        )
         self._provider_transports: list[HttpTransport] = []
         self._register_builtin_providers()
         self._catalog: Catalog = Catalog(self._registry)
@@ -65,6 +76,8 @@ class Client:
                 "providers": sorted(self._registry),
                 "timeout": self._config.timeout,
                 "max_retries": self._config.max_retries,
+                "cache_enabled": resolved_cache is not None,
+                "cache_ttl_seconds": cache_ttl_seconds,
                 "explicit_provider_keys": sorted(self._config.provider_keys.keys()),
             },
         )
@@ -73,11 +86,16 @@ class Client:
     def from_env(cls, **overrides: object) -> Client:
         """Create a client from environment variables and explicit overrides."""
 
+        cache_override = overrides.pop("cache", _UNSET)
+        ttl_override = overrides.pop("cache_ttl_seconds", _UNSET)
         config = KPubDataConfig.from_env(**overrides)
+        cache_ttl_seconds = _resolve_cache_ttl(ttl_override)
         return cls(
             provider_keys=config.provider_keys,
             timeout=config.timeout,
             max_retries=config.max_retries,
+            cache=_resolve_cache_from_env(cache_override),
+            cache_ttl_seconds=cache_ttl_seconds,
             **config.extra,
         )
 
@@ -202,8 +220,39 @@ class Client:
 __all__ = ["Client"]
 
 
+_UNSET = object()
+
+
 def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequirements | None:
     requirements = getattr(adapter, "transport_requirements", None)
     if requirements is None:
         return None
     return cast(TransportRequirements | None, requirements)
+
+
+def _resolve_cache(cache: bool | ResponseCache) -> ResponseCache | None:
+    if cache is False:
+        return None
+    if cache is True:
+        return ResponseCache()
+    return cache
+
+
+def _resolve_cache_from_env(cache_override: object) -> bool | ResponseCache:
+    if cache_override is not _UNSET:
+        return cast(bool | ResponseCache, cache_override)
+    if os.environ.get("KPUBDATA_CACHE") != "1":
+        return False
+    cache_dir = os.environ.get("KPUBDATA_CACHE_DIR")
+    if cache_dir:
+        return ResponseCache(base_dir=cache_dir)
+    return True
+
+
+def _resolve_cache_ttl(ttl_override: object) -> int:
+    if ttl_override is not _UNSET:
+        return cast(int, ttl_override)
+    raw_ttl = os.environ.get("KPUBDATA_CACHE_TTL")
+    if raw_ttl is None or raw_ttl == "":
+        return 86400
+    return int(raw_ttl)
