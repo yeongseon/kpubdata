@@ -332,6 +332,47 @@ ds = client.dataset("datago.sh_rent")
 result = ds.list(LAWD_CD="11110", DEAL_YMD="202401")
 ```
 
+### generic (범용 엔드포인트)
+
+KPubData에 정식 등록되지 않은 임의의 data.go.kr 엔드포인트를 호출할 수 있는 비상구입니다. 카탈로그가 없는 API를 즉시 사용해야 할 때 활용하세요.
+
+- 제공 기관: data.go.kr (모든 기관)
+- 호출 방식: `call_raw(operation, _base_url=..., **params)` 만 지원합니다. `list()`는 지원하지 않습니다.
+- 인증키(`serviceKey`)는 자동으로 주입됩니다.
+
+| 매직 파라미터 | 필수 | 기본값 | 설명 |
+|---|---|---|---|
+| `_base_url` | 필수 | — | 엔드포인트 베이스 URL (`/operation` 직전까지) |
+| `_envelope` | 선택 | `True` | 표준 `response.header.resultCode` 검증 여부. 비표준 응답이면 `False` |
+| `_service_key_param` | 선택 | `serviceKey` | 인증키 파라미터 이름 변경 |
+| `_format_param` | 선택 | `resultType` | 응답 포맷 파라미터 이름 변경 |
+
+```python
+ds = client.dataset("datago.generic")
+
+# 예: 동네예보 API를 generic으로 호출
+result = ds.call_raw(
+    "getVilageFcst",
+    _base_url="http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0",
+    base_date="20250401",
+    base_time="0500",
+    nx="55",
+    ny="127",
+)
+```
+
+```python
+# 비표준 envelope 응답을 받는 엔드포인트
+result = ds.call_raw(
+    "getCustomData",
+    _base_url="http://apis.data.go.kr/XXXXXXX/SomeService",
+    _envelope=False,
+    someParam="value",
+)
+```
+
+> 주의: generic은 정규화된 `RecordBatch`를 반환하지 않고 원본 응답(dict)을 그대로 돌려줍니다. 페이지네이션·필드 정규화·타입 변환은 호출자가 직접 처리해야 합니다. 자주 사용하는 데이터셋이라면 정식 카탈로그 등록(`기여자를 위한 새 데이터셋 추가 가이드` 참고)을 권장합니다.
+
 ## 공공데이터포털 API 특이사항
 
 - **응답 형식**: JSON과 XML을 모두 지원하는 경우가 많으나, KPubData는 내부적으로 JSON 형식을 우선 사용합니다.

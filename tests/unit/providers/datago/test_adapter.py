@@ -427,7 +427,7 @@ class TestDataGoAdapterCatalogueOperations:
     def test_default_catalogue_has_operations(self) -> None:
         adapter = DataGoAdapter()
 
-        datasets = adapter.list_datasets()
+        datasets = [d for d in adapter.list_datasets() if not d.raw_metadata.get("generic")]
         assert datasets
         for dataset in datasets:
             assert Operation.LIST in dataset.operations
@@ -436,7 +436,7 @@ class TestDataGoAdapterCatalogueOperations:
     def test_default_catalogue_has_query_support(self) -> None:
         adapter = DataGoAdapter()
 
-        datasets = adapter.list_datasets()
+        datasets = [d for d in adapter.list_datasets() if not d.raw_metadata.get("generic")]
         assert datasets
         for dataset in datasets:
             assert dataset.query_support is not None

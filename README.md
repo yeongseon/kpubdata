@@ -341,6 +341,16 @@ print(df.head())
 
 > 검증 수준 및 실API 최종 검증일 등 상세 정보는 [SUPPORTED_DATA.md](./SUPPORTED_DATA.md)를 참고하세요.
 
+### 비상구 (Escape Hatches)
+
+정규화된 데이터셋이 아닌, 미등록 endpoint를 즉시 호출할 수 있게 해주는 raw 비상구입니다. 정규화·페이지네이션·스키마 보장이 없으며 호출자가 원본 응답을 직접 처리해야 합니다.
+
+| Provider | 비상구 키 | 용도 |
+|---|---|---|
+| 공공데이터포털 (`datago`) | `datago.generic` | 카탈로그에 없는 임의의 data.go.kr API를 `call_raw(operation, _base_url=..., **params)`로 호출 |
+
+자세한 사용법은 [docs/providers/datago.md](./docs/providers/datago.md#generic-범용-엔드포인트)와 [SUPPORTED_DATA.md](./SUPPORTED_DATA.md#비상구--고급-기능-escape-hatches)를 참고하세요.
+
 ## 문서 가이드 (Document Guide)
 
 KPubData의 설계 철학과 사용 방법을 안내하는 문서 목록입니다.

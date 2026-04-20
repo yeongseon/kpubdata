@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping, Sequence
 from typing import NoReturn, cast
+from urllib.parse import urlparse
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import (
@@ -106,6 +107,13 @@ class DataGoAdapter:
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         """Query records from a data.go.kr dataset."""
 
+        if self._is_generic(dataset):
+            raise InvalidRequestError(
+                "datago.generic does not support list(); use call_raw with _base_url instead",
+                provider="datago",
+                dataset_id=dataset.id,
+            )
+
         page = query.page or 1
         page_size = query.page_size or 100
         logger.debug(
@@ -160,7 +168,23 @@ class DataGoAdapter:
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """Call provider-native data.go.kr API operation."""
+        """Call provider-native data.go.kr API operation.
+
+        ``datago.generic`` is a raw-only escape hatch for data.go.kr endpoints
+        that are not in the curated catalogue. It returns the raw decoded
+        response (dict) — no normalization, no pagination, no schema. Callers
+        must pass:
+          * ``_base_url`` (str, REQUIRED): endpoint base URL up to (but not
+            including) the operation name.
+          * ``_envelope`` (bool, default True): when True, validate the
+            standard ``response.header.resultCode`` envelope. Must be a real
+            bool — strings/ints are rejected.
+          * ``_service_key_param`` (str): override service-key param name.
+          * ``_format_param`` (str): override response-format param name.
+
+        A warning is logged if ``_base_url`` does not point to a
+        ``*.data.go.kr`` host. The call still proceeds — this is a soft check.
+        """
 
         logger.debug(
             "datago call_raw",
@@ -170,6 +194,81 @@ class DataGoAdapter:
                 "param_keys": sorted(params.keys()),
             },
         )
+
+        is_generic = self._is_generic(dataset)
+        if is_generic:
+            base_url_override = params.get("_base_url")
+            if not isinstance(base_url_override, str) or not base_url_override:
+                raise InvalidRequestError(
+                    "datago.generic requires '_base_url' to be passed in params",
+                    provider="datago",
+                    dataset_id=dataset.id,
+                )
+            envelope_flag = params.get("_envelope", True)
+            if not isinstance(envelope_flag, bool):
+                raise InvalidRequestError(
+                    "datago.generic '_envelope' must be a bool (True or False)",
+                    provider="datago",
+                    dataset_id=dataset.id,
+                )
+            validate_envelope = envelope_flag
+            service_key_param_override = params.get("_service_key_param")
+            format_param_override = params.get("_format_param")
+
+            host = urlparse(base_url_override).hostname or ""
+            if not host.endswith(".data.go.kr") and host != "data.go.kr":
+                logger.warning(
+                    "datago.generic called with non-data.go.kr host",
+                    extra={
+                        "dataset_id": dataset.id,
+                        "operation": operation,
+                        "base_url": base_url_override,
+                        "host": host,
+                    },
+                )
+
+            url = f"{base_url_override.rstrip('/')}/{operation}"
+            logger.debug(
+                "datago.generic dispatch",
+                extra={
+                    "dataset_id": dataset.id,
+                    "operation": operation,
+                    "base_url": base_url_override,
+                    "envelope": validate_envelope,
+                },
+            )
+            request_params = self._build_base_params(
+                dataset,
+                service_key_param_override=(
+                    service_key_param_override
+                    if isinstance(service_key_param_override, str)
+                    else None
+                ),
+                format_param_override=(
+                    format_param_override if isinstance(format_param_override, str) else None
+                ),
+            )
+            service_key_param = (
+                service_key_param_override
+                if isinstance(service_key_param_override, str) and service_key_param_override
+                else str(dataset.raw_metadata.get("service_key_param", "serviceKey"))
+            )
+            magic_keys = {
+                "_base_url",
+                "_envelope",
+                "_service_key_param",
+                "_format_param",
+            }
+            for key, value in params.items():
+                if key in magic_keys or key == service_key_param:
+                    continue
+                request_params[key] = str(value)
+
+            payload = self._request_and_decode(url, request_params)
+            if validate_envelope:
+                _ = self._validate_envelope(payload, dataset.id)
+            return payload
+
         url = self._build_request_url(dataset, operation)
         request_params = self._build_base_params(dataset)
 
@@ -181,6 +280,10 @@ class DataGoAdapter:
         payload = self._request_and_decode(url, request_params)
         _ = self._validate_envelope(payload, dataset.id)
         return payload
+
+    @staticmethod
+    def _is_generic(dataset: DatasetRef) -> bool:
+        return bool(dataset.raw_metadata.get("generic"))
 
     def _require_api_key(self) -> str:
         return self._config.require_provider_key("datago")
@@ -198,10 +301,24 @@ class DataGoAdapter:
             return f"{base_url_raw}/{selected_operation}"
         return base_url_raw
 
-    def _build_base_params(self, dataset: DatasetRef) -> dict[str, str]:
+    def _build_base_params(
+        self,
+        dataset: DatasetRef,
+        *,
+        service_key_param_override: str | None = None,
+        format_param_override: str | None = None,
+    ) -> dict[str, str]:
         api_key = self._require_api_key()
-        service_key_param_raw = dataset.raw_metadata.get("service_key_param", "serviceKey")
-        format_param_raw = dataset.raw_metadata.get("format_param", "resultType")
+        service_key_param_raw = (
+            service_key_param_override
+            if service_key_param_override
+            else dataset.raw_metadata.get("service_key_param", "serviceKey")
+        )
+        format_param_raw = (
+            format_param_override
+            if format_param_override
+            else dataset.raw_metadata.get("format_param", "resultType")
+        )
         service_key_param = (
             service_key_param_raw
             if isinstance(service_key_param_raw, str) and service_key_param_raw

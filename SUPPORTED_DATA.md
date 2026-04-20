@@ -62,3 +62,13 @@
 4. **README 동기화**: `지원` 항목만 [README.md](./README.md)의 요약 표에 추가
 5. **명칭 규칙**: provider slug와 dataset id는 코드의 실제 이름과 정확히 일치시킬 것
 6. **PR 포함**: adapter 추가/상태 변경 PR에는 이 문서의 업데이트를 반드시 포함
+
+## 비상구 / 고급 기능 (Escape Hatches)
+
+정규화된 데이터셋은 아니지만, 미등록 endpoint를 즉시 호출할 수 있게 해주는 raw 비상구입니다. 정규화·페이지네이션·스키마·엔드포인트별 호환은 보장되지 않으며, 호출자가 원본 응답을 직접 처리해야 합니다.
+
+| Provider | 비상구 키 | 용도 | 제약 |
+|---|---|---|---|
+| 공공데이터포털 (`datago`) | `datago.generic` | 카탈로그에 없는 임의의 data.go.kr endpoint를 `call_raw(operation, _base_url=..., **params)`로 호출 | `list()` 미지원 · 표준 envelope 검증은 옵션 (`_envelope=False`) · 응답 정규화 없음 · `*.data.go.kr` 외 호스트는 경고 로그 |
+
+특정 endpoint가 반복 사용된다면 비상구를 확장하지 말고 정식 dataset으로 등록(`기여자를 위한 새 데이터셋 추가 가이드` 참고)하는 것을 권장합니다.
