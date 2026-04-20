@@ -149,3 +149,99 @@ def test_datago_sh_rent(require_datago_key: None, live_client: Client) -> None:
 
     assert isinstance(result, RecordBatch)
     assert isinstance(result.items, list)
+
+
+@pytest.mark.integration
+def test_datago_tour_kor_area(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.tour_kor_area")
+
+    result = ds.call_raw(
+        "areaBasedList2",
+        MobileOS="ETC",
+        MobileApp="kpubdata",
+        numOfRows="5",
+        pageNo="1",
+        areaCode="1",
+    )
+
+    assert isinstance(result, dict)
+    assert "response" in result
+
+
+@pytest.mark.integration
+def test_datago_tour_kor_location(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.tour_kor_location")
+
+    result = ds.call_raw(
+        "locationBasedList2",
+        MobileOS="ETC",
+        MobileApp="kpubdata",
+        numOfRows="5",
+        pageNo="1",
+        mapX="126.9784",
+        mapY="37.5665",
+        radius="1000",
+    )
+
+    assert isinstance(result, dict)
+    assert "response" in result
+
+
+@pytest.mark.integration
+def test_datago_tour_kor_keyword(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.tour_kor_keyword")
+
+    result = ds.call_raw(
+        "searchKeyword2",
+        MobileOS="ETC",
+        MobileApp="kpubdata",
+        numOfRows="5",
+        pageNo="1",
+        keyword="경복궁",
+    )
+
+    assert isinstance(result, dict)
+    assert "response" in result
+
+
+@pytest.mark.integration
+def test_datago_tour_kor_festival(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.tour_kor_festival")
+
+    result = ds.call_raw(
+        "searchFestival2",
+        MobileOS="ETC",
+        MobileApp="kpubdata",
+        numOfRows="5",
+        pageNo="1",
+        eventStartDate="20250101",
+    )
+
+    assert isinstance(result, dict)
+    assert "response" in result
+
+
+@pytest.mark.integration
+def test_datago_metro_fare(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.metro_fare")
+
+    result = ds.call_raw("getRltmFare2", numOfRows="5", pageNo="1")
+
+    assert isinstance(result, dict)
+    assert "response" in result
+
+
+@pytest.mark.integration
+def test_datago_metro_path(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.metro_path")
+
+    result = ds.call_raw("getShtrmPath", numOfRows="5", pageNo="1")
+
+    assert isinstance(result, dict)
+    assert "response" in result

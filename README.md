@@ -330,6 +330,12 @@ print(df.head())
 | 공공데이터포털 (`datago`) | 연립다세대 전월세 실거래가 (`rh_rent`) | 지원 |
 | 공공데이터포털 (`datago`) | 단독/다가구 매매 실거래가 (`sh_trade`) | 지원 |
 | 공공데이터포털 (`datago`) | 단독/다가구 전월세 실거래가 (`sh_rent`) | 지원 |
+| 공공데이터포털 (`datago`) | 한국관광공사 지역기반 관광정보 (`tour_kor_area`) | 지원 |
+| 공공데이터포털 (`datago`) | 한국관광공사 위치기반 관광정보 (`tour_kor_location`) | 지원 |
+| 공공데이터포털 (`datago`) | 한국관광공사 키워드 검색 (`tour_kor_keyword`) | 지원 |
+| 공공데이터포털 (`datago`) | 한국관광공사 행사정보 (`tour_kor_festival`) | 지원 |
+| 공공데이터포털 (`datago`) | 서울교통공사 실시간 운임정보 (`metro_fare`) | 지원 |
+| 공공데이터포털 (`datago`) | 서울교통공사 최단경로 이동정보 (`metro_path`) | 지원 |
 | 한국은행 ECOS (`bok`) | 기준금리 (`base_rate`) | 지원 |
 | 통계청 KOSIS (`kosis`) | 인구이동 (`population_migration`) | 지원 |
 | 지방재정365 (`lofin`) | 세출결산총괄 (`expenditure_budget`) | 지원 |

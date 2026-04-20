@@ -203,5 +203,95 @@
     "description": "Call any data.go.kr API endpoint by passing _base_url at call time. Only call_raw is supported; list() is not available because schema and pagination vary by endpoint.",
     "operations": ["raw"],
     "generic": true
+  },
+  {
+    "dataset_key": "tour_kor_area",
+    "name": "한국관광공사 지역기반 관광정보 (TourAPI Area-Based List)",
+    "base_url": "http://apis.data.go.kr/B551011/KorService2",
+    "default_operation": "areaBasedList2",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "KTO Korean tourism information by region (TourAPI KorService2)",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "tour_kor_location",
+    "name": "한국관광공사 위치기반 관광정보 (TourAPI Location-Based List)",
+    "base_url": "http://apis.data.go.kr/B551011/KorService2",
+    "default_operation": "locationBasedList2",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "KTO Korean tourism information by latitude/longitude (TourAPI KorService2)",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "tour_kor_keyword",
+    "name": "한국관광공사 키워드 검색 (TourAPI Keyword Search)",
+    "base_url": "http://apis.data.go.kr/B551011/KorService2",
+    "default_operation": "searchKeyword2",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "KTO Korean tourism keyword search (TourAPI KorService2)",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "tour_kor_festival",
+    "name": "한국관광공사 행사정보 (TourAPI Festival Search)",
+    "base_url": "http://apis.data.go.kr/B551011/KorService2",
+    "default_operation": "searchFestival2",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "KTO Korean tourism festival/event search by date (TourAPI KorService2)",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "metro_fare",
+    "name": "서울교통공사 실시간 운임정보 (Seoul Metro Real-time Fare)",
+    "base_url": "http://apis.data.go.kr/B553766/fare2",
+    "default_operation": "getRltmFare2",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "Seoul Metro real-time fare information by station pair",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "metro_path",
+    "name": "서울교통공사 최단경로 이동정보 (Seoul Metro Shortest Path)",
+    "base_url": "http://apis.data.go.kr/B553766/path",
+    "default_operation": "getShtrmPath",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "Seoul Metro shortest path between two subway stations",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]

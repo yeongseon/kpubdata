@@ -1,0 +1,39 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "0000",
+      "resultMsg": "OK"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "addr1": "서울특별시 종로구 사직로 161",
+            "areacode": "1",
+            "contentid": "264337",
+            "contenttypeid": "14",
+            "firstimage": "http://tong.visitkorea.or.kr/cms/resource/77/2741177_image2_1.jpg",
+            "mapx": "126.9769930325",
+            "mapy": "37.5797664925",
+            "title": "경복궁",
+            "sigungucode": "23"
+          },
+          {
+            "addr1": "서울특별시 중구 세종대로 99",
+            "areacode": "1",
+            "contentid": "264336",
+            "contenttypeid": "14",
+            "firstimage": "",
+            "mapx": "126.9774102330",
+            "mapy": "37.5660250785",
+            "title": "덕수궁",
+            "sigungucode": "24"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

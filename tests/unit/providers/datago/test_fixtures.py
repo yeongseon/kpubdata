@@ -238,3 +238,74 @@ def test_fixture_sh_rent_parses() -> None:
     assert "deposit" in batch.items[0]
     assert "monthlyRent" in batch.items[0]
     assert batch.total_count == 2
+
+
+def test_fixture_tour_kor_area_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_tour_kor_area.json", "tour_kor_area")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["title"] == "경복궁"
+    assert "contentid" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_tour_kor_location_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_tour_kor_location.json", "tour_kor_location"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "dist" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_tour_kor_keyword_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_tour_kor_keyword.json", "tour_kor_keyword"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "title" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_tour_kor_festival_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_tour_kor_festival.json", "tour_kor_festival"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "eventstartdate" in batch.items[0]
+    assert "eventenddate" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_metro_fare_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_metro_fare.json", "metro_fare")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "startStation" in batch.items[0]
+    assert "endStation" in batch.items[0]
+    assert "fareCard" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_metro_path_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_metro_path.json", "metro_path")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 3
+    assert batch.items[0]["stationName"] == "서울역"
+    assert "lineNum" in batch.items[0]
+    assert batch.total_count == 3

@@ -74,7 +74,7 @@ curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?ser
 
 ## KPubData에서 신청해야 할 API 목록
 
-현재 KPubData가 지원하는 datago 데이터셋을 모두 사용하려면, 아래 13개 API를 각각 활용신청해야 합니다.
+현재 KPubData가 지원하는 datago 데이터셋을 모두 사용하려면, 아래 19개 API를 각각 활용신청해야 합니다.
 
 | # | data.go.kr 검색어 | 제공기관 | 승인 방식 |
 |---|---|---|---|
@@ -91,6 +91,14 @@ curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?ser
 | 11 | `연립다세대 전월세 실거래자료 조회 서비스` | 국토교통부 | 자동 승인 |
 | 12 | `단독/다가구 매매 실거래 조회 서비스` | 국토교통부 | 자동 승인 |
 | 13 | `단독/다가구 전월세 자료 조회 서비스` | 국토교통부 | 자동 승인 |
+| 14 | `한국관광공사_국문 관광정보 서비스_GW` ([15101578](https://www.data.go.kr/data/15101578/openapi.do)) | 한국관광공사 | 자동 승인 (개발) / 심의 승인 (운영) |
+| 15 | `한국관광공사_국문 관광정보 서비스_GW` (위 신청 1건으로 `tour_kor_location` 포함) | 한국관광공사 | 14번과 동일 신청 |
+| 16 | `한국관광공사_국문 관광정보 서비스_GW` (위 신청 1건으로 `tour_kor_keyword` 포함) | 한국관광공사 | 14번과 동일 신청 |
+| 17 | `한국관광공사_국문 관광정보 서비스_GW` (위 신청 1건으로 `tour_kor_festival` 포함) | 한국관광공사 | 14번과 동일 신청 |
+| 18 | `서울교통공사_실시간운임정보` ([15143846](https://www.data.go.kr/data/15143846/openapi.do)) | 서울교통공사 | 자동 승인 |
+| 19 | `서울교통공사_최단경로이동정보` ([15143842](https://www.data.go.kr/data/15143842/openapi.do)) | 서울교통공사 | 자동 승인 |
+
+> 💡 14~17은 모두 동일한 한국관광공사 TourAPI(KorService2) 단일 활용신청으로 한꺼번에 발급됩니다 — 활용신청은 1건이지만 4개 endpoint(`areaBasedList2`, `locationBasedList2`, `searchKeyword2`, `searchFestival2`)가 KPubData에서 별도 dataset_key로 노출됩니다.
 
 ## 지원 데이터셋
 
@@ -372,6 +380,144 @@ result = ds.call_raw(
 ```
 
 > 주의: generic은 정규화된 `RecordBatch`를 반환하지 않고 원본 응답(dict)을 그대로 돌려줍니다. 페이지네이션·필드 정규화·타입 변환은 호출자가 직접 처리해야 합니다. 자주 사용하는 데이터셋이라면 정식 카탈로그 등록(`기여자를 위한 새 데이터셋 추가 가이드` 참고)을 권장합니다.
+
+### tour_kor_area (한국관광공사 지역기반 관광정보)
+
+한국관광공사 TourAPI(KorService2)의 `areaBasedList2` 엔드포인트로, 지역코드 기준 관광지 목록을 조회합니다.
+
+- 제공 기관: 한국관광공사
+- 데이터 ID: [15101578](https://www.data.go.kr/data/15101578/openapi.do)
+- 주요 파라미터: `MobileOS`, `MobileApp` (필수), `areaCode`, `contentTypeId`, `numOfRows`, `pageNo`
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| MobileOS | 필수 | OS 구분 | "ETC" |
+| MobileApp | 필수 | 앱 이름 | "kpubdata" |
+| areaCode | 선택 | 지역 코드 | "1" (서울) |
+| contentTypeId | 선택 | 관광 타입 ID | "12" (관광지) |
+| numOfRows | 선택 | 한 페이지 결과 수 | "10" |
+| pageNo | 선택 | 페이지 번호 | "1" |
+
+```python
+ds = client.dataset("datago.tour_kor_area")
+raw = ds.call_raw(
+    "areaBasedList2",
+    MobileOS="ETC",
+    MobileApp="kpubdata",
+    numOfRows="5",
+    pageNo="1",
+    areaCode="1",
+)
+```
+
+### tour_kor_location (한국관광공사 위치기반 관광정보)
+
+위경도 좌표와 반경을 기준으로 주변 관광 정보를 조회합니다 (`locationBasedList2`).
+
+- 제공 기관: 한국관광공사
+- 데이터 ID: [15101578](https://www.data.go.kr/data/15101578/openapi.do)
+- 주요 파라미터: `MobileOS`, `MobileApp`, `mapX`, `mapY`, `radius`
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| MobileOS | 필수 | OS 구분 | "ETC" |
+| MobileApp | 필수 | 앱 이름 | "kpubdata" |
+| mapX | 필수 | 경도 (WGS84) | "126.9784" |
+| mapY | 필수 | 위도 (WGS84) | "37.5665" |
+| radius | 필수 | 반경 (m, 최대 20000) | "1000" |
+
+```python
+ds = client.dataset("datago.tour_kor_location")
+raw = ds.call_raw(
+    "locationBasedList2",
+    MobileOS="ETC",
+    MobileApp="kpubdata",
+    mapX="126.9784",
+    mapY="37.5665",
+    radius="1000",
+    numOfRows="5",
+    pageNo="1",
+)
+```
+
+### tour_kor_keyword (한국관광공사 키워드 검색)
+
+키워드로 관광 정보를 검색합니다 (`searchKeyword2`).
+
+- 제공 기관: 한국관광공사
+- 데이터 ID: [15101578](https://www.data.go.kr/data/15101578/openapi.do)
+- 주요 파라미터: `MobileOS`, `MobileApp`, `keyword`
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| MobileOS | 필수 | OS 구분 | "ETC" |
+| MobileApp | 필수 | 앱 이름 | "kpubdata" |
+| keyword | 필수 | 검색 키워드 | "경복궁" |
+
+```python
+ds = client.dataset("datago.tour_kor_keyword")
+raw = ds.call_raw(
+    "searchKeyword2",
+    MobileOS="ETC",
+    MobileApp="kpubdata",
+    keyword="경복궁",
+    numOfRows="5",
+    pageNo="1",
+)
+```
+
+### tour_kor_festival (한국관광공사 행사정보)
+
+날짜 범위 기준으로 행사·축제 정보를 조회합니다 (`searchFestival2`).
+
+- 제공 기관: 한국관광공사
+- 데이터 ID: [15101578](https://www.data.go.kr/data/15101578/openapi.do)
+- 주요 파라미터: `MobileOS`, `MobileApp`, `eventStartDate`
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| MobileOS | 필수 | OS 구분 | "ETC" |
+| MobileApp | 필수 | 앱 이름 | "kpubdata" |
+| eventStartDate | 필수 | 행사 시작일 (YYYYMMDD) | "20250101" |
+| eventEndDate | 선택 | 행사 종료일 (YYYYMMDD) | "20251231" |
+
+```python
+ds = client.dataset("datago.tour_kor_festival")
+raw = ds.call_raw(
+    "searchFestival2",
+    MobileOS="ETC",
+    MobileApp="kpubdata",
+    eventStartDate="20250101",
+    numOfRows="5",
+    pageNo="1",
+)
+```
+
+### metro_fare (서울교통공사 실시간 운임정보)
+
+서울교통공사의 출발역-도착역 간 실시간 운임 정보를 조회합니다 (`getRltmFare2`).
+
+- 제공 기관: 서울교통공사
+- 데이터 ID: [15143846](https://www.data.go.kr/data/15143846/openapi.do)
+- 주요 파라미터: `numOfRows`, `pageNo`
+
+```python
+ds = client.dataset("datago.metro_fare")
+raw = ds.call_raw("getRltmFare2", numOfRows="5", pageNo="1")
+```
+
+### metro_path (서울교통공사 최단경로 이동정보)
+
+두 지하철역 간 최단 경로(환승·소요시간 등)를 조회합니다 (`getShtrmPath`).
+
+- 제공 기관: 서울교통공사
+- 데이터 ID: [15143842](https://www.data.go.kr/data/15143842/openapi.do)
+- 주요 파라미터: `numOfRows`, `pageNo`
+
+```python
+ds = client.dataset("datago.metro_path")
+raw = ds.call_raw("getShtrmPath", numOfRows="5", pageNo="1")
+```
 
 ## 공공데이터포털 API 특이사항
 
