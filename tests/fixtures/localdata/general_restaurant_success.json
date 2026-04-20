@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "07_24_04_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-101-2023-00001",
+            "LCPMT_YMD": "20230105",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-123-4567",
+            "STTUS_ADDR": "대전광역시 중구 선화동 100",
+            "ROAD_NM_ADDR": "대전광역시 중구 중앙로 100",
+            "BPLC_NM": "한밥식당",
+            "BSNTPE_NM": "한식",
+            "X_CRDNT": "127.4280",
+            "Y_CRDNT": "36.3270"
+          },
+          {
+            "OPN_SVC_ID": "07_24_04_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-101-2023-00002",
+            "LCPMT_YMD": "20230412",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-777-4321",
+            "STTUS_ADDR": "대전광역시 서구 둔산동 1200",
+            "ROAD_NM_ADDR": "대전광역시 서구 대덕대로 200",
+            "BPLC_NM": "둔산키친",
+            "BSNTPE_NM": "경양식",
+            "X_CRDNT": "127.3845",
+            "Y_CRDNT": "36.3504"
+          },
+          {
+            "OPN_SVC_ID": "07_24_04_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-101-2023-00003",
+            "LCPMT_YMD": "20230720",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-111-8888",
+            "STTUS_ADDR": "대전광역시 유성구 봉명동 500",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 99",
+            "BPLC_NM": "유성맛집",
+            "BSNTPE_NM": "중식",
+            "X_CRDNT": "127.3443",
+            "Y_CRDNT": "36.3621"
+          }
+        ]
+      }
+    }
+  }
+}

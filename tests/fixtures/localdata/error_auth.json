@@ -1,0 +1,8 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "30",
+      "resultMsg": "등록되지 않은 서비스키입니다."
+    }
+  }
+}
