@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "07_24_05_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-101-2023-00010",
+            "LCPMT_YMD": "20230215",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-555-1234",
+            "STTUS_ADDR": "대전광역시 중구 대흥동 200",
+            "ROAD_NM_ADDR": "대전광역시 중구 대종로 50",
+            "BPLC_NM": "카페모카",
+            "BSNTPE_NM": "커피숍",
+            "X_CRDNT": "127.4215",
+            "Y_CRDNT": "36.3285"
+          },
+          {
+            "OPN_SVC_ID": "07_24_05_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-101-2023-00011",
+            "LCPMT_YMD": "20230610",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-333-5678",
+            "STTUS_ADDR": "대전광역시 서구 탄방동 300",
+            "ROAD_NM_ADDR": "대전광역시 서구 둔산로 120",
+            "BPLC_NM": "달콤베이커리카페",
+            "BSNTPE_NM": "제과점영업",
+            "X_CRDNT": "127.3890",
+            "Y_CRDNT": "36.3510"
+          },
+          {
+            "OPN_SVC_ID": "07_24_05_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-101-2023-00012",
+            "LCPMT_YMD": "20230901",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-222-9999",
+            "STTUS_ADDR": "대전광역시 유성구 궁동 100",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 55",
+            "BPLC_NM": "유성라운지",
+            "BSNTPE_NM": "커피숍",
+            "X_CRDNT": "127.3500",
+            "Y_CRDNT": "36.3650"
+          }
+        ]
+      }
+    }
+  }
+}

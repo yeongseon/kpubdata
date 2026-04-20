@@ -51,6 +51,18 @@ def _build_adapter_with_transport(
     return adapter, dataset, transport
 
 
+def _build_rest_cafe_adapter_with_transport(
+    responses: list[FakeResponse],
+) -> tuple[LocaldataAdapter, DatasetRef, FakeTransport]:
+    transport = FakeTransport(responses)
+    adapter = LocaldataAdapter(
+        config=KPubDataConfig(provider_keys={"localdata": "test-key"}),
+        transport=cast(HttpTransport, cast(object, transport)),
+    )
+    dataset = adapter.get_dataset("rest_cafe")
+    return adapter, dataset, transport
+
+
 def test_query_records_parses_success_fixture() -> None:
     payload = _load_fixture("general_restaurant_success.json")
     adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
@@ -112,3 +124,25 @@ def test_query_records_passes_local_code_filter() -> None:
     assert request_params["pageNo"] == "1"
     assert request_params["numOfRows"] == "100"
     assert request_params["localCode"] == "41135"
+
+
+def test_rest_cafe_query_records_parses_success_fixture() -> None:
+    payload = _load_fixture("rest_cafe_success.json")
+    adapter, dataset, _ = _build_rest_cafe_adapter_with_transport([FakeResponse(payload)])
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 3
+    assert batch.items[0]["BPLC_NM"] == "카페모카"
+
+
+def test_adapter_lists_two_datasets() -> None:
+    adapter = LocaldataAdapter(config=KPubDataConfig(provider_keys={"localdata": "test-key"}))
+
+    datasets = adapter.list_datasets()
+
+    assert len(datasets) == 2
+    assert [dataset.dataset_key for dataset in datasets] == [
+        "general_restaurant",
+        "rest_cafe",
+    ]
