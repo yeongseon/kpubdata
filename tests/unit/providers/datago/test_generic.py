@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import cast
 
 import pytest
@@ -12,7 +13,7 @@ from kpubdata.transport.http import HttpTransport
 
 
 class FakeResponse:
-    def __init__(self, payload: dict[str, object], content_type: str = "application/json") -> None:
+    def __init__(self, payload: object, content_type: str = "application/json") -> None:
         self.headers: dict[str, str] = {"content-type": content_type}
         self.text: str = json.dumps(payload)
         self.content: bytes = self.text.encode()
@@ -99,6 +100,21 @@ class TestDataGoGenericDataset:
 
         with pytest.raises(InvalidRequestError, match="_base_url"):
             adapter.call_raw(dataset, "getX", {})
+
+    def test_call_raw_missing_base_url_logs_debug(self, caplog: pytest.LogCaptureFixture) -> None:
+        adapter, _ = _build_adapter([])
+        dataset = adapter.get_dataset("generic")
+
+        caplog.set_level(logging.DEBUG, logger="kpubdata.provider.datago")
+        with pytest.raises(InvalidRequestError, match="_base_url"):
+            adapter.call_raw(dataset, "getX", {})
+
+        record = next(
+            record
+            for record in caplog.records
+            if record.getMessage() == "Datago.generic missing _base_url in call_raw params"
+        )
+        assert record.__dict__["dataset_id"] == dataset.id
 
     def test_call_raw_envelope_skip_allows_non_standard_payload(self) -> None:
         non_standard = {"items": [{"a": 1}]}

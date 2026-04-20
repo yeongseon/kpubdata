@@ -83,6 +83,10 @@ class LofinAdapter:
         if dataset is not None:
             return dataset
 
+        logger.debug(
+            "LOFIN dataset not found",
+            extra={"dataset_id": f"lofin.{dataset_key}", "provider": "lofin"},
+        )
         raise DatasetNotFoundError(
             f"Dataset not found: lofin.{dataset_key}",
             provider="lofin",
@@ -116,6 +120,17 @@ class LofinAdapter:
             computed_next = page + 1
         else:
             computed_next = None
+
+        if not items:
+            logger.debug(
+                "LOFIN envelope: zero items",
+                extra={
+                    "dataset_id": dataset.id,
+                    "page": page,
+                    "page_size": page_size,
+                    "total_count": total_count,
+                },
+            )
 
         return RecordBatch(
             items=items,
@@ -161,6 +176,10 @@ class LofinAdapter:
     ) -> str:
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
+            logger.debug(
+                "LOFIN dataset metadata missing base_url",
+                extra={"dataset_id": dataset.id},
+            )
             raise ProviderResponseError(
                 "Dataset metadata missing base_url",
                 provider="lofin",
@@ -181,11 +200,12 @@ class LofinAdapter:
         return url
 
     def _request_and_decode(self, url: str, dataset_id: str = "") -> dict[str, object]:
-        response = self._transport.request("GET", url)
+        response = self._transport.request("GET", url, dataset_id=dataset_id, provider="lofin")
 
         try:
             decoded_obj: object = decode_json(response.content)
         except ValueError as exc:
+            logger.debug("LOFIN response parsing failed", extra={"dataset_id": dataset_id})
             raise ParseError("Failed to parse LOFIN response", provider="lofin") from exc
 
         if isinstance(decoded_obj, dict):
@@ -193,6 +213,7 @@ class LofinAdapter:
             self._raise_for_top_level_result(payload, dataset_id)
             return payload
 
+        logger.debug("LOFIN decoded payload invalid type", extra={"dataset_id": dataset_id})
         raise ParseError("Decoded payload is not an object", provider="lofin")
 
     def _validate_envelope(
