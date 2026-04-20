@@ -66,7 +66,7 @@ logging.getLogger("kpubdata.provider.datago").setLevel(logging.DEBUG)
 | `kpubdata.catalog` | `provider`, `provider_filter`, `text`, `dataset_id`, `count` |
 | `kpubdata.dataset` | `dataset_id`, `provider`, `page`, `page_size`, `cursor`, `filter_keys`, `item_count`, `total_count`, `next_page`, `next_cursor`, `iteration`, `iterations`, `operation`, `param_keys` |
 | `kpubdata.config` | `provider` |
-| `kpubdata.transport` | `method`, `url`, `attempt`, `max_retries`, `status_code`, `params`, `content_type`, `content_length`, `preview`, `delay_seconds`, `exception_type`, `dataset_id`, `provider` |
+| `kpubdata.transport` | `method`, `url`, `attempt`, `max_retries`, `status_code`, `params`, `content_type`, `content_length`, `preview`, `delay_seconds`, `exception_type`, `dataset_id`, `provider`, `cache_key` |
 | `kpubdata.transport.decode` | `byte_length`, `char_length`, `preview`, `line`, `column`, `root_type`, `content_type`, `exception_type` |
 | `kpubdata.provider.*` | `dataset_id`, `provider`, `page`, `page_size`, `total_count`, `result_code`, `result_msg`, `code`, `message`, `operation` |
 

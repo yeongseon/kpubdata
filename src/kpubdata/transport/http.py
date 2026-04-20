@@ -22,6 +22,7 @@ import httpx
 from typing_extensions import override
 
 from kpubdata.exceptions import TransportError, TransportTimeoutError
+from kpubdata.transport.cache import ResponseCache, make_cache_key
 
 if TYPE_CHECKING:
     import ssl
@@ -50,6 +51,8 @@ class TransportConfig:
     headers: dict[str, str] | None = None
     verify_ssl: bool = True
     ssl_context: ssl.SSLContext | None = None
+    cache: ResponseCache | None = None
+    cache_ttl_seconds: int = 86400
 
 
 @dataclass(frozen=True)
@@ -68,10 +71,16 @@ class HttpTransport:
         self,
         config: TransportConfig | None = None,
         requirements: TransportRequirements | None = None,
+        cache: ResponseCache | None = None,
+        cache_ttl_seconds: int = 86400,
     ) -> None:
         """Initialize transport with optional explicit configuration."""
         self._config: TransportConfig = config or TransportConfig()
         self._requirements: TransportRequirements | None = requirements
+        self._cache: ResponseCache | None = self._config.cache if cache is None else cache
+        self._cache_ttl_seconds: int = (
+            self._config.cache_ttl_seconds if cache_ttl_seconds == 86400 else cache_ttl_seconds
+        )
         self._client: httpx.Client | None = None
 
     @classmethod
@@ -86,6 +95,8 @@ class HttpTransport:
                 max_retries=config.max_retries,
                 retry_backoff_factor=config.retry_backoff_factor,
                 headers=_merge_headers(config.headers, requirements.headers),
+                cache=config.cache,
+                cache_ttl_seconds=config.cache_ttl_seconds,
             ),
             requirements=requirements,
         )
@@ -149,6 +160,14 @@ class HttpTransport:
             self._client = self._build_client()
         return self._client
 
+    @property
+    def cache(self) -> ResponseCache | None:
+        return self._cache
+
+    @property
+    def cache_ttl_seconds(self) -> int:
+        return self._cache_ttl_seconds
+
     def request(
         self,
         method: str,
@@ -178,9 +197,27 @@ class HttpTransport:
             raise ValueError(msg)
 
         total_attempts = self._config.max_retries + 1
+        cache_key = self._make_cache_key(method=method, url=url, params=params, headers=headers)
+        request_context = _request_context(dataset_id=dataset_id, provider=provider)
+        if cache_key is not None and self._cache is not None:
+            cached_body = self._cache.get(cache_key)
+            if cached_body is not None:
+                logger.debug(
+                    "transport cache hit",
+                    extra={
+                        "url": url,
+                        "cache_key": cache_key,
+                        **request_context,
+                    },
+                )
+                return httpx.Response(
+                    status_code=200,
+                    content=cached_body,
+                    request=httpx.Request(method.upper(), url, params=params, headers=headers),
+                )
+
         for attempt in range(1, total_attempts + 1):
             retry_delay: float | None = None
-            request_context = _request_context(dataset_id=dataset_id, provider=provider)
             try:
                 logger.debug(
                     "HTTP request start",
@@ -233,6 +270,21 @@ class HttpTransport:
                             "content_type": response.headers.get("content-type", ""),
                             "content_length": len(response.content),
                             "preview": _response_preview(response),
+                            **request_context,
+                        },
+                    )
+
+                if (
+                    cache_key is not None
+                    and self._cache is not None
+                    and 200 <= response.status_code < 300
+                ):
+                    self._cache.set(cache_key, response.content, self._cache_ttl_seconds)
+                    logger.debug(
+                        "transport cache miss; stored",
+                        extra={
+                            "url": url,
+                            "cache_key": cache_key,
                             **request_context,
                         },
                     )
@@ -311,6 +363,22 @@ class HttpTransport:
         msg = "unreachable transport retry state"
         raise RuntimeError(msg)
 
+    def _make_cache_key(
+        self,
+        *,
+        method: str,
+        url: str,
+        params: dict[str, str] | None,
+        headers: dict[str, str] | None,
+    ) -> str | None:
+        if self._cache is None:
+            return None
+        if method.upper() != "GET":
+            return None
+        if _contains_sensitive_headers(headers):
+            return None
+        return make_cache_key(method, url, params, _cache_headers_subset(headers))
+
 
 def _is_retryable_status(status_code: int) -> bool:
     return status_code == 429 or 500 <= status_code <= 599
@@ -351,6 +419,20 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
         else:
             sanitized[key] = str(value)
     return sanitized
+
+
+def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:
+    if headers is None:
+        return {}
+    return {
+        key: value for key, value in headers.items() if key.casefold() not in _SENSITIVE_PARAM_KEYS
+    }
+
+
+def _contains_sensitive_headers(headers: dict[str, str] | None) -> bool:
+    if headers is None:
+        return False
+    return any(key.casefold() in _SENSITIVE_PARAM_KEYS for key in headers)
 
 
 def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:

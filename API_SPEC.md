@@ -17,14 +17,32 @@ client = Client(
         "seoul": "...",
     },
     timeout=10.0,
+    cache=True,
+    cache_ttl_seconds=3600,
 )
 ```
+
+`Client(...)` supports these transport/cache options:
+
+- `timeout: float = 30.0`
+- `max_retries: int = 3`
+- `cache: bool | ResponseCache = False`
+  - `False`: disable cache (default)
+  - `True`: use default disk cache directory
+  - `ResponseCache(...)`: use a caller-supplied cache instance
+- `cache_ttl_seconds: int = 86400`
 
 ### Environment construction
 
 ```python
 client = Client.from_env()
 ```
+
+`Client.from_env()` additionally honors:
+
+- `KPUBDATA_CACHE=1`
+- `KPUBDATA_CACHE_DIR=/custom/cache/path`
+- `KPUBDATA_CACHE_TTL=3600`
 
 ## 3. Discovery API
 
