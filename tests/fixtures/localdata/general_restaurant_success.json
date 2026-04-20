@@ -1,0 +1,69 @@
+{
+  "result": {
+    "header": {
+      "process": {
+        "code": "00",
+        "message": "정상 처리되었습니다."
+      },
+      "paging": {
+        "pageIndex": "1",
+        "pageSize": "100",
+        "totalCount": "3"
+      }
+    },
+    "body": {
+      "rows": {
+        "row": [
+          {
+            "opnSvcId": "07_24_04_P",
+            "opnSfTeamCode": "3000000",
+            "mgtNo": "3000000-101-2023-00001",
+            "apvPermYmd": "20230105",
+            "trdStateGbn": "01",
+            "trdStateNm": "영업/정상",
+            "dcbYmd": "",
+            "siteTel": "042-123-4567",
+            "siteWhlAddr": "대전광역시 중구 선화동 100",
+            "rdnWhlAddr": "대전광역시 중구 중앙로 100",
+            "bplcNm": "한밥식당",
+            "uptaeNm": "한식",
+            "x": "127.4280",
+            "y": "36.3270"
+          },
+          {
+            "opnSvcId": "07_24_04_P",
+            "opnSfTeamCode": "3000000",
+            "mgtNo": "3000000-101-2023-00002",
+            "apvPermYmd": "20230412",
+            "trdStateGbn": "01",
+            "trdStateNm": "영업/정상",
+            "dcbYmd": "",
+            "siteTel": "042-777-4321",
+            "siteWhlAddr": "대전광역시 서구 둔산동 1200",
+            "rdnWhlAddr": "대전광역시 서구 대덕대로 200",
+            "bplcNm": "둔산키친",
+            "uptaeNm": "경양식",
+            "x": "127.3845",
+            "y": "36.3504"
+          },
+          {
+            "opnSvcId": "07_24_04_P",
+            "opnSfTeamCode": "3000000",
+            "mgtNo": "3000000-101-2023-00003",
+            "apvPermYmd": "20230720",
+            "trdStateGbn": "01",
+            "trdStateNm": "영업/정상",
+            "dcbYmd": "",
+            "siteTel": "042-111-8888",
+            "siteWhlAddr": "대전광역시 유성구 봉명동 500",
+            "rdnWhlAddr": "대전광역시 유성구 대학로 99",
+            "bplcNm": "유성맛집",
+            "uptaeNm": "중식",
+            "x": "127.3443",
+            "y": "36.3621"
+          }
+        ]
+      }
+    }
+  }
+}

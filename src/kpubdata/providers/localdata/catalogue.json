@@ -1,0 +1,118 @@
+[
+  {
+    "dataset_key": "general_restaurant",
+    "name": "일반음식점 인허가 (Localdata General Restaurant Permits)",
+    "opn_svc_id": "07_24_04_P",
+    "base_url": "http://www.localdata.go.kr/platform/rest/TO0/openDataApi",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 500
+    },
+    "fields": [
+      {"name": "opnSvcId", "title": "업종코드", "type": "string"},
+      {"name": "opnSfTeamCode", "title": "개방자치단체코드", "type": "string"},
+      {"name": "mgtNo", "title": "관리번호", "type": "string"},
+      {"name": "apvPermYmd", "title": "인허가일자", "type": "string"},
+      {"name": "trdStateGbn", "title": "영업상태코드", "type": "string"},
+      {"name": "trdStateNm", "title": "영업상태명", "type": "string"},
+      {"name": "dcbYmd", "title": "폐업일자", "type": "string"},
+      {"name": "siteTel", "title": "전화번호", "type": "string"},
+      {"name": "siteWhlAddr", "title": "지번주소", "type": "string"},
+      {"name": "rdnWhlAddr", "title": "도로명주소", "type": "string"},
+      {"name": "bplcNm", "title": "사업장명", "type": "string"},
+      {"name": "uptaeNm", "title": "업태명", "type": "string"},
+      {"name": "x", "title": "X좌표(경도)", "type": "string"},
+      {"name": "y", "title": "Y좌표(위도)", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "coffee_shop",
+    "name": "커피숍 인허가 (Localdata Coffee Shop Permits)",
+    "opn_svc_id": "07_24_05_P",
+    "base_url": "http://www.localdata.go.kr/platform/rest/TO0/openDataApi",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 500
+    },
+    "fields": [
+      {"name": "opnSvcId", "title": "업종코드", "type": "string"},
+      {"name": "opnSfTeamCode", "title": "개방자치단체코드", "type": "string"},
+      {"name": "mgtNo", "title": "관리번호", "type": "string"},
+      {"name": "apvPermYmd", "title": "인허가일자", "type": "string"},
+      {"name": "trdStateGbn", "title": "영업상태코드", "type": "string"},
+      {"name": "trdStateNm", "title": "영업상태명", "type": "string"},
+      {"name": "dcbYmd", "title": "폐업일자", "type": "string"},
+      {"name": "siteTel", "title": "전화번호", "type": "string"},
+      {"name": "siteWhlAddr", "title": "지번주소", "type": "string"},
+      {"name": "rdnWhlAddr", "title": "도로명주소", "type": "string"},
+      {"name": "bplcNm", "title": "사업장명", "type": "string"},
+      {"name": "uptaeNm", "title": "업태명", "type": "string"},
+      {"name": "x", "title": "X좌표(경도)", "type": "string"},
+      {"name": "y", "title": "Y좌표(위도)", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "bakery",
+    "name": "제과점 인허가 (Localdata Bakery Permits)",
+    "opn_svc_id": "07_24_06_P",
+    "base_url": "http://www.localdata.go.kr/platform/rest/TO0/openDataApi",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 500
+    },
+    "fields": [
+      {"name": "opnSvcId", "title": "업종코드", "type": "string"},
+      {"name": "opnSfTeamCode", "title": "개방자치단체코드", "type": "string"},
+      {"name": "mgtNo", "title": "관리번호", "type": "string"},
+      {"name": "apvPermYmd", "title": "인허가일자", "type": "string"},
+      {"name": "trdStateGbn", "title": "영업상태코드", "type": "string"},
+      {"name": "trdStateNm", "title": "영업상태명", "type": "string"},
+      {"name": "dcbYmd", "title": "폐업일자", "type": "string"},
+      {"name": "siteTel", "title": "전화번호", "type": "string"},
+      {"name": "siteWhlAddr", "title": "지번주소", "type": "string"},
+      {"name": "rdnWhlAddr", "title": "도로명주소", "type": "string"},
+      {"name": "bplcNm", "title": "사업장명", "type": "string"},
+      {"name": "uptaeNm", "title": "업태명", "type": "string"},
+      {"name": "x", "title": "X좌표(경도)", "type": "string"},
+      {"name": "y", "title": "Y좌표(위도)", "type": "string"}
+    ]
+  },
+  {
+    "dataset_key": "retail_store",
+    "name": "소매점 인허가 (Localdata Retail Store Permits)",
+    "opn_svc_id": "07_24_08_P",
+    "base_url": "http://www.localdata.go.kr/platform/rest/TO0/openDataApi",
+    "representation": "api_json",
+    "default_operation": "list",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 500
+    },
+    "fields": [
+      {"name": "opnSvcId", "title": "업종코드", "type": "string"},
+      {"name": "opnSfTeamCode", "title": "개방자치단체코드", "type": "string"},
+      {"name": "mgtNo", "title": "관리번호", "type": "string"},
+      {"name": "apvPermYmd", "title": "인허가일자", "type": "string"},
+      {"name": "trdStateGbn", "title": "영업상태코드", "type": "string"},
+      {"name": "trdStateNm", "title": "영업상태명", "type": "string"},
+      {"name": "dcbYmd", "title": "폐업일자", "type": "string"},
+      {"name": "siteTel", "title": "전화번호", "type": "string"},
+      {"name": "siteWhlAddr", "title": "지번주소", "type": "string"},
+      {"name": "rdnWhlAddr", "title": "도로명주소", "type": "string"},
+      {"name": "bplcNm", "title": "사업장명", "type": "string"},
+      {"name": "uptaeNm", "title": "업태명", "type": "string"},
+      {"name": "x", "title": "X좌표(경도)", "type": "string"},
+      {"name": "y", "title": "Y좌표(위도)", "type": "string"}
+    ]
+  }
+]

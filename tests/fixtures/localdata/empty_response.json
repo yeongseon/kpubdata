@@ -1,0 +1,20 @@
+{
+  "result": {
+    "header": {
+      "process": {
+        "code": "00",
+        "message": "정상 처리되었습니다."
+      },
+      "paging": {
+        "pageIndex": "1",
+        "pageSize": "100",
+        "totalCount": "0"
+      }
+    },
+    "body": {
+      "rows": {
+        "row": []
+      }
+    }
+  }
+}

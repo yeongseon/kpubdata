@@ -48,6 +48,10 @@
 
 | 상태 | Provider | Dataset ID | 데이터셋명 | 메모 |
 |---|---|---|---|---|
+| 진행 중 | 지방행정인허가 (`localdata`) | `general_restaurant` | 일반음식점 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
+| 진행 중 | 지방행정인허가 (`localdata`) | `coffee_shop` | 커피숍 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
+| 진행 중 | 지방행정인허가 (`localdata`) | `bakery` | 제과점 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
+| 진행 중 | 지방행정인허가 (`localdata`) | `retail_store` | 소매점 인허가 | 어댑터/fixture/unit 테스트 구현 진행 |
 | 예정 | 기상청 | `weather_forecast` | 동네예보 | provider/adapter 구조 확정 후 착수 |
 
 ## 갱신 규칙
