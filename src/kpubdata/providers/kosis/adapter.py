@@ -75,6 +75,17 @@ class KosisAdapter:
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
         _page_size = query.page_size or 100
+        logger.debug(
+            "kosis query_records",
+            extra={
+                "dataset_id": dataset.id,
+                "page": query.page,
+                "page_size": _page_size,
+                "start_date": query.start_date,
+                "end_date": query.end_date,
+                "filter_keys": sorted(query.filters.keys()),
+            },
+        )
         url = self._build_request_url(dataset, query)
         payload = self._request_and_decode(url)
         items = self._extract_items(payload, dataset.id)
@@ -91,6 +102,14 @@ class KosisAdapter:
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
+        logger.debug(
+            "kosis call_raw",
+            extra={
+                "dataset_id": dataset.id,
+                "operation": operation,
+                "param_keys": sorted(params.keys()),
+            },
+        )
         url = self._build_raw_url(dataset, operation, params)
         payload = self._request_and_decode(url)
         if isinstance(payload, dict):
