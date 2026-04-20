@@ -124,6 +124,11 @@ KPubData가 지원하는 각 기관의 API 키를 발급받아 [환경 변수](h
 - **SSL 참고**: 서버의 TLS 설정 특성상, KPubData가 내부적으로 SSL 설정을 자동 조정합니다.
 - **환경 변수**: `KPUBDATA_LOFIN_API_KEY`
 
+#### 지방행정인허가 (data.go.kr) — `localdata`
+- **가입 URL**: [https://www.data.go.kr](https://www.data.go.kr)
+- **절차**: 회원가입 → 지방행정인허가 Open API(일반음식점/휴게음식점) 활용신청 → 승인 후 인증키 확인
+- **환경 변수**: `KPUBDATA_LOCALDATA_API_KEY`
+
 #### 환경 변수 설정 예시
 ```bash
 # 공공데이터포털 (data.go.kr)
@@ -137,6 +142,9 @@ export KPUBDATA_KOSIS_API_KEY="your-kosis-api-key"
 
 # 지방재정365
 export KPUBDATA_LOFIN_API_KEY="your-lofin-api-key"
+
+# 지방행정인허가
+export KPUBDATA_LOCALDATA_API_KEY="your-localdata-service-key"
 ```
 
 ### 2. 클라이언트 생성
@@ -153,6 +161,7 @@ client = Client(provider_keys={
     "bok": "YOUR_BOK_API_KEY",
     "kosis": "YOUR_KOSIS_API_KEY",
     "lofin": "YOUR_LOFIN_API_KEY",
+    "localdata": "YOUR_DATA_GO_KR_API_KEY",
 })
 ```
 
@@ -260,7 +269,18 @@ for item in result.items[:5]:
 # ...
 ```
 
-### 9. 전체 페이지 자동 조회 (list_all)
+### 9. 지방행정인허가 조회 (Localdata)
+
+```python
+# 지방행정인허가 (Localdata) - 일반음식점
+client = Client(provider_keys={"localdata": "YOUR_DATA_GO_KR_API_KEY"})
+ds = client.dataset("localdata.general_restaurant")
+result = ds.list(page_size=10)
+for item in result.items:
+    print(item["BPLC_NM"], item["ROAD_NM_ADDR"])
+```
+
+### 10. 전체 페이지 자동 조회 (list_all)
 
 대량의 데이터를 페이지 단위로 자동 순회하려면 `list_all()`을 사용합니다.
 
@@ -274,7 +294,7 @@ for batch in ds.list_all(fyr="2024"):
         print(item)
 ```
 
-### 10. pandas DataFrame 변환
+### 11. pandas DataFrame 변환
 
 조회 결과를 pandas DataFrame으로 변환하여 분석할 수 있습니다.
 

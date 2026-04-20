@@ -40,6 +40,14 @@ def require_lofin_key() -> str:
 
 
 @pytest.fixture(scope="session")
+def require_localdata_key() -> str:
+    key = os.getenv("KPUBDATA_LOCALDATA_API_KEY", "")
+    if not key:
+        pytest.skip("KPUBDATA_LOCALDATA_API_KEY not set")
+    return key
+
+
+@pytest.fixture(scope="session")
 def live_client() -> Client:
     if not any(
         os.getenv(name, "")
@@ -48,6 +56,7 @@ def live_client() -> Client:
             "KPUBDATA_BOK_API_KEY",
             "KPUBDATA_KOSIS_API_KEY",
             "KPUBDATA_LOFIN_API_KEY",
+            "KPUBDATA_LOCALDATA_API_KEY",
         )
     ):
         pytest.skip("No API keys set")
