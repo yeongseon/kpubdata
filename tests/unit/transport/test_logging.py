@@ -120,3 +120,26 @@ def test_debug_gating_skips_sanitization_and_preview_helpers() -> None:
         patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
     ):
         _ = transport.request("GET", "https://example.test/resource", params={"serviceKey": "x"})
+
+
+def test_request_logs_include_dataset_context(caplog: pytest.LogCaptureFixture) -> None:
+    transport = HttpTransport(TransportConfig(max_retries=0))
+    response = _response_with_content(b'{"ok": true}', "application/json")
+    caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
+
+    with patch("kpubdata.transport.http.httpx.Client.request", return_value=response):
+        _ = transport.request(
+            "GET",
+            "https://example.test/resource",
+            dataset_id="datago.village_fcst",
+            provider="datago",
+        )
+
+    for message in {
+        "HTTP request start",
+        "HTTP request success",
+        "HTTP response preview",
+    }:
+        record = next(record for record in caplog.records if record.getMessage() == message)
+        assert record.__dict__["dataset_id"] == "datago.village_fcst"
+        assert record.__dict__["provider"] == "datago"

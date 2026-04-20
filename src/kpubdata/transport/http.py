@@ -158,6 +158,8 @@ class HttpTransport:
         headers: dict[str, str] | None = None,
         content: bytes | None = None,
         json_body: object = None,
+        dataset_id: str | None = None,
+        provider: str | None = None,
     ) -> httpx.Response:
         """Execute HTTP request with retry logic.
 
@@ -178,6 +180,7 @@ class HttpTransport:
         total_attempts = self._config.max_retries + 1
         for attempt in range(1, total_attempts + 1):
             retry_delay: float | None = None
+            request_context = _request_context(dataset_id=dataset_id, provider=provider)
             try:
                 logger.debug(
                     "HTTP request start",
@@ -186,6 +189,7 @@ class HttpTransport:
                         "url": url,
                         "attempt": attempt,
                         "max_retries": self._config.max_retries,
+                        **request_context,
                     },
                 )
 
@@ -196,6 +200,7 @@ class HttpTransport:
                             "method": method,
                             "url": url,
                             "params": _sanitize_params(params),
+                            **request_context,
                         },
                     )
 
@@ -216,6 +221,7 @@ class HttpTransport:
                         "url": url,
                         "status_code": response.status_code,
                         "attempt": attempt,
+                        **request_context,
                     },
                 )
 
@@ -227,6 +233,7 @@ class HttpTransport:
                             "content_type": response.headers.get("content-type", ""),
                             "content_length": len(response.content),
                             "preview": _response_preview(response),
+                            **request_context,
                         },
                     )
                 return response
@@ -239,6 +246,7 @@ class HttpTransport:
                         "url": url,
                         "attempt": attempt,
                         "exception_type": type(exc).__name__,
+                        **request_context,
                     },
                 )
                 if attempt >= total_attempts:
@@ -255,6 +263,7 @@ class HttpTransport:
                         "url": url,
                         "attempt": attempt,
                         "status_code": status_code,
+                        **request_context,
                     },
                 )
                 if not _is_retryable_status(status_code) or attempt >= total_attempts:
@@ -274,6 +283,7 @@ class HttpTransport:
                         "url": url,
                         "attempt": attempt,
                         "exception_type": type(exc).__name__,
+                        **request_context,
                     },
                 )
                 if attempt >= total_attempts:
@@ -293,6 +303,7 @@ class HttpTransport:
                     "url": url,
                     "attempt": attempt,
                     "delay_seconds": delay,
+                    **request_context,
                 },
             )
             time.sleep(delay)
@@ -303,6 +314,15 @@ class HttpTransport:
 
 def _is_retryable_status(status_code: int) -> bool:
     return status_code == 429 or 500 <= status_code <= 599
+
+
+def _request_context(*, dataset_id: str | None, provider: str | None) -> dict[str, str]:
+    context: dict[str, str] = {}
+    if dataset_id is not None:
+        context["dataset_id"] = dataset_id
+    if provider is not None:
+        context["provider"] = provider
+    return context
 
 
 def _merge_headers(
