@@ -167,6 +167,17 @@ Discouraged as the main public entry point:
 client.call_provider_endpoint("seoul", "SearchSTNTimeTableByIDService", ...)
 ```
 
+## 10. CLI
+
+설치 후에는 콘솔 스크립트 `kpubdata`를 사용할 수 있습니다.
+
+- 데이터셋 목록: `kpubdata datasets list`
+- 메타데이터 확인: `kpubdata datasets show <dataset_id>`
+- 정규화 조회: `kpubdata fetch <dataset_id> ...`
+- Raw 호출: `kpubdata raw <dataset_id> <operation> ...`
+
+상세 사용법, 출력 형식, 종료 코드, 환경 변수 연동은 [docs/cli.md](./docs/cli.md)를 참고하세요.
+
 ---
 
 ## 관련 문서

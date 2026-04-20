@@ -36,6 +36,9 @@ dependencies = [
   "typing-extensions>=4.10; python_version < '3.11'",
 ]
 
+[project.scripts]
+kpubdata = "kpubdata.cli:main"
+
 [project.optional-dependencies]
 xml = [
   "xmltodict>=0.13,<1",
