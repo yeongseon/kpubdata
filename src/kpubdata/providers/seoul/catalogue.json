@@ -1,0 +1,24 @@
+[
+  {
+    "dataset_key": "subway_realtime_arrival",
+    "name": "서울시 지하철 실시간 도착정보 (Subway Realtime Arrival)",
+    "base_url": "http://swopenAPI.seoul.go.kr/api/subway",
+    "default_operation": "realtimeStationArrival",
+    "representation": "api_json",
+    "description": "Real-time subway arrival information for Seoul Metro stations",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "index", "max_page_size": 1000},
+    "required_path_params": ["stationName"]
+  },
+  {
+    "dataset_key": "bike_rent_month",
+    "name": "서울시 공공자전거 이용정보 월별 (Ttareungi Monthly)",
+    "base_url": "http://openapi.seoul.go.kr:8088",
+    "default_operation": "tbCycleRentUseMonthInfo",
+    "representation": "api_json",
+    "description": "Seoul public bicycle (Ttareungi) monthly usage statistics",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "index", "max_page_size": 1000},
+    "required_path_params": ["RENT_NM"]
+  }
+]

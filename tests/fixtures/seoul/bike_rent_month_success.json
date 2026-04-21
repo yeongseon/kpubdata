@@ -1,0 +1,38 @@
+{
+  "tbCycleRentUseMonthInfo": {
+    "list_total_count": 24,
+    "RESULT": {
+      "CODE": "INFO-000",
+      "MESSAGE": "정상 처리되었습니다"
+    },
+    "row": [
+      {
+        "RENT_DATE": "20240101",
+        "RENT_ID": "ST-001",
+        "RENT_NM": "202401",
+        "RENT_NO": "1001",
+        "RENT_USE_CNT": "154",
+        "MOVE_TIME": "3421",
+        "MOVE_METER": "12543"
+      },
+      {
+        "RENT_DATE": "20240101",
+        "RENT_ID": "ST-002",
+        "RENT_NM": "202401",
+        "RENT_NO": "1002",
+        "RENT_USE_CNT": "203",
+        "MOVE_TIME": "4120",
+        "MOVE_METER": "14789"
+      },
+      {
+        "RENT_DATE": "20240101",
+        "RENT_ID": "ST-003",
+        "RENT_NM": "202401",
+        "RENT_NO": "1003",
+        "RENT_USE_CNT": "98",
+        "MOVE_TIME": "2150",
+        "MOVE_METER": "8540"
+      }
+    ]
+  }
+}

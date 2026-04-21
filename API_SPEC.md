@@ -76,6 +76,10 @@ for batch in dataset.list_all(lawd_code="11680", deal_ym="202503"):
 `list_all()` yields one `RecordBatch` per page and follows `next_page`
 automatically until pagination is exhausted.
 
+Dataset metadata may expose provider-specific pagination styles through
+`DatasetRef.query_support.pagination`, including `offset`, `cursor`, and
+index-window based `index` pagination.
+
 ### Schema
 
 ```python

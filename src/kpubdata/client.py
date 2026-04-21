@@ -22,6 +22,7 @@ logger = logging.getLogger("kpubdata.client")
 _BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("datago", "kpubdata.providers.datago", "DataGoAdapter"),
     ("bok", "kpubdata.providers.bok", "BokAdapter"),
+    ("seoul", "kpubdata.providers.seoul", "SeoulAdapter"),
     ("kosis", "kpubdata.providers.kosis", "KosisAdapter"),
     ("lofin", "kpubdata.providers.lofin", "LofinAdapter"),
     ("localdata", "kpubdata.providers.localdata.adapter", "LocaldataAdapter"),

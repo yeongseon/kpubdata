@@ -129,6 +129,12 @@ KPubData가 지원하는 각 기관의 API 키를 발급받아 [환경 변수](h
 - **절차**: 회원가입 → 지방행정인허가 Open API(일반음식점/휴게음식점) 활용신청 → 승인 후 인증키 확인
 - **환경 변수**: `KPUBDATA_LOCALDATA_API_KEY`
 
+#### 서울 열린데이터광장 (data.seoul.go.kr) — `seoul`
+- **가입 URL**: [https://data.seoul.go.kr/](https://data.seoul.go.kr/)
+- **절차**: 회원가입 → 원하는 Open API 페이지에서 인증키 신청/확인 → 마이페이지에서 발급 키 확인
+- **참고**: 서울 Open API는 인증키를 쿼리스트링이 아니라 URL 경로 세그먼트로 전달합니다.
+- **환경 변수**: `KPUBDATA_SEOUL_API_KEY`
+
 #### 환경 변수 설정 예시
 ```bash
 # 공공데이터포털 (data.go.kr)
@@ -145,6 +151,9 @@ export KPUBDATA_LOFIN_API_KEY="your-lofin-api-key"
 
 # 지방행정인허가
 export KPUBDATA_LOCALDATA_API_KEY="your-localdata-service-key"
+
+# 서울 열린데이터광장
+export KPUBDATA_SEOUL_API_KEY="your-seoul-api-key"
 ```
 
 ### 2. 클라이언트 생성
@@ -162,6 +171,7 @@ client = Client(provider_keys={
     "kosis": "YOUR_KOSIS_API_KEY",
     "lofin": "YOUR_LOFIN_API_KEY",
     "localdata": "YOUR_DATA_GO_KR_API_KEY",
+    "seoul": "YOUR_SEOUL_API_KEY",
 })
 ```
 
@@ -344,6 +354,8 @@ print(df.head())
 | 공공데이터포털 (`datago`) | 한국관광공사 행사정보 (`tour_kor_festival`) | 지원 |
 | 공공데이터포털 (`datago`) | 서울교통공사 실시간 운임정보 (`metro_fare`) | 지원 |
 | 공공데이터포털 (`datago`) | 서울교통공사 최단경로 이동정보 (`metro_path`) | 지원 |
+| 서울 열린데이터광장 (`seoul`) | 지하철 실시간 도착정보 (`subway_realtime_arrival`) | 지원 |
+| 서울 열린데이터광장 (`seoul`) | 따릉이 월별 이용정보 (`bike_rent_month`) | 지원 |
 | 한국은행 ECOS (`bok`) | 기준금리 (`base_rate`) | 지원 |
 | 통계청 KOSIS (`kosis`) | 인구이동 (`population_migration`) | 지원 |
 | 지방재정365 (`lofin`) | 세출결산총괄 (`expenditure_budget`) | 지원 |
