@@ -1,0 +1,10 @@
+{
+  "id": "API_0101",
+  "result": {
+    "accessToken": "test-access-token-1",
+    "accessTimeout": "4102444800"
+  },
+  "errMsg": "Success",
+  "errCd": 0,
+  "trId": "test_auth_success"
+}
