@@ -1,0 +1,55 @@
+[
+  {
+    "dataset_key": "boundary.sido",
+    "name": "시도 행정구역 경계 (SGIS)",
+    "representation": "api_json",
+    "operations": ["list", "raw", "schema"],
+    "endpoint": "boundary/hadmarea.geojson",
+    "default_year": "2023",
+    "default_adm_cd": "",
+    "default_low_search": 1,
+    "required_params": ["accessToken", "year", "adm_cd", "low_search"],
+    "fields": [
+      {"name": "adm_cd", "title": "행정구역코드", "type": "string"},
+      {"name": "adm_nm", "title": "행정구역명", "type": "string"},
+      {"name": "x", "title": "중심점 X좌표", "type": "string"},
+      {"name": "y", "title": "중심점 Y좌표", "type": "string"},
+      {"name": "geometry", "title": "GeoJSON geometry", "type": "object"}
+    ]
+  },
+  {
+    "dataset_key": "boundary.sigungu",
+    "name": "시군구 행정구역 경계 (SGIS)",
+    "representation": "api_json",
+    "operations": ["list", "raw", "schema"],
+    "endpoint": "boundary/hadmarea.geojson",
+    "default_year": "2023",
+    "default_adm_cd": "",
+    "default_low_search": 2,
+    "required_params": ["accessToken", "year", "adm_cd", "low_search"],
+    "fields": [
+      {"name": "adm_cd", "title": "행정구역코드", "type": "string"},
+      {"name": "adm_nm", "title": "행정구역명", "type": "string"},
+      {"name": "x", "title": "중심점 X좌표", "type": "string"},
+      {"name": "y", "title": "중심점 Y좌표", "type": "string"},
+      {"name": "geometry", "title": "GeoJSON geometry", "type": "object"}
+    ]
+  },
+  {
+    "dataset_key": "boundary.emd",
+    "name": "읍면동 행정구역 경계 (SGIS)",
+    "representation": "api_json",
+    "operations": ["list", "raw", "schema"],
+    "endpoint": "boundary/hadmarea.geojson",
+    "default_year": "2023",
+    "default_low_search": 2,
+    "required_params": ["accessToken", "year", "adm_cd", "low_search"],
+    "fields": [
+      {"name": "adm_cd", "title": "행정구역코드", "type": "string"},
+      {"name": "adm_nm", "title": "행정구역명", "type": "string"},
+      {"name": "x", "title": "중심점 X좌표", "type": "string"},
+      {"name": "y", "title": "중심점 Y좌표", "type": "string"},
+      {"name": "geometry", "title": "GeoJSON geometry", "type": "object"}
+    ]
+  }
+]

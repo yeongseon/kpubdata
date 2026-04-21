@@ -135,6 +135,15 @@ KPubData가 지원하는 각 기관의 API 키를 발급받아 [환경 변수](h
 - **참고**: 서울 Open API는 인증키를 쿼리스트링이 아니라 URL 경로 세그먼트로 전달합니다.
 - **환경 변수**: `KPUBDATA_SEOUL_API_KEY`
 
+#### 통계청 통계지리정보서비스 (sgis.kostat.go.kr) — `sgis`
+- **가입 URL**: [https://sgis.kostat.go.kr/developer/html/main.html](https://sgis.kostat.go.kr/developer/html/main.html)
+- **절차**: 회원가입 → 개발지원센터에서 서비스 ID/Secret 발급 → 인증 API로 accessToken 교환
+- **인증 방식**: `consumer_key` + `consumer_secret` 2단계
+- **환경 변수**:
+  - `KPUBDATA_SGIS_API_KEY` (`consumer_key`)
+  - `KPUBDATA_SGIS_CONSUMER_SECRET` (`consumer_secret`)
+- **대안 입력**: 코드에서 `provider_keys["sgis"]`에 `"consumer_key:consumer_secret"` 형태를 직접 전달 가능
+
 #### 환경 변수 설정 예시
 ```bash
 # 공공데이터포털 (data.go.kr)
@@ -154,6 +163,10 @@ export KPUBDATA_LOCALDATA_API_KEY="your-localdata-service-key"
 
 # 서울 열린데이터광장
 export KPUBDATA_SEOUL_API_KEY="your-seoul-api-key"
+
+# 통계청 SGIS
+export KPUBDATA_SGIS_API_KEY="your-sgis-consumer-key"
+export KPUBDATA_SGIS_CONSUMER_SECRET="your-sgis-consumer-secret"
 ```
 
 ### 2. 클라이언트 생성
@@ -172,6 +185,7 @@ client = Client(provider_keys={
     "lofin": "YOUR_LOFIN_API_KEY",
     "localdata": "YOUR_DATA_GO_KR_API_KEY",
     "seoul": "YOUR_SEOUL_API_KEY",
+    "sgis": "YOUR_SGIS_CONSUMER_KEY:YOUR_SGIS_CONSUMER_SECRET",
 })
 ```
 
@@ -356,6 +370,9 @@ print(df.head())
 | 공공데이터포털 (`datago`) | 서울교통공사 최단경로 이동정보 (`metro_path`) | 지원 |
 | 서울 열린데이터광장 (`seoul`) | 지하철 실시간 도착정보 (`subway_realtime_arrival`) | 지원 |
 | 서울 열린데이터광장 (`seoul`) | 따릉이 월별 이용정보 (`bike_rent_month`) | 지원 |
+| 통계청 통계지리정보서비스 (`sgis`) | 시도 행정구역 경계 (`boundary.sido`) | 지원 |
+| 통계청 통계지리정보서비스 (`sgis`) | 시군구 행정구역 경계 (`boundary.sigungu`) | 지원 |
+| 통계청 통계지리정보서비스 (`sgis`) | 읍면동 행정구역 경계 (`boundary.emd`) | 지원 |
 | 한국은행 ECOS (`bok`) | 기준금리 (`base_rate`) | 지원 |
 | 통계청 KOSIS (`kosis`) | 인구이동 (`population_migration`) | 지원 |
 | 지방재정365 (`lofin`) | 세출결산총괄 (`expenditure_budget`) | 지원 |

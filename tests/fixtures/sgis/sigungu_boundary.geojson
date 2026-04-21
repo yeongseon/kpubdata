@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "id": "API_0704",
+  "errMsg": "Success",
+  "errCd": 0,
+  "trId": "test_sigungu",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[955000, 1952500], [956000, 1952500], [956000, 1953500], [955000, 1953500], [955000, 1952500]]]
+      },
+      "properties": {
+        "adm_cd": "11110",
+        "adm_nm": "서울특별시 종로구",
+        "x": "955500",
+        "y": "1953000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[957000, 1952000], [958000, 1952000], [958000, 1953000], [957000, 1953000], [957000, 1952000]]]
+      },
+      "properties": {
+        "adm_cd": "11140",
+        "adm_nm": "서울특별시 중구",
+        "x": "957500",
+        "y": "1952500"
+      }
+    }
+  ]
+}

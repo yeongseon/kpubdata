@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "id": "API_0704",
+  "errMsg": "Success",
+  "errCd": 0,
+  "trId": "test_sido",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[953000, 1953000], [954000, 1953000], [954000, 1954000], [953000, 1954000], [953000, 1953000]]]
+      },
+      "properties": {
+        "adm_cd": "11",
+        "adm_nm": "서울특별시",
+        "x": "953500",
+        "y": "1953500"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[960000, 1910000], [961000, 1910000], [961000, 1911000], [960000, 1911000], [960000, 1910000]]]
+      },
+      "properties": {
+        "adm_cd": "26",
+        "adm_nm": "부산광역시",
+        "x": "960500",
+        "y": "1910500"
+      }
+    }
+  ]
+}
