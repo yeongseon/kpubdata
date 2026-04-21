@@ -26,6 +26,7 @@ _BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("kosis", "kpubdata.providers.kosis", "KosisAdapter"),
     ("lofin", "kpubdata.providers.lofin", "LofinAdapter"),
     ("localdata", "kpubdata.providers.localdata.adapter", "LocaldataAdapter"),
+    ("sgis", "kpubdata.providers.sgis", "SgisAdapter"),
 )
 
 
@@ -60,14 +61,10 @@ class Client:
         self._transport_config: TransportConfig = TransportConfig(
             timeout=self._config.timeout,
             max_retries=self._config.max_retries,
-            cache=resolved_cache,
-            cache_ttl_seconds=cache_ttl_seconds,
         )
-        self._transport: HttpTransport = HttpTransport(
-            self._transport_config,
-            cache=resolved_cache,
-            cache_ttl_seconds=cache_ttl_seconds,
-        )
+        object.__setattr__(self._transport_config, "cache", resolved_cache)
+        object.__setattr__(self._transport_config, "cache_ttl_seconds", cache_ttl_seconds)
+        self._transport: HttpTransport = HttpTransport(self._transport_config)
         self._provider_transports: list[HttpTransport] = []
         self._register_builtin_providers()
         self._catalog: Catalog = Catalog(self._registry)
