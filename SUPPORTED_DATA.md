@@ -22,19 +22,19 @@
 
 | 상태 | 검증 | 실API 최종 검증일 | Provider | Dataset ID | 데이터셋명 | 인증 | 공식 문서 | 비고 |
 |---|---|---|---|---|---|---|---|---|
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `apt_rent` | 아파트 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `offi_trade` | 오피스텔 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `offi_rent` | 오피스텔 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `rh_trade` | 연립다세대 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `rh_rent` | 연립다세대 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `sh_trade` | 단독/다가구 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `sh_rent` | 단독/다가구 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `ultra_srt_ncst` | 초단기실황 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
-| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `apt_rent` | 아파트 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `offi_trade` | 오피스텔 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `offi_rent` | 오피스텔 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `rh_trade` | 연립다세대 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공, 활용신청 승인 반영 대기 (2026-04-21 시점 403) |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `rh_rent` | 연립다세대 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `sh_trade` | 단독/다가구 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `sh_rent` | 단독/다가구 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `ultra_srt_ncst` | 초단기실황 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 경기도 v2 endpoint (`getBusArrivalListv2`) + 자체 envelope (`msgHeader`/`msgBody`) |
+| 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
 | 지원 | 실API 검증 | 2026-04-20 | 공공데이터포털 (`datago`) | `tour_kor_area` | 한국관광공사 지역기반 관광정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15101578](https://www.data.go.kr/data/15101578/openapi.do) | TourAPI KorService2 / `areaBasedList2` |
 | 지원 | 실API 검증 | 2026-04-20 | 공공데이터포털 (`datago`) | `tour_kor_location` | 한국관광공사 위치기반 관광정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15101578](https://www.data.go.kr/data/15101578/openapi.do) | TourAPI KorService2 / `locationBasedList2` |
 | 지원 | 실API 검증 | 2026-04-20 | 공공데이터포털 (`datago`) | `tour_kor_keyword` | 한국관광공사 키워드 검색 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15101578](https://www.data.go.kr/data/15101578/openapi.do) | TourAPI KorService2 / `searchKeyword2` |
