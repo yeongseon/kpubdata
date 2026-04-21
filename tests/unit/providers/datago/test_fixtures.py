@@ -50,6 +50,31 @@ def _build_real_estate_adapter(
     return adapter, dataset
 
 
+def test_fixture_bus_arrival_v2_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("bus_arrival_v2.json", "bus_arrival")
+    expected = load_json_fixture("bus_arrival_v2.json")
+
+    payload = adapter.call_raw(dataset, "getBusArrivalListv2", {"stationId": "228000704"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "msgHeader" in response
+    assert "msgBody" in response
+
+
+def test_fixture_bus_arrival_v2_list_normalizes_msg_body_list() -> None:
+    adapter, dataset = _build_real_estate_adapter("bus_arrival_v2.json", "bus_arrival")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 1
+    assert batch.items[0]["routeId"] == 200000333
+    assert batch.items[0]["stationId"] == 228000704
+    assert batch.total_count is None
+
+
 def test_fixture_single_page(configured_adapter: AdapterFactory) -> None:
     adapter, dataset, _ = configured_adapter(["success_single_page.json"])
 
