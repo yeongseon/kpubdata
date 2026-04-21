@@ -176,7 +176,7 @@ raw = ds.call_raw("getCtprvnRltmMesureDnsty", sidoName="서울", numOfRows="5")
 
 ```python
 ds = client.dataset("datago.bus_arrival")
-raw = ds.call_raw("getBusArrivalList", stationId="200000078")
+raw = ds.call_raw("getBusArrivalListv2", stationId="200000078")
 ```
 
 ### hospital_info (병원정보서비스)

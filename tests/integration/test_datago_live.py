@@ -58,7 +58,7 @@ def test_datago_bus_arrival(
     _ = require_realestate_key
     ds = live_client.dataset("datago.bus_arrival")
 
-    result = ds.call_raw("getBusArrivalList", stationId="228000704", numOfRows="5")
+    result = ds.call_raw("getBusArrivalListv2", stationId="228000704", numOfRows="5")
 
     assert isinstance(result, dict)
     assert "response" in result
