@@ -49,6 +49,7 @@
     "name": "경기도 버스도착정보 조회서비스 (Bus Arrival)",
     "base_url": "http://apis.data.go.kr/6410000/busarrivalservice/v2",
     "default_operation": "getBusArrivalListv2",
+    "envelope_style": "gyeonggi_msg",
     "representation": "api_json",
     "service_key_param": "serviceKey",
     "format_param": "_type",

@@ -147,7 +147,7 @@ class DataGoAdapter:
                 params[key] = str(value)
 
         payload = self._request_and_decode(url, params, dataset.id)
-        body, items = self._validate_envelope(payload, dataset.id)
+        body, items = self._validate_envelope(payload, dataset)
 
         total_count = coerce_int(body.get("totalCount"), 0)
         if (total_count and page * page_size < total_count) or (
@@ -293,7 +293,7 @@ class DataGoAdapter:
 
             payload = self._request_and_decode(url, request_params, dataset.id)
             if validate_envelope:
-                _ = self._validate_envelope(payload, dataset.id)
+                _ = self._validate_envelope(payload, dataset)
             return payload
 
         url = self._build_request_url(dataset, operation)
@@ -305,7 +305,7 @@ class DataGoAdapter:
                 request_params[key] = str(value)
 
         payload = self._request_and_decode(url, request_params, dataset.id)
-        _ = self._validate_envelope(payload, dataset.id)
+        _ = self._validate_envelope(payload, dataset)
         return payload
 
     @staticmethod
@@ -395,8 +395,9 @@ class DataGoAdapter:
         raise ParseError("Decoded payload is not an object", provider="datago")
 
     def _validate_envelope(
-        self, payload: dict[str, object], dataset_id: str = ""
+        self, payload: dict[str, object], dataset: DatasetRef | None = None
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        dataset_id = dataset.id if dataset is not None else ""
         response_obj = payload.get("response")
         if not isinstance(response_obj, dict):
             logger.debug(
@@ -411,6 +412,14 @@ class DataGoAdapter:
 
         response_dict = cast(dict[str, object], response_obj)
 
+        envelope_style = dataset.raw_metadata.get("envelope_style") if dataset is not None else None
+        if envelope_style == "gyeonggi_msg":
+            return self._validate_gyeonggi_msg_envelope(response_dict, dataset_id)
+        return self._validate_standard_envelope(response_dict, dataset_id)
+
+    def _validate_standard_envelope(
+        self, response_dict: dict[str, object], dataset_id: str
+    ) -> tuple[dict[str, object], list[dict[str, object]]]:
         header_obj = response_dict.get("header")
         if not isinstance(header_obj, dict):
             raise ProviderResponseError(
@@ -445,6 +454,57 @@ class DataGoAdapter:
         )
         items = self._normalize_items(body_dict.get("items"))
         return body_dict, items
+
+    def _validate_gyeonggi_msg_envelope(
+        self, response_dict: dict[str, object], dataset_id: str
+    ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        header_obj = response_dict.get("msgHeader")
+        if not isinstance(header_obj, dict):
+            raise ProviderResponseError(
+                "Malformed response envelope: missing msgHeader",
+                provider="datago",
+                dataset_id=dataset_id or None,
+            )
+
+        header_dict = cast(dict[str, object], header_obj)
+        result_code = self._coerce_result_code(header_dict.get("resultCode"), dataset_id)
+        result_msg_raw = header_dict.get("resultMessage")
+        result_msg = (
+            result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
+        )
+        logger.debug(
+            "data.go.kr result",
+            extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
+        )
+        if not _is_success_code(result_code):
+            self._raise_for_result_code(result_code, result_msg, dataset_id)
+
+        body_obj = response_dict.get("msgBody")
+        body_dict: dict[str, object] = (
+            cast(dict[str, object], body_obj) if isinstance(body_obj, dict) else {}
+        )
+        items_wrapper = self._extract_gyeonggi_msg_items_wrapper(body_dict)
+        items = self._normalize_items(items_wrapper)
+        return body_dict, items
+
+    def _coerce_result_code(self, result_code: object, dataset_id: str) -> str:
+        if isinstance(result_code, str):
+            return result_code
+        if isinstance(result_code, int):
+            return str(result_code)
+        raise ProviderResponseError(
+            "Malformed response envelope: missing resultCode",
+            provider="datago",
+            dataset_id=dataset_id or None,
+        )
+
+    def _extract_gyeonggi_msg_items_wrapper(self, body_dict: dict[str, object]) -> object:
+        list_values: list[object] = [
+            value for value in body_dict.values() if isinstance(value, list)
+        ]
+        if len(list_values) == 1:
+            return list_values[0]
+        return body_dict
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
         extra = {"dataset_id": dataset_id, "result_code": code, "result_msg": msg}
