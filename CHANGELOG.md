@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `sgis` provider adapter for administrative boundary GeoJSON datasets:
+  - `sgis.boundary.sido`
+  - `sgis.boundary.sigungu`
+  - `sgis.boundary.emd`
+- SGIS access-token authentication flow (`consumer_key` + `consumer_secret`) with in-memory token cache and refresh-on-auth-failure behavior
+- Unit and contract tests plus SGIS fixture responses for boundary and auth/error scenarios
+
 ## [0.2.0] - 2025-04-17
 
 ### Added
