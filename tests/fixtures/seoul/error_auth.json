@@ -1,0 +1,10 @@
+{
+  "realtimeStationArrival": {
+    "list_total_count": 0,
+    "RESULT": {
+      "CODE": "INFO-100",
+      "MESSAGE": "인증키가 유효하지 않습니다."
+    },
+    "row": []
+  }
+}

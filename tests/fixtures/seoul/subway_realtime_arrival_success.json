@@ -1,0 +1,55 @@
+{
+  "realtimeStationArrival": {
+    "list_total_count": 2,
+    "RESULT": {
+      "CODE": "INFO-000",
+      "MESSAGE": "정상 처리되었습니다"
+    },
+    "row": [
+      {
+        "subwayId": "1002",
+        "updnLine": "상행",
+        "trainLineNm": "2호선 성수행 - 강남방면",
+        "subwayHeading": "내선",
+        "statnFid": "1002000222",
+        "statnTid": "1002000220",
+        "statnId": "1002000221",
+        "statnNm": "강남",
+        "ordkey": "01000강남0",
+        "subwayList": "1002",
+        "statnList": "1002000222,1002000221,1002000220",
+        "btrainSttus": "일반",
+        "barvlDt": "45",
+        "btrainNo": "2345",
+        "bstatnId": "1002000222",
+        "bstatnNm": "역삼",
+        "recptnDt": "2026-04-21 10:15:30.0",
+        "arvlMsg2": "강남 도착",
+        "arvlMsg3": "역삼",
+        "arvlCd": "1"
+      },
+      {
+        "subwayId": "1002",
+        "updnLine": "하행",
+        "trainLineNm": "2호선 잠실행 - 강남방면",
+        "subwayHeading": "외선",
+        "statnFid": "1002000220",
+        "statnTid": "1002000222",
+        "statnId": "1002000221",
+        "statnNm": "강남",
+        "ordkey": "02000강남0",
+        "subwayList": "1002",
+        "statnList": "1002000220,1002000221,1002000222",
+        "btrainSttus": "급행",
+        "barvlDt": "120",
+        "btrainNo": "2711",
+        "bstatnId": "1002000220",
+        "bstatnNm": "교대",
+        "recptnDt": "2026-04-21 10:15:31.0",
+        "arvlMsg2": "전역 출발",
+        "arvlMsg3": "교대",
+        "arvlCd": "4"
+      }
+    ]
+  }
+}

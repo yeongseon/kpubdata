@@ -19,7 +19,7 @@ def _dataclass(
     frozen: bool = False,
 ) -> Callable[[type[_T]], type[_T]]:
     def _decorate(cls: type[_T]) -> type[_T]:
-        return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)  # pyright: ignore[reportCallIssue]
+        return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)
 
     return _decorate
 
@@ -38,6 +38,7 @@ class PaginationMode(str, Enum):
     """How a dataset supports pagination."""
 
     OFFSET = "offset"
+    INDEX = "index"
     CURSOR = "cursor"
     NONE = "none"
 
