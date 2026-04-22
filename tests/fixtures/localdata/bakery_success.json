@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "11_23_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-201-2023-00001",
+            "LCPMT_YMD": "20230110",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-201-1101",
+            "STTUS_ADDR": "대전광역시 중구 은행동 101",
+            "ROAD_NM_ADDR": "대전광역시 중구 중앙로 101",
+            "BPLC_NM": "중앙베이커리",
+            "BSNTPE_NM": "제과점",
+            "X_CRDNT": "127.4271",
+            "Y_CRDNT": "36.3274"
+          },
+          {
+            "OPN_SVC_ID": "11_23_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-201-2023-00002",
+            "LCPMT_YMD": "20230415",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-201-1102",
+            "STTUS_ADDR": "대전광역시 서구 둔산동 521",
+            "ROAD_NM_ADDR": "대전광역시 서구 둔산로 52",
+            "BPLC_NM": "둔산크루아상",
+            "BSNTPE_NM": "제과점",
+            "X_CRDNT": "127.3849",
+            "Y_CRDNT": "36.3510"
+          },
+          {
+            "OPN_SVC_ID": "11_23_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-201-2023-00003",
+            "LCPMT_YMD": "20230722",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-201-1103",
+            "STTUS_ADDR": "대전광역시 유성구 봉명동 742",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 74",
+            "BPLC_NM": "유성브레드랩",
+            "BSNTPE_NM": "제과점",
+            "X_CRDNT": "127.3451",
+            "Y_CRDNT": "36.3627"
+          }
+        ]
+      }
+    }
+  }
+}

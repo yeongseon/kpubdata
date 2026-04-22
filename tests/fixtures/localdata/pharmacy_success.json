@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "01_02_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-502-2023-00001",
+            "LCPMT_YMD": "20230125",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-210-3100",
+            "STTUS_ADDR": "대전광역시 중구 대흥동 310",
+            "ROAD_NM_ADDR": "대전광역시 중구 대종로 125",
+            "BPLC_NM": "중앙약국",
+            "BSNTPE_NM": "약국",
+            "X_CRDNT": "127.4242",
+            "Y_CRDNT": "36.3292"
+          },
+          {
+            "OPN_SVC_ID": "01_02_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-502-2023-00002",
+            "LCPMT_YMD": "20230425",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-410-5100",
+            "STTUS_ADDR": "대전광역시 서구 탄방동 210",
+            "ROAD_NM_ADDR": "대전광역시 서구 둔산로 155",
+            "BPLC_NM": "둔산온누리약국",
+            "BSNTPE_NM": "약국",
+            "X_CRDNT": "127.3878",
+            "Y_CRDNT": "36.3509"
+          },
+          {
+            "OPN_SVC_ID": "01_02_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-502-2023-00003",
+            "LCPMT_YMD": "20230815",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-610-7100",
+            "STTUS_ADDR": "대전광역시 유성구 봉명동 410",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 105",
+            "BPLC_NM": "유성건강약국",
+            "BSNTPE_NM": "약국",
+            "X_CRDNT": "127.3447",
+            "Y_CRDNT": "36.3627"
+          }
+        ]
+      }
+    }
+  }
+}

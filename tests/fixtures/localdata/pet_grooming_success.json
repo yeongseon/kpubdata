@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "17_05_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-206-2023-00001", "LCPMT_YMD": "20230121", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-206-1601", "STTUS_ADDR": "대전광역시 중구 문화동 64", "ROAD_NM_ADDR": "대전광역시 중구 문화로 64", "BPLC_NM": "멍멍살롱중앙점", "BSNTPE_NM": "반려동물미용업", "X_CRDNT": "127.4014", "Y_CRDNT": "36.3168"},
+          {"OPN_SVC_ID": "17_05_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-206-2023-00002", "LCPMT_YMD": "20230611", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-206-1602", "STTUS_ADDR": "대전광역시 서구 괴정동 302", "ROAD_NM_ADDR": "대전광역시 서구 도산로 30", "BPLC_NM": "댕댕그루밍하우스", "BSNTPE_NM": "반려동물미용업", "X_CRDNT": "127.3821", "Y_CRDNT": "36.3385"},
+          {"OPN_SVC_ID": "17_05_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-206-2023-00003", "LCPMT_YMD": "20230914", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-206-1603", "STTUS_ADDR": "대전광역시 유성구 반석동 517", "ROAD_NM_ADDR": "대전광역시 유성구 반석로 51", "BPLC_NM": "반석펫스타일", "BSNTPE_NM": "반려동물미용업", "X_CRDNT": "127.3053", "Y_CRDNT": "36.3932"}
+        ]
+      }
+    }
+  }
+}

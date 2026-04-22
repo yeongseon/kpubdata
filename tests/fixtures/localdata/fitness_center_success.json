@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "24_12_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-213-2023-00001", "LCPMT_YMD": "20230116", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-213-2301", "STTUS_ADDR": "대전광역시 중구 태평동 181", "ROAD_NM_ADDR": "대전광역시 중구 태평로 18", "BPLC_NM": "태평피트니스클럽", "BSNTPE_NM": "체육시설업", "X_CRDNT": "127.3995", "Y_CRDNT": "36.3206"},
+          {"OPN_SVC_ID": "24_12_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-213-2023-00002", "LCPMT_YMD": "20230513", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-213-2302", "STTUS_ADDR": "대전광역시 서구 둔산동 1102", "ROAD_NM_ADDR": "대전광역시 서구 둔산북로 110", "BPLC_NM": "둔산파워짐", "BSNTPE_NM": "체육시설업", "X_CRDNT": "127.3811", "Y_CRDNT": "36.3530"},
+          {"OPN_SVC_ID": "24_12_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-213-2023-00003", "LCPMT_YMD": "20230905", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-213-2303", "STTUS_ADDR": "대전광역시 유성구 상대동 670", "ROAD_NM_ADDR": "대전광역시 유성구 상대동로 67", "BPLC_NM": "유성밸런스짐", "BSNTPE_NM": "체육시설업", "X_CRDNT": "127.3357", "Y_CRDNT": "36.3414"}
+        ]
+      }
+    }
+  }
+}

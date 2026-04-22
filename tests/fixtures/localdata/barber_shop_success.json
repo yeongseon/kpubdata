@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "12_17_02_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-302-2023-00001",
+            "LCPMT_YMD": "20230201",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-111-2222",
+            "STTUS_ADDR": "대전광역시 중구 선화동 50",
+            "ROAD_NM_ADDR": "대전광역시 중구 중앙로 30",
+            "BPLC_NM": "클래식이발관",
+            "BSNTPE_NM": "이용업",
+            "X_CRDNT": "127.4270",
+            "Y_CRDNT": "36.3265"
+          },
+          {
+            "OPN_SVC_ID": "12_17_02_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-302-2023-00002",
+            "LCPMT_YMD": "20230505",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-333-4444",
+            "STTUS_ADDR": "대전광역시 서구 탄방동 100",
+            "ROAD_NM_ADDR": "대전광역시 서구 둔산로 70",
+            "BPLC_NM": "신사이발소",
+            "BSNTPE_NM": "이용업",
+            "X_CRDNT": "127.3880",
+            "Y_CRDNT": "36.3505"
+          },
+          {
+            "OPN_SVC_ID": "12_17_02_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-302-2023-00003",
+            "LCPMT_YMD": "20230801",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-555-6666",
+            "STTUS_ADDR": "대전광역시 유성구 궁동 200",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 40",
+            "BPLC_NM": "유성바버샵",
+            "BSNTPE_NM": "이용업",
+            "X_CRDNT": "127.3490",
+            "Y_CRDNT": "36.3640"
+          }
+        ]
+      }
+    }
+  }
+}

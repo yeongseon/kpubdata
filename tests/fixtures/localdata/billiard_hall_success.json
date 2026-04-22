@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "20_08_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-209-2023-00001", "LCPMT_YMD": "20230113", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-209-1901", "STTUS_ADDR": "대전광역시 중구 유천동 178", "ROAD_NM_ADDR": "대전광역시 중구 계룡로 178", "BPLC_NM": "유천당구클럽", "BSNTPE_NM": "당구장업", "X_CRDNT": "127.3951", "Y_CRDNT": "36.3161"},
+          {"OPN_SVC_ID": "20_08_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-209-2023-00002", "LCPMT_YMD": "20230519", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-209-1902", "STTUS_ADDR": "대전광역시 서구 괴정동 448", "ROAD_NM_ADDR": "대전광역시 서구 도솔로 44", "BPLC_NM": "도솔당구장", "BSNTPE_NM": "당구장업", "X_CRDNT": "127.3691", "Y_CRDNT": "36.3368"},
+          {"OPN_SVC_ID": "20_08_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-209-2023-00003", "LCPMT_YMD": "20230830", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-209-1903", "STTUS_ADDR": "대전광역시 유성구 신성동 557", "ROAD_NM_ADDR": "대전광역시 유성구 신성로 55", "BPLC_NM": "신성큐당구장", "BSNTPE_NM": "당구장업", "X_CRDNT": "127.3514", "Y_CRDNT": "36.3841"}
+        ]
+      }
+    }
+  }
+}

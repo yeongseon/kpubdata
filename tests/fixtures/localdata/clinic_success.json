@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "13_01_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-202-2023-00001", "LCPMT_YMD": "20230112", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-202-1201", "STTUS_ADDR": "대전광역시 중구 대흥동 112", "ROAD_NM_ADDR": "대전광역시 중구 대종로 112", "BPLC_NM": "대흥가정의원", "BSNTPE_NM": "의원", "X_CRDNT": "127.4283", "Y_CRDNT": "36.3268"},
+          {"OPN_SVC_ID": "13_01_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-202-2023-00002", "LCPMT_YMD": "20230503", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-202-1202", "STTUS_ADDR": "대전광역시 서구 탄방동 621", "ROAD_NM_ADDR": "대전광역시 서구 문정로 62", "BPLC_NM": "탄방연세의원", "BSNTPE_NM": "의원", "X_CRDNT": "127.3905", "Y_CRDNT": "36.3463"},
+          {"OPN_SVC_ID": "13_01_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-202-2023-00003", "LCPMT_YMD": "20230818", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-202-1203", "STTUS_ADDR": "대전광역시 유성구 지족동 884", "ROAD_NM_ADDR": "대전광역시 유성구 노은로 88", "BPLC_NM": "노은튼튼의원", "BSNTPE_NM": "의원", "X_CRDNT": "127.3184", "Y_CRDNT": "36.3744"}
+        ]
+      }
+    }
+  }
+}
