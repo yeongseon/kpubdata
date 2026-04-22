@@ -49,4 +49,6 @@ __all__ = [
     "ProviderNotRegisteredError",
 ]
 
-__version__ = "0.2.3"
+from importlib.metadata import version as _pkg_version
+
+__version__: str = _pkg_version("kpubdata")
