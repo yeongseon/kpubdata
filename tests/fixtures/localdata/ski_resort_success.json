@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "29_17_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-218-2023-00001", "LCPMT_YMD": "20230120", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-218-2801", "STTUS_ADDR": "대전광역시 중구 침산동 12", "ROAD_NM_ADDR": "대전광역시 중구 침산로 12", "BPLC_NM": "대전스노우리조트", "BSNTPE_NM": "스키장업", "X_CRDNT": "127.3721", "Y_CRDNT": "36.2868"},
+          {"OPN_SVC_ID": "29_17_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-218-2023-00002", "LCPMT_YMD": "20230614", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-218-2802", "STTUS_ADDR": "대전광역시 서구 장안동 76", "ROAD_NM_ADDR": "대전광역시 서구 장안로 76", "BPLC_NM": "서구윈터파크", "BSNTPE_NM": "스키장업", "X_CRDNT": "127.2963", "Y_CRDNT": "36.2561"},
+          {"OPN_SVC_ID": "29_17_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-218-2023-00003", "LCPMT_YMD": "20230929", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-218-2803", "STTUS_ADDR": "대전광역시 유성구 세동 330", "ROAD_NM_ADDR": "대전광역시 유성구 세동로 33", "BPLC_NM": "유성알파인리조트", "BSNTPE_NM": "스키장업", "X_CRDNT": "127.3320", "Y_CRDNT": "36.2724"}
+        ]
+      }
+    }
+  }
+}

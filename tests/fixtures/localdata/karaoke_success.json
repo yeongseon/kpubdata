@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "14_01_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-601-2023-00001",
+            "LCPMT_YMD": "20230210",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-700-8000",
+            "STTUS_ADDR": "대전광역시 중구 대흥동 400",
+            "ROAD_NM_ADDR": "대전광역시 중구 대종로 150",
+            "BPLC_NM": "노래천국",
+            "BSNTPE_NM": "노래연습장업",
+            "X_CRDNT": "127.4245",
+            "Y_CRDNT": "36.3295"
+          },
+          {
+            "OPN_SVC_ID": "14_01_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-601-2023-00002",
+            "LCPMT_YMD": "20230530",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-800-9000",
+            "STTUS_ADDR": "대전광역시 서구 둔산동 600",
+            "ROAD_NM_ADDR": "대전광역시 서구 대덕대로 300",
+            "BPLC_NM": "둔산코인노래방",
+            "BSNTPE_NM": "노래연습장업",
+            "X_CRDNT": "127.3865",
+            "Y_CRDNT": "36.3515"
+          },
+          {
+            "OPN_SVC_ID": "14_01_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-601-2023-00003",
+            "LCPMT_YMD": "20230920",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-900-1000",
+            "STTUS_ADDR": "대전광역시 유성구 궁동 400",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 70",
+            "BPLC_NM": "유성스타노래연습장",
+            "BSNTPE_NM": "노래연습장업",
+            "X_CRDNT": "127.3505",
+            "Y_CRDNT": "36.3650"
+          }
+        ]
+      }
+    }
+  }
+}

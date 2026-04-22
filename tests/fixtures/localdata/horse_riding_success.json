@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "28_16_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-217-2023-00001", "LCPMT_YMD": "20230129", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-217-2701", "STTUS_ADDR": "대전광역시 중구 사정동 34", "ROAD_NM_ADDR": "대전광역시 중구 보문산공원로 34", "BPLC_NM": "보문승마클럽", "BSNTPE_NM": "승마장업", "X_CRDNT": "127.3830", "Y_CRDNT": "36.2947"},
+          {"OPN_SVC_ID": "28_16_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-217-2023-00002", "LCPMT_YMD": "20230531", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-217-2702", "STTUS_ADDR": "대전광역시 서구 평촌동 208", "ROAD_NM_ADDR": "대전광역시 서구 흑석평촌로 20", "BPLC_NM": "서구호스파크", "BSNTPE_NM": "승마장업", "X_CRDNT": "127.3050", "Y_CRDNT": "36.2861"},
+          {"OPN_SVC_ID": "28_16_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-217-2023-00003", "LCPMT_YMD": "20230922", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-217-2703", "STTUS_ADDR": "대전광역시 유성구 대정동 611", "ROAD_NM_ADDR": "대전광역시 유성구 대정로 61", "BPLC_NM": "유성승마체험장", "BSNTPE_NM": "승마장업", "X_CRDNT": "127.3159", "Y_CRDNT": "36.3042"}
+        ]
+      }
+    }
+  }
+}

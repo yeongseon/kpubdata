@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "25_13_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-214-2023-00001", "LCPMT_YMD": "20230124", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-214-2401", "STTUS_ADDR": "대전광역시 중구 안영동 141", "ROAD_NM_ADDR": "대전광역시 중구 안영로 14", "BPLC_NM": "대전아이스링크", "BSNTPE_NM": "아이스링크업", "X_CRDNT": "127.3867", "Y_CRDNT": "36.2844"},
+          {"OPN_SVC_ID": "25_13_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-214-2023-00002", "LCPMT_YMD": "20230602", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-214-2402", "STTUS_ADDR": "대전광역시 서구 관저동 744", "ROAD_NM_ADDR": "대전광역시 서구 관저로 74", "BPLC_NM": "관저스케이트센터", "BSNTPE_NM": "아이스링크업", "X_CRDNT": "127.3388", "Y_CRDNT": "36.2976"},
+          {"OPN_SVC_ID": "25_13_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-214-2023-00003", "LCPMT_YMD": "20230912", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-214-2403", "STTUS_ADDR": "대전광역시 유성구 문지동 588", "ROAD_NM_ADDR": "대전광역시 유성구 문지로 58", "BPLC_NM": "문지빙상장", "BSNTPE_NM": "아이스링크업", "X_CRDNT": "127.4074", "Y_CRDNT": "36.3910"}
+        ]
+      }
+    }
+  }
+}

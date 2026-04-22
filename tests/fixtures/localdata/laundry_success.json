@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "12_19_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-303-2023-00001",
+            "LCPMT_YMD": "20230120",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-777-8888",
+            "STTUS_ADDR": "대전광역시 중구 대흥동 150",
+            "ROAD_NM_ADDR": "대전광역시 중구 대종로 80",
+            "BPLC_NM": "깨끗한세탁소",
+            "BSNTPE_NM": "세탁업",
+            "X_CRDNT": "127.4220",
+            "Y_CRDNT": "36.3280"
+          },
+          {
+            "OPN_SVC_ID": "12_19_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-303-2023-00002",
+            "LCPMT_YMD": "20230401",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-999-0000",
+            "STTUS_ADDR": "대전광역시 서구 둔산동 400",
+            "ROAD_NM_ADDR": "대전광역시 서구 대덕대로 250",
+            "BPLC_NM": "퀵세탁",
+            "BSNTPE_NM": "세탁업",
+            "X_CRDNT": "127.3860",
+            "Y_CRDNT": "36.3510"
+          },
+          {
+            "OPN_SVC_ID": "12_19_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-303-2023-00003",
+            "LCPMT_YMD": "20230715",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-123-9876",
+            "STTUS_ADDR": "대전광역시 유성구 봉명동 600",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 120",
+            "BPLC_NM": "유성크린",
+            "BSNTPE_NM": "세탁업",
+            "X_CRDNT": "127.3450",
+            "Y_CRDNT": "36.3630"
+          }
+        ]
+      }
+    }
+  }
+}

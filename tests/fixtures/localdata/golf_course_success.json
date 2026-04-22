@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "26_14_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-215-2023-00001", "LCPMT_YMD": "20230111", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-215-2501", "STTUS_ADDR": "대전광역시 중구 대사동 51", "ROAD_NM_ADDR": "대전광역시 중구 대사로 51", "BPLC_NM": "대전힐즈골프장", "BSNTPE_NM": "골프장업", "X_CRDNT": "127.4126", "Y_CRDNT": "36.3160"},
+          {"OPN_SVC_ID": "26_14_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-215-2023-00002", "LCPMT_YMD": "20230506", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-215-2502", "STTUS_ADDR": "대전광역시 서구 흑석동 839", "ROAD_NM_ADDR": "대전광역시 서구 흑석로 83", "BPLC_NM": "서구그린필드GC", "BSNTPE_NM": "골프장업", "X_CRDNT": "127.2957", "Y_CRDNT": "36.3023"},
+          {"OPN_SVC_ID": "26_14_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-215-2023-00003", "LCPMT_YMD": "20230824", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-215-2503", "STTUS_ADDR": "대전광역시 유성구 금고동 423", "ROAD_NM_ADDR": "대전광역시 유성구 금남구즉로 42", "BPLC_NM": "유성레이크골프", "BSNTPE_NM": "골프장업", "X_CRDNT": "127.2952", "Y_CRDNT": "36.4048"}
+        ]
+      }
+    }
+  }
+}

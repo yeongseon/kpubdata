@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "12_17_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-301-2023-00001",
+            "LCPMT_YMD": "20230110",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-222-3333",
+            "STTUS_ADDR": "대전광역시 중구 대흥동 100",
+            "ROAD_NM_ADDR": "대전광역시 중구 중앙로 50",
+            "BPLC_NM": "뷰티헤어살롱",
+            "BSNTPE_NM": "미용업",
+            "X_CRDNT": "127.4250",
+            "Y_CRDNT": "36.3260"
+          },
+          {
+            "OPN_SVC_ID": "12_17_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-301-2023-00002",
+            "LCPMT_YMD": "20230315",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-444-5555",
+            "STTUS_ADDR": "대전광역시 서구 둔산동 200",
+            "ROAD_NM_ADDR": "대전광역시 서구 대덕대로 150",
+            "BPLC_NM": "헤어앤네일",
+            "BSNTPE_NM": "미용업",
+            "X_CRDNT": "127.3850",
+            "Y_CRDNT": "36.3500"
+          },
+          {
+            "OPN_SVC_ID": "12_17_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-301-2023-00003",
+            "LCPMT_YMD": "20230620",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-666-7777",
+            "STTUS_ADDR": "대전광역시 유성구 봉명동 300",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 80",
+            "BPLC_NM": "유성미용실",
+            "BSNTPE_NM": "미용업",
+            "X_CRDNT": "127.3440",
+            "Y_CRDNT": "36.3620"
+          }
+        ]
+      }
+    }
+  }
+}

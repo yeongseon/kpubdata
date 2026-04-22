@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "14_02_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-203-2023-00001", "LCPMT_YMD": "20230117", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-203-1301", "STTUS_ADDR": "대전광역시 중구 오류동 131", "ROAD_NM_ADDR": "대전광역시 중구 계백로 131", "BPLC_NM": "중앙24시동물병원", "BSNTPE_NM": "동물병원", "X_CRDNT": "127.4061", "Y_CRDNT": "36.3249"},
+          {"OPN_SVC_ID": "14_02_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-203-2023-00002", "LCPMT_YMD": "20230428", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-203-1302", "STTUS_ADDR": "대전광역시 서구 갈마동 412", "ROAD_NM_ADDR": "대전광역시 서구 갈마로 41", "BPLC_NM": "갈마펫동물의료센터", "BSNTPE_NM": "동물병원", "X_CRDNT": "127.3719", "Y_CRDNT": "36.3454"},
+          {"OPN_SVC_ID": "14_02_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-203-2023-00003", "LCPMT_YMD": "20230901", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-203-1303", "STTUS_ADDR": "대전광역시 유성구 원신흥동 552", "ROAD_NM_ADDR": "대전광역시 유성구 도안대로 55", "BPLC_NM": "도안동물메디컬", "BSNTPE_NM": "동물병원", "X_CRDNT": "127.3396", "Y_CRDNT": "36.3325"}
+        ]
+      }
+    }
+  }
+}

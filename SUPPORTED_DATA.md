@@ -43,6 +43,30 @@
 | 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `metro_path` | 서울교통공사 최단경로 이동정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15143842](https://www.data.go.kr/data/15143842/openapi.do) | 서울교통공사 / `getShtrmPath` (필수 파라미터 `dptreStnNm`/`arvlStnNm` 등, 활용가이드 확인 필요, [#140](https://github.com/yeongseon/kpubdata/issues/140)) |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `general_restaurant` | 일반음식점 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, service_name 실API 검증 완료 (data.go.kr 이관) |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `rest_cafe` | 휴게음식점 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, service_name 실API 검증 완료 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `bakery` | 제과점 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC I56 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `hospital` | 병원 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC Q86 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `clinic` | 의원 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC Q86 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `pharmacy` | 약국 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC Q86 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `animal_hospital` | 동물병원 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 동물병원 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `optical_shop` | 안경업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC S96 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `public_bath` | 목욕장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC S96 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `laundry` | 세탁업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC S96 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `barber_shop` | 이용업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC S96 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `beauty_salon` | 미용업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC S96 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `pet_grooming` | 동물미용업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC S96 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `dance_academy` | 무도학원업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC P85 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `karaoke` | 노래연습장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R90 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `singing_bar` | 단란주점 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R90 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `billiard_hall` | 당구장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R90 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `performance_hall` | 공연장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R90 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `movie_theater` | 영화상영관 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R91 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `swimming_pool` | 수영장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R93 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `fitness_center` | 체력단련장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R93 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `ice_rink` | 빙상장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R93 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `golf_course` | 골프장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R93 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `golf_practice_range` | 골프연습장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R93 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `horse_riding` | 승마장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R93 |
+| 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `ski_resort` | 스키장업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, KSIC R93 |
 | 지원 | 테스트 검증 | - | 통계청 통계지리정보서비스 (`sgis`) | `boundary.sido` | 시도 행정구역 경계 | SGIS `consumer_key` + `consumer_secret` | [sgis.kostat.go.kr](https://sgis.kostat.go.kr/developer/html/main.html) | GeoJSON FeatureCollection 응답을 레코드 단위(`items`)로 정규화 |
 | 지원 | 테스트 검증 | - | 통계청 통계지리정보서비스 (`sgis`) | `boundary.sigungu` | 시군구 행정구역 경계 | SGIS `consumer_key` + `consumer_secret` | [sgis.kostat.go.kr](https://sgis.kostat.go.kr/developer/html/main.html) | `boundary/hadmarea.geojson` + `low_search` 기반 조회 |
 | 지원 | 테스트 검증 | - | 통계청 통계지리정보서비스 (`sgis`) | `boundary.emd` | 읍면동 행정구역 경계 | SGIS `consumer_key` + `consumer_secret` | [sgis.kostat.go.kr](https://sgis.kostat.go.kr/developer/html/main.html) | fixture/contract 검증 완료, 실API 검증은 후속 |

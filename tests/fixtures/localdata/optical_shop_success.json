@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "15_03_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-204-2023-00001", "LCPMT_YMD": "20230114", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-204-1401", "STTUS_ADDR": "대전광역시 중구 선화동 221", "ROAD_NM_ADDR": "대전광역시 중구 중앙로 221", "BPLC_NM": "선화안경원", "BSNTPE_NM": "안경점", "X_CRDNT": "127.4238", "Y_CRDNT": "36.3302"},
+          {"OPN_SVC_ID": "15_03_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-204-2023-00002", "LCPMT_YMD": "20230527", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-204-1402", "STTUS_ADDR": "대전광역시 서구 둔산동 903", "ROAD_NM_ADDR": "대전광역시 서구 둔산남로 90", "BPLC_NM": "둔산포커스안경", "BSNTPE_NM": "안경점", "X_CRDNT": "127.3797", "Y_CRDNT": "36.3509"},
+          {"OPN_SVC_ID": "15_03_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-204-2023-00003", "LCPMT_YMD": "20230809", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-204-1403", "STTUS_ADDR": "대전광역시 유성구 어은동 336", "ROAD_NM_ADDR": "대전광역시 유성구 어은로 33", "BPLC_NM": "유성클리어안경", "BSNTPE_NM": "안경점", "X_CRDNT": "127.3568", "Y_CRDNT": "36.3659"}
+        ]
+      }
+    }
+  }
+}

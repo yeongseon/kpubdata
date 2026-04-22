@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "22_10_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-211-2023-00001", "LCPMT_YMD": "20230109", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-211-2101", "STTUS_ADDR": "대전광역시 중구 은행동 151", "ROAD_NM_ADDR": "대전광역시 중구 중앙로 151", "BPLC_NM": "중앙시네마", "BSNTPE_NM": "영화관", "X_CRDNT": "127.4259", "Y_CRDNT": "36.3297"},
+          {"OPN_SVC_ID": "22_10_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-211-2023-00002", "LCPMT_YMD": "20230417", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-211-2102", "STTUS_ADDR": "대전광역시 서구 둔산동 1221", "ROAD_NM_ADDR": "대전광역시 서구 대덕대로 122", "BPLC_NM": "둔산멀티플렉스", "BSNTPE_NM": "영화관", "X_CRDNT": "127.3788", "Y_CRDNT": "36.3500"},
+          {"OPN_SVC_ID": "22_10_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-211-2023-00003", "LCPMT_YMD": "20230828", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-211-2103", "STTUS_ADDR": "대전광역시 유성구 봉명동 955", "ROAD_NM_ADDR": "대전광역시 유성구 계룡로 95", "BPLC_NM": "유성시네파크", "BSNTPE_NM": "영화관", "X_CRDNT": "127.3409", "Y_CRDNT": "36.3561"}
+        ]
+      }
+    }
+  }
+}
