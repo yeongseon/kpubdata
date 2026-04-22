@@ -280,7 +280,13 @@ def test_datago_metro_fare(require_datago_key: None, live_client: Client) -> Non
     _ = require_datago_key
     ds = live_client.dataset("datago.metro_fare")
 
-    result = ds.call_raw("getRltmFare2", numOfRows="5", pageNo="1")
+    result = ds.call_raw(
+        "getRltmFare2",
+        numOfRows="5",
+        pageNo="1",
+        dptreStnNm="서울역",
+        avrlStnNm="시청",
+    )
 
     assert isinstance(result, dict)
     assert "response" in result
@@ -288,13 +294,18 @@ def test_datago_metro_fare(require_datago_key: None, live_client: Client) -> Non
 
 @pytest.mark.integration
 @pytest.mark.skip(
-    reason="External infra issue: see https://github.com/yeongseon/kpubdata/issues/140"
+    reason="Blocked by metro_fare upstream SSL issue (#139); params confirmed per #140"
 )
 def test_datago_metro_path(require_datago_key: None, live_client: Client) -> None:
     _ = require_datago_key
     ds = live_client.dataset("datago.metro_path")
 
-    result = ds.call_raw("getShtrmPath", numOfRows="5", pageNo="1")
+    result = ds.call_raw(
+        "getShtrmPath",
+        dptreStnNm="신도림",
+        arvlStnNm="서울역",
+        searchDt="2026-04-22 13:00:00",
+    )
 
     assert isinstance(result, dict)
     assert "response" in result
