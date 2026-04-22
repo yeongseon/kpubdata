@@ -117,6 +117,12 @@ ProviderResponseError: BOK ECOS returned error
 ```
 → 날짜를 `"20240101"` 대신 `"202401"` (YYYYMM) 형식으로 입력했는지 확인하세요.
 
+### "data.go.kr에서 403이 나옵니다"
+```
+AuthError: data.go.kr returned 403...
+```
+→ data.go.kr은 공통 인증키만으로는 부족하고 **API별 활용신청**이 필요합니다. 사용하려는 API 상세 페이지에서 "활용신청"을 눌렀는지 확인하세요. 대부분 1~5분 안에 자동 승인되지만 일부 API는 더 오래 걸릴 수 있습니다.
+
 ## Step 7: 다른 데이터도 조회해보기
 
 ### 사용 가능한 전체 데이터셋 목록 보기
@@ -145,6 +151,8 @@ kosis.population_migration — 시도별 이동자수 (Population Migration)
 ### 다른 Provider 사용하려면
 - 공공데이터포털(datago): [datago API 키 발급 가이드](./providers/datago.md)
 - 통계청 KOSIS: [KOSIS API 키 발급 가이드](./providers/kosis.md)
+
+> 참고: `datago`는 인증키 발급 후에도 **데이터셋별 활용신청**이 필요합니다. 활용신청 전에는 403이 발생할 수 있습니다.
 
 ## Step 8: 전체 페이지 자동 조회
 

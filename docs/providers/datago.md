@@ -35,7 +35,7 @@
 
 ### 3단계: 승인 대기
 
-- **자동 승인**: 기상청, 한국환경공단 등 대부분의 API는 신청 즉시 자동 승인됩니다.
+- **자동 승인**: 대부분의 API는 활용신청 후 약 1~5분 안에 자동 승인됩니다.
 - **심의 승인**: 국토교통부 아파트매매 실거래가 등 일부 API는 담당 기관의 심의 후 승인까지 1~2일이 소요될 수 있습니다.
 
 ### 4단계: 인증키 확인
@@ -52,16 +52,22 @@
 export KPUBDATA_DATAGO_API_KEY="발급받은-일반-인증키"
 ```
 
-### 6단계: 키 활성화 대기
+## API별 활용신청(활성화) requirement
 
-**중요: API 키는 발급 직후 바로 사용할 수 없습니다.**
+data.go.kr은 **계정용 공통 인증키 1개만 있으면 끝나는 구조가 아닙니다.** 호출하려는 Open API마다 상세 페이지에서 별도로 **활용신청**을 해야 합니다.
 
-- 발급 후 **1~2시간**의 활성화 대기 시간이 필요합니다.
-- 이 시간 동안 공공데이터포털 시스템이 각 API 제공기관의 서버와 인증키를 동기화합니다.
-- 동기화 완료 전에는 `SERVICE_KEY_IS_NOT_REGISTERED_ERROR` 또는 `401 Unauthorized` 에러가 발생합니다.
-- 동기화 시간은 제공기관에 따라 다를 수 있으며, 드물게 2시간 이상 걸리는 경우도 있습니다.
+- 같은 `KPUBDATA_DATAGO_API_KEY`를 쓰더라도 API별 활성화 상태는 서로 다를 수 있습니다.
+- 활용신청 후 대부분의 API는 약 **1~5분 안에 자동 승인/활성화**됩니다.
+- 활성화 전에는 KPubData 호출이 **HTTP 403**으로 실패할 수 있습니다.
+- 이 경우 해당 데이터셋의 data.go.kr 상세 페이지로 가서 **"활용신청"** 버튼을 눌렀는지 먼저 확인하세요.
 
-### 7단계: 활성화 확인
+예시:
+
+- `datago.village_fcst`를 쓰려면 단기예보 API 페이지에서 활용신청 필요
+- `datago.air_quality`를 쓰려면 대기오염정보 API 페이지에서 활용신청 필요
+- 둘은 같은 포털/같은 키를 써도 **각각 따로** 활성화해야 함
+
+### 6단계: 활성화 확인
 
 키가 활성화되었는지 확인하려면 다음과 같이 테스트합니다:
 
@@ -70,7 +76,7 @@ export KPUBDATA_DATAGO_API_KEY="발급받은-일반-인증키"
 curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=YOUR_KEY&dataType=json&numOfRows=1&pageNo=1&base_date=20250401&base_time=0500&nx=55&ny=127"
 ```
 
-정상 응답이 오면 활성화가 완료된 것입니다. `SERVICE_KEY_IS_NOT_REGISTERED_ERROR` 에러가 나오면 조금 더 기다려야 합니다.
+정상 응답이 오면 활성화가 완료된 것입니다. `403 Forbidden`, `SERVICE_KEY_IS_NOT_REGISTERED_ERROR`, 또는 인증 관련 오류가 나오면 활용신청 여부와 승인 대기 시간을 다시 확인하세요.
 
 ## KPubData에서 신청해야 할 API 목록
 

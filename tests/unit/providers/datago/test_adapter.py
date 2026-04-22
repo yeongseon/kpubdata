@@ -5,6 +5,7 @@ import logging
 from types import MappingProxyType
 from typing import Protocol, cast
 
+import httpx
 import pytest
 
 from kpubdata.config import KPubDataConfig
@@ -17,6 +18,7 @@ from kpubdata.exceptions import (
     InvalidRequestError,
     RateLimitError,
     ServiceUnavailableError,
+    TransportError,
 )
 from kpubdata.providers.datago.adapter import DataGoAdapter
 from kpubdata.transport.http import HttpTransport
@@ -352,6 +354,36 @@ class TestDataGoAdapterQueryRecords:
 
         with pytest.raises(ServiceUnavailableError):
             _ = adapter.query_records(dataset, Query())
+
+    def test_query_records_http_403_wraps_with_activation_hint(self) -> None:
+        request = httpx.Request("GET", "https://apis.data.go.kr/test")
+        response = httpx.Response(403, request=request)
+        status_error = httpx.HTTPStatusError(
+            "Client error '403 Forbidden' for url 'https://apis.data.go.kr/test'",
+            request=request,
+            response=response,
+        )
+
+        class ForbiddenTransport:
+            def request(self, method: str, url: str, **kwargs: object) -> FakeResponse:
+                del method, url, kwargs
+                raise TransportError(
+                    "HTTP status error 403 for GET https://apis.data.go.kr/test"
+                ) from status_error
+
+        adapter = DataGoAdapter(
+            config=KPubDataConfig(provider_keys={"datago": "test-key"}),
+            transport=cast(HttpTransport, cast(object, ForbiddenTransport())),
+        )
+        dataset = adapter.get_dataset("village_fcst")
+
+        with pytest.raises(AuthError) as excinfo:
+            _ = adapter.query_records(dataset, Query())
+
+        assert "활용신청" in str(excinfo.value)
+        assert "https://www.data.go.kr" in str(excinfo.value)
+        assert excinfo.value.status_code == 403
+        assert excinfo.value.dataset_id == dataset.id
 
     def test_query_records_accepts_three_digit_success_code_000(self) -> None:
         payload = {
