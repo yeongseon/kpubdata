@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "18_06_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-207-2023-00001", "LCPMT_YMD": "20230119", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-207-1701", "STTUS_ADDR": "대전광역시 중구 선화동 302", "ROAD_NM_ADDR": "대전광역시 중구 보문로 30", "BPLC_NM": "대전리듬댄스학원", "BSNTPE_NM": "댄스학원", "X_CRDNT": "127.4207", "Y_CRDNT": "36.3311"},
+          {"OPN_SVC_ID": "18_06_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-207-2023-00002", "LCPMT_YMD": "20230407", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-207-1702", "STTUS_ADDR": "대전광역시 서구 둔산동 451", "ROAD_NM_ADDR": "대전광역시 서구 둔산중로 45", "BPLC_NM": "둔산K댄스아카데미", "BSNTPE_NM": "댄스학원", "X_CRDNT": "127.3860", "Y_CRDNT": "36.3501"},
+          {"OPN_SVC_ID": "18_06_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-207-2023-00003", "LCPMT_YMD": "20230803", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-207-1703", "STTUS_ADDR": "대전광역시 유성구 궁동 221", "ROAD_NM_ADDR": "대전광역시 유성구 대학로 22", "BPLC_NM": "유성스트릿댄스학원", "BSNTPE_NM": "댄스학원", "X_CRDNT": "127.3497", "Y_CRDNT": "36.3607"}
+        ]
+      }
+    }
+  }
+}

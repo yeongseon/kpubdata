@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "23_11_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-212-2023-00001", "LCPMT_YMD": "20230130", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-212-2201", "STTUS_ADDR": "대전광역시 중구 산성동 203", "ROAD_NM_ADDR": "대전광역시 중구 산성로 20", "BPLC_NM": "산성아쿠아센터", "BSNTPE_NM": "수영장업", "X_CRDNT": "127.3904", "Y_CRDNT": "36.3022"},
+          {"OPN_SVC_ID": "23_11_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-212-2023-00002", "LCPMT_YMD": "20230608", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-212-2202", "STTUS_ADDR": "대전광역시 서구 월평동 720", "ROAD_NM_ADDR": "대전광역시 서구 청사로 72", "BPLC_NM": "월평수영클럽", "BSNTPE_NM": "수영장업", "X_CRDNT": "127.3622", "Y_CRDNT": "36.3581"},
+          {"OPN_SVC_ID": "23_11_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-212-2023-00003", "LCPMT_YMD": "20230926", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-212-2203", "STTUS_ADDR": "대전광역시 유성구 전민동 541", "ROAD_NM_ADDR": "대전광역시 유성구 엑스포로 54", "BPLC_NM": "엑스포스윔아레나", "BSNTPE_NM": "수영장업", "X_CRDNT": "127.3948", "Y_CRDNT": "36.3787"}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {
+            "OPN_SVC_ID": "01_01_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-501-2023-00001",
+            "LCPMT_YMD": "20230115",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-200-3000",
+            "STTUS_ADDR": "대전광역시 중구 대흥동 300",
+            "ROAD_NM_ADDR": "대전광역시 중구 대종로 120",
+            "BPLC_NM": "중앙내과의원",
+            "BSNTPE_NM": "의원",
+            "X_CRDNT": "127.4240",
+            "Y_CRDNT": "36.3290"
+          },
+          {
+            "OPN_SVC_ID": "01_01_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-501-2023-00002",
+            "LCPMT_YMD": "20230420",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-400-5000",
+            "STTUS_ADDR": "대전광역시 서구 탄방동 200",
+            "ROAD_NM_ADDR": "대전광역시 서구 둔산로 150",
+            "BPLC_NM": "둔산정형외과",
+            "BSNTPE_NM": "의원",
+            "X_CRDNT": "127.3875",
+            "Y_CRDNT": "36.3508"
+          },
+          {
+            "OPN_SVC_ID": "01_01_01_P",
+            "OPN_ATMY_GRP_CD": "3000000",
+            "MGT_NO": "3000000-501-2023-00003",
+            "LCPMT_YMD": "20230810",
+            "SALS_STTS_CD": "01",
+            "SALS_STTS_NM": "영업/정상",
+            "CLSBIZ_YMD": "",
+            "SITE_TEL": "042-600-7000",
+            "STTUS_ADDR": "대전광역시 유성구 봉명동 400",
+            "ROAD_NM_ADDR": "대전광역시 유성구 대학로 100",
+            "BPLC_NM": "유성소아과",
+            "BSNTPE_NM": "의원",
+            "X_CRDNT": "127.3445",
+            "Y_CRDNT": "36.3625"
+          }
+        ]
+      }
+    }
+  }
+}

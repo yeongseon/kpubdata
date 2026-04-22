@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "16_04_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-205-2023-00001", "LCPMT_YMD": "20230118", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-205-1501", "STTUS_ADDR": "대전광역시 중구 목동 88", "ROAD_NM_ADDR": "대전광역시 중구 목중로 88", "BPLC_NM": "중앙대중목욕탕", "BSNTPE_NM": "목욕장업", "X_CRDNT": "127.4142", "Y_CRDNT": "36.3329"},
+          {"OPN_SVC_ID": "16_04_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-205-2023-00002", "LCPMT_YMD": "20230430", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-205-1502", "STTUS_ADDR": "대전광역시 서구 월평동 517", "ROAD_NM_ADDR": "대전광역시 서구 월평북로 51", "BPLC_NM": "월평스파사우나", "BSNTPE_NM": "목욕장업", "X_CRDNT": "127.3609", "Y_CRDNT": "36.3572"},
+          {"OPN_SVC_ID": "16_04_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-205-2023-00003", "LCPMT_YMD": "20230825", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-205-1503", "STTUS_ADDR": "대전광역시 유성구 장대동 701", "ROAD_NM_ADDR": "대전광역시 유성구 유성대로 70", "BPLC_NM": "유성온천탕", "BSNTPE_NM": "목욕장업", "X_CRDNT": "127.3418", "Y_CRDNT": "36.3590"}
+        ]
+      }
+    }
+  }
+}

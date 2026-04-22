@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "21_09_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-210-2023-00001", "LCPMT_YMD": "20230126", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-210-2001", "STTUS_ADDR": "대전광역시 중구 대흥동 77", "ROAD_NM_ADDR": "대전광역시 중구 중교로 77", "BPLC_NM": "중앙소극장", "BSNTPE_NM": "공연장업", "X_CRDNT": "127.4289", "Y_CRDNT": "36.3258"},
+          {"OPN_SVC_ID": "21_09_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-210-2023-00002", "LCPMT_YMD": "20230524", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-210-2002", "STTUS_ADDR": "대전광역시 서구 둔산동 654", "ROAD_NM_ADDR": "대전광역시 서구 둔산로 65", "BPLC_NM": "둔산아트홀", "BSNTPE_NM": "공연장업", "X_CRDNT": "127.3833", "Y_CRDNT": "36.3523"},
+          {"OPN_SVC_ID": "21_09_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-210-2023-00003", "LCPMT_YMD": "20230920", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-210-2003", "STTUS_ADDR": "대전광역시 유성구 궁동 119", "ROAD_NM_ADDR": "대전광역시 유성구 문화원로 11", "BPLC_NM": "유성문화공연장", "BSNTPE_NM": "공연장업", "X_CRDNT": "127.3506", "Y_CRDNT": "36.3618"}
+        ]
+      }
+    }
+  }
+}

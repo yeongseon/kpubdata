@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "19_07_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-208-2023-00001", "LCPMT_YMD": "20230125", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-208-1801", "STTUS_ADDR": "대전광역시 중구 은행동 19", "ROAD_NM_ADDR": "대전광역시 중구 대종로480번길 19", "BPLC_NM": "은행스타유흥주점", "BSNTPE_NM": "유흥주점", "X_CRDNT": "127.4248", "Y_CRDNT": "36.3289"},
+          {"OPN_SVC_ID": "19_07_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-208-2023-00002", "LCPMT_YMD": "20230422", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-208-1802", "STTUS_ADDR": "대전광역시 서구 만년동 109", "ROAD_NM_ADDR": "대전광역시 서구 만년로 10", "BPLC_NM": "만년뮤직라운지", "BSNTPE_NM": "유흥주점", "X_CRDNT": "127.3741", "Y_CRDNT": "36.3677"},
+          {"OPN_SVC_ID": "19_07_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-208-2023-00003", "LCPMT_YMD": "20230909", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-208-1803", "STTUS_ADDR": "대전광역시 유성구 봉명동 421", "ROAD_NM_ADDR": "대전광역시 유성구 온천북로 42", "BPLC_NM": "봉명블루라운지", "BSNTPE_NM": "유흥주점", "X_CRDNT": "127.3432", "Y_CRDNT": "36.3568"}
+        ]
+      }
+    }
+  }
+}

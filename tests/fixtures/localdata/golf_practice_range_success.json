@@ -1,0 +1,15 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "totalCount": 3,
+      "items": {
+        "item": [
+          {"OPN_SVC_ID": "27_15_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-216-2023-00001", "LCPMT_YMD": "20230115", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-216-2601", "STTUS_ADDR": "대전광역시 중구 문화동 230", "ROAD_NM_ADDR": "대전광역시 중구 충무로 23", "BPLC_NM": "문화스크린골프연습장", "BSNTPE_NM": "골프연습장업", "X_CRDNT": "127.3999", "Y_CRDNT": "36.3227"},
+          {"OPN_SVC_ID": "27_15_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-216-2023-00002", "LCPMT_YMD": "20230419", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-216-2602", "STTUS_ADDR": "대전광역시 서구 가장동 511", "ROAD_NM_ADDR": "대전광역시 서구 가장로 51", "BPLC_NM": "가장드라이빙레인지", "BSNTPE_NM": "골프연습장업", "X_CRDNT": "127.3664", "Y_CRDNT": "36.3308"},
+          {"OPN_SVC_ID": "27_15_01_P", "OPN_ATMY_GRP_CD": "3000000", "MGT_NO": "3000000-216-2023-00003", "LCPMT_YMD": "20230918", "SALS_STTS_CD": "01", "SALS_STTS_NM": "영업/정상", "CLSBIZ_YMD": "", "SITE_TEL": "042-216-2603", "STTUS_ADDR": "대전광역시 유성구 구암동 809", "ROAD_NM_ADDR": "대전광역시 유성구 계룡로 80", "BPLC_NM": "유성퍼팅연습장", "BSNTPE_NM": "골프연습장업", "X_CRDNT": "127.3335", "Y_CRDNT": "36.3517"}
+        ]
+      }
+    }
+  }
+}
