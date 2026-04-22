@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0] - 2025-04-22
+## [0.3.0] - 2026-04-22
 
 ### Added
 - `localdata` provider: expand permit datasets from 26 to **195**, covering all official KSIC categories — health (13), animal (18), culture (53), living (26), food (32), resources & environment (37), other (16)
@@ -19,7 +19,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit and contract tests plus SGIS fixture responses for boundary and auth/error scenarios
 - Full fixture, unit test, and contract test coverage for all 195 localdata datasets
 
-## [0.2.0] - 2025-04-17
+## [0.2.3] - 2026-04-19
+
+### Fixed
+- `LofinAdapter` SSL context ignored when `Client` passes shared transport
+
+### Added
+- 7 real estate transaction datasets to datago provider (`apt_rent`, `offi_trade`, `offi_rent`, `rh_trade`, `rh_rent`, `sh_trade`, `sh_rent`)
+- Treat `resultCode` `'000'` as success for RTMS endpoints
+
+## [0.2.2] - 2026-04-17
+
+### Added
+- Cursor pagination support and pagination documentation
+
+## [0.2.1] - 2026-04-17
+
+### Added
+- `SUPPORTED_DATA.md` 실API 최종 검증일 컬럼 추가
+- Single-page pagination contract and `list_all()` implementation
+
+## [0.2.0] - 2026-04-17
 
 ### Added
 - Single-page pagination contract for all adapters (datago, bok, lofin, kosis)
@@ -35,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unreachable single-record adapter stubs
 - Single-record access from the provider and dataset public APIs
 
-## [0.1.0] - 2025-04-10
+## [0.1.0] - 2026-04-10
 
 ### Added
 
