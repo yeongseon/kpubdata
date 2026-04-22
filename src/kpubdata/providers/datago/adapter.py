@@ -7,6 +7,8 @@ from collections.abc import Mapping, Sequence
 from typing import NoReturn, cast
 from urllib.parse import urlparse
 
+import httpx
+
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import (
     DatasetRef,
@@ -22,12 +24,19 @@ from kpubdata.exceptions import (
     ProviderResponseError,
     RateLimitError,
     ServiceUnavailableError,
+    TransportError,
 )
 from kpubdata.providers._common import build_schema_from_metadata, coerce_int, load_catalogue
 from kpubdata.transport.decode import decode_json, decode_xml, detect_content_type
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.provider.datago")
+
+_DATAGO_403_HINT = (
+    "data.go.kr returned 403. This usually means the specific API has not been activated "
+    "(활용신청) for your key. Visit the dataset's page on https://www.data.go.kr and "
+    "click '활용신청'. Approval is usually automatic and becomes active within a few minutes."
+)
 
 
 def _is_success_code(code: str) -> bool:
@@ -362,13 +371,23 @@ class DataGoAdapter:
         self, url: str, params: Mapping[str, object], dataset_id: str = ""
     ) -> dict[str, object]:
         string_params = {key: str(value) for key, value in params.items()}
-        response = self._transport.request(
-            "GET",
-            url,
-            params=string_params,
-            dataset_id=dataset_id,
-            provider="datago",
-        )
+        try:
+            response = self._transport.request(
+                "GET",
+                url,
+                params=string_params,
+                dataset_id=dataset_id,
+                provider="datago",
+            )
+        except TransportError as exc:
+            if self._is_http_403(exc):
+                raise AuthError(
+                    _DATAGO_403_HINT,
+                    provider="datago",
+                    dataset_id=dataset_id or None,
+                    status_code=403,
+                ) from exc
+            raise
 
         try:
             content_type = detect_content_type(response)
@@ -393,6 +412,11 @@ class DataGoAdapter:
             extra={"dataset_id": dataset_id},
         )
         raise ParseError("Decoded payload is not an object", provider="datago")
+
+    @staticmethod
+    def _is_http_403(exc: TransportError) -> bool:
+        cause = exc.__cause__
+        return isinstance(cause, httpx.HTTPStatusError) and cause.response.status_code == 403
 
     def _validate_envelope(
         self, payload: dict[str, object], dataset: DatasetRef | None = None
