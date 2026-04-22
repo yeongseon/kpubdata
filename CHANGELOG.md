@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-04-22
+
 ### Added
+- `localdata` provider: expand permit datasets from 26 to **195**, covering all official KSIC categories — health (13), animal (18), culture (53), living (26), food (32), resources & environment (37), other (16)
 - `sgis` provider adapter for administrative boundary GeoJSON datasets:
   - `sgis.boundary.sido`
   - `sgis.boundary.sigungu`
   - `sgis.boundary.emd`
 - SGIS access-token authentication flow (`consumer_key` + `consumer_secret`) with in-memory token cache and refresh-on-auth-failure behavior
 - Unit and contract tests plus SGIS fixture responses for boundary and auth/error scenarios
+- Full fixture, unit test, and contract test coverage for all 195 localdata datasets
 
 ## [0.2.0] - 2025-04-17
 
