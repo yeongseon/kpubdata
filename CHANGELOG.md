@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-04-23
+
+### Fixed
+- Source `__version__` from `importlib.metadata` instead of hardcoded string (#127)
+- Add 활용신청 (activation request) hint to datago 403 `AuthError` and document API key activation requirement (#128)
+- Add required parameters to metro integration tests (#140)
+
 ## [0.3.0] - 2026-04-22
 
 ### Added
