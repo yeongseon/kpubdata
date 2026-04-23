@@ -45,20 +45,16 @@ Provider expansion.
 - lofin provider: 6개 재정 데이터셋
 - datago provider: 부동산 실거래가, 관광, 지하철 어댑터 추가
 
-## v0.4
+## v0.4 — Core 안정화
 
-Core 안정화 + Plugin 생태계 + Provider 확장.
-
-### Core
 - dataset metadata enrichment (#55)
 - schema improvements (#57)
 - more robust discovery (#63)
+- documentation (#59, #172)
+- integration tests (#80)
 
-### Plugin Ecosystem
-- entry-point plugin discovery — 외부 provider 패키지 지원 (#112)
-- provider scaffolding tools (#61)
+## v0.5 — Provider 확장
 
-### Provider Adapters
 - datago: 실시간 도로교통정보 (#87), 농수축산물 가격정보 (#88)
 - datago: 건축물대장 (#90), 사업자등록 상태조회 (#91)
 - datago: 의약품 안전사용정보 (#92), 지하철역별 승하차 인원 (#93)
@@ -66,10 +62,6 @@ Core 안정화 + Plugin 생태계 + Provider 확장.
 - datago: 워크넷 채용정보 (#161), 긴급재난문자 (#162), 채권시세정보 (#163)
 - datago: NEIS 급식식단정보 (#164), 식품이력추적 (#165), 전국체육시설 (#166)
 - datago: 문화시설 (#167), 환경소음 측정망 (#168)
-
-### Documentation & Testing
-- 실제 API 호출 기반 integration test 추가 (#80)
-- more examples and documentation (#59)
 
 ## v1.0 criteria
 
