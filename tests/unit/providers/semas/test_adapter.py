@@ -47,7 +47,7 @@ def _build_adapter_with_transport(
 ) -> tuple[SemasAdapter, DatasetRef, FakeTransport]:
     transport = FakeTransport(responses)
     adapter = SemasAdapter(
-        config=KPubDataConfig(provider_keys={"semas": "test-key"}),
+        config=KPubDataConfig(provider_keys={"datago": "test-key"}),
         transport=cast(HttpTransport, cast(object, transport)),
     )
     dataset = adapter.get_dataset(dataset_key)
@@ -166,7 +166,7 @@ def test_query_records_raises_invalid_request_error() -> None:
 
 
 def test_adapter_lists_all_datasets() -> None:
-    adapter = SemasAdapter(config=KPubDataConfig(provider_keys={"semas": "test-key"}))
+    adapter = SemasAdapter(config=KPubDataConfig(provider_keys={"datago": "test-key"}))
 
     datasets = adapter.list_datasets()
 
@@ -193,7 +193,7 @@ def test_adapter_lists_all_datasets() -> None:
 
 
 def test_get_schema_returns_catalogue_schema() -> None:
-    adapter = SemasAdapter(config=KPubDataConfig(provider_keys={"semas": "test-key"}))
+    adapter = SemasAdapter(config=KPubDataConfig(provider_keys={"datago": "test-key"}))
     dataset = adapter.get_dataset("store_one")
 
     schema = adapter.get_schema(dataset)

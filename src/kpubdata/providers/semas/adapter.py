@@ -164,7 +164,7 @@ class SemasAdapter:
         return payload
 
     def _require_api_key(self) -> str:
-        return self._config.require_provider_key("semas")
+        return self._config.require_provider_key("datago")
 
     def _build_request_url(self, dataset: DatasetRef, operation: str | None = None) -> str:
         base_url_raw = dataset.raw_metadata.get("base_url")
