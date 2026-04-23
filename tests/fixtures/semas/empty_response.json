@@ -1,0 +1,14 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "03",
+      "resultMsg": "NO DATA"
+    },
+    "body": {
+      "pageNo": 1,
+      "numOfRows": 100,
+      "totalCount": 0,
+      "items": []
+    }
+  }
+}

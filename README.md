@@ -129,6 +129,11 @@ KPubData가 지원하는 각 기관의 API 키를 발급받아 [환경 변수](h
 - **절차**: 회원가입 → 지방행정인허가 Open API(일반음식점/휴게음식점) 활용신청 → 승인 후 인증키 확인
 - **환경 변수**: `KPUBDATA_LOCALDATA_API_KEY`
 
+#### 소상공인시장진흥공단 상가(상권)정보 (data.go.kr) — `semas`
+- **가입 URL**: [https://www.data.go.kr](https://www.data.go.kr)
+- **절차**: 회원가입 → 소상공인시장진흥공단 상가(상권)정보 Open API 활용신청 → 승인 후 인증키 확인
+- **환경 변수**: `KPUBDATA_SEMAS_API_KEY`
+
 #### 서울 열린데이터광장 (data.seoul.go.kr) — `seoul`
 - **가입 URL**: [https://data.seoul.go.kr/](https://data.seoul.go.kr/)
 - **절차**: 회원가입 → 원하는 Open API 페이지에서 인증키 신청/확인 → 마이페이지에서 발급 키 확인
@@ -161,6 +166,9 @@ export KPUBDATA_LOFIN_API_KEY="your-lofin-api-key"
 # 지방행정인허가
 export KPUBDATA_LOCALDATA_API_KEY="your-localdata-service-key"
 
+# 소상공인시장진흥공단 상가(상권)정보
+export KPUBDATA_SEMAS_API_KEY="your-semas-service-key"
+
 # 서울 열린데이터광장
 export KPUBDATA_SEOUL_API_KEY="your-seoul-api-key"
 
@@ -184,6 +192,7 @@ client = Client(provider_keys={
     "kosis": "YOUR_KOSIS_API_KEY",
     "lofin": "YOUR_LOFIN_API_KEY",
     "localdata": "YOUR_DATA_GO_KR_API_KEY",
+    "semas": "YOUR_SEMAS_API_KEY",
     "seoul": "YOUR_SEOUL_API_KEY",
     "sgis": "YOUR_SGIS_CONSUMER_KEY:YOUR_SGIS_CONSUMER_SECRET",
 })
@@ -312,7 +321,18 @@ for item in result.items:
     print(item["BPLC_NM"], item["ROAD_NM_ADDR"])
 ```
 
-### 10. 전체 페이지 자동 조회 (list_all)
+### 10. 소상공인 상가정보 조회 (Semas)
+
+```python
+client = Client(provider_keys={"semas": "YOUR_SEMAS_API_KEY"})
+ds = client.dataset("semas.store_radius")
+result = ds.list(cx="127.02758", cy="37.49794", radius="250", page_size=10)
+
+for item in result.items:
+    print(item["bizesNm"], item["rdnmAdr"])
+```
+
+### 11. 전체 페이지 자동 조회 (list_all)
 
 대량의 데이터를 페이지 단위로 자동 순회하려면 `list_all()`을 사용합니다.
 
@@ -326,7 +346,7 @@ for batch in ds.list_all(fyr="2024"):
         print(item)
 ```
 
-### 11. pandas DataFrame 변환
+### 12. pandas DataFrame 변환
 
 조회 결과를 pandas DataFrame으로 변환하여 분석할 수 있습니다.
 

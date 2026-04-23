@@ -1,0 +1,39 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE"
+    },
+    "body": {
+      "pageNo": 1,
+      "numOfRows": 100,
+      "totalCount": 2,
+      "items": [
+        {
+          "trarNo": "1001",
+          "mainTrarNm": "강남역 상권",
+          "ctprvnCd": "11",
+          "ctprvnNm": "서울특별시",
+          "signguCd": "11680",
+          "signguNm": "강남구",
+          "trarArea": "325000",
+          "coordNum": "4",
+          "coords": "127.0276,37.4979|127.0292,37.4979|127.0292,37.4967|127.0276,37.4967",
+          "stdrDt": "20240331"
+        },
+        {
+          "trarNo": "1002",
+          "mainTrarNm": "역삼역 상권",
+          "ctprvnCd": "11",
+          "ctprvnNm": "서울특별시",
+          "signguCd": "11680",
+          "signguNm": "강남구",
+          "trarArea": "218000",
+          "coordNum": "4",
+          "coords": "127.0351,37.5006|127.0364,37.5006|127.0364,37.4996|127.0351,37.4996",
+          "stdrDt": "20240331"
+        }
+      ]
+    }
+  }
+}

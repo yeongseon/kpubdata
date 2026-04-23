@@ -26,6 +26,7 @@ _BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("kosis", "kpubdata.providers.kosis", "KosisAdapter"),
     ("lofin", "kpubdata.providers.lofin", "LofinAdapter"),
     ("localdata", "kpubdata.providers.localdata.adapter", "LocaldataAdapter"),
+    ("semas", "kpubdata.providers.semas.adapter", "SemasAdapter"),
 )
 
 

@@ -239,6 +239,23 @@
 | 지원 | 테스트 검증 | - | 통계청 통계지리정보서비스 (`sgis`) | `boundary.sido` | 시도 행정구역 경계 | SGIS `consumer_key` + `consumer_secret` | [sgis.kostat.go.kr](https://sgis.kostat.go.kr/developer/html/main.html) | GeoJSON FeatureCollection 응답을 레코드 단위(`items`)로 정규화 |
 | 지원 | 테스트 검증 | - | 통계청 통계지리정보서비스 (`sgis`) | `boundary.sigungu` | 시군구 행정구역 경계 | SGIS `consumer_key` + `consumer_secret` | [sgis.kostat.go.kr](https://sgis.kostat.go.kr/developer/html/main.html) | `boundary/hadmarea.geojson` + `low_search` 기반 조회 |
 | 지원 | 테스트 검증 | - | 통계청 통계지리정보서비스 (`sgis`) | `boundary.emd` | 읍면동 행정구역 경계 | SGIS `consumer_key` + `consumer_secret` | [sgis.kostat.go.kr](https://sgis.kostat.go.kr/developer/html/main.html) | fixture/contract 검증 완료, 실API 검증은 후속 |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `zone_one` | 지정상권 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeZoneOne` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `zone_radius` | 반경상권 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeZoneInRadius` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `zone_rect` | 사각형상권 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeZoneInRectangle` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `zone_admi` | 행정구역상권 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeZoneInAdmi` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_one` | 단일상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeOne` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_building` | 건물상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInBuilding` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_pnu` | 지번상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInPnu` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_dong` | 행정동상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInDong` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_area` | 상권상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInArea` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_radius` | 반경상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInRadius` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_rect` | 사각형상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInRectangle` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_polygon` | 다각형상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInPolygon` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_upjong` | 업종별상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListInUpjong` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `store_date` | 수정일자상가 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `storeListByDate` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `upjong_large` | 업종대분류 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `largeUpjongList` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `upjong_middle` | 업종중분류 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `middleUpjongList` |
+| 지원 | 테스트 검증 | - | 소상공인시장진흥공단 (`semas`) | `upjong_small` | 업종소분류 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 상가(상권)정보 API / `smallUpjongList` |
 | 지원 | 테스트 검증 | - | 서울 열린데이터광장 (`seoul`) | `subway_realtime_arrival` | 서울시 지하철 실시간 도착정보 | [서울 열린데이터광장](https://data.seoul.go.kr/) 인증키 | [data.seoul.go.kr](https://data.seoul.go.kr/) | 경로 기반 인증키 + 서비스별 top-level envelope |
 | 지원 | 테스트 검증 | - | 서울 열린데이터광장 (`seoul`) | `bike_rent_month` | 서울시 공공자전거 이용정보(월별) | [서울 열린데이터광장](https://data.seoul.go.kr/) 인증키 | [data.seoul.go.kr](https://data.seoul.go.kr/) | 경로 기반 인증키 + 인덱스 페이지네이션 |
 | 지원 | 실API 검증 | 2025-04-15 | 한국은행 ECOS (`bok`) | `base_rate` | 한국은행 기준금리 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | |
