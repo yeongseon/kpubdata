@@ -54,7 +54,7 @@ class _AdapterFactory(Protocol):
 
 def _build_adapter(fixture_names: list[str]) -> ProviderAdapter:
     transport = _FixtureTransport(fixture_names)
-    config = KPubDataConfig(provider_keys={"lofin": "test-key"})
+    config = KPubDataConfig(provider_keys={"datago": "test-key"})
     adapter_module = import_module("kpubdata.providers.lofin.adapter")
     adapter_class_obj = cast(object, adapter_module.LofinAdapter)
     if not isinstance(adapter_class_obj, type):
@@ -94,7 +94,7 @@ class TestLofinAdapterContract(ProviderAdapterContract):
 
     def test_query_records_uses_lofin365_url_and_key_param(self) -> None:
         transport = _FixtureTransport(["success_single_page.json"])
-        config = KPubDataConfig(provider_keys={"lofin": "test-key"})
+        config = KPubDataConfig(provider_keys={"datago": "test-key"})
         adapter_module = import_module("kpubdata.providers.lofin.adapter")
         adapter_class_obj = cast(object, adapter_module.LofinAdapter)
         if not isinstance(adapter_class_obj, type):
@@ -114,7 +114,7 @@ class TestLofinAdapterContract(ProviderAdapterContract):
 
     def test_query_records_handles_top_level_auth_error(self) -> None:
         transport = _FixtureTransport(["error_auth.json"])
-        config = KPubDataConfig(provider_keys={"lofin": "invalid-key"})
+        config = KPubDataConfig(provider_keys={"datago": "invalid-key"})
         adapter_module = import_module("kpubdata.providers.lofin.adapter")
         adapter_class_obj = cast(object, adapter_module.LofinAdapter)
         if not isinstance(adapter_class_obj, type):
@@ -133,7 +133,7 @@ class TestLofinAdapterContract(ProviderAdapterContract):
 
     def test_query_records_fiacrv_dataset(self) -> None:
         transport = _FixtureTransport(["success_fiacrv.json"])
-        config = KPubDataConfig(provider_keys={"lofin": "test-key"})
+        config = KPubDataConfig(provider_keys={"datago": "test-key"})
         adapter_module = import_module("kpubdata.providers.lofin.adapter")
         adapter_class_obj = cast(object, adapter_module.LofinAdapter)
         if not isinstance(adapter_class_obj, type):

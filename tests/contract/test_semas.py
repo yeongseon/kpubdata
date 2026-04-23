@@ -52,7 +52,7 @@ class _AdapterFactory(Protocol):
 
 def _build_adapter(fixture_names: list[str]) -> ProviderAdapter:
     transport = _FixtureTransport(fixture_names)
-    config = KPubDataConfig(provider_keys={"semas": "test-key"})
+    config = KPubDataConfig(provider_keys={"datago": "test-key"})
     adapter_module = import_module("kpubdata.providers.semas.adapter")
     adapter_class_obj = cast(object, adapter_module.SemasAdapter)
     if not isinstance(adapter_class_obj, type):
