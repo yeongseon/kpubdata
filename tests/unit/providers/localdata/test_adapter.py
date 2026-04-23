@@ -48,7 +48,7 @@ def _build_adapter_with_transport(
 ) -> tuple[LocaldataAdapter, DatasetRef, FakeTransport]:
     transport = FakeTransport(responses)
     adapter = LocaldataAdapter(
-        config=KPubDataConfig(provider_keys={"localdata": "test-key"}),
+        config=KPubDataConfig(provider_keys={"datago": "test-key"}),
         transport=cast(HttpTransport, cast(object, transport)),
     )
     dataset = adapter.get_dataset("general_restaurant")
@@ -61,7 +61,7 @@ def _build_dataset_adapter_with_transport(
 ) -> tuple[LocaldataAdapter, DatasetRef, FakeTransport]:
     transport = FakeTransport(responses)
     adapter = LocaldataAdapter(
-        config=KPubDataConfig(provider_keys={"localdata": "test-key"}),
+        config=KPubDataConfig(provider_keys={"datago": "test-key"}),
         transport=cast(HttpTransport, cast(object, transport)),
     )
     dataset = adapter.get_dataset(dataset_key)
@@ -165,7 +165,7 @@ def test_rest_cafe_query_records_parses_success_fixture() -> None:
 
 
 def test_adapter_lists_all_datasets() -> None:
-    adapter = LocaldataAdapter(config=KPubDataConfig(provider_keys={"localdata": "test-key"}))
+    adapter = LocaldataAdapter(config=KPubDataConfig(provider_keys={"datago": "test-key"}))
 
     datasets = adapter.list_datasets()
 

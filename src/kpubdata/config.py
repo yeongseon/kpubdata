@@ -4,6 +4,9 @@ Key lookup order for provider keys:
 1. Explicit `provider_keys` dict passed to constructor
 2. Environment variable: KPUBDATA_{PROVIDER}_API_KEY (uppercased)
 3. Environment variable: {PROVIDER}_API_KEY (uppercased, fallback)
+
+data.go.kr providers (localdata, lofin, semas) all use the "datago" key.
+Set KPUBDATA_DATAGO_API_KEY once for all data.go.kr-based providers.
 """
 
 from __future__ import annotations

@@ -164,7 +164,7 @@ class LofinAdapter:
         return payload
 
     def _require_api_key(self) -> str:
-        return self._config.require_provider_key("lofin")
+        return self._config.require_provider_key("datago")
 
     def _build_request_url(
         self,
