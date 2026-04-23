@@ -1,0 +1,27 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE"
+    },
+    "body": {
+      "pageNo": 1,
+      "numOfRows": 100,
+      "totalCount": 3,
+      "items": [
+        {
+          "indsLclsCd": "G2",
+          "indsLclsNm": "소매"
+        },
+        {
+          "indsLclsCd": "I2",
+          "indsLclsNm": "음식"
+        },
+        {
+          "indsLclsCd": "M1",
+          "indsLclsNm": "생활서비스"
+        }
+      ]
+    }
+  }
+}

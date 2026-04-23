@@ -1,0 +1,14 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "10",
+      "resultMsg": "INVALID REQUEST PARAMETER ERROR"
+    },
+    "body": {
+      "pageNo": 1,
+      "numOfRows": 100,
+      "totalCount": 0,
+      "items": []
+    }
+  }
+}
