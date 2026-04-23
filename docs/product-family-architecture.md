@@ -8,7 +8,7 @@ KPubData Product Family(Korea Public Data Product Family)는 한국 공공데이
 | :--- | :--- | :--- |
 | [kpubdata](https://github.com/yeongseon/kpubdata) | 공공데이터를 가져오고 표준화하는 코어 라이브러리 | Python 3.10+ |
 | [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | 수집된 데이터를 다양한 형식으로 가공하는 빌드 파이프라인 | Python 3.10+ |
-| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | 빌드 과정을 시각적으로 관리하는 웹 대시보드 | Next.js 15 + TypeScript |
+| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | 빌드 과정을 시각적으로 관리하는 웹 대시보드 | Vite + React Router + TypeScript (SPA) |
 
 ---
 
@@ -52,7 +52,7 @@ graph TD
     U3([파이썬 개발자]) -->|Python SDK| Core
 
     subgraph "KPubData Product Family"
-        Studio["kpubdata-studio<br/>웹 대시보드<br/>(Next.js 15 + TypeScript)"]
+        Studio["kpubdata-studio<br/>웹 대시보드<br/>(Vite + React Router + TypeScript (SPA))"]
         Builder["kpubdata-builder<br/>데이터 빌드 파이프라인<br/>(Python 3.10+)"]
         Core["kpubdata<br/>데이터 접속 코어<br/>(Python 3.10+)"]
     end
@@ -180,9 +180,9 @@ graph LR
 | 항목 | kpubdata | kpubdata-builder | kpubdata-studio |
 | :--- | :--- | :--- | :--- |
 | **언어** | [Python](https://docs.python.org/ko/3/tutorial/) 3.10+ | [Python](https://docs.python.org/ko/3/tutorial/) 3.10+ | [TypeScript](https://www.typescriptlang.org/ko/docs/) 5 |
-| **프레임워크** | — (순수 라이브러리) | — (CLI + 라이브러리) | [Next.js](https://nextjs.org/docs) 15 |
+| **프레임워크** | — (순수 라이브러리) | — (CLI + 라이브러리) | [Vite](https://vite.dev/) + [React Router](https://reactrouter.com/) |
 | **UI** | 없음 (코드로만 사용) | CLI(명령줄 인터페이스) | 웹 브라우저 ([React](https://ko.react.dev/) + [Tailwind CSS](https://tailwindcss.com/docs)) |
-| **빌드 도구** | [hatchling](https://hatch.pypa.io/) | [hatchling](https://hatch.pypa.io/) | Next.js 내장 빌드 |
+| **빌드 도구** | [hatchling](https://hatch.pypa.io/) | [hatchling](https://hatch.pypa.io/) | Vite 내장 빌드 |
 | **패키지 관리** | [uv](https://github.com/astral-sh/uv) | [uv](https://github.com/astral-sh/uv) | [npm](https://docs.npmjs.com/about-npm) |
 | **타입 검사** | [mypy](https://mypy.readthedocs.io/) | [mypy](https://mypy.readthedocs.io/) | TypeScript 내장 (`tsc`) |
 | **린터** | [ruff](https://docs.astral.sh/ruff/) | [ruff](https://docs.astral.sh/ruff/) | [ESLint](https://eslint.org/) |
@@ -198,7 +198,7 @@ graph LR
 graph TD
     subgraph "사용자 환경 (브라우저)"
         direction TB
-        StudioUI["kpubdata-studio<br/>Next.js 웹 앱<br/>(사용자가 직접 보는 화면)"]
+        StudioUI["kpubdata-studio<br/>Vite SPA<br/>(사용자가 직접 보는 화면)"]
     end
 
     subgraph "서버 환경 (Python Runtime)"
@@ -223,7 +223,7 @@ graph TD
 
 | 환경 | 프로젝트 | 실행 방식 |
 | :--- | :--- | :--- |
-| **사용자 브라우저** | kpubdata-studio | `npm run dev` → [http://localhost:3000](http://localhost:3000) 접속 |
+| **사용자 브라우저** | kpubdata-studio | `npm run dev` → [http://localhost:5173](http://localhost:5173) 접속 |
 | **Python 서버/로컬** | kpubdata, kpubdata-builder | `pip install` 후 Python 코드에서 import 또는 CLI 실행 |
 | **외부** | 공공 데이터 API | 정부/기관에서 운영하는 서버 (우리가 제어할 수 없음) |
 
@@ -318,7 +318,7 @@ Studio (브라우저)                    Builder (서버)
 | :--- | :--- | :--- | :--- |
 | **v0.1** | 동기 코어, 주요 5개 API 어댑터, XML/JSON 지원 | BuildSpec 모델, Markdown 내보내기, Manifest 생성 | 정보 구조 설계, Draft 상태 관리, Builder API 연동 |
 | **v0.2** | 메타데이터 보강, Pandas 어댑터, 신규 기관 확대 | JSONL/Parquet 내보내기, HuggingFace 레이아웃 | 실시간 미리보기, 데이터 검증 뷰, 결과물 뷰어 |
-| **v0.3** | 경량 MCP 어댑터 지원 | Publish 훅, 빌드 이력 관리, CI/CD 연동 | Publish 워크플로우, 전체 대시보드 |
+| **v0.3** | Provider 확장 (datago 부동산, 관광, 지하철) | Publish 훅, 빌드 이력 관리, CI/CD 연동 | Publish 워크플로우, 전체 대시보드 |
 
 ---
 
@@ -331,7 +331,7 @@ A: 네. kpubdata는 독립적인 파이썬 라이브러리입니다. `pip instal
 A: 아니요. Studio는 Builder의 API를 호출하여 동작하므로, Builder가 반드시 실행되고 있어야 합니다. Studio는 "화면"이고, Builder가 실제 "엔진"입니다.
 
 **Q: 세 프로젝트를 한 컴퓨터에서 동시에 실행해야 하나요?**
-A: 개발 환경에서는 한 컴퓨터에서 모두 실행할 수 있습니다. 운영 환경에서는 Builder(Python 서버)와 Studio(Next.js 웹 서버)를 별도 서버에 배포하는 것이 일반적입니다.
+A: 개발 환경에서는 한 컴퓨터에서 모두 실행할 수 있습니다. 운영 환경에서는 Builder(Python 서버)와 Studio(Vite 웹 서버)를 별도 서버에 배포하는 것이 일반적입니다.
 
 **Q: 새로운 공공 API를 추가하려면 어디를 수정하나요?**
 A: kpubdata의 `providers/` 디렉토리에 새 어댑터를 추가합니다. Builder와 Studio는 수정할 필요 없이 자동으로 새 데이터셋을 사용할 수 있게 됩니다. 이것이 의존성이 한 방향인 것의 장점입니다.
@@ -366,4 +366,5 @@ A: kpubdata의 `providers/` 디렉토리에 새 어댑터를 추가합니다. Bu
 | YAML | 들여쓰기로 구조를 표현하는 설정 파일 형식 | [위키백과](https://ko.wikipedia.org/wiki/YAML) |
 | Python | 읽기 쉬운 범용 프로그래밍 언어 | [공식 튜토리얼 (한국어)](https://docs.python.org/ko/3/tutorial/) |
 | TypeScript | 자바스크립트에 타입을 추가한 언어 | [공식 문서 (한국어)](https://www.typescriptlang.org/ko/docs/) |
-| Next.js | React 기반 웹 애플리케이션 프레임워크 | [공식 문서](https://nextjs.org/docs) |
+| Vite | 빠른 프론트엔드 개발 서버 및 번들러 | [공식 문서](https://vite.dev/) |
+| React Router | SPA 라우팅 라이브러리 | [공식 문서](https://reactrouter.com/) |
