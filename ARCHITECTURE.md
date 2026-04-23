@@ -349,8 +349,9 @@ Not part of the core runtime contract.
 Examples:
 
 - pandas export
-- MCP adapter
 - plugin loaders
+
+MCP adapter는 별도 레포(kpubdata-mcp 등)로 분리합니다. 코어 런타임에 포함하지 않습니다.
 
 ## 4. Main abstractions
 
@@ -475,7 +476,7 @@ src/kpubdata/
       mappings.py
   adapters/
     pandas.py
-    mcp.py
+    # MCP adapter는 별도 레포(kpubdata-mcp 등)로 분리
 ```
 
 ## 9. Execution flow
@@ -546,4 +547,3 @@ Do **not** change the core just because one adapter is weird.
 | :--- | :--- | :--- |
 | [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-builder/blob/main/ARCHITECTURE.md) | Builder 아키텍처 |
 | [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-studio/blob/main/ARCHITECTURE.md) | Studio 아키텍처 |
-
