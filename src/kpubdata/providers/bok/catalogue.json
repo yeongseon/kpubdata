@@ -16,10 +16,10 @@
       "max_page_size": 1000
     },
     "fields": [
-      {"name": "TIME", "title": "기간", "type": "string"},
+      {"name": "TIME", "title": "기간", "type": "string", "constraints": {"format": "YYYYMM", "pattern": "^\\d{6}$"}},
       {"name": "DATA_VALUE", "title": "기준금리", "type": "string"},
       {"name": "UNIT_NAME", "title": "단위", "type": "string"},
-      {"name": "STAT_CODE", "title": "통계표코드", "type": "string"},
+      {"name": "STAT_CODE", "title": "통계표코드", "type": "string", "constraints": {"pattern": "^[A-Z0-9]+$"}},
       {"name": "ITEM_CODE1", "title": "항목코드", "type": "string"},
       {"name": "ITEM_NAME1", "title": "항목명", "type": "string"}
     ]

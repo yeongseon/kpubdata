@@ -127,6 +127,17 @@ Returns a generator of `RecordBatch` values, one per page.
 
 Returns `SchemaDescriptor | None`.
 
+`SchemaDescriptor.fields` contains `FieldDescriptor` objects. Each `FieldDescriptor` may carry a `constraints: FieldConstraints | None` with structured metadata:
+
+| Attribute | Type | Description |
+|---|---|---|
+| `max_length` | `int \| None` | Maximum character length |
+| `min_value` | `float \| None` | Minimum numeric value |
+| `max_value` | `float \| None` | Maximum numeric value |
+| `pattern` | `str \| None` | Regex pattern |
+| `allowed_values` | `tuple[str, ...] \| None` | Permitted values |
+| `format` | `str \| None` | Semantic format hint (e.g. `"YYYYMM"`) |
+
 ### `call_raw()`
 
 Returns provider-native payload / response object.
