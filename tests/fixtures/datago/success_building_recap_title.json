@@ -1,0 +1,37 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "bldNm": "디에이치 퍼스티어 아이파크",
+            "platPlc": "서울특별시 강남구 개포동 660-1",
+            "mainPurpsCdNm": "공동주택",
+            "grndFlrCnt": "35",
+            "ugrndFlrCnt": "4",
+            "totArea": "412345.11",
+            "vlRat": "249.87",
+            "bcRat": "18.23"
+          },
+          {
+            "bldNm": "센트럴파크 해링턴 스퀘어",
+            "platPlc": "인천광역시 연수구 송도동 29-13",
+            "mainPurpsCdNm": "업무시설",
+            "grndFlrCnt": "39",
+            "ugrndFlrCnt": "5",
+            "totArea": "287654.90",
+            "vlRat": "398.41",
+            "bcRat": "42.15"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
