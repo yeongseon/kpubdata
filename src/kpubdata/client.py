@@ -13,8 +13,8 @@ from kpubdata.catalog import Catalog
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.protocol import ProviderAdapter
-from kpubdata.registry import ProviderRegistry
 from kpubdata.providers.manifest import BUILTIN_PROVIDERS
+from kpubdata.registry import ProviderRegistry
 from kpubdata.transport.cache import ResponseCache
 from kpubdata.transport.http import HttpTransport, TransportConfig, TransportRequirements
 
