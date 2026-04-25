@@ -67,6 +67,22 @@ def require_seoul_key() -> str:
 
 
 @pytest.fixture(scope="session")
+def require_semas_key() -> str:
+    key = os.getenv("KPUBDATA_SEMAS_API_KEY", "")
+    if not key:
+        pytest.skip("KPUBDATA_SEMAS_API_KEY not set")
+    return key
+
+
+@pytest.fixture(scope="session")
+def require_sgis_key() -> str:
+    key = os.getenv("KPUBDATA_SGIS_API_KEY", "")
+    if not key:
+        pytest.skip("KPUBDATA_SGIS_API_KEY not set")
+    return key
+
+
+@pytest.fixture(scope="session")
 def live_client() -> Client:
     if not any(
         os.getenv(name, "")
@@ -77,6 +93,8 @@ def live_client() -> Client:
             "KPUBDATA_LOFIN_API_KEY",
             "KPUBDATA_LOCALDATA_API_KEY",
             "KPUBDATA_SEOUL_API_KEY",
+            "KPUBDATA_SEMAS_API_KEY",
+            "KPUBDATA_SGIS_API_KEY",
         )
     ):
         pytest.skip("No API keys set")
