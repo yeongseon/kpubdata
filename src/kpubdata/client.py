@@ -14,20 +14,13 @@ from kpubdata.config import KPubDataConfig
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.registry import ProviderRegistry
+from kpubdata.providers.manifest import BUILTIN_PROVIDERS
 from kpubdata.transport.cache import ResponseCache
 from kpubdata.transport.http import HttpTransport, TransportConfig, TransportRequirements
 
 logger = logging.getLogger("kpubdata.client")
 
-_BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
-    ("datago", "kpubdata.providers.datago", "DataGoAdapter"),
-    ("bok", "kpubdata.providers.bok", "BokAdapter"),
-    ("seoul", "kpubdata.providers.seoul", "SeoulAdapter"),
-    ("kosis", "kpubdata.providers.kosis", "KosisAdapter"),
-    ("lofin", "kpubdata.providers.lofin", "LofinAdapter"),
-    ("localdata", "kpubdata.providers.localdata.adapter", "LocaldataAdapter"),
-    ("semas", "kpubdata.providers.semas.adapter", "SemasAdapter"),
-)
+_BUILTIN_PROVIDERS = BUILTIN_PROVIDERS
 
 
 class Client:
