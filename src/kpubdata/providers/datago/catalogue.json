@@ -8,6 +8,8 @@
     "service_key_param": "serviceKey",
     "format_param": "dataType",
     "description": "Korea Meteorological Administration short-range forecast",
+    "tags": ["weather", "forecast", "kma"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -23,6 +25,8 @@
     "service_key_param": "serviceKey",
     "format_param": "dataType",
     "description": "KMA ultra short-term observed weather conditions",
+    "tags": ["weather", "nowcast", "kma"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -38,6 +42,8 @@
     "service_key_param": "serviceKey",
     "format_param": "returnType",
     "description": "AirKorea real-time particulate matter and atmospheric pollution",
+    "tags": ["environment", "air-quality", "pollution"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -54,6 +60,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Gyeonggi-do real-time bus arrival information",
+    "tags": ["transportation", "bus", "realtime"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -69,6 +77,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Hospital basic information and medical institution lookup",
+    "tags": ["healthcare", "hospital", "medical"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -84,6 +94,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry title info from building ledger",
+    "tags": ["real-estate", "building", "registry"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -99,6 +111,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry recap title info from building ledger",
+    "tags": ["real-estate", "building", "registry"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -114,6 +128,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry floor outline info from building ledger",
+    "tags": ["real-estate", "building", "registry"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -129,6 +145,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry exclusive/common area info from building ledger",
+    "tags": ["real-estate", "building", "registry"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -144,6 +162,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT apartment trade real transaction data",
+    "tags": ["real-estate", "apartment", "trade"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -159,6 +179,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT apartment rent real transaction data",
+    "tags": ["real-estate", "apartment", "rent"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -174,6 +196,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT officetel trade real transaction data",
+    "tags": ["real-estate", "officetel", "trade"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -189,6 +213,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT officetel rent real transaction data",
+    "tags": ["real-estate", "officetel", "rent"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -204,6 +230,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT row house trade real transaction data",
+    "tags": ["real-estate", "row-house", "trade"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -219,6 +247,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT row house rent real transaction data",
+    "tags": ["real-estate", "row-house", "rent"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -234,6 +264,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT single house trade real transaction data",
+    "tags": ["real-estate", "single-house", "trade"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -249,6 +281,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT single house rent real transaction data",
+    "tags": ["real-estate", "single-house", "rent"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -262,6 +296,8 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "Call any data.go.kr API endpoint by passing _base_url at call time. Only call_raw is supported; list() is not available because schema and pagination vary by endpoint.",
+    "tags": ["api", "generic"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["raw"],
     "generic": true
   },
@@ -274,6 +310,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism information by region (TourAPI KorService2)",
+    "tags": ["tourism", "area", "travel"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -289,6 +327,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism information by latitude/longitude (TourAPI KorService2)",
+    "tags": ["tourism", "location", "travel"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -304,6 +344,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism keyword search (TourAPI KorService2)",
+    "tags": ["tourism", "search", "travel"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -319,6 +361,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism festival/event search by date (TourAPI KorService2)",
+    "tags": ["tourism", "festival", "travel"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -334,6 +378,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Seoul Metro real-time fare information by station pair",
+    "tags": ["transportation", "subway", "fare"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
@@ -349,6 +395,8 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Seoul Metro shortest path between two subway stations",
+    "tags": ["transportation", "subway", "route"],
+    "source_url": "https://www.data.go.kr",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",

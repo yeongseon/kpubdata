@@ -111,3 +111,98 @@ def test_valid_provider_catalogues_pass_validation(package_name: str, provider: 
 
     assert datasets
     assert all(dataset.provider == provider for dataset in datasets)
+
+
+class TestBuildDatasetRefMetadata:
+    def test_description_parsed(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {
+                "dataset_key": "s",
+                "name": "S",
+                "representation": "api_json",
+                "description": "A test dataset",
+            },
+        )
+        assert ref.description == "A test dataset"
+        assert "description" not in ref.raw_metadata
+
+    def test_description_empty_string_becomes_none(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {"dataset_key": "s", "name": "S", "representation": "api_json", "description": ""},
+        )
+        assert ref.description is None
+
+    def test_description_absent_is_none(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {"dataset_key": "s", "name": "S", "representation": "api_json"},
+        )
+        assert ref.description is None
+
+    def test_tags_parsed(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {
+                "dataset_key": "s",
+                "name": "S",
+                "representation": "api_json",
+                "tags": ["weather", "forecast"],
+            },
+        )
+        assert ref.tags == ("weather", "forecast")
+        assert "tags" not in ref.raw_metadata
+
+    def test_tags_absent_is_empty(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {"dataset_key": "s", "name": "S", "representation": "api_json"},
+        )
+        assert ref.tags == ()
+
+    def test_tags_filters_non_strings(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {
+                "dataset_key": "s",
+                "name": "S",
+                "representation": "api_json",
+                "tags": ["valid", 123, None, "also_valid"],
+            },
+        )
+        assert ref.tags == ("valid", "also_valid")
+
+    def test_source_url_parsed(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {
+                "dataset_key": "s",
+                "name": "S",
+                "representation": "api_json",
+                "source_url": "https://data.go.kr/example",
+            },
+        )
+        assert ref.source_url == "https://data.go.kr/example"
+        assert "source_url" not in ref.raw_metadata
+
+    def test_source_url_absent_is_none(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {"dataset_key": "s", "name": "S", "representation": "api_json"},
+        )
+        assert ref.source_url is None
+
+    def test_existing_description_removed_from_raw_metadata(self) -> None:
+        ref = build_dataset_ref(
+            "test",
+            {
+                "dataset_key": "s",
+                "name": "S",
+                "representation": "api_json",
+                "description": "test",
+                "base_url": "http://example.com",
+            },
+        )
+        assert "description" not in ref.raw_metadata
+        assert "base_url" in ref.raw_metadata

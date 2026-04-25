@@ -8,6 +8,8 @@
     "org_id": "101",
     "tbl_id": "DT_1B26003_A01",
     "description": "KOSTAT inter-regional population migration statistics",
+    "tags": ["population", "migration", "statistics"],
+    "source_url": "https://kosis.kr/openapi/Param/statisticsParameterData.do",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",
