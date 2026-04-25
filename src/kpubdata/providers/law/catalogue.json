@@ -1,0 +1,39 @@
+[
+  {
+    "dataset_key": "law_search",
+    "name": "법령 검색 (Law Search)",
+    "base_url": "http://www.law.go.kr/DRF/lawSearch.do",
+    "default_operation": "lawSearch",
+    "representation": "api_json",
+    "operations": ["list", "raw"],
+    "target": "law",
+    "item_key": "law",
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 100
+    }
+  },
+  {
+    "dataset_key": "law_detail",
+    "name": "법령 본문 조회 (Law Detail)",
+    "base_url": "http://www.law.go.kr/DRF/lawService.do",
+    "default_operation": "lawService",
+    "representation": "api_json",
+    "operations": ["raw"],
+    "target": "law"
+  },
+  {
+    "dataset_key": "ordin_search",
+    "name": "자치법규 검색 (Ordinance Search)",
+    "base_url": "http://www.law.go.kr/DRF/lawSearch.do",
+    "default_operation": "ordinSearch",
+    "representation": "api_json",
+    "operations": ["list", "raw"],
+    "target": "ordin",
+    "item_key": "ordin",
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 100
+    }
+  }
+]
