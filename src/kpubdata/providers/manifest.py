@@ -14,6 +14,7 @@ from __future__ import annotations
 BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("datago", "kpubdata.providers.datago", "DataGoAdapter"),
     ("bok", "kpubdata.providers.bok", "BokAdapter"),
+    ("law", "kpubdata.providers.law", "LawAdapter"),
     ("seoul", "kpubdata.providers.seoul", "SeoulAdapter"),
     ("kosis", "kpubdata.providers.kosis", "KosisAdapter"),
     ("lofin", "kpubdata.providers.lofin", "LofinAdapter"),
