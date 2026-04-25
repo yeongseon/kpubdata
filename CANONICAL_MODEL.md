@@ -23,6 +23,9 @@ classDiagram
         +str provider
         +str dataset_key
         +str name
+        +str description
+        +tuple tags
+        +str source_url
         +Representation representation
         +frozenset[Capability] capabilities
     }
@@ -64,7 +67,7 @@ KPubData에서 사용하는 핵심 타입들을 일상적인 도서관 비유로
 
 ### 3.1 DatasetRef (도서 카드)
 - **비유**: 도서관의 **"도서 목록 카드"**와 같습니다. 책이 어느 서가에 있는지, 대출이 가능한지(지원하는 기능), 어떤 내용인지 알려줍니다.
-- **역할**: 이 데이터셋이 어디에 있고(Provider), 고유한 이름(ID)은 무엇인지, 어떤 형식(Representation)인지 정보를 담고 있습니다.
+- **역할**: 이 데이터셋이 어디에 있고(Provider), 고유한 이름(ID)은 무엇인지, 어떤 형식(Representation)인지 정보를 담고 있습니다. 또한 데이터셋에 대한 설명(description), 분류 태그(tags), 원본 문서 링크(source_url)를 포함할 수 있습니다.
 
 ### 3.2 Query (검색 조건)
 - **비유**: 도서관에서 책을 찾을 때 쓰는 **"검색 조건"**입니다. "2024년에 나온 소설 중 서울에서 발간된 것" 같은 조건이죠.
@@ -106,6 +109,9 @@ ref = DatasetRef(
     dataset_key="village_fcst",
     name="동네예보",
     representation=Representation.OPENAPI,
+    description="Korea Meteorological Administration short-range forecast",
+    tags=("weather", "forecast"),
+    source_url="https://www.data.go.kr",
     operations=frozenset([Operation.LIST])
 )
 
@@ -215,6 +221,9 @@ class DatasetRef:
     dataset_key: str
     name: str
     representation: Representation
+    description: str | None = None
+    tags: tuple[str, ...] = ()
+    source_url: str | None = None
     capabilities: frozenset[Capability] = frozenset()
     raw_metadata: dict[str, Any] = field(default_factory=dict)
 ```
@@ -223,6 +232,9 @@ Notes:
 
 - `id` is the stable bound identifier, e.g. `molit.apartment_trades`
 - `representation` matters because the same logical dataset may be offered in more than one form
+- `description` is a human-readable summary of what the dataset provides
+- `tags` are categorization keywords for discovery (e.g. `("weather", "forecast")`)
+- `source_url` links to the original API documentation or data portal page
 
 ### 3.4 Query
 

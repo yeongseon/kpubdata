@@ -2,6 +2,8 @@
   {
     "dataset_key": "expenditure_budget",
     "name": "지방재정 세출결산총괄 (LOFIN Expenditure Budget Summary)",
+    "tags": ["local-finance", "budget", "expenditure"],
+    "source_url": "https://www.lofin365.go.kr/lf/hub",
     "api_code": "AJGCF",
     "base_url": "https://www.lofin365.go.kr/lf/hub",
     "representation": "api_json",
@@ -27,6 +29,8 @@
   {
     "dataset_key": "expenditure_function",
     "name": "지방재정 기능별세출 (LOFIN Expenditure by Function)",
+    "tags": ["local-finance", "budget", "function"],
+    "source_url": "https://www.lofin365.go.kr/lf/hub",
     "api_code": "GGNSE",
     "base_url": "https://www.lofin365.go.kr/lf/hub",
     "representation": "api_json",
@@ -54,6 +58,8 @@
   {
     "dataset_key": "revenue_budget",
     "name": "지방재정 세입결산총괄 (LOFIN Revenue Budget Summary)",
+    "tags": ["local-finance", "budget", "revenue"],
+    "source_url": "https://www.lofin365.go.kr/lf/hub",
     "api_code": "IIBBH",
     "base_url": "https://www.lofin365.go.kr/lf/hub",
     "representation": "api_json",
@@ -79,6 +85,8 @@
   {
     "dataset_key": "revenue_by_source",
     "name": "지방재정 재원별 회계별 세입결산 (LOFIN Revenue by Source & Account)",
+    "tags": ["local-finance", "revenue", "source"],
+    "source_url": "https://www.lofin365.go.kr/lf/hub",
     "api_code": "FIACRV",
     "base_url": "https://www.lofin365.go.kr/lf/hub",
     "representation": "api_json",
@@ -110,6 +118,8 @@
   {
     "dataset_key": "debt_ratio",
     "name": "지방재정 채무비율현황 (LOFIN Debt Ratio Status)",
+    "tags": ["local-finance", "debt", "ratio"],
+    "source_url": "https://www.lofin365.go.kr/lf/hub",
     "api_code": "HEDFC",
     "base_url": "https://www.lofin365.go.kr/lf/hub",
     "representation": "api_json",
@@ -133,6 +143,8 @@
   {
     "dataset_key": "fiscal_independence",
     "name": "지방재정 재정자립도현황 (LOFIN Fiscal Independence)",
+    "tags": ["local-finance", "fiscal-independence", "finance"],
+    "source_url": "https://www.lofin365.go.kr/lf/hub",
     "api_code": "JFIED",
     "base_url": "https://www.lofin365.go.kr/lf/hub",
     "representation": "api_json",

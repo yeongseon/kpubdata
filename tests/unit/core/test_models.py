@@ -78,6 +78,35 @@ class TestDatasetRef:
         assert "test.dataset" in r
         assert "test" in r
 
+    def test_metadata_defaults(self) -> None:
+        ref = self._make_ref()
+        assert ref.description is None
+        assert ref.tags == ()
+        assert ref.source_url is None
+
+    def test_metadata_populated(self) -> None:
+        ref = self._make_ref(
+            description="Weather forecast data",
+            tags=("weather", "forecast"),
+            source_url="https://data.go.kr/example",
+        )
+        assert ref.description == "Weather forecast data"
+        assert ref.tags == ("weather", "forecast")
+        assert ref.source_url == "https://data.go.kr/example"
+
+    def test_metadata_frozen(self) -> None:
+        ref = self._make_ref(description="test", tags=("a",), source_url="http://x")
+        try:
+            ref.description = "changed"  # type: ignore[misc]
+            raise AssertionError("Should be frozen")
+        except AttributeError:
+            pass
+        try:
+            ref.tags = ("b",)  # type: ignore[misc]
+            raise AssertionError("Should be frozen")
+        except AttributeError:
+            pass
+
 
 class TestQuery:
     def test_defaults(self) -> None:

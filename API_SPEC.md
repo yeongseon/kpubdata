@@ -52,6 +52,12 @@ client.datasets.search("지하철")
 client.dataset("molit.apartment_trades")
 ```
 
+Each `DatasetRef` returned by discovery exposes:
+- `id`, `provider`, `dataset_key`, `name`, `representation`, `operations`
+- `description`: human-readable summary (may be ``None``)
+- `tags`: categorization keywords as a tuple (e.g. ``("weather", "forecast")``)
+- `source_url`: link to original API documentation (may be ``None``)
+
 ## 4. Bound dataset operations
 
 ### List/query

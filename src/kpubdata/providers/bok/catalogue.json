@@ -8,6 +8,8 @@
     "stat_code": "722Y001",
     "item_code1": "0101000",
     "description": "Bank of Korea base interest rate historical data",
+    "tags": ["finance", "interest-rate", "monetary-policy"],
+    "source_url": "https://ecos.bok.or.kr/api/StatisticSearch",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",

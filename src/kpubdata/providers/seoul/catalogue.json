@@ -6,6 +6,8 @@
     "default_operation": "realtimeStationArrival",
     "representation": "api_json",
     "description": "Real-time subway arrival information for Seoul Metro stations",
+    "tags": ["transportation", "subway", "realtime"],
+    "source_url": "https://data.seoul.go.kr/",
     "operations": ["list", "raw"],
     "query_support": {"pagination": "index", "max_page_size": 1000},
     "required_path_params": ["stationName"]
@@ -17,6 +19,8 @@
     "default_operation": "tbCycleRentUseMonthInfo",
     "representation": "api_json",
     "description": "Seoul public bicycle (Ttareungi) monthly usage statistics",
+    "tags": ["transportation", "bicycle", "monthly"],
+    "source_url": "https://data.seoul.go.kr/",
     "operations": ["list", "raw"],
     "query_support": {"pagination": "index", "max_page_size": 1000},
     "required_path_params": ["RENT_NM"]

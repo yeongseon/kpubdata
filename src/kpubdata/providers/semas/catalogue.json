@@ -2,6 +2,8 @@
   {
     "dataset_key": "zone_one",
     "name": "지정상권 조회 (Zone One)",
+    "tags": ["commercial-district", "retail", "zone"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeZoneOne",
     "representation": "api_json",
@@ -25,6 +27,8 @@
   {
     "dataset_key": "zone_radius",
     "name": "반경상권 조회 (Zone Radius)",
+    "tags": ["commercial-district", "retail", "zone"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeZoneInRadius",
     "representation": "api_json",
@@ -48,6 +52,8 @@
   {
     "dataset_key": "zone_rect",
     "name": "사각형상권 조회 (Zone Rectangle)",
+    "tags": ["commercial-district", "retail", "zone"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeZoneInRectangle",
     "representation": "api_json",
@@ -71,6 +77,8 @@
   {
     "dataset_key": "zone_admi",
     "name": "행정구역상권 조회 (Zone Administrative)",
+    "tags": ["commercial-district", "retail", "zone"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeZoneInAdmi",
     "representation": "api_json",
@@ -94,6 +102,8 @@
   {
     "dataset_key": "store_one",
     "name": "단일상가 조회 (Store One)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeOne",
     "representation": "api_json",
@@ -146,6 +156,8 @@
   {
     "dataset_key": "store_building",
     "name": "건물상가 조회 (Store in Building)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInBuilding",
     "representation": "api_json",
@@ -198,6 +210,8 @@
   {
     "dataset_key": "store_pnu",
     "name": "지번상가 조회 (Store in PNU)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInPnu",
     "representation": "api_json",
@@ -250,6 +264,8 @@
   {
     "dataset_key": "store_dong",
     "name": "행정동상가 조회 (Store in Dong)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInDong",
     "representation": "api_json",
@@ -302,6 +318,8 @@
   {
     "dataset_key": "store_area",
     "name": "상권상가 조회 (Store in Area)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInArea",
     "representation": "api_json",
@@ -354,6 +372,8 @@
   {
     "dataset_key": "store_radius",
     "name": "반경상가 조회 (Store Radius)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInRadius",
     "representation": "api_json",
@@ -406,6 +426,8 @@
   {
     "dataset_key": "store_rect",
     "name": "사각형상가 조회 (Store Rectangle)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInRectangle",
     "representation": "api_json",
@@ -458,6 +480,8 @@
   {
     "dataset_key": "store_polygon",
     "name": "다각형상가 조회 (Store Polygon)",
+    "tags": ["retail", "business", "store"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInPolygon",
     "representation": "api_json",
@@ -510,6 +534,8 @@
   {
     "dataset_key": "store_upjong",
     "name": "업종별상가 조회 (Store by Upjong)",
+    "tags": ["retail", "industry-code", "classification"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListInUpjong",
     "representation": "api_json",
@@ -562,6 +588,8 @@
   {
     "dataset_key": "store_date",
     "name": "수정일자상가 조회 (Store by Date)",
+    "tags": ["retail", "business", "history"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "storeListByDate",
     "representation": "api_json",
@@ -614,6 +642,8 @@
   {
     "dataset_key": "upjong_large",
     "name": "업종대분류 조회 (Upjong Large)",
+    "tags": ["retail", "industry-code", "classification"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "largeUpjongList",
     "representation": "api_json",
@@ -629,6 +659,8 @@
   {
     "dataset_key": "upjong_middle",
     "name": "업종중분류 조회 (Upjong Middle)",
+    "tags": ["retail", "industry-code", "classification"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "middleUpjongList",
     "representation": "api_json",
@@ -646,6 +678,8 @@
   {
     "dataset_key": "upjong_small",
     "name": "업종소분류 조회 (Upjong Small)",
+    "tags": ["retail", "industry-code", "classification"],
+    "source_url": "https://www.data.go.kr",
     "base_url": "http://apis.data.go.kr/B553077/api/open/sdsc2",
     "default_operation": "smallUpjongList",
     "representation": "api_json",

@@ -2,6 +2,8 @@
   {
     "dataset_key": "boundary.sido",
     "name": "시도 행정구역 경계 (SGIS)",
+    "tags": ["gis", "boundary", "region"],
+    "source_url": "https://sgis.kostat.go.kr/developer/html/main.html",
     "representation": "api_json",
     "operations": ["list", "raw", "schema"],
     "endpoint": "boundary/hadmarea.geojson",
@@ -20,6 +22,8 @@
   {
     "dataset_key": "boundary.sigungu",
     "name": "시군구 행정구역 경계 (SGIS)",
+    "tags": ["gis", "boundary", "region"],
+    "source_url": "https://sgis.kostat.go.kr/developer/html/main.html",
     "representation": "api_json",
     "operations": ["list", "raw", "schema"],
     "endpoint": "boundary/hadmarea.geojson",
@@ -38,6 +42,8 @@
   {
     "dataset_key": "boundary.emd",
     "name": "읍면동 행정구역 경계 (SGIS)",
+    "tags": ["gis", "boundary", "region"],
+    "source_url": "https://sgis.kostat.go.kr/developer/html/main.html",
     "representation": "api_json",
     "operations": ["list", "raw", "schema"],
     "endpoint": "boundary/hadmarea.geojson",

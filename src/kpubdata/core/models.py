@@ -45,6 +45,9 @@ class DatasetRef:
     """Canonical immutable reference to a provider dataset.
 
     Attributes:
+        description: Human-readable description of what this dataset provides.
+        tags: Categorization tags for discovery (e.g. ``("weather", "forecast")``).
+        source_url: URL to the original API documentation or data portal page.
         query_support: Structured list-query feature metadata, if known.
         raw_metadata: Provider-native discovery metadata for debugging.
     """
@@ -57,6 +60,9 @@ class DatasetRef:
     operations: frozenset[Operation] = frozenset()
     query_support: QuerySupport | None = None
     raw_metadata: MappingProxyType[str, object] = field(default_factory=_empty_proxy)
+    description: str | None = None
+    tags: tuple[str, ...] = ()
+    source_url: str | None = None
 
     def supports(self, op: Operation) -> bool:
         """Return whether this dataset supports the requested operation."""
