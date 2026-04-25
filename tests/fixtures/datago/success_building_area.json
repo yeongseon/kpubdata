@@ -1,0 +1,29 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "hoNm": "101호",
+            "flrNo": "1",
+            "area": "84.97",
+            "exposPubuseGbCdNm": "전유면적"
+          },
+          {
+            "hoNm": "공용복도",
+            "flrNo": "1",
+            "area": "32.14",
+            "exposPubuseGbCdNm": "공용면적"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

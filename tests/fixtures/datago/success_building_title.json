@@ -1,0 +1,39 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "bldNm": "래미안 블레스티지",
+            "platPlc": "서울특별시 강남구 개포동 1280",
+            "mainPurpsCdNm": "공동주택",
+            "grndFlrCnt": "35",
+            "ugrndFlrCnt": "4",
+            "totArea": "198765.43",
+            "useAprDay": "20190215",
+            "sigunguCd": "11680",
+            "bjdongCd": "10300"
+          },
+          {
+            "bldNm": "마포자이 더 센트리지",
+            "platPlc": "서울특별시 마포구 염리동 488",
+            "mainPurpsCdNm": "공동주택",
+            "grndFlrCnt": "29",
+            "ugrndFlrCnt": "3",
+            "totArea": "154321.88",
+            "useAprDay": "20211130",
+            "sigunguCd": "11440",
+            "bjdongCd": "10900"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

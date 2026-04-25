@@ -334,3 +334,48 @@ def test_fixture_metro_path_parses() -> None:
     assert batch.items[0]["stationName"] == "서울역"
     assert "lineNum" in batch.items[0]
     assert batch.total_count == 3
+
+
+def test_fixture_building_title_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_building_title.json", "building_title")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "bldNm" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_building_recap_title_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_building_recap_title.json", "building_recap_title"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "vlRat" in batch.items[0]
+    assert "bcRat" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_building_floor_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_building_floor.json", "building_floor")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "flrNo" in batch.items[0]
+    assert "area" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_building_area_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_building_area.json", "building_area")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "hoNm" in batch.items[0]
+    assert "exposPubuseGbCdNm" in batch.items[0]
+    assert batch.total_count == 2

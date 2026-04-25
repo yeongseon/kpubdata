@@ -35,6 +35,10 @@
 | 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
 | 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 경기도 v2 endpoint (`getBusArrivalListv2`) + 자체 envelope (`msgHeader`/`msgBody`) |
 | 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `building_title` | 건축물대장 표제부 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 건축물대장정보 서비스 v2 / `getBrTitleInfo` |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `building_recap_title` | 건축물대장 총괄표제부 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 건축물대장정보 서비스 v2 / `getBrRecapTitleInfo` |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `building_floor` | 건축물대장 층별개요 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 건축물대장정보 서비스 v2 / `getBrFlrOulnInfo` |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `building_area` | 건축물대장 전유공용면적 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 건축물대장정보 서비스 v2 / `getBrExposPubuseAreaInfo` |
 | 지원 | 실API 검증 | 2026-04-20 | 공공데이터포털 (`datago`) | `tour_kor_area` | 한국관광공사 지역기반 관광정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15101578](https://www.data.go.kr/data/15101578/openapi.do) | TourAPI KorService2 / `areaBasedList2` |
 | 지원 | 실API 검증 | 2026-04-20 | 공공데이터포털 (`datago`) | `tour_kor_location` | 한국관광공사 위치기반 관광정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15101578](https://www.data.go.kr/data/15101578/openapi.do) | TourAPI KorService2 / `locationBasedList2` |
 | 지원 | 실API 검증 | 2026-04-20 | 공공데이터포털 (`datago`) | `tour_kor_keyword` | 한국관광공사 키워드 검색 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15101578](https://www.data.go.kr/data/15101578/openapi.do) | TourAPI KorService2 / `searchKeyword2` |
