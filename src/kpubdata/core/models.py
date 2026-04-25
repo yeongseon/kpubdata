@@ -57,12 +57,12 @@ class DatasetRef:
     dataset_key: str
     name: str
     representation: Representation
-    description: str | None = None
-    tags: tuple[str, ...] = ()
-    source_url: str | None = None
     operations: frozenset[Operation] = frozenset()
     query_support: QuerySupport | None = None
     raw_metadata: MappingProxyType[str, object] = field(default_factory=_empty_proxy)
+    description: str | None = None
+    tags: tuple[str, ...] = ()
+    source_url: str | None = None
 
     def supports(self, op: Operation) -> bool:
         """Return whether this dataset supports the requested operation."""

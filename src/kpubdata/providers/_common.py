@@ -17,6 +17,19 @@ from kpubdata.core.models import (
 from kpubdata.core.representation import Representation
 from kpubdata.exceptions import ConfigError
 
+_CATALOGUE_CANONICAL_KEYS = frozenset(
+    {
+        "dataset_key",
+        "name",
+        "representation",
+        "operations",
+        "query_support",
+        "description",
+        "tags",
+        "source_url",
+    }
+)
+
 
 def load_catalogue(package_name: str, provider: str) -> tuple[DatasetRef, ...]:
     """Load and parse a catalogue.json from a provider package."""
@@ -92,20 +105,8 @@ def build_dataset_ref(provider: str, entry: dict[str, object]) -> DatasetRef:
     source_url_raw = entry.get("source_url")
     source_url = source_url_raw if isinstance(source_url_raw, str) and source_url_raw else None
 
-    _CANONICAL_KEYS = frozenset(
-        {
-            "dataset_key",
-            "name",
-            "representation",
-            "operations",
-            "query_support",
-            "description",
-            "tags",
-            "source_url",
-        }
-    )
     raw_metadata = MappingProxyType(
-        {key: value for key, value in entry.items() if key not in _CANONICAL_KEYS}
+        {key: value for key, value in entry.items() if key not in _CATALOGUE_CANONICAL_KEYS}
     )
 
     return DatasetRef(
