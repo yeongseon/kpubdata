@@ -133,3 +133,185 @@ class TestCatalog:
         catalog = self._build()
         with pytest.raises(DatasetNotFoundError):
             _ = catalog.resolve("alpha.nonexistent")
+
+
+class TestCatalogFuzzySearch:
+    """Tests for catalog-level fuzzy search across name, description, tags, and id."""
+
+    @staticmethod
+    def _make_rich_ref(
+        provider: str,
+        key: str,
+        name: str,
+        *,
+        description: str | None = None,
+        tags: tuple[str, ...] = (),
+    ) -> DatasetRef:
+        return DatasetRef(
+            id=f"{provider}.{key}",
+            provider=provider,
+            dataset_key=key,
+            name=name,
+            representation=Representation.API_JSON,
+            operations=frozenset({Operation.LIST}),
+            description=description,
+            tags=tags,
+        )
+
+    def _build_rich(self) -> Catalog:
+        reg = ProviderRegistry()
+        reg.register(
+            StubAdapter(
+                "weather",
+                [
+                    self._make_rich_ref(
+                        "weather",
+                        "village_fcst",
+                        "동네예보",
+                        description="기상청 단기예보 조회 서비스",
+                        tags=("weather", "forecast", "기상"),
+                    ),
+                    self._make_rich_ref(
+                        "weather",
+                        "air_quality",
+                        "대기오염정보",
+                        description="한국환경공단 대기질 정보",
+                        tags=("air", "pollution", "환경"),
+                    ),
+                ],
+            )
+        )
+        reg.register(
+            StubAdapter(
+                "finance",
+                [
+                    self._make_rich_ref(
+                        "finance",
+                        "base_rate",
+                        "기준금리",
+                        description="한국은행 기준금리 조회",
+                        tags=("economy", "interest-rate", "금리"),
+                    ),
+                ],
+            )
+        )
+        return Catalog(reg)
+
+    def test_search_by_description(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("기상청")
+        assert len(result) == 1
+        assert result[0].dataset_key == "village_fcst"
+
+    def test_search_by_tag(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("pollution")
+        assert len(result) == 1
+        assert result[0].dataset_key == "air_quality"
+
+    def test_search_by_korean_tag(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("금리")
+        assert len(result) == 1
+        assert result[0].dataset_key == "base_rate"
+
+    def test_search_by_id_substring(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("base_rate")
+        assert len(result) >= 1
+        assert result[0].dataset_key == "base_rate"
+
+    def test_search_partial_name(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("예보")
+        assert len(result) == 1
+        assert result[0].dataset_key == "village_fcst"
+
+    def test_search_sorted_by_relevance(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("대기")
+        assert len(result) >= 1
+        assert result[0].dataset_key == "air_quality"
+
+    def test_search_custom_threshold(self) -> None:
+        catalog = self._build_rich()
+        strict = catalog.search("weathr", threshold=0.9)
+        lenient = catalog.search("weathr", threshold=0.1)
+        assert len(lenient) >= len(strict)
+
+    def test_search_empty_string(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("")
+        assert len(result) == 3
+
+    def test_search_provider_filter_with_fuzzy(self) -> None:
+        catalog = self._build_rich()
+        result = catalog.search("정보", provider="weather")
+        assert all(r.provider == "weather" for r in result)
+
+
+class TestScoreDataset:
+    """Direct unit tests for the _score_dataset helper."""
+
+    @staticmethod
+    def _ref(name: str, **kwargs: object) -> DatasetRef:
+        return DatasetRef(
+            id="test.ds",
+            provider="test",
+            dataset_key="ds",
+            name=name,
+            representation=Representation.API_JSON,
+            **kwargs,  # type: ignore[arg-type]
+        )
+
+    def test_exact_substring_returns_one(self) -> None:
+        from kpubdata.catalog import _score_dataset
+
+        ref = self._ref("Hello World")
+        assert _score_dataset("hello", ref) == 1.0
+
+    def test_no_match_returns_low(self) -> None:
+        from kpubdata.catalog import _score_dataset
+
+        ref = self._ref("Hello World")
+        score = _score_dataset("zzzzzzzzz", ref)
+        assert score < 0.2
+
+    def test_description_match(self) -> None:
+        from kpubdata.catalog import _score_dataset
+
+        ref = self._ref("Short Name", description="A detailed description with keywords")
+        assert _score_dataset("keywords", ref) == 1.0
+
+    def test_tag_match(self) -> None:
+        from kpubdata.catalog import _score_dataset
+
+        ref = self._ref("Name", tags=("weather", "forecast"))
+        assert _score_dataset("forecast", ref) == 1.0
+
+    def test_case_insensitive(self) -> None:
+        from kpubdata.catalog import _score_dataset
+
+        ref = self._ref("Base Rate")
+        assert _score_dataset("BASE RATE", ref) == 1.0
+
+    def test_whitespace_only_returns_one(self) -> None:
+        from kpubdata.catalog import _score_dataset
+
+        ref = self._ref("Anything")
+        assert _score_dataset("   ", ref) == 1.0
+
+    def test_search_does_not_call_adapter_search_datasets(self) -> None:
+        """Catalog.search uses catalog-level scoring, not adapter delegation."""
+        from unittest.mock import MagicMock
+
+        adapter = StubAdapter("mock", [_make_ref("mock", "ds", "Mock Data")])
+        adapter.search_datasets = MagicMock(side_effect=AssertionError("should not be called"))  # type: ignore[method-assign]
+
+        reg = ProviderRegistry()
+        reg.register(adapter)
+        catalog = Catalog(reg)
+
+        result = catalog.search("Mock")
+        assert len(result) == 1
+        adapter.search_datasets.assert_not_called()

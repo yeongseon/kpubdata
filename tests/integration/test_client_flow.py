@@ -98,8 +98,8 @@ def test_register_and_search_datasets() -> None:
 
     refs = client.datasets.search("weather")
 
-    assert len(refs) == 1
-    assert refs[0].id == "fake.weather"
+    matched_ids = {ref.id for ref in refs}
+    assert "fake.weather" in matched_ids
 
 
 def test_dataset_resolves_to_bound_dataset() -> None:

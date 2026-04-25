@@ -48,9 +48,23 @@ client = Client.from_env()
 
 ```python
 client.datasets.list()
-client.datasets.search("지하철")
+client.datasets.list(provider="datago")
+client.datasets.search("예보")
+client.datasets.search("forecast", provider="weather")
+client.datasets.search("weathr", threshold=0.5)  # fuzzy match
 client.dataset("molit.apartment_trades")
 ```
+
+### Search behavior
+
+`search(text, *, provider=None, threshold=0.5)` scores each dataset against
+*text* using substring and fuzzy matching across **name**, **description**,
+**tags**, and **id**.  Results are returned in descending relevance order.
+
+- **Exact substring** match in any field → score 1.0 (always included).
+- **Fuzzy match** via `difflib.SequenceMatcher` → included if score ≥ *threshold*.
+- **threshold** default is `0.5`.  Raise it (e.g. `0.8`) for stricter results,
+  lower it (e.g. `0.2`) for broader recall.
 
 Each `DatasetRef` returned by discovery exposes:
 - `id`, `provider`, `dataset_key`, `name`, `representation`, `operations`
