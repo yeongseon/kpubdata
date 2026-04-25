@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import builtins
 import logging
+import unicodedata
+from difflib import SequenceMatcher
 from typing import cast
 
 from kpubdata.core.models import DatasetRef
@@ -12,6 +14,50 @@ from kpubdata.exceptions import DatasetNotFoundError, ProviderNotRegisteredError
 from kpubdata.registry import ProviderRegistry
 
 logger = logging.getLogger("kpubdata.catalog")
+
+# Minimum relevance score (0.0–1.0) for a dataset to appear in search results.
+_DEFAULT_SCORE_THRESHOLD = 0.5
+
+
+def _normalize(text: str) -> str:
+    """NFC-normalize, strip, and casefold a string for search comparison."""
+    return unicodedata.normalize("NFC", text).strip().casefold()
+
+
+def _score_dataset(needle: str, dataset: DatasetRef) -> float:
+    """Score a dataset against a search term.
+
+    Returns a relevance score between 0.0 and 1.0.  An exact substring
+    match in any searchable field yields 1.0.  Otherwise the best
+    ``SequenceMatcher`` ratio across fields is returned.
+
+    Searchable fields: name, description, tags, id.
+    """
+    needle_lower = _normalize(needle)
+    if not needle_lower:
+        return 1.0
+
+    fields: builtins.list[str] = []
+    fields.append(_normalize(dataset.name))
+    if dataset.description:
+        fields.append(_normalize(dataset.description))
+    for tag in dataset.tags:
+        fields.append(_normalize(tag))
+    fields.append(_normalize(dataset.id))
+
+    # Fast path: exact substring match → score 1.0
+    for text in fields:
+        if needle_lower in text:
+            return 1.0
+
+    # Slow path: fuzzy matching via SequenceMatcher
+    best: float = 0.0
+    for text in fields:
+        ratio = SequenceMatcher(None, needle_lower, text).ratio()
+        if ratio > best:
+            best = ratio
+
+    return best
 
 
 class Catalog:
@@ -49,11 +95,17 @@ class Catalog:
         )
         return datasets
 
-    def search(self, text: str, *, provider: str | None = None) -> builtins.list[DatasetRef]:
-        """Search datasets by delegating to each adapter's search logic.
+    def search(
+        self,
+        text: str,
+        *,
+        provider: str | None = None,
+        threshold: float = _DEFAULT_SCORE_THRESHOLD,
+    ) -> builtins.list[DatasetRef]:
+        """Search datasets with fuzzy matching across name, description, tags, and id.
 
-        Each adapter implements its own ``search_datasets(text)`` method,
-        allowing provider-specific search semantics.
+        Results are scored by relevance and returned in descending order.
+        Only datasets whose score meets *threshold* (0.0–1.0) are included.
 
         Raises:
             ProviderNotRegisteredError: If ``provider`` is given but unknown.
@@ -61,24 +113,28 @@ class Catalog:
 
         logger.debug(
             "Catalog search",
-            extra={"text": text, "provider_filter": provider},
+            extra={"text": text, "provider_filter": provider, "threshold": threshold},
         )
-        if provider is not None:
-            adapter = self._get_adapter(provider)
-            provider_results = adapter.search_datasets(text)
-            logger.debug(
-                "Catalog search result",
-                extra={"provider": provider, "text": text, "count": len(provider_results)},
-            )
-            return provider_results
+        candidates = self.list(provider=provider)
 
-        results: builtins.list[DatasetRef] = []
-        for provider_name in self._registry:
-            adapter = self._get_adapter(provider_name)
-            results.extend(adapter.search_datasets(text))
+        scored: builtins.list[tuple[float, DatasetRef]] = []
+        for dataset in candidates:
+            score = _score_dataset(text, dataset)
+            if score >= threshold:
+                scored.append((score, dataset))
+
+        # Sort by score descending, then by id for stable ordering
+        scored.sort(key=lambda pair: (-pair[0], pair[1].id))
+        results = [dataset for _, dataset in scored]
+
         logger.debug(
             "Catalog search result",
-            extra={"provider": None, "text": text, "count": len(results)},
+            extra={
+                "provider": provider,
+                "text": text,
+                "candidates": len(candidates),
+                "count": len(results),
+            },
         )
         return results
 
