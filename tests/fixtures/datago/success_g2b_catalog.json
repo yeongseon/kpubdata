@@ -1,0 +1,43 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "prdctIdntNo": "24567890",
+            "prdctNm": "친환경 인증 복사용지",
+            "dtlPrdctNm": "재생펄프 80% 이상 A4 복사용지",
+            "prdctClsfcNm": "사무용지류",
+            "cntrctUntpc": "25000",
+            "bsnmNm": "그린페이퍼(주)",
+            "brno": "1234567890",
+            "bsnmAddr": "경기도 안산시 상록구",
+            "dlvrTmlmtDayCnt": "7",
+            "crtfcTyNm": "환경표지인증",
+            "entrprsSeCdNm": "중소기업"
+          },
+          {
+            "prdctIdntNo": "24567891",
+            "prdctNm": "고효율 LED 형광등 대체품",
+            "dtlPrdctNm": "T8 LED 직관형 18W",
+            "prdctClsfcNm": "조명기기류",
+            "cntrctUntpc": "15000",
+            "bsnmNm": "에코조명(주)",
+            "brno": "9876543210",
+            "bsnmAddr": "충청남도 천안시 서북구",
+            "dlvrTmlmtDayCnt": "5",
+            "crtfcTyNm": "녹색제품인증",
+            "entrprsSeCdNm": "사회적기업"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

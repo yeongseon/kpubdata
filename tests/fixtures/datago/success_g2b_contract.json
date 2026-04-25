@@ -1,0 +1,43 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "cntrctSn": "20240101001",
+            "cntrctCnclsDt": "20240115",
+            "rlDmndInsttNm": "환경부",
+            "cntrctInsttNm": "조달청",
+            "prdctNm": "친환경 사무용품",
+            "dtlPrdctNm": "재생용지 A4",
+            "prdctClsfcNm": "사무용지",
+            "cntrctAmt": "5000000",
+            "bsnmNm": "그린오피스(주)",
+            "rgstOrgn": "조달청",
+            "cntrctMthdNm": "수의계약"
+          },
+          {
+            "cntrctSn": "20240101002",
+            "cntrctCnclsDt": "20240120",
+            "rlDmndInsttNm": "국토교통부",
+            "cntrctInsttNm": "조달청",
+            "prdctNm": "LED 조명기기",
+            "dtlPrdctNm": "고효율 LED 등기구",
+            "prdctClsfcNm": "조명기기",
+            "cntrctAmt": "12000000",
+            "bsnmNm": "에코라이트(주)",
+            "rgstOrgn": "조달청",
+            "cntrctMthdNm": "일반경쟁"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
