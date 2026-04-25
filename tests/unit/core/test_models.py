@@ -5,7 +5,14 @@ from __future__ import annotations
 from types import MappingProxyType
 
 from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
-from kpubdata.core.models import DatasetRef, FieldDescriptor, Query, RecordBatch, SchemaDescriptor
+from kpubdata.core.models import (
+    DatasetRef,
+    FieldConstraints,
+    FieldDescriptor,
+    Query,
+    RecordBatch,
+    SchemaDescriptor,
+)
 from kpubdata.core.representation import Representation
 
 
@@ -162,3 +169,60 @@ class TestSchemaDescriptor:
         sd = SchemaDescriptor(dataset=ref, fields=[fd])
         assert len(sd.fields) == 1
         assert sd.fields[0].name == "col1"
+
+
+class TestFieldConstraints:
+    def test_all_defaults_none(self) -> None:
+        fc = FieldConstraints()
+        assert fc.max_length is None
+        assert fc.min_value is None
+        assert fc.max_value is None
+        assert fc.pattern is None
+        assert fc.allowed_values is None
+        assert fc.format is None
+
+    def test_populated(self) -> None:
+        fc = FieldConstraints(
+            max_length=100,
+            min_value=0,
+            max_value=999.9,
+            pattern=r"^\d{6}$",
+            allowed_values=("A", "B", "C"),
+            format="YYYYMM",
+        )
+        assert fc.max_length == 100
+        assert fc.min_value == 0
+        assert fc.max_value == 999.9
+        assert fc.pattern == r"^\d{6}$"
+        assert fc.allowed_values == ("A", "B", "C")
+        assert fc.format == "YYYYMM"
+
+    def test_single_field(self) -> None:
+        fc = FieldConstraints(max_length=10)
+        assert fc.max_length == 10
+
+    def test_partial_population(self) -> None:
+        fc = FieldConstraints(format="date", allowed_values=("yes", "no"))
+        assert fc.max_length is None
+        assert fc.format == "date"
+        assert fc.allowed_values == ("yes", "no")
+
+
+class TestFieldDescriptorConstraints:
+    def test_default_constraints_none(self) -> None:
+        fd = FieldDescriptor(name="col")
+        assert fd.constraints is None
+
+    def test_with_constraints(self) -> None:
+        fc = FieldConstraints(max_length=50, format="YYYYMM")
+        fd = FieldDescriptor(name="date_col", type="string", constraints=fc)
+        assert fd.constraints is not None
+        assert fd.constraints.max_length == 50
+        assert fd.constraints.format == "YYYYMM"
+
+    def test_positional_raw_backward_compat(self) -> None:
+        proxy = MappingProxyType({"k": "v"})
+        fd = FieldDescriptor("col", "Title", "string", "desc", True, proxy)
+        assert fd.name == "col"
+        assert fd.raw == proxy
+        assert fd.constraints is None

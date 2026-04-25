@@ -4,7 +4,14 @@ from __future__ import annotations
 
 from kpubdata.client import Client
 from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
-from kpubdata.core.models import DatasetRef, FieldDescriptor, Query, RecordBatch, SchemaDescriptor
+from kpubdata.core.models import (
+    DatasetRef,
+    FieldConstraints,
+    FieldDescriptor,
+    Query,
+    RecordBatch,
+    SchemaDescriptor,
+)
 from kpubdata.core.representation import Representation
 from kpubdata.exceptions import (
     AuthError,
@@ -29,6 +36,7 @@ __all__ = [
     "Query",
     "RecordBatch",
     "SchemaDescriptor",
+    "FieldConstraints",
     "FieldDescriptor",
     "Operation",
     "PaginationMode",

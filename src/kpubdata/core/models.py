@@ -142,10 +142,35 @@ class RecordBatch:
 
 
 @_dataclass(slots=True)
+class FieldConstraints:
+    """Structured constraints for a dataset field.
+
+    All attributes are optional.  Only populate those that the provider
+    catalogue actually declares.
+
+    Attributes:
+        max_length: Maximum character length (string fields).
+        min_value: Minimum numeric value (number fields).
+        max_value: Maximum numeric value (number fields).
+        pattern: Regex pattern the value must match (e.g. ``"^\\\\d{6}$"``).
+        allowed_values: Closed set of permitted values.
+        format: Semantic format hint (e.g. ``"YYYYMM"``, ``"date"``, ``"url"``).
+    """
+
+    max_length: int | None = None
+    min_value: float | None = None
+    max_value: float | None = None
+    pattern: str | None = None
+    allowed_values: tuple[str, ...] | None = None
+    format: str | None = None
+
+
+@_dataclass(slots=True)
 class FieldDescriptor:
     """Describe a single field in a dataset schema.
 
     Attributes:
+        constraints: Optional structured constraints for the field.
         raw: Provider-native field metadata retained for advanced use.
     """
 
@@ -155,6 +180,7 @@ class FieldDescriptor:
     description: str | None = None
     nullable: bool | None = None
     raw: MappingProxyType[str, object] = field(default_factory=_empty_object_proxy)
+    constraints: FieldConstraints | None = None
 
 
 @_dataclass(slots=True)
@@ -172,6 +198,7 @@ class SchemaDescriptor:
 
 __all__ = [
     "DatasetRef",
+    "FieldConstraints",
     "FieldDescriptor",
     "Query",
     "RecordBatch",

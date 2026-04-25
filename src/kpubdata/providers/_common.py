@@ -11,6 +11,7 @@ from typing import cast
 from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
 from kpubdata.core.models import (
     DatasetRef,
+    FieldConstraints,
     FieldDescriptor,
     SchemaDescriptor,
 )
@@ -155,6 +156,50 @@ def _parse_query_support(entry: dict[str, object], provider: str) -> QuerySuppor
     return QuerySupport(pagination=pagination, max_page_size=max_page_size)
 
 
+def _parse_field_constraints(entry: dict[str, object]) -> FieldConstraints | None:
+    constraints_raw = entry.get("constraints")
+    if not isinstance(constraints_raw, dict):
+        return None
+    c = cast(dict[str, object], constraints_raw)
+
+    max_length = c.get("max_length")
+    if not isinstance(max_length, int):
+        max_length = None
+
+    min_value = c.get("min_value")
+    if not isinstance(min_value, (int, float)):
+        min_value = None
+
+    max_value = c.get("max_value")
+    if not isinstance(max_value, (int, float)):
+        max_value = None
+
+    pattern = c.get("pattern")
+    if not isinstance(pattern, str):
+        pattern = None
+
+    allowed_values_raw = c.get("allowed_values")
+    allowed_values: tuple[str, ...] | None = None
+    if isinstance(allowed_values_raw, list) and all(isinstance(v, str) for v in allowed_values_raw):
+        allowed_values = tuple(allowed_values_raw)
+
+    fmt = c.get("format")
+    if not isinstance(fmt, str):
+        fmt = None
+
+    if all(v is None for v in (max_length, min_value, max_value, pattern, allowed_values, fmt)):
+        return None
+
+    return FieldConstraints(
+        max_length=max_length,
+        min_value=min_value,
+        max_value=max_value,
+        pattern=pattern,
+        allowed_values=allowed_values,
+        format=fmt,
+    )
+
+
 def build_schema_from_metadata(dataset: DatasetRef) -> SchemaDescriptor | None:
     """Build SchemaDescriptor from catalogue metadata fields."""
     fields_raw = dataset.raw_metadata.get("fields")
@@ -174,6 +219,7 @@ def build_schema_from_metadata(dataset: DatasetRef) -> SchemaDescriptor | None:
         type_raw = entry.get("type")
         desc_raw = entry.get("description")
         nullable_raw = entry.get("nullable")
+        constraints = _parse_field_constraints(entry)
         field_descriptors.append(
             FieldDescriptor(
                 name=name_raw,
@@ -181,6 +227,7 @@ def build_schema_from_metadata(dataset: DatasetRef) -> SchemaDescriptor | None:
                 type=type_raw if isinstance(type_raw, str) else None,
                 description=desc_raw if isinstance(desc_raw, str) else None,
                 nullable=nullable_raw if isinstance(nullable_raw, bool) else None,
+                constraints=constraints,
                 raw=MappingProxyType({k: v for k, v in entry.items() if k != "name"}),
             )
         )

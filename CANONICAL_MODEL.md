@@ -53,11 +53,22 @@ classDiagram
         +str title
         +str type
         +str description
+        +bool nullable
+        +FieldConstraints constraints
+    }
+    class FieldConstraints {
+        +int max_length
+        +float min_value
+        +float max_value
+        +str pattern
+        +tuple allowed_values
+        +str format
     }
 
     DatasetRef "1" --o "1" RecordBatch
     DatasetRef "1" --o "1" SchemaDescriptor
     SchemaDescriptor "1" --* "many" FieldDescriptor
+    FieldDescriptor "1" --o "0..1" FieldConstraints
     Query ..> RecordBatch : produces
 ```
 
@@ -155,6 +166,7 @@ for item in batch.items:
     +-- (schema) ----> [ SchemaDescriptor ] (데이터 설계도)
                          |
                          +-- [ FieldDescriptor ] (칼럼 정보)
+                              +-- [ FieldConstraints ] (제약 조건)
 ```
 
 ## 6. Core types (Original)
@@ -283,12 +295,22 @@ class RecordBatch:
 from dataclasses import dataclass, field
 
 @dataclass(slots=True)
+class FieldConstraints:
+    max_length: int | None = None
+    min_value: float | None = None
+    max_value: float | None = None
+    pattern: str | None = None
+    allowed_values: tuple[str, ...] | None = None
+    format: str | None = None
+
+@dataclass(slots=True)
 class FieldDescriptor:
     name: str
     title: str | None = None
     type: str | None = None
     description: str | None = None
     nullable: bool | None = None
+    constraints: FieldConstraints | None = None
     raw: dict[str, object] = field(default_factory=dict)
 
 @dataclass(slots=True)
