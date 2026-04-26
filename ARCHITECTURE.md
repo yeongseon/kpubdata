@@ -109,6 +109,7 @@ KPubData는 이 모든 은행을 대신 처리해주는 **"통합 키오스크"*
 *   **이 레이어가 하는 일**: 기관별로 제각각인 API 요청 방식을 KPubData 표준 방식으로 변환합니다. 한국어를 영어로, 영어를 한국어로 바꿔주는 통역사와 같습니다.
 *   **핵심 파일**: `providers/datago/adapter.py`, `providers/seoul/adapter.py`
 *   **수정 상황 예시**: 기상청 API의 주소가 바뀌었거나, 결과 데이터의 이름이 `nx`에서 `grid_x`로 변경되었을 때.
+*   **프로토콜 분기**: `catalogue.json`의 `provider_family` 필드(예: `"odcloud"`)를 통해 동일 어댑터 내에서 프로토콜을 분기합니다. ODcloud(`api.odcloud.kr`)는 페이지네이션(`page`/`perPage`), 응답 구조(`data[]` 플랫 배열), 포맷 파라미터 생략 등 표준 data.go.kr과 다른 규약을 따릅니다.
 *   **코드 예시**:
     ```python
     # 기상청의 복잡한 요청 파라미터를 만드는 곳입니다.

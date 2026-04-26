@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- ODcloud `provider_family` 프로토콜 지원: `api.odcloud.kr` 기반 엔드포인트를 위한 별도 페이지네이션(`page`/`perPage`) 및 응답 파싱(`data[]` 플랫 배열) 처리
+- k-eco-navigator 연동용 3개 데이터셋 추가:
+  - `datago.g2b_contract` — 나라장터 조달계약정보 (`apis.data.go.kr/1230000/ao/CntrctInfoService`)
+  - `datago.social_enterprise` — 사회적기업 인증현황 (`api.odcloud.kr/api/socialEnterpriseList/v1`, ODcloud 프로토콜)
+  - `datago.g2b_catalog` — 나라장터 종합쇼핑몰 품목정보 (`apis.data.go.kr/1230000/at/ShoppingMallPrdctInfoService`)
+
+### Changed
+- `social_enterprise` 데이터셋은 `apis.data.go.kr`이 아닌 `api.odcloud.kr` 엔드포인트 사용 (ODcloud 프로토콜)
+
+### Removed
+- `datago.coop` (협동조합 설립현황) 데이터셋 삭제 — 전국 단위 API 미존재 확인
+
 ## [0.3.1] - 2026-04-23
 
 ### Fixed

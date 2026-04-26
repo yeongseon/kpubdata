@@ -316,7 +316,7 @@ def test_datago_g2b_contract(require_datago_key: None, live_client: Client) -> N
     _ = require_datago_key
     ds = live_client.dataset("datago.g2b_contract")
 
-    result = ds.list(numOfRows="5")
+    result = ds.list(page_size=5)
 
     assert isinstance(result, RecordBatch)
     assert len(result.items) > 0
@@ -328,19 +328,7 @@ def test_datago_social_enterprise(require_datago_key: None, live_client: Client)
     _ = require_datago_key
     ds = live_client.dataset("datago.social_enterprise")
 
-    result = ds.list(numOfRows="5")
-
-    assert isinstance(result, RecordBatch)
-    assert len(result.items) > 0
-    assert isinstance(result.items[0], dict)
-
-
-@pytest.mark.integration
-def test_datago_coop(require_datago_key: None, live_client: Client) -> None:
-    _ = require_datago_key
-    ds = live_client.dataset("datago.coop")
-
-    result = ds.list(numOfRows="5")
+    result = ds.list(page_size=5)
 
     assert isinstance(result, RecordBatch)
     assert len(result.items) > 0
@@ -352,7 +340,7 @@ def test_datago_g2b_catalog(require_datago_key: None, live_client: Client) -> No
     _ = require_datago_key
     ds = live_client.dataset("datago.g2b_catalog")
 
-    result = ds.list(numOfRows="5")
+    result = ds.list(page_size=5)
 
     assert isinstance(result, RecordBatch)
     assert len(result.items) > 0

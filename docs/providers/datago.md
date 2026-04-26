@@ -80,7 +80,7 @@ curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?ser
 
 ## KPubData에서 신청해야 할 API 목록
 
-현재 KPubData가 지원하는 datago 데이터셋을 모두 사용하려면, 아래 19개 API를 각각 활용신청해야 합니다.
+현재 KPubData가 지원하는 datago 데이터셋을 모두 사용하려면, 아래 22개 API를 각각 활용신청해야 합니다.
 
 | # | data.go.kr 검색어 | 제공기관 | 승인 방식 |
 |---|---|---|---|
@@ -103,6 +103,9 @@ curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?ser
 | 17 | `한국관광공사_국문 관광정보 서비스_GW` (위 신청 1건으로 `tour_kor_festival` 포함) | 한국관광공사 | 14번과 동일 신청 |
 | 18 | `서울교통공사_실시간운임정보` ([15143846](https://www.data.go.kr/data/15143846/openapi.do)) | 서울교통공사 | 자동 승인 |
 | 19 | `서울교통공사_최단경로이동정보` ([15143842](https://www.data.go.kr/data/15143842/openapi.do)) | 서울교통공사 | 자동 승인 |
+| 20 | `나라장터 조달계약정보` ([15129427](https://www.data.go.kr/data/15129427/openapi.do)) | 조달청 | 자동 승인 |
+| 21 | `사회적기업 인증현황` ([15082035](https://www.data.go.kr/data/15082035/openapi.do)) | 고용노동부 | 자동 승인 |
+| 22 | `나라장터 종합쇼핑몰 품목정보` ([15129471](https://www.data.go.kr/data/15129471/openapi.do)) | 조달청 | 자동 승인 |
 
 > 💡 14~17은 모두 동일한 한국관광공사 TourAPI(KorService2) 단일 활용신청으로 한꺼번에 발급됩니다 — 활용신청은 1건이지만 4개 endpoint(`areaBasedList2`, `locationBasedList2`, `searchKeyword2`, `searchFestival2`)가 KPubData에서 별도 dataset_key로 노출됩니다.
 
@@ -525,6 +528,69 @@ ds = client.dataset("datago.metro_path")
 raw = ds.call_raw("getShtrmPath", numOfRows="5", pageNo="1")
 ```
 
+### g2b_contract (나라장터 조달계약정보)
+
+조달청(나라장터)에서 제공하는 물품 조달 계약 정보입니다. 수요기관, 품목, 계약금액, 공급업체 등을 조회할 수 있습니다.
+
+- 제공 기관: 조달청
+- 데이터 ID: [15129427](https://www.data.go.kr/data/15129427/openapi.do)
+- 주요 파라미터: `inqryBgnDt` (조회시작일), `inqryEndDt` (조회종료일), `dmndInsttNm` (수요기관명)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| inqryBgnDt | 선택 | 조회 시작 연월 (YYYYMM) | "202201" |
+| inqryEndDt | 선택 | 조회 종료 연월 (YYYYMM) | "202512" |
+| dmndInsttNm | 선택 | 수요기관명 | "한국환경공단" |
+
+```python
+from kpubdata import Client
+
+client = Client.from_env()
+ds = client.dataset("datago.g2b_contract")
+raw = ds.call_raw("getCntrctInfoListThng", inqryBgnDt="202201", inqryEndDt="202512", numOfRows="10")
+```
+
+### social_enterprise (사회적기업 인증현황)
+
+고용노동부에서 제공하는 사회적기업 인증 현황 정보입니다. 기업명, 소재지, 업종, 인증일 등을 조회할 수 있습니다.
+
+> ⚠️ **ODcloud 프로토콜**: 이 데이터셋은 `apis.data.go.kr`이 아닌 `api.odcloud.kr`을 통해 제공됩니다. 페이지네이션 파라미터(`page`/`perPage`)와 응답 구조(`data[]` 플랫 배열)가 표준 data.go.kr 프로토콜과 다릅니다. KPubData가 내부적으로 자동 처리하므로 사용자는 동일한 방식으로 호출할 수 있습니다.
+
+- 제공 기관: 고용노동부
+- 데이터 ID: [15082035](https://www.data.go.kr/data/15082035/openapi.do)
+- 주요 파라미터: `page` (페이지 번호), `perPage` (페이지당 건수)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| page | 선택 | 페이지 번호 | "1" |
+| perPage | 선택 | 페이지당 건수 | "10" |
+
+```python
+ds = client.dataset("datago.social_enterprise")
+result = ds.list(perPage="10")
+for item in result.items[:3]:
+    print(item)
+# 응답 예시 필드: entNmV (기업명), addr (주소), busiContV (업종), certiIssuD (인증일)
+```
+
+### g2b_catalog (나라장터 종합쇼핑몰 품목정보)
+
+조달청 종합쇼핑몰에 등록된 물품의 식별정보를 제공합니다. 품목명, 규격, 단가, 공급업체, 인증정보 등을 조회할 수 있습니다.
+
+- 제공 기관: 조달청
+- 데이터 ID: [15129471](https://www.data.go.kr/data/15129471/openapi.do)
+- 주요 파라미터: `prdctNm` (물품명), `bsnmNm` (업체명)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| prdctNm | 선택 | 물품명 | "펌프" |
+| bsnmNm | 선택 | 업체명 | "" |
+
+```python
+ds = client.dataset("datago.g2b_catalog")
+raw = ds.call_raw("getShoppingMallPrdctInfoList", prdctNm="펌프", numOfRows="10")
+```
+
 ## 공공데이터포털 API 특이사항
 
 - **응답 형식**: JSON과 XML을 모두 지원하는 경우가 많으나, KPubData는 내부적으로 JSON 형식을 우선 사용합니다.
@@ -532,6 +598,19 @@ raw = ds.call_raw("getShtrmPath", numOfRows="5", pageNo="1")
 - **정상 응답 판별**: 응답 데이터의 `header` 내 `resultCode`가 `"00"`이면 정상 응답이며, 그 외의 코드는 에러를 의미합니다.
 - **일일 호출 제한**: API별로 일일 호출 제한 횟수가 설정되어 있으므로, 마이페이지에서 사용량을 확인할 수 있습니다.
 - **프로토콜**: 일부 API는 `http`만 지원하고, 일부는 `https`도 지원합니다.
+
+### ODcloud 프로토콜 (`api.odcloud.kr`)
+
+일부 데이터셋(예: `datago.social_enterprise`)은 `apis.data.go.kr`이 아닌 `api.odcloud.kr`을 통해 제공됩니다. ODcloud 프로토콜은 표준 data.go.kr 프로토콜과 다음과 같은 차이가 있습니다:
+
+| 항목 | data.go.kr 표준 | ODcloud |
+|---|---|---|
+| 기본 URL | `apis.data.go.kr` | `api.odcloud.kr` |
+| 페이지네이션 파라미터 | `pageNo` / `numOfRows` | `page` / `perPage` |
+| 응답 구조 | `response.header.resultCode` + `response.body.items.item[]` | 플랫 JSON: `{ currentCount, data[], matchCount, page, perPage, totalCount }` |
+| 응답 포맷 파라미터 | `resultType=json` 등 | 없음 (JSON 고정) |
+
+KPubData는 `catalogue.json`의 `provider_family: "odcloud"` 필드를 통해 자동으로 프로토콜을 전환합니다. 사용자는 표준 `list()` / `call_raw()` 인터페이스를 동일하게 사용할 수 있습니다.
 
 ## 트러블슈팅
 
