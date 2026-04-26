@@ -290,16 +290,64 @@
     }
   },
   {
-    "dataset_key": "generic",
-    "name": "범용 data.go.kr 엔드포인트 (Generic Endpoint)",
+    "dataset_key": "g2b_contract",
+    "name": "나라장터 조달계약정보 (G2B Procurement Contract)",
+    "base_url": "https://apis.data.go.kr/1230000/HrcspSsstmtInfoService",
+    "default_operation": "getHrcspSsstmtInfoList",
     "representation": "api_json",
     "service_key_param": "serviceKey",
-    "format_param": "resultType",
-    "description": "Call any data.go.kr API endpoint by passing _base_url at call time. Only call_raw is supported; list() is not available because schema and pagination vary by endpoint.",
-    "tags": ["api", "generic"],
-    "source_url": "https://www.data.go.kr",
-    "operations": ["raw"],
-    "generic": true
+    "format_param": "type",
+    "description": "Public procurement contract information from G2B (Korea ON-line E-Procurement System)",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "social_enterprise",
+    "name": "사회적기업 인증현황 (Certified Social Enterprise List)",
+    "base_url": "https://apis.data.go.kr/B552583/SocentInfoService",
+    "default_operation": "getSocentList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "Certified social enterprise list from Ministry of Employment and Labor",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "coop",
+    "name": "협동조합 설립현황 (Cooperative Establishment Status)",
+    "base_url": "https://apis.data.go.kr/B552014/CoopInfoService",
+    "default_operation": "getCoopInfoList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "Cooperative establishment information from Ministry of Strategy and Finance",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "g2b_catalog",
+    "name": "나라장터 종합쇼핑몰 품목정보 (G2B Shopping Mall Product Catalog)",
+    "base_url": "https://apis.data.go.kr/1230000/PrdctIdntInfoService",
+    "default_operation": "getPrdctIdntInfoList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "G2B comprehensive shopping mall product identification information",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   },
   {
     "dataset_key": "tour_kor_area",
@@ -402,5 +450,17 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "generic",
+    "name": "범용 data.go.kr 엔드포인트 (Generic Endpoint)",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "Call any data.go.kr API endpoint by passing _base_url at call time. Only call_raw is supported; list() is not available because schema and pagination vary by endpoint.",
+    "tags": ["api", "generic"],
+    "source_url": "https://www.data.go.kr",
+    "operations": ["raw"],
+    "generic": true
   }
 ]

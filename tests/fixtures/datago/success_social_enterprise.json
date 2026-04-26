@@ -1,0 +1,29 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "cmpnyNm": "행복한일터 사회적협동조합",
+            "signguNm": "서울특별시 강남구",
+            "bsnSmmry": "취약계층 고용 및 사회서비스 제공",
+            "crtfcDt": "20200301"
+          },
+          {
+            "cmpnyNm": "녹색미래 사회적기업",
+            "signguNm": "경기도 수원시",
+            "bsnSmmry": "친환경 제품 제조 및 판매",
+            "crtfcDt": "20210615"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

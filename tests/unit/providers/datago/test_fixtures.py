@@ -379,3 +379,51 @@ def test_fixture_building_area_parses() -> None:
     assert "hoNm" in batch.items[0]
     assert "exposPubuseGbCdNm" in batch.items[0]
     assert batch.total_count == 2
+
+
+def test_fixture_g2b_contract_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_g2b_contract.json", "g2b_contract")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "cntrctSn" in batch.items[0]
+    assert "prdctNm" in batch.items[0]
+    assert "cntrctAmt" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_social_enterprise_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_social_enterprise.json", "social_enterprise"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "cmpnyNm" in batch.items[0]
+    assert "bsnSmmry" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_coop_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_coop.json", "coop")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "coopNm" in batch.items[0]
+    assert "mainBizCn" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_g2b_catalog_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_g2b_catalog.json", "g2b_catalog")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert "prdctIdntNo" in batch.items[0]
+    assert "prdctNm" in batch.items[0]
+    assert "crtfcTyNm" in batch.items[0]
+    assert batch.total_count == 2
