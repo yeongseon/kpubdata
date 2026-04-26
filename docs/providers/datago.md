@@ -554,20 +554,20 @@ raw = ds.call_raw("getCntrctInfoListThng", inqryBgnDt="202201", inqryEndDt="2025
 
 고용노동부에서 제공하는 사회적기업 인증 현황 정보입니다. 기업명, 소재지, 업종, 인증일 등을 조회할 수 있습니다.
 
-> ⚠️ **ODcloud 프로토콜**: 이 데이터셋은 `apis.data.go.kr`이 아닌 `api.odcloud.kr`을 통해 제공됩니다. 페이지네이션 파라미터(`page`/`perPage`)와 응답 구조(`data[]` 플랫 배열)가 표준 data.go.kr 프로토콜과 다릅니다. KPubData가 내부적으로 자동 처리하므로 사용자는 동일한 방식으로 호출할 수 있습니다.
+> ⚠️ **ODcloud 프로토콜**: 이 데이터셋은 `apis.data.go.kr`이 아닌 `api.odcloud.kr`을 통해 제공됩니다. 페이지네이션 파라미터(`page`/`page_size`)와 응답 구조(`data[]` 플랫 배열)가 표준 data.go.kr 프로토콜과 다릅니다. KPubData가 내부적으로 자동 처리하므로 사용자는 동일한 방식으로 호출할 수 있습니다.
 
 - 제공 기관: 고용노동부
 - 데이터 ID: [15082035](https://www.data.go.kr/data/15082035/openapi.do)
-- 주요 파라미터: `page` (페이지 번호), `perPage` (페이지당 건수)
+- 주요 파라미터: `page` (페이지 번호), `page_size` (페이지당 건수)
 
 | 파라미터 | 필수 | 설명 | 예시 |
 |---|---|---|---|
 | page | 선택 | 페이지 번호 | "1" |
-| perPage | 선택 | 페이지당 건수 | "10" |
+| page_size | 선택 | 페이지당 건수 | 10 |
 
 ```python
 ds = client.dataset("datago.social_enterprise")
-result = ds.list(perPage="10")
+result = ds.list(page_size=10)
 for item in result.items[:3]:
     print(item)
 # 응답 예시 필드: entNmV (기업명), addr (주소), busiContV (업종), certiIssuD (인증일)
