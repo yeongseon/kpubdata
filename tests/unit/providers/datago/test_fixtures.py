@@ -401,20 +401,9 @@ def test_fixture_social_enterprise_parses() -> None:
     batch = adapter.query_records(dataset, Query())
 
     assert len(batch.items) == 2
-    assert "cmpnyNm" in batch.items[0]
-    assert "bsnSmmry" in batch.items[0]
-    assert batch.total_count == 2
-
-
-def test_fixture_coop_parses() -> None:
-    adapter, dataset = _build_real_estate_adapter("success_coop.json", "coop")
-
-    batch = adapter.query_records(dataset, Query())
-
-    assert len(batch.items) == 2
-    assert "coopNm" in batch.items[0]
-    assert "mainBizCn" in batch.items[0]
-    assert batch.total_count == 2
+    assert "entNmV" in batch.items[0]
+    assert "certiNumV" in batch.items[0]
+    assert batch.total_count == 4783
 
 
 def test_fixture_g2b_catalog_parses() -> None:

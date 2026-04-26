@@ -133,6 +133,7 @@ class DataGoAdapter:
 
         page = query.page or 1
         page_size = query.page_size or 100
+        is_odcloud = self._is_odcloud(dataset)
         logger.debug(
             "datago query_records",
             extra={
@@ -145,18 +146,34 @@ class DataGoAdapter:
 
         url = self._build_request_url(dataset)
         params = self._build_base_params(dataset)
-        params["pageNo"] = str(page)
-        params["numOfRows"] = str(page_size)
+        page_param = "pageNo"
+        page_size_param = "numOfRows"
+        if is_odcloud:
+            pagination_params = dataset.raw_metadata.get("pagination_params")
+            if isinstance(pagination_params, Mapping):
+                pagination_params_dict = cast(Mapping[str, object], pagination_params)
+                page_param_raw = pagination_params_dict.get("page")
+                page_size_param_raw = pagination_params_dict.get("page_size")
+                if isinstance(page_param_raw, str) and page_param_raw:
+                    page_param = page_param_raw
+                if isinstance(page_size_param_raw, str) and page_size_param_raw:
+                    page_size_param = page_size_param_raw
+
+        params[page_param] = str(page)
+        params[page_size_param] = str(page_size)
 
         reserved = {params_key.lower() for params_key in params}
-        reserved.update({"pageno", "numofrows"})
+        reserved.update({page_param.lower(), page_size_param.lower()})
         for key, raw_value in query.filters.items():
             if key.lower() not in reserved:
                 value: object = raw_value
                 params[key] = str(value)
 
         payload = self._request_and_decode(url, params, dataset.id)
-        body, items = self._validate_envelope(payload, dataset)
+        if is_odcloud:
+            body, items = self._parse_odcloud_response(payload, dataset)
+        else:
+            body, items = self._validate_envelope(payload, dataset)
 
         total_count = coerce_int(body.get("totalCount"), 0)
         if (total_count and page * page_size < total_count) or (
@@ -314,12 +331,19 @@ class DataGoAdapter:
                 request_params[key] = str(value)
 
         payload = self._request_and_decode(url, request_params, dataset.id)
+        if self._is_odcloud(dataset):
+            return payload
+
         _ = self._validate_envelope(payload, dataset)
         return payload
 
     @staticmethod
     def _is_generic(dataset: DatasetRef) -> bool:
         return bool(dataset.raw_metadata.get("generic"))
+
+    @staticmethod
+    def _is_odcloud(dataset: DatasetRef) -> bool:
+        return dataset.raw_metadata.get("provider_family") == "odcloud"
 
     def _require_api_key(self) -> str:
         return self._config.require_provider_key("datago")
@@ -360,12 +384,17 @@ class DataGoAdapter:
             if isinstance(service_key_param_raw, str) and service_key_param_raw
             else "serviceKey"
         )
-        format_param = (
-            format_param_raw
-            if isinstance(format_param_raw, str) and format_param_raw
-            else "resultType"
-        )
-        return {service_key_param: api_key, format_param: "json"}
+        params: dict[str, str] = {service_key_param: api_key}
+
+        if not self._is_odcloud(dataset):
+            format_param = (
+                format_param_raw
+                if isinstance(format_param_raw, str) and format_param_raw
+                else "resultType"
+            )
+            params[format_param] = "json"
+
+        return params
 
     def _request_and_decode(
         self, url: str, params: Mapping[str, object], dataset_id: str = ""
@@ -440,6 +469,26 @@ class DataGoAdapter:
         if envelope_style == "gyeonggi_msg":
             return self._validate_gyeonggi_msg_envelope(response_dict, dataset_id)
         return self._validate_standard_envelope(response_dict, dataset_id)
+
+    def _parse_odcloud_response(
+        self, payload: dict[str, object], dataset: DatasetRef
+    ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        data_obj = payload.get("data")
+        if data_obj is None:
+            return payload, []
+
+        if not isinstance(data_obj, list):
+            raise ProviderResponseError(
+                "Malformed odcloud response: data must be an array",
+                provider="datago",
+                dataset_id=dataset.id,
+            )
+
+        normalized_items = cast(list[object], data_obj)
+        items = [
+            cast(dict[str, object], item) for item in normalized_items if isinstance(item, dict)
+        ]
+        return payload, items
 
     def _validate_standard_envelope(
         self, response_dict: dict[str, object], dataset_id: str

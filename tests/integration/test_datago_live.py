@@ -309,3 +309,39 @@ def test_datago_metro_path(require_datago_key: None, live_client: Client) -> Non
 
     assert isinstance(result, dict)
     assert "response" in result
+
+
+@pytest.mark.integration
+def test_datago_g2b_contract(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.g2b_contract")
+
+    result = ds.list(page_size=5)
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0
+    assert isinstance(result.items[0], dict)
+
+
+@pytest.mark.integration
+def test_datago_social_enterprise(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.social_enterprise")
+
+    result = ds.list(page_size=5)
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0
+    assert isinstance(result.items[0], dict)
+
+
+@pytest.mark.integration
+def test_datago_g2b_catalog(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.g2b_catalog")
+
+    result = ds.list(page_size=5)
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0
+    assert isinstance(result.items[0], dict)
