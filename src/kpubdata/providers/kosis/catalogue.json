@@ -24,5 +24,42 @@
       {"name": "DT", "title": "값", "type": "string"},
       {"name": "UNIT_NM", "title": "단위", "type": "string"}
     ]
+  },
+  {
+    "dataset_key": "industrial_production",
+    "name": "광공업생산지수 (Industrial Production Index)",
+    "base_url": "https://kosis.kr/openapi/Param/statisticsParameterData.do",
+    "default_operation": "statisticsParameterData",
+    "representation": "api_json",
+    "org_id": "101",
+    "tbl_id": "DT_1J22003",
+    "default_query_params": {
+      "objL1": "T10",
+      "itmId": "T",
+      "prdSe": "M"
+    },
+    "description": "KOSIS industrial production statistics from the Statistics Korea open API (table DT_1J22003)",
+    "tags": ["industry", "production", "index", "statistics"],
+    "source_url": "https://kosis.kr/openapi/Param/statisticsParameterData.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {"name": "PRD_DE", "title": "기간", "type": "string"},
+      {"name": "PRD_SE", "title": "주기구분", "type": "string"},
+      {"name": "C1_OBJ_NM", "title": "분류명", "type": "string"},
+      {"name": "C1", "title": "분류코드", "type": "string"},
+      {"name": "C1_NM", "title": "분류값", "type": "string"},
+      {"name": "ITM_ID", "title": "항목코드", "type": "string"},
+      {"name": "ITM_NM", "title": "항목명", "type": "string"},
+      {"name": "DT", "title": "값", "type": "string"},
+      {"name": "UNIT_NM", "title": "단위", "type": "string"},
+      {"name": "TBL_ID", "title": "테이블ID", "type": "string"},
+      {"name": "TBL_NM", "title": "테이블명", "type": "string"},
+      {"name": "ORG_ID", "title": "기관ID", "type": "string"},
+      {"name": "LST_CHN_DE", "title": "최종변경일", "type": "string"}
+    ]
   }
 ]

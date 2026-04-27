@@ -10,6 +10,8 @@ Run with:
 
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
 
 from kpubdata.client import Client
@@ -46,7 +48,8 @@ def test_population_migration_raw_returns_list(live_client: Client) -> None:
     )
 
     assert isinstance(result, list)
-    assert len(result) > 0
+    result_list = cast(list[object], result)
+    assert len(result_list) > 0
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +146,7 @@ def test_dt_is_numeric_string(live_client: Client) -> None:
     for item in result.items[:20]:
         value = str(item["DT"])
         if value != "-":
-            int(value.replace(",", ""))
+            _ = int(value.replace(",", ""))
 
 
 @pytest.mark.integration
@@ -232,5 +235,19 @@ def test_usage_region_ranking(live_client: Client) -> None:
             region_totals[region] = int(str(item["DT"]).replace(",", ""))
 
     assert len(region_totals) > 0
-    top_region = max(region_totals, key=region_totals.get)  # type: ignore[arg-type]
+    top_region = max(region_totals.items(), key=lambda item: item[1])[0]
     assert isinstance(top_region, str)
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures("require_kosis_key")
+def test_industrial_production_returns_record_batch(live_client: Client) -> None:
+    ds = live_client.dataset("kosis.industrial_production")
+
+    result = ds.list(start_date="202401", end_date="202401")
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0
+    assert result.items[0]["TBL_ID"] == "DT_1J22003"
+    assert result.items[0]["C1"] == "T10"
+    assert result.items[0]["ITM_ID"] == "T"
