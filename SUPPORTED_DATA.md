@@ -272,6 +272,7 @@
 | 지원 | 테스트 검증 | - | 한국은행 ECOS (`bok`) | `bond_yield_3y` | 국고채 3년물 수익률 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | ECOS 통계표 `817Y002`, 항목코드 `010200000`, 일별 데이터 |
 | 지원 | 테스트 검증 | - | 한국은행 ECOS (`bok`) | `usd_krw` | 원/달러 환율 매매기준율 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | ECOS 통계표 `731Y003`, 항목코드 `0000003`, 일별 데이터 |
 | 지원 | 실API 검증 | 2025-04-15 | 통계청 KOSIS (`kosis`) | `population_migration` | 시도별 이동자수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | |
+| 지원 | 실API 검증 | 2026-04-27 | 통계청 KOSIS (`kosis`) | `industrial_production` | 광공업생산지수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | KOSIS 통계표 `DT_1J22003`, 기본 파라미터 `objL1=T10`, `itmId=T`, `prdSe=M` |
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `expenditure_budget` | 세출결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: AJGCF |
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `revenue_budget` | 세입결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: IIBBH |
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `expenditure_function` | 기능별세출 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: GGNSE |
