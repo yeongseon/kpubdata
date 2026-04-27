@@ -280,13 +280,19 @@
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `debt_ratio` | 채무비율현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: HEDFC |
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `fiscal_independence` | 재정자립도현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: JFIED |
 | 지원 | 실API 검증 | 2025-04-17 | 지방재정365 (`lofin`) | `revenue_by_source` | 재원별 회계별 세입결산 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: FIACRV |
+| 지원 | 테스트 검증 | - | 한국거래소 (`krx`) | `kospi_index` | 코스피 지수 일별 시세 | 인증 불필요 (`pykrx`) | [data.krx.co.kr](https://data.krx.co.kr/) | KRX 지수 OHLCV, 기본 ticker `1001` (KOSPI) |
+| 지원 | 테스트 검증 | - | 한국거래소 (`krx`) | `investor_flow` | 투자자별 순매수 추이 | 인증 불필요 (`pykrx`) | [data.krx.co.kr](https://data.krx.co.kr/) | KRX 시장별 투자자 매수/매도/순매수, 기본 market `KOSPI` |
+| 지원 | 테스트 검증 | - | 한국거래소 (`krx`) | `market_valuation` | 시장 밸류에이션 지표 | 인증 불필요 (`pykrx`) | [data.krx.co.kr](https://data.krx.co.kr/) | KRX 시장 PER/PBR/배당수익률/EPS/BPS 일별 집계, 기본 market `KOSPI` |
 
 ## 한국거래소 (`krx`)
 
-- 상태: Provider scaffold only
+- 상태: 지원
 - 인증: 없음 (`requires_api_key = False`)
 - 백엔드: optional `pykrx` extra (`pip install kpubdata[krx]`)
-- 데이터셋: issue [#200](https://github.com/yeongseon/kpubdata/issues/200)에서 추가 예정
+- 데이터셋:
+  - `krx.kospi_index`: 코스피 지수 일별 시세
+  - `krx.investor_flow`: 투자자별 순매수 추이
+  - `krx.market_valuation`: 시장 밸류에이션 지표
 
 ## 진행 예정 / 진행 중
 
