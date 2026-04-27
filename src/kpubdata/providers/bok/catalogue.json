@@ -23,5 +23,31 @@
       {"name": "ITEM_CODE1", "title": "항목코드", "type": "string"},
       {"name": "ITEM_NAME1", "title": "항목명", "type": "string"}
     ]
+  },
+  {
+    "dataset_key": "usd_krw",
+    "name": "원/달러 환율 매매기준율 (USD/KRW Exchange Rate)",
+    "base_url": "https://ecos.bok.or.kr/api/StatisticSearch",
+    "default_operation": "StatisticSearch",
+    "representation": "api_json",
+    "stat_code": "731Y003",
+    "item_code1": "0000003",
+    "description": "Bank of Korea USD/KRW exchange rate historical data",
+    "tags": ["finance", "exchange-rate", "fx"],
+    "source_url": "https://ecos.bok.or.kr/api/StatisticSearch",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000,
+      "frequency": ["D"]
+    },
+    "fields": [
+      {"name": "TIME", "title": "기간", "type": "string", "constraints": {"format": "YYYYMMDD", "pattern": "^\\d{8}$"}},
+      {"name": "DATA_VALUE", "title": "매매기준율", "type": "string"},
+      {"name": "UNIT_NAME", "title": "단위", "type": "string"},
+      {"name": "STAT_CODE", "title": "통계표코드", "type": "string", "constraints": {"pattern": "^[A-Z0-9]+$"}},
+      {"name": "ITEM_CODE1", "title": "항목코드", "type": "string"},
+      {"name": "ITEM_NAME1", "title": "항목명", "type": "string"}
+    ]
   }
 ]

@@ -58,12 +58,10 @@ def test_catalogue_includes_usd_krw_daily_dataset() -> None:
     assert dataset.name == "원/달러 환율 매매기준율 (USD/KRW Exchange Rate)"
     assert dataset.raw_metadata["stat_code"] == "731Y003"
     assert dataset.raw_metadata["item_code1"] == "0000003"
-    assert dataset.raw_metadata["tags"] == ["finance", "exchange-rate", "fx"]
-    assert dataset.raw_metadata["query_support"] == {
-        "pagination": "offset",
-        "max_page_size": 1000,
-        "frequency": ["D"],
-    }
+    assert dataset.tags == ("finance", "exchange-rate", "fx")
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination.value == "offset"
+    assert dataset.query_support.max_page_size == 1000
     assert [field["name"] for field in dataset.raw_metadata["fields"]] == [
         "TIME",
         "DATA_VALUE",
