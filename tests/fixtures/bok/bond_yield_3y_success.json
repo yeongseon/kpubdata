@@ -1,0 +1,52 @@
+{
+  "StatisticSearch": {
+    "list_total_count": 5,
+    "row": [
+      {
+        "STAT_CODE": "817Y002",
+        "STAT_NAME": "국고채금리",
+        "ITEM_CODE1": "010200000",
+        "ITEM_NAME1": "국고채(3년)",
+        "UNIT_NAME": "%",
+        "TIME": "20240102",
+        "DATA_VALUE": "3.154"
+      },
+      {
+        "STAT_CODE": "817Y002",
+        "STAT_NAME": "국고채금리",
+        "ITEM_CODE1": "010200000",
+        "ITEM_NAME1": "국고채(3년)",
+        "UNIT_NAME": "%",
+        "TIME": "20240103",
+        "DATA_VALUE": "3.143"
+      },
+      {
+        "STAT_CODE": "817Y002",
+        "STAT_NAME": "국고채금리",
+        "ITEM_CODE1": "010200000",
+        "ITEM_NAME1": "국고채(3년)",
+        "UNIT_NAME": "%",
+        "TIME": "20240104",
+        "DATA_VALUE": "3.145"
+      },
+      {
+        "STAT_CODE": "817Y002",
+        "STAT_NAME": "국고채금리",
+        "ITEM_CODE1": "010200000",
+        "ITEM_NAME1": "국고채(3년)",
+        "UNIT_NAME": "%",
+        "TIME": "20240105",
+        "DATA_VALUE": "3.156"
+      },
+      {
+        "STAT_CODE": "817Y002",
+        "STAT_NAME": "국고채금리",
+        "ITEM_CODE1": "010200000",
+        "ITEM_NAME1": "국고채(3년)",
+        "UNIT_NAME": "%",
+        "TIME": "20240108",
+        "DATA_VALUE": "3.182"
+      }
+    ]
+  }
+}
