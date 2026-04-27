@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from importlib.resources import files
 from typing import cast
 
 import pytest
@@ -53,15 +54,26 @@ def _build_adapter_with_transport(
 
 def test_catalogue_includes_usd_krw_daily_dataset() -> None:
     _, dataset, _ = _build_adapter_with_transport([], dataset_key="usd_krw")
+    catalogue = cast(
+        list[dict[str, object]],
+        json.loads(files("kpubdata.providers.bok").joinpath("catalogue.json").read_text()),
+    )
+    usd_krw_entry = next(entry for entry in catalogue if entry["dataset_key"] == "usd_krw")
 
     assert dataset.id == "bok.usd_krw"
     assert dataset.name == "원/달러 환율 매매기준율 (USD/KRW Exchange Rate)"
+    assert dataset.description == "Bank of Korea ECOS USD/KRW exchange rate historical data"
     assert dataset.raw_metadata["stat_code"] == "731Y003"
     assert dataset.raw_metadata["item_code1"] == "0000003"
     assert dataset.tags == ("finance", "exchange-rate", "fx")
     assert dataset.query_support is not None
     assert dataset.query_support.pagination.value == "offset"
     assert dataset.query_support.max_page_size == 1000
+    assert usd_krw_entry["query_support"] == {
+        "pagination": "offset",
+        "max_page_size": 1000,
+        "frequency": ["D"],
+    }
     raw_fields = cast(list[dict[str, object]], dataset.raw_metadata["fields"])
     assert [field["name"] for field in raw_fields] == [
         "TIME",

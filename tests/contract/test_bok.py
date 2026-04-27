@@ -116,6 +116,7 @@ def test_usd_krw_query_records_builds_daily_ecos_url_and_parses_fixture() -> Non
     )
 
     request_url = cast(str, transport.calls[0]["url"])
+    assert "/StatisticSearch/" in request_url
     assert "731Y003/D/20240101/20240105/0000003" in request_url
     assert len(batch.items) == 4
     assert [item["TIME"] for item in batch.items] == [

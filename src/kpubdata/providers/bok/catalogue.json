@@ -32,7 +32,7 @@
     "representation": "api_json",
     "stat_code": "731Y003",
     "item_code1": "0000003",
-    "description": "Bank of Korea USD/KRW exchange rate historical data",
+    "description": "Bank of Korea ECOS USD/KRW exchange rate historical data",
     "tags": ["finance", "exchange-rate", "fx"],
     "source_url": "https://ecos.bok.or.kr/api/StatisticSearch",
     "operations": ["list", "raw"],
