@@ -1,0 +1,21 @@
+[
+  {
+    "C1_OBJ_NM": "시도별",
+    "DT": "113.17",
+    "C1": "T10",
+    "PRD_SE": "M",
+    "UNIT_NM_ENG": "2020＝100",
+    "ITM_ID": "T",
+    "TBL_ID": "DT_1J22003",
+    "ITM_NM": "소비자물가지수(총지수)",
+    "TBL_NM": "소비자물가지수(2020＝100)",
+    "PRD_DE": "202401",
+    "LST_CHN_DE": "2024-06-26",
+    "C1_NM_ENG": "whole country",
+    "C1_NM": "전국",
+    "UNIT_NM": "2020＝100",
+    "ITM_NM_ENG": "CPI",
+    "ORG_ID": "101",
+    "C1_OBJ_NM_ENG": "by City"
+  }
+]

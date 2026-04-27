@@ -55,6 +55,20 @@ def _build_adapter(fixture_names: list[str]) -> ProviderAdapter:
     )
 
 
+def _build_adapter_with_transport(
+    fixture_names: list[str],
+) -> tuple[ProviderAdapter, _FixtureTransport]:
+    transport = _FixtureTransport(fixture_names)
+    config = KPubDataConfig(provider_keys={"kosis": "test-key"})
+    module = import_module("kpubdata.providers.kosis.adapter")
+    adapter_class = cast(Callable[..., ProviderAdapter], module.KosisAdapter)
+    adapter = adapter_class(
+        config=config,
+        transport=cast(HttpTransport, cast(object, transport)),
+    )
+    return adapter, transport
+
+
 class TestKosisAdapterContract(ProviderAdapterContract):
     @pytest.fixture()
     def adapter(self) -> ProviderAdapter:
@@ -95,3 +109,20 @@ class TestKosisAdapterContract(ProviderAdapterContract):
 
         with pytest.raises(AuthError):
             _ = adapter.query_records(dataset, Query(start_date="202401", end_date="202401"))
+
+
+def test_industrial_production_query_records_builds_default_param_url_and_parses_fixture() -> None:
+    adapter, transport = _build_adapter_with_transport(["industrial_production_success.json"])
+    dataset = adapter.get_dataset("industrial_production")
+
+    batch = adapter.query_records(dataset, Query(start_date="202401", end_date="202401"))
+
+    request_url = cast(str, transport.calls[0]["url"])
+    assert "tblId=DT_1J22003" in request_url
+    assert "objL1=T10" in request_url
+    assert "itmId=T" in request_url
+    assert "prdSe=M" in request_url
+    assert "objL2=ALL" not in request_url
+    assert len(batch.items) == 1
+    assert batch.items[0]["TBL_ID"] == "DT_1J22003"
+    assert batch.items[0]["C1"] == "T10"

@@ -25,8 +25,28 @@ from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.provider.kosis")
 
+_KOSIS_DEFAULT_QUERY_PARAM_KEYS: tuple[str, ...] = (
+    "objL1",
+    "objL2",
+    "objL3",
+    "objL4",
+    "objL5",
+    "objL6",
+    "objL7",
+    "objL8",
+    "itmId",
+    "prdSe",
+    "newEstPrdCnt",
+    "prdInterval",
+)
+
 
 class KosisAdapter:
+    """KOSIS adapter.
+
+    Query translation merge rule: dataset default_query_params < query.filters (caller wins).
+    """
+
     def __init__(
         self,
         *,
@@ -159,7 +179,7 @@ class KosisAdapter:
         params["endPrdDe"] = end_date
 
         reserved = {key.casefold() for key in params}
-        for key in ("objL1", "objL2", "itmId", "prdSe"):
+        for key in _KOSIS_DEFAULT_QUERY_PARAM_KEYS:
             if key in filters:
                 params[key] = str(filters.pop(key))
 
@@ -188,17 +208,40 @@ class KosisAdapter:
         api_key = self._require_api_key()
         org_id = self._require_dataset_metadata(dataset, "org_id")
         tbl_id = self._require_dataset_metadata(dataset, "tbl_id")
-        return {
+        params = {
             "apiKey": api_key,
             "format": "json",
             "jsonVD": "Y",
             "orgId": org_id,
             "tblId": tbl_id,
-            "objL1": "ALL",
-            "objL2": "ALL",
-            "itmId": "ALL",
-            "prdSe": "M",
         }
+        default_query_params = self._get_default_query_params(dataset)
+        if default_query_params:
+            params.update(default_query_params)
+        else:
+            params.update(
+                {
+                    "objL1": "ALL",
+                    "objL2": "ALL",
+                    "itmId": "ALL",
+                    "prdSe": "M",
+                }
+            )
+        return params
+
+    @staticmethod
+    def _get_default_query_params(dataset: DatasetRef) -> dict[str, str]:
+        raw_defaults = dataset.raw_metadata.get("default_query_params")
+        if not isinstance(raw_defaults, Mapping):
+            return {}
+        typed_defaults = cast(Mapping[str, object], raw_defaults)
+
+        default_query_params: dict[str, str] = {}
+        for key in _KOSIS_DEFAULT_QUERY_PARAM_KEYS:
+            value = typed_defaults.get(key)
+            if value is not None:
+                default_query_params[key] = str(value)
+        return default_query_params
 
     def _compose_url(self, dataset: DatasetRef, params: Mapping[str, str]) -> str:
         base_url = self._require_dataset_metadata(dataset, "base_url")
