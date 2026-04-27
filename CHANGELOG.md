@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-28
+
 ### Added
+- `krx` provider — 한국거래소 시세 어댑터 (선택적 `pykrx` 백엔드, authless 구성). 새로운 `requires_api_key` 프로토콜 플래그와 `Client.iter_authenticated_providers()` 도입 (#199)
+- `krx.kospi_index` — 코스피 지수 일별 시세 (#200)
+- `krx.investor_flow` — 투자자별 순매수 추이 (`net_value = buy_value - sell_value`) (#200)
+- `krx.market_valuation` — 시장 밸류에이션 지표 (per-day `get_market_fundamental_by_ticker` 집계) (#200)
+- `bok.usd_krw` — 원/달러 환율 ECOS 일별 시세 (731Y003/0000003) (#197)
+- `bok.bond_yield_3y` — 국고채 3년 ECOS 일별 시세 (817Y002/010200000) (#198)
+- `kosis.industrial_production` — 광공업생산지수 (DT_1J22003) (#196)
+- KOSIS 어댑터의 dataset-level `default_query_params` 지원 (objL1-objL8/itmId/prdSe/newEstPrdCnt/prdInterval allowlist; caller filters override defaults) (#196)
+- `pandas-stubs` dev 의존성 추가로 `core/models.py`의 `# type: ignore` 제거
 - ODcloud `provider_family` 프로토콜 지원: `api.odcloud.kr` 기반 엔드포인트를 위한 별도 페이지네이션(`page`/`perPage`) 및 응답 파싱(`data[]` 플랫 배열) 처리
 - k-eco-navigator 연동용 3개 데이터셋 추가:
   - `datago.g2b_contract` — 나라장터 조달계약정보 (`apis.data.go.kr/1230000/ao/CntrctInfoService`)
