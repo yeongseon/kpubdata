@@ -237,14 +237,11 @@ class KrxAdapter:
         )
         buy_frame = stock.get_market_trading_value_by_date(start_date, end_date, market, on="매수")
         sell_frame = stock.get_market_trading_value_by_date(start_date, end_date, market, on="매도")
-        net_frame = stock.get_market_trading_value_by_date(
-            start_date, end_date, market, on="순매수"
-        )
 
-        if buy_frame.empty or sell_frame.empty or net_frame.empty:
+        if buy_frame.empty or sell_frame.empty:
             return pd.DataFrame()
 
-        return self._combine_investor_frames(buy_frame, sell_frame, net_frame)
+        return self._combine_investor_frames(buy_frame, sell_frame)
 
     def _fetch_investor_flow_raw(self, dataset: DatasetRef, query: Query) -> pd.DataFrame:
         stock = self._stock_api()
@@ -262,10 +259,7 @@ class KrxAdapter:
             dataset, "market"
         )
 
-        try:
-            frame = stock.get_market_fundamental(start_date, end_date, market=market)
-        except TypeError:
-            frame = self._fetch_market_valuation_by_day(stock, start_date, end_date, market)
+        frame = self._fetch_market_valuation_by_day(stock, start_date, end_date, market)
 
         if frame.empty:
             return pd.DataFrame()
@@ -312,24 +306,23 @@ class KrxAdapter:
         self,
         buy_frame: pd.DataFrame,
         sell_frame: pd.DataFrame,
-        net_frame: pd.DataFrame,
     ) -> pd.DataFrame:
         rows: list[dict[str, object]] = []
         for day in buy_frame.index:
             for raw_label, normalized_label in _INVESTOR_LABELS:
-                if (
-                    raw_label not in buy_frame.columns
-                    or raw_label not in sell_frame.columns
-                    or raw_label not in net_frame.columns
-                ):
+                if raw_label not in buy_frame.columns or raw_label not in sell_frame.columns:
                     continue
+                buy_value = buy_frame.at[day, raw_label]
+                sell_value = sell_frame.at[day, raw_label]
+                buy_number = self._coerce_numeric_value(buy_value)
+                sell_number = self._coerce_numeric_value(sell_value)
                 rows.append(
                     {
                         "date": day,
                         "investor_type": normalized_label,
-                        "buy_value": buy_frame.at[day, raw_label],
-                        "sell_value": sell_frame.at[day, raw_label],
-                        "net_value": net_frame.at[day, raw_label],
+                        "buy_value": buy_value,
+                        "sell_value": sell_value,
+                        "net_value": buy_number - sell_number,
                     }
                 )
         if not rows:
@@ -493,6 +486,17 @@ class KrxAdapter:
         if isinstance(value, pd.Timestamp):
             return value.strftime("%Y-%m-%d")
         return value
+
+    @staticmethod
+    def _coerce_numeric_value(value: object) -> int | float:
+        if isinstance(value, bool):
+            return int(value)
+        if isinstance(value, int | float):
+            return value
+        item_method = getattr(value, "item", None)
+        if callable(item_method):
+            return KrxAdapter._coerce_numeric_value(cast(object, item_method()))
+        raise ProviderResponseError(f"Invalid KRX numeric value: {value!r}", provider="krx")
 
     @staticmethod
     def _format_date(value: object) -> str:

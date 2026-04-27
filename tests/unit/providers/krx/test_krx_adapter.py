@@ -10,8 +10,15 @@ import pandas as pd
 import pytest
 
 from kpubdata.config import KPubDataConfig
+from kpubdata.core.capability import Operation
 from kpubdata.core.models import Query
-from kpubdata.exceptions import ConfigError, InvalidRequestError, ProviderResponseError
+from kpubdata.exceptions import (
+    ConfigError,
+    DatasetNotFoundError,
+    InvalidRequestError,
+    ProviderResponseError,
+)
+from kpubdata.providers._common import build_dataset_ref
 from kpubdata.providers.krx.adapter import KrxAdapter
 
 
@@ -128,6 +135,13 @@ def test_catalogue_includes_three_krx_datasets() -> None:
     )
 
 
+def test_get_dataset_unknown_key_raises_dataset_not_found() -> None:
+    adapter = _build_adapter()
+
+    with pytest.raises(DatasetNotFoundError, match="krx.unknown"):
+        _ = adapter.get_dataset("unknown")
+
+
 def test_query_records_kospi_index_normalizes_snapshot() -> None:
     adapter = _build_adapter()
     dataset = adapter.get_dataset("kospi_index")
@@ -231,6 +245,36 @@ def test_call_raw_kospi_index_returns_raw_dataframe_records() -> None:
     ]
 
 
+def test_query_records_kospi_index_uses_get_index_ohlcv_by_date_fallback() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("kospi_index")
+    fallback_calls: list[tuple[str, str, str, bool]] = []
+
+    def _raise_index_error(*_args: object) -> pd.DataFrame:
+        raise ValueError("primary failed")
+
+    def _get_index_ohlcv_by_date(
+        start_date: str,
+        end_date: str,
+        ticker: str,
+        *,
+        name_display: bool,
+    ) -> pd.DataFrame:
+        fallback_calls.append((start_date, end_date, ticker, name_display))
+        return _kospi_index_frame()
+
+    _set_pykrx(
+        adapter,
+        get_index_ohlcv=_raise_index_error,
+        get_index_ohlcv_by_date=_get_index_ohlcv_by_date,
+    )
+
+    batch = adapter.query_records(dataset, Query(start_date="20240102", end_date="20240108"))
+
+    assert batch.items == _load_snapshot("kospi_index_5days.json")
+    assert fallback_calls == [("20240102", "20240108", "1001", False)]
+
+
 def test_query_records_investor_flow_normalizes_snapshot() -> None:
     adapter = _build_adapter()
     dataset = adapter.get_dataset("investor_flow")
@@ -248,7 +292,6 @@ def test_query_records_investor_flow_normalizes_snapshot() -> None:
         frames = {
             "매수": _investor_frame(10),
             "매도": _investor_frame(6),
-            "순매수": _investor_frame(4),
         }
         return frames[on]
 
@@ -261,7 +304,6 @@ def test_query_records_investor_flow_normalizes_snapshot() -> None:
     assert calls == [
         ("20240102", "20240108", "KOSPI", "매수"),
         ("20240102", "20240108", "KOSPI", "매도"),
-        ("20240102", "20240108", "KOSPI", "순매수"),
     ]
 
 
@@ -289,16 +331,56 @@ def test_query_records_investor_flow_supports_custom_market_filter() -> None:
         Query(start_date="20240102", end_date="20240108", filters={"market": "KOSDAQ"}),
     )
 
-    assert markets == ["KOSDAQ", "KOSDAQ", "KOSDAQ"]
+    assert markets == ["KOSDAQ", "KOSDAQ"]
+
+
+def test_call_raw_investor_flow_uses_requested_on_parameter() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("investor_flow")
+    calls: list[tuple[str, str, str, str]] = []
+
+    def _get_market_trading_value_by_date(
+        start_date: str,
+        end_date: str,
+        market: str,
+        *,
+        on: str = "순매수",
+        **_kwargs: object,
+    ) -> pd.DataFrame:
+        calls.append((start_date, end_date, market, on))
+        return _investor_frame(1)
+
+    _set_pykrx(adapter, get_market_trading_value_by_date=_get_market_trading_value_by_date)
+
+    payload = adapter.call_raw(
+        dataset,
+        "list",
+        {"start_date": "20240102", "end_date": "20240108", "market": "KOSDAQ", "on": "매수"},
+    )
+
+    assert calls == [("20240102", "20240108", "KOSDAQ", "매수")]
+    assert isinstance(payload, list)
+    assert payload[0]["날짜"] == "2024-01-02"
+
+
+def test_call_raw_empty_dataframe_returns_empty_list() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("investor_flow")
+    _set_pykrx(adapter, get_market_trading_value_by_date=lambda *_args, **_kwargs: pd.DataFrame())
+
+    payload = adapter.call_raw(
+        dataset,
+        "list",
+        {"start_date": "20240102", "end_date": "20240108"},
+    )
+
+    assert payload == []
 
 
 def test_query_records_market_valuation_normalizes_snapshot() -> None:
     adapter = _build_adapter()
     dataset = adapter.get_dataset("market_valuation")
     days_called: list[str] = []
-
-    def _unsupported_market_fundamental(*_args: object, **_kwargs: object) -> pd.DataFrame:
-        raise TypeError("range market fundamental is unavailable")
 
     def _get_market_fundamental_by_ticker(date: str, market: str = "KOSPI") -> pd.DataFrame:
         _ = market
@@ -309,7 +391,6 @@ def test_query_records_market_valuation_normalizes_snapshot() -> None:
 
     _set_pykrx(
         adapter,
-        get_market_fundamental=_unsupported_market_fundamental,
         get_market_fundamental_by_ticker=_get_market_fundamental_by_ticker,
     )
 
@@ -328,6 +409,107 @@ def test_query_records_market_valuation_normalizes_snapshot() -> None:
     ]
 
 
+def test_query_records_market_valuation_supports_custom_market_filter() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("market_valuation")
+    markets: list[str] = []
+
+    def _get_market_fundamental_by_ticker(date: str, market: str = "KOSPI") -> pd.DataFrame:
+        _ = date
+        markets.append(market)
+        return _market_fundamental_frame("20240102")
+
+    _set_pykrx(adapter, get_market_fundamental_by_ticker=_get_market_fundamental_by_ticker)
+
+    batch = adapter.query_records(
+        dataset,
+        Query(start_date="20240102", end_date="20240102", filters={"market": "KOSDAQ"}),
+    )
+
+    assert batch.items[0]["market"] == "KOSDAQ"
+    assert markets == ["KOSDAQ"]
+
+
+def test_market_valuation_skips_days_with_missing_columns_and_zero_rows() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("market_valuation")
+
+    def _get_market_fundamental_by_ticker(date: str, market: str = "KOSPI") -> pd.DataFrame:
+        _ = market
+        if date == "20240102":
+            return pd.DataFrame(columns=["PER"])
+        if date == "20240103":
+            return pd.DataFrame(
+                {
+                    "PER": [0.0],
+                    "PBR": [0.0],
+                    "DIV": [0.0],
+                    "EPS": [0.0],
+                    "BPS": [0.0],
+                },
+                index=pd.Index(["000001"], name="티커"),
+            )
+        return _market_fundamental_frame(date)
+
+    _set_pykrx(adapter, get_market_fundamental_by_ticker=_get_market_fundamental_by_ticker)
+
+    batch = adapter.query_records(dataset, Query(start_date="20240102", end_date="20240104"))
+
+    assert [item["date"] for item in batch.items] == ["2024-01-04"]
+
+
+def test_market_valuation_returns_empty_when_all_days_are_skipped() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("market_valuation")
+
+    def _get_market_fundamental_by_ticker(date: str, market: str = "KOSPI") -> pd.DataFrame:
+        _ = date, market
+        return pd.DataFrame(columns=["PER", "PBR", "DIV", "EPS", "BPS"])
+
+    _set_pykrx(adapter, get_market_fundamental_by_ticker=_get_market_fundamental_by_ticker)
+
+    batch = adapter.query_records(dataset, Query(start_date="20240102", end_date="20240103"))
+
+    assert batch.items == []
+
+
+def test_fetch_market_valuation_returns_empty_frame_when_aggregation_is_empty() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("market_valuation")
+    _set_pykrx(adapter, get_market_fundamental_by_ticker=lambda *_args, **_kwargs: pd.DataFrame())
+
+    frame = adapter._fetch_market_valuation(
+        dataset, Query(start_date="20240102", end_date="20240103")
+    )
+
+    assert frame.empty
+
+
+def test_fetch_market_valuation_returns_passthrough_frame_when_columns_are_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("market_valuation")
+
+    def _fake_fetch_by_day(
+        _stock: object,
+        _start_date: str,
+        _end_date: str,
+        _market: str,
+    ) -> pd.DataFrame:
+        return pd.DataFrame({"date": [pd.Timestamp("2024-01-02")], "close": [100.0]}).set_index(
+            "date"
+        )
+
+    monkeypatch.setattr(adapter, "_fetch_market_valuation_by_day", _fake_fetch_by_day)
+
+    frame = adapter._fetch_market_valuation(
+        dataset, Query(start_date="20240102", end_date="20240102")
+    )
+
+    assert list(frame.columns) == ["close"]
+
+
 @pytest.mark.parametrize(
     ("dataset_key", "methods"),
     [
@@ -341,7 +523,7 @@ def test_query_records_market_valuation_normalizes_snapshot() -> None:
         ),
         (
             "market_valuation",
-            {"get_market_fundamental": lambda *_args, **_kwargs: pd.DataFrame()},
+            {"get_market_fundamental_by_ticker": lambda *_args, **_kwargs: pd.DataFrame()},
         ),
     ],
 )
@@ -378,7 +560,7 @@ def test_empty_dataframe_returns_empty_record_batch(
         (
             "market_valuation",
             {
-                "get_market_fundamental": lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                "get_market_fundamental_by_ticker": lambda *_args, **_kwargs: (_ for _ in ()).throw(
                     RuntimeError("boom")
                 )
             },
@@ -419,12 +601,141 @@ def test_get_schema_builds_from_catalogue_metadata() -> None:
     ]
 
 
+def test_search_datasets_matches_tags_and_description() -> None:
+    adapter = _build_adapter()
+
+    assert [dataset.id for dataset in adapter.search_datasets("valuation")] == [
+        "krx.market_valuation"
+    ]
+    assert [dataset.id for dataset in adapter.search_datasets("ohlcv")] == ["krx.kospi_index"]
+
+
+def test_query_records_uses_query_extra_for_filters() -> None:
+    adapter = _build_adapter()
+    dataset = adapter.get_dataset("investor_flow")
+    calls: list[tuple[str, str, str, str]] = []
+
+    def _get_market_trading_value_by_date(
+        start_date: str,
+        end_date: str,
+        market: str,
+        *,
+        on: str = "순매수",
+        **_kwargs: object,
+    ) -> pd.DataFrame:
+        calls.append((start_date, end_date, market, on))
+        return _investor_frame(1)
+
+    _set_pykrx(adapter, get_market_trading_value_by_date=_get_market_trading_value_by_date)
+
+    _ = adapter.query_records(
+        dataset,
+        Query(start_date="20240102", end_date="20240108", extra={"market": "KONEX"}),
+    )
+
+    assert calls == [
+        ("20240102", "20240108", "KONEX", "매수"),
+        ("20240102", "20240108", "KONEX", "매도"),
+    ]
+
+
 def test_query_records_requires_start_and_end_dates() -> None:
     adapter = _build_adapter()
     dataset = adapter.get_dataset("kospi_index")
 
     with pytest.raises(InvalidRequestError, match="start_date and end_date"):
         _ = adapter.query_records(dataset, Query())
+
+
+def test_query_records_raises_when_default_query_param_metadata_is_missing() -> None:
+    dataset = build_dataset_ref(
+        "krx",
+        {
+            "dataset_key": "kospi_index",
+            "name": "Broken KRX dataset",
+            "representation": "other",
+            "description": "KRX broken dataset",
+            "operations": [Operation.LIST.value],
+        },
+    )
+    adapter = KrxAdapter(config=KPubDataConfig(), catalogue=[dataset])
+    _set_pykrx(adapter, get_index_ohlcv=lambda *_args: _kospi_index_frame())
+
+    with pytest.raises(ProviderResponseError, match="default_query_params.ticker"):
+        _ = adapter.query_records(dataset, Query(start_date="20240102", end_date="20240108"))
+
+
+def test_aggregate_market_valuation_frame_handles_date_column_and_passthrough() -> None:
+    adapter = _build_adapter()
+    dated = pd.DataFrame(
+        {
+            "date": [pd.Timestamp("2024-01-02")],
+            "PER": [100.0],
+            "PBR": [1.0],
+            "DIV": [2.0],
+            "EPS": [1000.0],
+            "BPS": [5000.0],
+        }
+    )
+    passthrough = pd.DataFrame({"PER": [100.0]})
+
+    dated_result = adapter._aggregate_market_valuation_frame(dated)
+    passthrough_result = adapter._aggregate_market_valuation_frame(passthrough)
+
+    assert isinstance(dated_result.index, pd.DatetimeIndex)
+    assert passthrough_result is passthrough
+
+
+def test_combine_investor_frames_skips_missing_columns_and_can_return_empty() -> None:
+    adapter = _build_adapter()
+    buy_frame = pd.DataFrame({"개인": [100]}, index=pd.DatetimeIndex(["2024-01-02"], name="날짜"))
+    sell_frame = pd.DataFrame({"전체": [0]}, index=pd.DatetimeIndex(["2024-01-02"], name="날짜"))
+
+    frame = adapter._combine_investor_frames(buy_frame, sell_frame)
+
+    assert frame.empty
+
+
+def test_format_date_handles_iso_string_and_invalid_value() -> None:
+    assert KrxAdapter._format_date("2024-01-02") == "2024-01-02"
+    assert KrxAdapter._format_date("20240102") == "2024-01-02"
+    assert KrxAdapter._format_date(pd.Timestamp("2024-01-02")) == "2024-01-02"
+
+    with pytest.raises(ProviderResponseError, match="Invalid KRX date value"):
+        _ = KrxAdapter._format_date(123)
+
+
+def test_to_python_value_formats_timestamps() -> None:
+    adapter = _build_adapter()
+
+    assert adapter._to_python_value(pd.Timestamp("2024-01-02")) == "2024-01-02"
+    assert adapter._to_python_value(1) == 1
+
+
+def test_coerce_numeric_value_handles_numeric_and_invalid_values() -> None:
+    assert KrxAdapter._coerce_numeric_value(1) == 1
+    assert KrxAdapter._coerce_numeric_value(1.5) == 1.5
+    assert KrxAdapter._coerce_numeric_value(True) == 1
+
+    with pytest.raises(ProviderResponseError, match="Invalid KRX numeric value"):
+        _ = KrxAdapter._coerce_numeric_value("1")
+
+
+def test_dispatch_dataframe_raises_dataset_not_found_for_unknown_handler() -> None:
+    adapter = _build_adapter()
+    dataset = build_dataset_ref(
+        "krx",
+        {
+            "dataset_key": "unknown",
+            "name": "Unknown KRX dataset",
+            "representation": "other",
+            "description": "KRX unknown dataset",
+            "operations": [Operation.LIST.value],
+        },
+    )
+
+    with pytest.raises(DatasetNotFoundError, match="Dataset not found: krx.unknown"):
+        _ = adapter._dispatch_dataframe(dataset, Query(), {})
 
 
 def test_load_pykrx_raises_install_hint_when_dependency_missing(
