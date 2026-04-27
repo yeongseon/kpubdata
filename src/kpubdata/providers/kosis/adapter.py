@@ -47,6 +47,8 @@ class KosisAdapter:
     Query translation merge rule: dataset default_query_params < query.filters (caller wins).
     """
 
+    requires_api_key: bool = True
+
     def __init__(
         self,
         *,
