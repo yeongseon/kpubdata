@@ -205,12 +205,6 @@
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `electrical_safety_management_agency` | 전기안전관리대행사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `electricity_sales` | 전기판매사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 
-## 한국거래소 (`krx`)
-
-- 상태: Provider scaffold only
-- 인증: 없음 (`requires_api_key = False`)
-- 백엔드: optional `pykrx` extra (`pip install kpubdata[krx]`)
-- 데이터셋: issue [#200](https://github.com/yeongseon/kpubdata/issues/200)에서 추가 예정
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `city_gas` | 도시가스사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `gas_appliance_manufacturing` | 가스용품제조사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `groundwater_construction` | 지하수시공업체 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/지하수 |
@@ -286,6 +280,13 @@
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `debt_ratio` | 채무비율현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: HEDFC |
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `fiscal_independence` | 재정자립도현황 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: JFIED |
 | 지원 | 실API 검증 | 2025-04-17 | 지방재정365 (`lofin`) | `revenue_by_source` | 재원별 회계별 세입결산 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: FIACRV |
+
+## 한국거래소 (`krx`)
+
+- 상태: Provider scaffold only
+- 인증: 없음 (`requires_api_key = False`)
+- 백엔드: optional `pykrx` extra (`pip install kpubdata[krx]`)
+- 데이터셋: issue [#200](https://github.com/yeongseon/kpubdata/issues/200)에서 추가 예정
 
 ## 진행 예정 / 진행 중
 
