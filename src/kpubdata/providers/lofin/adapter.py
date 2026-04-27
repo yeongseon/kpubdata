@@ -34,6 +34,8 @@ def _lofin_ssl_context() -> ssl.SSLContext:
 
 
 class LofinAdapter:
+    requires_api_key: bool = True
+
     transport_requirements: TransportRequirements = TransportRequirements(
         ssl_context_factory=_lofin_ssl_context,
     )

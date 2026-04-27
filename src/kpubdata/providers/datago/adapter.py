@@ -59,6 +59,8 @@ class DataGoAdapter:
     apis.data.go.kr endpoint family.
     """
 
+    requires_api_key: bool = True
+
     def __init__(
         self,
         *,

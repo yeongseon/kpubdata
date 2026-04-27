@@ -16,6 +16,8 @@ logger = logging.getLogger("kpubdata.provider.law")
 
 
 class LawAdapter:
+    requires_api_key: bool = True
+
     def __init__(
         self,
         *,

@@ -15,6 +15,8 @@ class ProviderAdapter(Protocol):
     raw access, and truthful capability declaration.
     """
 
+    requires_api_key: bool
+
     @property
     def name(self) -> str:
         """Return provider identifier (for example ``datago`` or ``seoul``)."""

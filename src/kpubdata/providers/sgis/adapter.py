@@ -30,6 +30,8 @@ class _AuthClient(Protocol):
 
 
 class SgisAdapter:
+    requires_api_key: bool = True
+
     def __init__(
         self,
         *,

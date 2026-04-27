@@ -28,6 +28,8 @@ logger = logging.getLogger("kpubdata.provider.bok")
 
 
 class BokAdapter:
+    requires_api_key: bool = True
+
     def __init__(
         self,
         *,

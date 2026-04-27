@@ -30,6 +30,8 @@ def _is_success_code(code: str) -> bool:
 
 
 class LocaldataAdapter:
+    requires_api_key: bool = True
+
     def __init__(
         self,
         *,

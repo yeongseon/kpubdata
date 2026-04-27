@@ -22,6 +22,8 @@ _EMPTY_CODE = "INFO-200"
 
 
 class SeoulAdapter:
+    requires_api_key: bool = True
+
     def __init__(
         self,
         *,
