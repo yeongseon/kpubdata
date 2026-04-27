@@ -40,15 +40,38 @@ def _success_payload(*, items: object, total_count: object) -> dict[str, object]
 
 
 def _build_adapter_with_transport(
-    responses: list[FakeResponse],
+    responses: list[FakeResponse], *, dataset_key: str = "base_rate"
 ) -> tuple[BokAdapter, DatasetRef, FakeTransport]:
     transport = FakeTransport(responses)
     adapter = BokAdapter(
         config=KPubDataConfig(provider_keys={"bok": "test-key"}),
         transport=cast(HttpTransport, cast(object, transport)),
     )
-    dataset = adapter.get_dataset("base_rate")
+    dataset = adapter.get_dataset(dataset_key)
     return adapter, dataset, transport
+
+
+def test_catalogue_includes_usd_krw_daily_dataset() -> None:
+    adapter, dataset, _ = _build_adapter_with_transport([], dataset_key="usd_krw")
+
+    assert dataset.id == "bok.usd_krw"
+    assert dataset.name == "원/달러 환율 매매기준율 (USD/KRW Exchange Rate)"
+    assert dataset.raw_metadata["stat_code"] == "731Y003"
+    assert dataset.raw_metadata["item_code1"] == "0000003"
+    assert dataset.raw_metadata["tags"] == ["finance", "exchange-rate", "fx"]
+    assert dataset.raw_metadata["query_support"] == {
+        "pagination": "offset",
+        "max_page_size": 1000,
+        "frequency": ["D"],
+    }
+    assert [field["name"] for field in dataset.raw_metadata["fields"]] == [
+        "TIME",
+        "DATA_VALUE",
+        "UNIT_NAME",
+        "STAT_CODE",
+        "ITEM_CODE1",
+        "ITEM_NAME1",
+    ]
 
 
 def test_query_records_returns_single_page_and_sets_next_page() -> None:

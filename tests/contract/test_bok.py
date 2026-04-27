@@ -51,7 +51,9 @@ class _AdapterFactory(Protocol):
     ) -> ProviderAdapter: ...
 
 
-def _build_adapter(fixture_names: list[str]) -> ProviderAdapter:
+def _build_adapter_with_transport(
+    fixture_names: list[str],
+) -> tuple[ProviderAdapter, _FixtureTransport]:
     transport = _FixtureTransport(fixture_names)
     config = KPubDataConfig(provider_keys={"bok": "test-key"})
     adapter_module = import_module("kpubdata.providers.bok.adapter")
@@ -63,7 +65,12 @@ def _build_adapter(fixture_names: list[str]) -> ProviderAdapter:
         config=config,
         transport=cast(HttpTransport, cast(object, transport)),
     )
-    return adapter_obj
+    return adapter_obj, transport
+
+
+def _build_adapter(fixture_names: list[str]) -> ProviderAdapter:
+    adapter, _ = _build_adapter_with_transport(fixture_names)
+    return adapter
 
 
 class TestBokAdapterContract(ProviderAdapterContract):
@@ -93,3 +100,27 @@ class TestBokAdapterContract(ProviderAdapterContract):
             "StatisticSearch",
             {"start_date": "202401", "end_date": "202403", "frequency": "M"},
         )
+
+
+def test_usd_krw_query_records_builds_daily_ecos_url_and_parses_fixture() -> None:
+    adapter, transport = _build_adapter_with_transport(["usd_krw_success.json"])
+    dataset = adapter.get_dataset("usd_krw")
+
+    batch = adapter.query_records(
+        dataset,
+        Query(
+            start_date="20240101",
+            end_date="20240105",
+            extra={"frequency": "D"},
+        ),
+    )
+
+    request_url = cast(str, transport.calls[0]["url"])
+    assert "731Y003/D/20240101/20240105/0000003" in request_url
+    assert len(batch.items) == 4
+    assert [item["TIME"] for item in batch.items] == [
+        "20240102",
+        "20240103",
+        "20240104",
+        "20240105",
+    ]
