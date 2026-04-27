@@ -1,0 +1,43 @@
+{
+  "StatisticSearch": {
+    "list_total_count": 4,
+    "row": [
+      {
+        "STAT_CODE": "731Y003",
+        "STAT_NAME": "원/달러 환율(종가 기준)",
+        "ITEM_CODE1": "0000003",
+        "ITEM_NAME1": "원/달러(매매기준율)",
+        "UNIT_NAME": "KRW/USD",
+        "TIME": "20240102",
+        "DATA_VALUE": "1312.60"
+      },
+      {
+        "STAT_CODE": "731Y003",
+        "STAT_NAME": "원/달러 환율(종가 기준)",
+        "ITEM_CODE1": "0000003",
+        "ITEM_NAME1": "원/달러(매매기준율)",
+        "UNIT_NAME": "KRW/USD",
+        "TIME": "20240103",
+        "DATA_VALUE": "1314.80"
+      },
+      {
+        "STAT_CODE": "731Y003",
+        "STAT_NAME": "원/달러 환율(종가 기준)",
+        "ITEM_CODE1": "0000003",
+        "ITEM_NAME1": "원/달러(매매기준율)",
+        "UNIT_NAME": "KRW/USD",
+        "TIME": "20240104",
+        "DATA_VALUE": "1322.40"
+      },
+      {
+        "STAT_CODE": "731Y003",
+        "STAT_NAME": "원/달러 환율(종가 기준)",
+        "ITEM_CODE1": "0000003",
+        "ITEM_NAME1": "원/달러(매매기준율)",
+        "UNIT_NAME": "KRW/USD",
+        "TIME": "20240105",
+        "DATA_VALUE": "1316.90"
+      }
+    ]
+  }
+}

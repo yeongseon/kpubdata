@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from importlib.resources import files
 from typing import cast
 
 import pytest
@@ -40,15 +41,48 @@ def _success_payload(*, items: object, total_count: object) -> dict[str, object]
 
 
 def _build_adapter_with_transport(
-    responses: list[FakeResponse],
+    responses: list[FakeResponse], *, dataset_key: str = "base_rate"
 ) -> tuple[BokAdapter, DatasetRef, FakeTransport]:
     transport = FakeTransport(responses)
     adapter = BokAdapter(
         config=KPubDataConfig(provider_keys={"bok": "test-key"}),
         transport=cast(HttpTransport, cast(object, transport)),
     )
-    dataset = adapter.get_dataset("base_rate")
+    dataset = adapter.get_dataset(dataset_key)
     return adapter, dataset, transport
+
+
+def test_catalogue_includes_usd_krw_daily_dataset() -> None:
+    _, dataset, _ = _build_adapter_with_transport([], dataset_key="usd_krw")
+    catalogue = cast(
+        list[dict[str, object]],
+        json.loads(files("kpubdata.providers.bok").joinpath("catalogue.json").read_text()),
+    )
+    usd_krw_entry = next(entry for entry in catalogue if entry["dataset_key"] == "usd_krw")
+
+    assert dataset.id == "bok.usd_krw"
+    assert dataset.name == "원/달러 환율 매매기준율 (USD/KRW Exchange Rate)"
+    assert dataset.description == "Bank of Korea ECOS USD/KRW exchange rate historical data"
+    assert dataset.raw_metadata["stat_code"] == "731Y003"
+    assert dataset.raw_metadata["item_code1"] == "0000003"
+    assert dataset.tags == ("finance", "exchange-rate", "fx")
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination.value == "offset"
+    assert dataset.query_support.max_page_size == 1000
+    assert usd_krw_entry["query_support"] == {
+        "pagination": "offset",
+        "max_page_size": 1000,
+        "frequency": ["D"],
+    }
+    raw_fields = cast(list[dict[str, object]], dataset.raw_metadata["fields"])
+    assert [field["name"] for field in raw_fields] == [
+        "TIME",
+        "DATA_VALUE",
+        "UNIT_NAME",
+        "STAT_CODE",
+        "ITEM_CODE1",
+        "ITEM_NAME1",
+    ]
 
 
 def test_query_records_returns_single_page_and_sets_next_page() -> None:
@@ -71,7 +105,7 @@ def test_query_records_uses_default_page_size_100() -> None:
     payload = _success_payload(items=[{"id": 1}], total_count=1)
     adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
 
-    _ = adapter.query_records(dataset, Query(start_date="202401", end_date="202403"))
+    _batch = adapter.query_records(dataset, Query(start_date="202401", end_date="202403"))
 
     request_url = cast(str, transport.calls[0]["url"])
     assert "/1/100/" in request_url
@@ -95,7 +129,7 @@ def test_query_records_missing_dates_logs_debug(caplog: pytest.LogCaptureFixture
 
     caplog.set_level(logging.DEBUG, logger="kpubdata.provider.bok")
     with pytest.raises(InvalidRequestError, match="start_date and end_date"):
-        adapter.query_records(dataset, Query())
+        _ = adapter.query_records(dataset, Query())
 
     record = next(
         record

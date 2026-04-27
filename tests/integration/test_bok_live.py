@@ -123,7 +123,7 @@ def test_base_rate_data_value_is_numeric_string(live_client: Client) -> None:
     for item in result.items:
         value = item["DATA_VALUE"]
         assert isinstance(value, str)
-        float(value)  # raises ValueError if not numeric
+        _ = float(value)
 
 
 @pytest.mark.integration
@@ -217,3 +217,14 @@ def test_usage_single_month_query(live_client: Client) -> None:
 
     assert len(result.items) == 1
     assert str(result.items[0]["TIME"]) == "202406"
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures("require_bok_key")
+def test_usd_krw_daily_returns_record_batch(live_client: Client) -> None:
+    ds = live_client.dataset("bok.usd_krw")
+
+    result = ds.list(start_date="20240101", end_date="20240105", frequency="D")
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0
