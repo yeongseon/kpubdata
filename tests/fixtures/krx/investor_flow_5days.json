@@ -1,0 +1,22 @@
+[
+  {"date": "2024-01-02", "market": "KOSPI", "investor_type": "개인", "buy_value": 1000, "sell_value": 600, "net_value": 400},
+  {"date": "2024-01-02", "market": "KOSPI", "investor_type": "기관", "buy_value": 500, "sell_value": 300, "net_value": 200},
+  {"date": "2024-01-02", "market": "KOSPI", "investor_type": "외국인", "buy_value": 300, "sell_value": 180, "net_value": 120},
+  {"date": "2024-01-02", "market": "KOSPI", "investor_type": "기타", "buy_value": 200, "sell_value": 120, "net_value": 80},
+  {"date": "2024-01-03", "market": "KOSPI", "investor_type": "개인", "buy_value": 1100, "sell_value": 660, "net_value": 440},
+  {"date": "2024-01-03", "market": "KOSPI", "investor_type": "기관", "buy_value": 550, "sell_value": 330, "net_value": 220},
+  {"date": "2024-01-03", "market": "KOSPI", "investor_type": "외국인", "buy_value": 350, "sell_value": 210, "net_value": 140},
+  {"date": "2024-01-03", "market": "KOSPI", "investor_type": "기타", "buy_value": 250, "sell_value": 150, "net_value": 100},
+  {"date": "2024-01-04", "market": "KOSPI", "investor_type": "개인", "buy_value": 1200, "sell_value": 720, "net_value": 480},
+  {"date": "2024-01-04", "market": "KOSPI", "investor_type": "기관", "buy_value": 600, "sell_value": 360, "net_value": 240},
+  {"date": "2024-01-04", "market": "KOSPI", "investor_type": "외국인", "buy_value": 400, "sell_value": 240, "net_value": 160},
+  {"date": "2024-01-04", "market": "KOSPI", "investor_type": "기타", "buy_value": 300, "sell_value": 180, "net_value": 120},
+  {"date": "2024-01-05", "market": "KOSPI", "investor_type": "개인", "buy_value": 1300, "sell_value": 780, "net_value": 520},
+  {"date": "2024-01-05", "market": "KOSPI", "investor_type": "기관", "buy_value": 650, "sell_value": 390, "net_value": 260},
+  {"date": "2024-01-05", "market": "KOSPI", "investor_type": "외국인", "buy_value": 450, "sell_value": 270, "net_value": 180},
+  {"date": "2024-01-05", "market": "KOSPI", "investor_type": "기타", "buy_value": 350, "sell_value": 210, "net_value": 140},
+  {"date": "2024-01-08", "market": "KOSPI", "investor_type": "개인", "buy_value": 1400, "sell_value": 840, "net_value": 560},
+  {"date": "2024-01-08", "market": "KOSPI", "investor_type": "기관", "buy_value": 700, "sell_value": 420, "net_value": 280},
+  {"date": "2024-01-08", "market": "KOSPI", "investor_type": "외국인", "buy_value": 500, "sell_value": 300, "net_value": 200},
+  {"date": "2024-01-08", "market": "KOSPI", "investor_type": "기타", "buy_value": 400, "sell_value": 240, "net_value": 160}
+]

@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "dataset_key": "kospi_index",
+    "name": "코스피 지수 일별 시세 (KRX KOSPI Index Daily OHLCV)",
+    "representation": "other",
+    "description": "KRX KOSPI index daily OHLCV series exposed through the pykrx backend.",
+    "tags": ["krx", "equity", "index", "kospi", "ohlcv"],
+    "source_url": "https://data.krx.co.kr/",
+    "operations": ["list", "raw"],
+    "default_query_params": {
+      "ticker": "1001"
+    },
+    "query_support": {
+      "pagination": "none"
+    },
+    "fields": [
+      {"name": "date", "title": "Date", "type": "string", "constraints": {"format": "YYYY-MM-DD"}},
+      {"name": "open", "title": "Open", "type": "number"},
+      {"name": "high", "title": "High", "type": "number"},
+      {"name": "low", "title": "Low", "type": "number"},
+      {"name": "close", "title": "Close", "type": "number"},
+      {"name": "volume", "title": "Volume", "type": "integer"},
+      {"name": "trading_value", "title": "Trading Value", "type": "integer"},
+      {"name": "market_cap", "title": "Market Capitalization", "type": "integer"}
+    ]
+  },
+  {
+    "dataset_key": "investor_flow",
+    "name": "투자자별 순매수 추이 (KRX Investor Flow by Date)",
+    "representation": "other",
+    "description": "KRX investor-type buy, sell, and net-buy trading values by trading date via pykrx.",
+    "tags": ["krx", "equity", "investor", "flow", "trading-value"],
+    "source_url": "https://data.krx.co.kr/",
+    "operations": ["list", "raw"],
+    "default_query_params": {
+      "market": "KOSPI"
+    },
+    "query_support": {
+      "pagination": "none"
+    },
+    "fields": [
+      {"name": "date", "title": "Date", "type": "string", "constraints": {"format": "YYYY-MM-DD"}},
+      {"name": "market", "title": "Market", "type": "string"},
+      {"name": "investor_type", "title": "Investor Type", "type": "string"},
+      {"name": "buy_value", "title": "Buy Value", "type": "integer"},
+      {"name": "sell_value", "title": "Sell Value", "type": "integer"},
+      {"name": "net_value", "title": "Net Value", "type": "integer"}
+    ]
+  },
+  {
+    "dataset_key": "market_valuation",
+    "name": "시장 밸류에이션 지표 (KRX Market Valuation Daily Metrics)",
+    "representation": "other",
+    "description": "KRX market-level daily valuation metrics aggregated from pykrx fundamentals data.",
+    "tags": ["krx", "equity", "valuation", "per", "pbr", "dividend"],
+    "source_url": "https://data.krx.co.kr/",
+    "operations": ["list", "raw"],
+    "default_query_params": {
+      "market": "KOSPI"
+    },
+    "query_support": {
+      "pagination": "none"
+    },
+    "fields": [
+      {"name": "date", "title": "Date", "type": "string", "constraints": {"format": "YYYY-MM-DD"}},
+      {"name": "market", "title": "Market", "type": "string"},
+      {"name": "per", "title": "PER", "type": "number"},
+      {"name": "pbr", "title": "PBR", "type": "number"},
+      {"name": "dividend_yield", "title": "Dividend Yield", "type": "number"},
+      {"name": "eps", "title": "EPS", "type": "number"},
+      {"name": "bps", "title": "BPS", "type": "number"}
+    ]
+  }
+]

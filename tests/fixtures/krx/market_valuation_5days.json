@@ -1,0 +1,7 @@
+[
+  {"date": "2024-01-02", "market": "KOSPI", "per": 150.0, "pbr": 1.5, "dividend_yield": 3.0, "eps": 1500.0, "bps": 6000.0},
+  {"date": "2024-01-03", "market": "KOSPI", "per": 160.0, "pbr": 1.6, "dividend_yield": 3.2, "eps": 1600.0, "bps": 6100.0},
+  {"date": "2024-01-04", "market": "KOSPI", "per": 170.0, "pbr": 1.7000000000000002, "dividend_yield": 3.4000000000000004, "eps": 1700.0, "bps": 6200.0},
+  {"date": "2024-01-05", "market": "KOSPI", "per": 180.0, "pbr": 1.7999999999999998, "dividend_yield": 3.5999999999999996, "eps": 1800.0, "bps": 6300.0},
+  {"date": "2024-01-08", "market": "KOSPI", "per": 190.0, "pbr": 1.9, "dividend_yield": 3.8, "eps": 1900.0, "bps": 6400.0}
+]

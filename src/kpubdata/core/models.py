@@ -133,7 +133,7 @@ class RecordBatch:
             A ``pandas.DataFrame`` built from :attr:`items`.
         """
         try:
-            import pandas as pd  # type: ignore[import-untyped]
+            import pandas as pd
         except ImportError:
             raise ImportError(
                 "pandas is required for to_pandas(). Install with: pip install kpubdata[pandas]"
