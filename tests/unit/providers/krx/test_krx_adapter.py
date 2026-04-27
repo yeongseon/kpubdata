@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -153,3 +154,11 @@ def test_adapter_is_constructible_without_krx_api_key(monkeypatch: pytest.Monkey
 
     assert adapter.name == "krx"
     assert adapter.requires_api_key is False
+
+
+def test_adapter_construction_does_not_import_pykrx(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delitem(sys.modules, "pykrx", raising=False)
+
+    _ = KrxAdapter(config=KPubDataConfig())
+
+    assert "pykrx" not in sys.modules
