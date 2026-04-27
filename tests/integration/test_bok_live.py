@@ -228,3 +228,14 @@ def test_usd_krw_daily_returns_record_batch(live_client: Client) -> None:
 
     assert isinstance(result, RecordBatch)
     assert len(result.items) > 0
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures("require_bok_key")
+def test_bond_yield_3y_daily_returns_record_batch(live_client: Client) -> None:
+    ds = live_client.dataset("bok.bond_yield_3y")
+
+    result = ds.list(start_date="20240102", end_date="20240108", frequency="D")
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0

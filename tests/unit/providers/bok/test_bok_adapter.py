@@ -85,6 +85,41 @@ def test_catalogue_includes_usd_krw_daily_dataset() -> None:
     ]
 
 
+def test_catalogue_includes_bond_yield_3y_daily_dataset() -> None:
+    _, dataset, _ = _build_adapter_with_transport([], dataset_key="bond_yield_3y")
+    catalogue = cast(
+        list[dict[str, object]],
+        json.loads(files("kpubdata.providers.bok").joinpath("catalogue.json").read_text()),
+    )
+    bond_yield_3y_entry = next(
+        entry for entry in catalogue if entry["dataset_key"] == "bond_yield_3y"
+    )
+
+    assert dataset.id == "bok.bond_yield_3y"
+    assert dataset.name == "국고채 3년물 수익률 (Korea Treasury Bond 3Y Yield)"
+    assert dataset.description == "Bank of Korea ECOS Korea Treasury Bond 3Y yield historical data"
+    assert dataset.raw_metadata["stat_code"] == "817Y002"
+    assert dataset.raw_metadata["item_code1"] == "010200000"
+    assert dataset.tags == ("finance", "interest-rate", "bond", "treasury")
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination.value == "offset"
+    assert dataset.query_support.max_page_size == 1000
+    assert bond_yield_3y_entry["query_support"] == {
+        "pagination": "offset",
+        "max_page_size": 1000,
+        "frequency": ["D"],
+    }
+    raw_fields = cast(list[dict[str, object]], dataset.raw_metadata["fields"])
+    assert [field["name"] for field in raw_fields] == [
+        "TIME",
+        "DATA_VALUE",
+        "UNIT_NAME",
+        "STAT_CODE",
+        "ITEM_CODE1",
+        "ITEM_NAME1",
+    ]
+
+
 def test_query_records_returns_single_page_and_sets_next_page() -> None:
     payload = _success_payload(items=[{"id": 1}, {"id": 2}], total_count=5)
     adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])

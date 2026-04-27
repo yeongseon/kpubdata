@@ -125,3 +125,29 @@ def test_usd_krw_query_records_builds_daily_ecos_url_and_parses_fixture() -> Non
         "20240104",
         "20240105",
     ]
+
+
+def test_bond_yield_3y_query_records_builds_daily_ecos_url_and_parses_fixture() -> None:
+    adapter, transport = _build_adapter_with_transport(["bond_yield_3y_success.json"])
+    dataset = adapter.get_dataset("bond_yield_3y")
+
+    batch = adapter.query_records(
+        dataset,
+        Query(
+            start_date="20240102",
+            end_date="20240108",
+            extra={"frequency": "D"},
+        ),
+    )
+
+    request_url = cast(str, transport.calls[0]["url"])
+    assert "/StatisticSearch/" in request_url
+    assert "817Y002/D/20240102/20240108/010200000" in request_url
+    assert len(batch.items) == 5
+    assert [item["TIME"] for item in batch.items] == [
+        "20240102",
+        "20240103",
+        "20240104",
+        "20240105",
+        "20240108",
+    ]
