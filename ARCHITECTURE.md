@@ -184,6 +184,10 @@ client = Client.from_env()
 
 **관련 코드**: `src/kpubdata/config.py` → `KPubDataConfig.get_provider_key()`, `require_provider_key()`
 
+> 참고: 기본값은 API-key provider이지만, 어댑터가 `requires_api_key = False`를 선언하면
+> `Client`는 해당 provider를 키 없이도 lazy 등록합니다. `krx`가 첫 authless built-in
+> provider이며 실제 인증/백엔드 결정은 어댑터 계층에 남겨둡니다.
+
 ### 6.3 키의 내부 전달 경로
 
 ```mermaid

@@ -204,6 +204,13 @@
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `electrical_construction` | 전기공사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `electrical_safety_management_agency` | 전기안전관리대행사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `electricity_sales` | 전기판매사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
+
+## 한국거래소 (`krx`)
+
+- 상태: Provider scaffold only
+- 인증: 없음 (`requires_api_key = False`)
+- 백엔드: optional `pykrx` extra (`pip install kpubdata[krx]`)
+- 데이터셋: issue [#200](https://github.com/yeongseon/kpubdata/issues/200)에서 추가 예정
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `city_gas` | 도시가스사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `gas_appliance_manufacturing` | 가스용품제조사업 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/에너지 |
 | 지원 | 테스트 검증 | - | 지방행정인허가 (`localdata`) | `groundwater_construction` | 지하수시공업체 인허가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 행정안전부 제공, 자원환경/지하수 |
