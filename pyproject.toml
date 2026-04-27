@@ -46,6 +46,9 @@ xml = [
 pandas = [
   "pandas>=2.2,<3",
 ]
+krx = [
+  "pykrx>=1.0.45,<2",
+]
 validation = [
   "pydantic>=2.7,<3",
 ]
@@ -57,6 +60,7 @@ dev = [
   "mypy>=1.10,<2",
   "pytest>=8.2,<9",
   "pytest-cov>=5,<6",
+  "pykrx>=1.0.45,<2",
   "ruff>=0.5,<1",
   "xmltodict>=0.13,<1",
 ]
