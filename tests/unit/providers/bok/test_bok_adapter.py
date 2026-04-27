@@ -52,7 +52,7 @@ def _build_adapter_with_transport(
 
 
 def test_catalogue_includes_usd_krw_daily_dataset() -> None:
-    adapter, dataset, _ = _build_adapter_with_transport([], dataset_key="usd_krw")
+    _, dataset, _ = _build_adapter_with_transport([], dataset_key="usd_krw")
 
     assert dataset.id == "bok.usd_krw"
     assert dataset.name == "원/달러 환율 매매기준율 (USD/KRW Exchange Rate)"
@@ -62,7 +62,8 @@ def test_catalogue_includes_usd_krw_daily_dataset() -> None:
     assert dataset.query_support is not None
     assert dataset.query_support.pagination.value == "offset"
     assert dataset.query_support.max_page_size == 1000
-    assert [field["name"] for field in dataset.raw_metadata["fields"]] == [
+    raw_fields = cast(list[dict[str, object]], dataset.raw_metadata["fields"])
+    assert [field["name"] for field in raw_fields] == [
         "TIME",
         "DATA_VALUE",
         "UNIT_NAME",
@@ -92,7 +93,7 @@ def test_query_records_uses_default_page_size_100() -> None:
     payload = _success_payload(items=[{"id": 1}], total_count=1)
     adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
 
-    _ = adapter.query_records(dataset, Query(start_date="202401", end_date="202403"))
+    _batch = adapter.query_records(dataset, Query(start_date="202401", end_date="202403"))
 
     request_url = cast(str, transport.calls[0]["url"])
     assert "/1/100/" in request_url
@@ -116,7 +117,7 @@ def test_query_records_missing_dates_logs_debug(caplog: pytest.LogCaptureFixture
 
     caplog.set_level(logging.DEBUG, logger="kpubdata.provider.bok")
     with pytest.raises(InvalidRequestError, match="start_date and end_date"):
-        adapter.query_records(dataset, Query())
+        _ = adapter.query_records(dataset, Query())
 
     record = next(
         record

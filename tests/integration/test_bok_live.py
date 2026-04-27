@@ -123,7 +123,7 @@ def test_base_rate_data_value_is_numeric_string(live_client: Client) -> None:
     for item in result.items:
         value = item["DATA_VALUE"]
         assert isinstance(value, str)
-        float(value)  # raises ValueError if not numeric
+        _ = float(value)
 
 
 @pytest.mark.integration
