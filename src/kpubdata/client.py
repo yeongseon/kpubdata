@@ -157,6 +157,14 @@ class Client:
         )
         self._registry.register(adapter)
 
+    def iter_authenticated_providers(self) -> tuple[ProviderAdapter, ...]:
+        providers: list[ProviderAdapter] = []
+        for provider_name in self._registry:
+            adapter = cast(ProviderAdapter, self._registry.get(provider_name))
+            if _requires_api_key(adapter):
+                providers.append(adapter)
+        return tuple(providers)
+
     def _register_builtin_providers(self) -> None:
         config = self._config
         transport = self._transport
@@ -223,6 +231,10 @@ def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequiremen
     if requirements is None:
         return None
     return cast(TransportRequirements | None, requirements)
+
+
+def _requires_api_key(adapter: ProviderAdapter) -> bool:
+    return cast(bool, getattr(adapter, "requires_api_key", True))
 
 
 def _resolve_cache(cache: bool | ResponseCache) -> ResponseCache | None:
