@@ -269,6 +269,7 @@
 | 지원 | 테스트 검증 | - | 서울 열린데이터광장 (`seoul`) | `subway_realtime_arrival` | 서울시 지하철 실시간 도착정보 | [서울 열린데이터광장](https://data.seoul.go.kr/) 인증키 | [data.seoul.go.kr](https://data.seoul.go.kr/) | 경로 기반 인증키 + 서비스별 top-level envelope |
 | 지원 | 테스트 검증 | - | 서울 열린데이터광장 (`seoul`) | `bike_rent_month` | 서울시 공공자전거 이용정보(월별) | [서울 열린데이터광장](https://data.seoul.go.kr/) 인증키 | [data.seoul.go.kr](https://data.seoul.go.kr/) | 경로 기반 인증키 + 인덱스 페이지네이션 |
 | 지원 | 실API 검증 | 2025-04-15 | 한국은행 ECOS (`bok`) | `base_rate` | 한국은행 기준금리 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | |
+| 지원 | 테스트 검증 | - | 한국은행 ECOS (`bok`) | `bond_yield_3y` | 국고채 3년물 수익률 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | ECOS 통계표 `817Y002`, 항목코드 `010200000`, 일별 데이터 |
 | 지원 | 테스트 검증 | - | 한국은행 ECOS (`bok`) | `usd_krw` | 원/달러 환율 매매기준율 | [ECOS](https://ecos.bok.or.kr/api/) 인증키 | [ecos.bok.or.kr](https://ecos.bok.or.kr/api/) | ECOS 통계표 `731Y003`, 항목코드 `0000003`, 일별 데이터 |
 | 지원 | 실API 검증 | 2025-04-15 | 통계청 KOSIS (`kosis`) | `population_migration` | 시도별 이동자수 | [KOSIS](https://kosis.kr/openapi/index/index.jsp) 인증키 | [kosis.kr](https://kosis.kr/openapi/index/index.jsp) | |
 | 지원 | 실API 검증 | 2025-04-16 | 지방재정365 (`lofin`) | `expenditure_budget` | 세출결산총괄 | [지방재정365](https://www.lofin365.go.kr) 인증키 | [lofin365.go.kr](https://www.lofin365.go.kr) | API 코드: AJGCF |
