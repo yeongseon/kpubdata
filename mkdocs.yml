@@ -1,0 +1,73 @@
+site_name: KPubData
+site_url: https://yeongseon.github.io/kpubdata
+site_description: 한국 공공데이터 접근 프레임워크
+repo_url: https://github.com/yeongseon/kpubdata
+repo_name: yeongseon/kpubdata
+
+theme:
+  name: material
+  language: ko
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 다크 모드로 전환
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 라이트 모드로 전환
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - search.suggest
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - toc:
+      permalink: true
+
+nav:
+  - 홈: index.md
+  - 빠른 시작: quickstart.md
+  - CLI: cli.md
+  - 캐싱: caching.md
+  - 로깅: logging.md
+  - Cookbook:
+      - 시작하기: cookbook/getting-started.md
+      - 데이터셋 탐색: cookbook/discovery.md
+      - Raw 접근: cookbook/raw-access.md
+  - Providers:
+      - 공공데이터포털 (datago): providers/datago.md
+      - 서울 열린데이터광장: providers/seoul.md
+      - 통계청 KOSIS: providers/kosis.md
+      - 한국은행 BOK: providers/bok.md
+  - 아키텍처:
+      - 시스템 구조: architecture-diagrams.md
+      - Product Family: product-family-architecture.md
+      - datago API 참고: datago-api-reference.md
+  - ADR:
+      - "0001: Dialect 아키텍처": adrs/0001-dialect-inspired-architecture.md
+      - "0002: UX 표준화": adrs/0002-standardize-ux-not-native-shape.md
+  - 튜토리얼:
+      - AI 에이전트 워크플로우: tutorial-ai-agent-workflow.md
