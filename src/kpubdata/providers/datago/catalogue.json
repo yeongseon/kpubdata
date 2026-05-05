@@ -452,5 +452,23 @@
     "source_url": "https://www.data.go.kr",
     "operations": ["raw"],
     "generic": true
+  },
+  {
+    "dataset_key": "sports_facility",
+    "name": "전국체육시설 정보",
+    "base_url": "http://apis.data.go.kr/B551014/SRVC_API_SFMS_FACI",
+    "default_operation": "T0DZ_API_SFMS_FACI",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "전국 체육시설 정보 조회",
+    "tags": ["sports", "facility", "public"],
+    "source_url": "https://www.data.go.kr",
+    "operations": ["list", "raw"],
+    "query_support": {
+    "pagination": "offset",
+    "max_page_size": 1000
   }
+}
+
 ]
