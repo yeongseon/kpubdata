@@ -16,15 +16,15 @@ KPubData Product Family(Korea Public Data Product Family)는 한국 공공데이
 
 세 프로젝트의 관계를 **석유공업(정유산업)**에 비유하면 이해하기 쉽습니다.
 
-### 원유 수입 → 정유소 → 석유 제품 수출
+### 원유 채굴 → 정유소 → 제어실
 
-- **kpubdata = 원유 수입 (Crude Oil Import)**
-  - 전 세계 유전(공공기관 [API](https://ko.wikipedia.org/wiki/API))에서 각기 다른 성분의 원유(데이터)를 들여옵니다.
-  - 원유는 그 자체로는 쓸 수 없습니다 — 기관마다 형식(XML, JSON)도 인증 방식도 제각각이기 때문입니다.
-  - 불순물을 제거하고 표준 규격으로 정제(정규화)하여 다음 공정으로 보냅니다.
+- **kpubdata = 원유 채굴·탈염 (Crude Extraction & Desalting)**
+  - 전 세계 유전(공공기관 [API](https://ko.wikipedia.org/wiki/API))에서 원유(데이터)를 채굴합니다.
+  - 유전마다 원유의 성분(응답 형식)과 채굴 조건(인증 방식)이 제각각입니다.
+  - 탈염·탈수 공정(정규화)을 거쳐 불순물을 제거하고, 파이프라인에 넣을 수 있는 표준 원유로 만듭니다.
 
 - **kpubdata-builder = 정유소 (Refinery)**
-  - 정제된 원유를 레시피(빌드 기획서)에 따라 가솔린, 경유, 등유 등 다양한 석유 제품(Parquet, CSV, HuggingFace Dataset)으로 분리·가공합니다.
+  - 표준화된 원유를 레시피(빌드 기획서)에 따라 가솔린·경유·등유 등 다양한 석유 제품(Parquet, CSV, HuggingFace Dataset)으로 분리·가공합니다.
   - 같은 공정을 언제든 반복할 수 있도록 자동화된 플랜트를 운영합니다.
 
 - **kpubdata-studio = 제어실 (Control Room)**
@@ -32,9 +32,9 @@ KPubData Product Family(Korea Public Data Product Family)는 한국 공공데이
   - 운영자가 직접 배관을 만질 필요 없이, 화면에서 클릭 몇 번으로 전체 공정을 관리합니다.
 
 ```text
-[유전 / 원유 수입]        [정유소]              [제어실]
+[유전 / 원유 채굴]        [정유소]              [제어실]
   kpubdata          →   kpubdata-builder  →   kpubdata-studio
-  (원유 수입·정제)        (석유 제품 생산)        (공정 제어·모니터링)
+  (채굴·탈염·표준화)     (석유 제품 생산)        (공정 제어·모니터링)
 ```
 
 ---

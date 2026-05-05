@@ -182,7 +182,7 @@ kpubdata/
 ├── docs/providers/          ← ⭐ 기관별 사용 문서
 │   └── seoul.md
 ├── SUPPORTED_DATA.md        ← ⭐ 지원 현황 (PR마다 업데이트)
-├── CONTRIBUTING.md          ← 이 파일!
+├── CONTRIBUTING.md          ← 기여 가이드 (이 문서의 원본)
 └── README.md
 ```
 
