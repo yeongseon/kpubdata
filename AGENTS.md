@@ -36,6 +36,18 @@ The project is a Python 3.10+ framework with a small stable public API and provi
 - **Commit messages**: Always in English.
 - **Issue / PR titles and descriptions**: Korean is acceptable; English is also fine.
 
+## Dataset publishing rules
+
+- **Organization**: All public datasets are published under the `kpubdata` HuggingFace organization (https://huggingface.co/kpubdata). Never upload to personal accounts.
+- **Naming**: `kpubdata/<city>-<dataset-name>` (e.g. `kpubdata/seoul-bike-rent-month`, `kpubdata/seoul-apartment-trades`)
+- **Dataset card**: Always in English (global-first). Korean domain terms explained in parentheses.
+- **Column names**: English `snake_case`. Original Korean text values preserved as-is.
+- **Source fidelity**: No feature engineering. Publish clean raw data only.
+- **License**: CC-BY-4.0 (mapped from 공공누리 제1유형). Include Korean attribution block.
+- **Schema honesty**: Declared columns must match actual data. No phantom columns or all-null surprises.
+- **Kaggle mirror**: Also upload to Kaggle under `yschoe` account with same conventions.
+- **Documentation update**: When publishing a new dataset, update `README.md` (Published Datasets table) and `docs/providers/<provider>.md`.
+
 ## Branch rules
 
 - Default branch is `main`. **Never push directly to `main`.**

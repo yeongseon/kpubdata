@@ -423,7 +423,7 @@ KPubData로 수집한 데이터를 정제하여 공개 플랫폼에 업로드하
 
 | 데이터셋 | 플랫폼 | 규모 | 링크 |
 |---|---|---|---|
-| 서울 따릉이 월별 이용정보 | HuggingFace | ~119,000건 (11MB) | [yeongseonchoe/seoul-bike-rent-month](https://huggingface.co/datasets/yeongseonchoe/seoul-bike-rent-month) |
+| 서울 따릉이 월별 이용정보 | HuggingFace | ~119,000건 (11MB) | [kpubdata/seoul-bike-rent-month](https://huggingface.co/datasets/kpubdata/seoul-bike-rent-month) |
 | 서울 따릉이 월별 이용정보 | Kaggle | ~119,000건 (11MB) | [yschoe/seoul-bike-rent-month](https://www.kaggle.com/datasets/yschoe/seoul-bike-rent-month) |
 
 수집 방법 및 업로드 코드는 [docs/providers/seoul.md](./docs/providers/seoul.md#published-datasets-공개-데이터셋)를 참고하세요.
