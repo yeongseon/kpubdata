@@ -17,6 +17,7 @@
     "name": "서울시 공공자전거 이용정보 월별 (Ttareungi Monthly)",
     "base_url": "http://openapi.seoul.go.kr:8088",
     "default_operation": "tbCycleRentUseMonthInfo",
+    "envelope_key": "cycleRentUseMonthInfo",
     "representation": "api_json",
     "description": "Seoul public bicycle (Ttareungi) monthly usage statistics",
     "tags": ["transportation", "bicycle", "monthly"],

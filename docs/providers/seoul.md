@@ -10,9 +10,15 @@
 ## 인증키 발급 및 환경 변수 설정
 
 1. [서울 열린데이터광장](https://data.seoul.go.kr/)에 가입합니다.
-2. 사용하려는 Open API 페이지에서 인증키를 신청하거나 발급 상태를 확인합니다.
-3. 마이페이지에서 인증키를 복사합니다.
-4. 환경 변수에 설정합니다.
+2. 로그인 후 우측 상단 **인증키 신청** 메뉴를 클릭합니다.
+3. 이용약관 동의 후 신청 폼을 작성합니다:
+   - 서비스(사용) 환경: **연구(논문 등)** 또는 **웹 사이트 개발**
+   - 사용URL: 프로젝트 URL (예: `https://github.com/yeongseon/kpubdata`)
+   - 관리용 대표 이메일: 본인 이메일
+   - 활용용도/내용: 간단한 설명
+4. **인증키 신청** 버튼 클릭 → 즉시 발급됩니다 (별도 심사 없음).
+5. **인증키 관리** 메뉴에서 발급된 키를 확인합니다.
+6. 환경 변수에 설정합니다.
 
 ```bash
 export KPUBDATA_SEOUL_API_KEY="your-seoul-api-key"
@@ -48,6 +54,24 @@ http://swopenAPI.seoul.go.kr/api/subway/{KEY}/json/realtimeStationArrival/{START
 http://openapi.seoul.go.kr:8088/{KEY}/json/tbCycleRentUseMonthInfo/{START_INDEX}/{END_INDEX}/{RENT_NM}
 ```
 
+#### 3) 따릉이 실시간 대여정보
+
+```text
+http://openapi.seoul.go.kr:8088/{KEY}/json/bikeList/{START_INDEX}/{END_INDEX}
+```
+
+- envelope 키: `rentBikeStatus` (서비스명 `bikeList`와 다름)
+- 필수 경로 파라미터 없음
+
+#### 4) 따릉이 대여소 마스터 정보
+
+```text
+http://openapi.seoul.go.kr:8088/{KEY}/json/tbCycleStationInfo/{START_INDEX}/{END_INDEX}
+```
+
+- envelope 키: `stationInfo` (서비스명 `tbCycleStationInfo`와 다름)
+- 필수 경로 파라미터 없음
+
 ## 지원 데이터셋
 
 ### 1. `subway_realtime_arrival`
@@ -61,6 +85,20 @@ http://openapi.seoul.go.kr:8088/{KEY}/json/tbCycleRentUseMonthInfo/{START_INDEX}
 - 서비스명: `tbCycleRentUseMonthInfo`
 - 필수 경로 파라미터: `RENT_NM`
 - 예시 값: `"202401"`
+
+### 3. `bike_realtime`
+
+- 서비스명: `bikeList`
+- envelope 키: `rentBikeStatus`
+- 필수 경로 파라미터: 없음
+- 설명: 따릉이 대여소 실시간 자전거 가용 현황
+
+### 4. `bike_station_master`
+
+- 서비스명: `tbCycleStationInfo`
+- envelope 키: `stationInfo`
+- 필수 경로 파라미터: 없음
+- 설명: 따릉이 대여소 마스터 정보 (위치, 거치대 수 등)
 
 ## 에러 코드 매핑
 
@@ -126,8 +164,34 @@ raw = ds.call_raw("tbCycleRentUseMonthInfo", RENT_NM="202401", page_no=1, page_s
 print(raw["tbCycleRentUseMonthInfo"]["list_total_count"])
 ```
 
+### 따릉이 실시간 대여정보 `list()`
+
+```python
+from kpubdata import Client
+
+client = Client.from_env()
+ds = client.dataset("seoul.bike_realtime")
+
+result = ds.list(page_size=5)
+
+for item in result.items:
+    print(item["stationName"], f"거치대:{item['rackTotCnt']}", f"자전거:{item['parkingBikeTotCnt']}")
+```
+
+### 따릉이 대여소 마스터 정보 `list()`
+
+```python
+ds = client.dataset("seoul.bike_station_master")
+
+result = ds.list(page_size=10)
+
+for item in result.items:
+    print(item["RENT_ID_NM"], item["STA_ADD1"])
+```
+
 ## 참고
 
 - `list()`는 한 번에 한 페이지만 반환하며, 다음 페이지가 있으면 `RecordBatch.next_page`가 채워집니다.
 - 서울 Open API의 서비스명과 경로 파라미터 이름은 provider-specific semantics이므로 그대로 유지합니다.
-- 실API 검증은 서울 인증키 확보 후 후속 PR에서 `SUPPORTED_DATA.md`의 검증 상태를 갱신할 예정입니다.
+- 일부 서울 Open API는 응답 envelope 키가 서비스명과 다릅니다 (예: `bikeList` → `rentBikeStatus`). KPubData는 catalogue의 `envelope_key` 메타데이터로 이를 처리합니다.
+- 실API 검증 완료: `subway_realtime_arrival`, `bike_rent_month`, `bike_realtime`, `bike_station_master` (2026-05-05)

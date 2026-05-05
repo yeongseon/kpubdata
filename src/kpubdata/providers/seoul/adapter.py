@@ -218,6 +218,15 @@ class SeoulAdapter:
         service_name: str,
         dataset_id: str,
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        # Detect top-level error responses (no envelope wrapper).
+        # Some Seoul APIs return {"status": 500, "code": "ERROR-...", "message": "..."}.
+        if "code" in payload and "message" in payload and service_name not in payload:
+            code_raw = payload.get("code")
+            message_raw = payload.get("message")
+            code = code_raw if isinstance(code_raw, str) else "ERROR-UNKNOWN"
+            message = message_raw if isinstance(message_raw, str) else "Provider returned error"
+            self._raise_for_result_code(code, message, dataset_id)
+
         envelope_key = self._envelope_key(payload, service_name, dataset_id)
         body_obj = payload.get(envelope_key)
         if not isinstance(body_obj, dict):
