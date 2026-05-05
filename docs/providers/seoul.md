@@ -195,3 +195,49 @@ for item in result.items:
 - 서울 Open API의 서비스명과 경로 파라미터 이름은 provider-specific semantics이므로 그대로 유지합니다.
 - 일부 서울 Open API는 응답 envelope 키가 서비스명과 다릅니다 (예: `bikeList` → `rentBikeStatus`). KPubData는 catalogue의 `envelope_key` 메타데이터로 이를 처리합니다.
 - 실API 검증 완료: `subway_realtime_arrival`, `bike_rent_month`, `bike_realtime`, `bike_station_master` (2026-05-05)
+
+## 공개 데이터셋 (Published Datasets)
+
+kpubdata로 수집한 서울 따릉이 데이터를 다음 플랫폼에서 직접 다운로드할 수 있습니다.
+
+| 데이터셋 | HuggingFace | Kaggle |
+|----------|-------------|--------|
+| 따릉이 월별 이용정보 (`bike_rent_month`) | [yeongseonchoe/seoul-bike-rent-month](https://huggingface.co/datasets/yeongseonchoe/seoul-bike-rent-month) | [yschoe/seoul-bike-rent-month](https://www.kaggle.com/datasets/yschoe/seoul-bike-rent-month) |
+
+### 수집 방법
+
+```python
+from kpubdata import Client
+
+client = Client.from_env()
+ds = client.dataset("seoul.bike_rent_month")
+
+# 특정 월 데이터 조회
+result = ds.list(RENT_NM="202604", page_size=1000)
+
+# 전체 데이터 수집 (페이지 순회)
+all_items = []
+for page in range(1, 120):
+    batch = ds.list(RENT_NM=" ", page_size=1000, page_no=page)
+    all_items.extend(batch.items)
+    if batch.next_page is None:
+        break
+```
+
+### 업로드 방법
+
+```python
+# HuggingFace
+from huggingface_hub import HfApi
+api = HfApi()
+api.upload_file(
+    path_or_fileobj="seoul_bike_rent_month.csv",
+    path_in_repo="data/seoul_bike_rent_month.csv",
+    repo_id="yeongseonchoe/seoul-bike-rent-month",
+    repo_type="dataset",
+)
+
+# Kaggle (kagglehub - KGAT_ 토큰 사용)
+import kagglehub
+kagglehub.dataset_upload("yschoe/seoul-bike-rent-month", "./dataset_dir")
+```
