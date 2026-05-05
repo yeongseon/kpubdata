@@ -75,6 +75,32 @@ def test_fixture_bus_arrival_v2_list_normalizes_msg_body_list() -> None:
     assert batch.total_count is None
 
 
+def test_fixture_dur_usjnt_taboo_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_dur_usjnt_taboo.json", "dur_usjnt_taboo")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플정A"
+    assert "MIXTURE_ITEM_NAME" in batch.items[0]
+    assert "PROHBT_CONTENT" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_usjnt_taboo_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_dur_usjnt_taboo.json", "dur_usjnt_taboo")
+    expected = load_json_fixture("success_dur_usjnt_taboo.json")
+
+    payload = adapter.call_raw(dataset, "getUsjntTabooInfoList03", {"itemName": "샘플"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
 def test_fixture_single_page(configured_adapter: AdapterFactory) -> None:
     adapter, dataset, _ = configured_adapter(["success_single_page.json"])
 
