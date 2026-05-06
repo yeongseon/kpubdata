@@ -130,3 +130,33 @@ def test_dur_older_adult_caution_dataset_contract_query_and_raw() -> None:
     assert len(batch.items) == 2
     assert all(isinstance(item, dict) for item in batch.items)
     assert raw is not None
+
+
+def test_dur_product_info_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_product_info.json"])
+
+    dataset = adapter.get_dataset("dur_product_info")
+
+    assert dataset.id == "datago.dur_product_info"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_product_info_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(
+        [
+            "success_dur_product_info.json",
+            "success_dur_product_info.json",
+        ]
+    )
+    dataset = adapter.get_dataset("dur_product_info")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(dataset, "getDurPrdlstInfoList03", {"itemName": "샘플"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None

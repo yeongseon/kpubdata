@@ -1,0 +1,35 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "400000001",
+            "ITEM_NAME": "샘플정G",
+            "ENTP_NAME": "샘플제약",
+            "ITEM_PERMIT_DATE": "20240101",
+            "ETC_OTC_CODE": "전문의약품",
+            "CLASS_NAME": "기타의 순환계용약",
+            "CHART": "흰색의 원형 정제"
+          },
+          {
+            "ITEM_SEQ": "400000002",
+            "ITEM_NAME": "샘플캡슐H",
+            "ENTP_NAME": "예시제약",
+            "ITEM_PERMIT_DATE": "20240201",
+            "ETC_OTC_CODE": "일반의약품",
+            "CLASS_NAME": "해열진통소염제",
+            "CHART": "파란색의 경질캡슐"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

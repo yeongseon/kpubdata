@@ -131,6 +131,36 @@ def test_fixture_dur_older_adult_caution_call_raw_returns_full_envelope() -> Non
     assert "body" in response
 
 
+def test_fixture_dur_product_info_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_product_info.json", "dur_product_info"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플정G"
+    assert "ETC_OTC_CODE" in batch.items[0]
+    assert "CHART" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_product_info_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_product_info.json", "dur_product_info"
+    )
+    expected = load_json_fixture("success_dur_product_info.json")
+
+    payload = adapter.call_raw(dataset, "getDurPrdlstInfoList03", {"itemName": "샘플"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
 def test_fixture_single_page(configured_adapter: AdapterFactory) -> None:
     adapter, dataset, _ = configured_adapter(["success_single_page.json"])
 
