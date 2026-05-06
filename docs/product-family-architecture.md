@@ -14,29 +14,27 @@ KPubData Product Family(Korea Public Data Product Family)는 한국 공공데이
 
 ## 0. KPubData Product Family가 뭔가요? (초보자를 위한 비유)
 
-세 프로젝트의 관계를 **음식 공급망**에 비유하면 이해하기 쉽습니다.
+세 프로젝트의 관계를 **석유공업(정유산업)**에 비유하면 이해하기 쉽습니다.
 
-### 식재료 공급업체 → 주방 → 레스토랑
+### 원유 채굴 → 정유소 → 제어실
 
-- **kpubdata = 식재료 공급업체 (재료 조달 + 품질 표준화)**
-  - 전국 각지의 산지(공공기관 [API](https://ko.wikipedia.org/wiki/API))에서 제각각인 모양의 식재료(데이터)를 가져옵니다.
-  - 흙을 털고 크기를 맞춰 요리하기 좋은 상태(표준화된 데이터)로 포장합니다.
-  - 기존 문서에서 쓰던 비유로는 **"도서관의 똑똑한 사서"** 입니다.
+- **kpubdata = 원유 채굴·탈염 (Crude Extraction & Desalting)**
+  - 전 세계 유전(공공기관 [API](https://ko.wikipedia.org/wiki/API))에서 원유(데이터)를 채굴합니다.
+  - 유전마다 원유의 성분(응답 형식)과 채굴 조건(인증 방식)이 제각각입니다.
+  - 탈염·탈수 공정(정규화)을 거쳐 불순물을 제거하고, 파이프라인에 넣을 수 있는 표준 원유로 만듭니다.
 
-- **kpubdata-builder = 요리사/주방 (재료를 요리로 변환)**
-  - 공급받은 재료들을 레시피(빌드 기획서)에 따라 조합하고 양념하여 완성된 요리(데이터셋 파일)를 만듭니다.
-  - 같은 레시피로 언제든 같은 요리를 다시 만들 수 있도록 자동화합니다.
-  - 기존 문서에서 쓰던 비유로는 **"데이터 출판사"** 입니다.
+- **kpubdata-builder = 정유소 (Refinery)**
+  - 표준화된 원유를 레시피(빌드 기획서)에 따라 가솔린·경유·등유 등 다양한 석유 제품(Parquet, CSV, HuggingFace Dataset)으로 분리·가공합니다.
+  - 같은 공정을 언제든 반복할 수 있도록 자동화된 플랜트를 운영합니다.
 
-- **kpubdata-studio = 레스토랑 홀/키오스크 (주문 + 서빙 + 고객 대면)**
-  - 손님(사용자)이 메뉴판(데이터셋 목록)을 보고 요리를 주문(빌드 실행)할 수 있는 화면입니다.
-  - 주방에서 어떤 요리가 만들어지고 있는지 실시간으로 확인하고, 완성된 요리를 받아볼 수 있습니다.
-  - 기존 문서에서 쓰던 비유로는 **"데이터 작업실"** 입니다.
+- **kpubdata-studio = 제어실 (Control Room)**
+  - 정유소의 가동 상태를 실시간 모니터링하고, 어떤 제품을 생산할지 주문(빌드 실행)을 내리는 제어 화면입니다.
+  - 운영자가 직접 배관을 만질 필요 없이, 화면에서 클릭 몇 번으로 전체 공정을 관리합니다.
 
 ```text
-[식재료 공급업체]     [주방]              [레스토랑 홀]
-  kpubdata    →   kpubdata-builder  →   kpubdata-studio
-  (재료 조달)       (요리 제작)            (주문 + 서빙)
+[유전 / 원유 채굴]        [정유소]              [제어실]
+  kpubdata          →   kpubdata-builder  →   kpubdata-studio
+  (채굴·탈염·표준화)     (석유 제품 생산)        (공정 제어·모니터링)
 ```
 
 ---
@@ -125,7 +123,7 @@ sequenceDiagram
 
 | 구분 | kpubdata (코어) | kpubdata-builder (빌더) | kpubdata-studio (스튜디오) |
 | :--- | :--- | :--- | :--- |
-| **비유** | 똑똑한 사서 / 식재료 공급업체 | 출판사 / 요리 주방 | 작업실 / 레스토랑 키오스크 |
+| **비유** | 원유 수입·정제 | 정유소 (Refinery) | 제어실 (Control Room) |
 | **핵심 역할** | 공공 API 연결, 인증, 데이터 정규화 | 데이터 변환, 파일 내보내기, 빌드 이력 관리 | 빌드 모니터링, 설정 UI, 결과 시각화 |
 | **주요 산출물** | `RecordBatch` (표준화된 데이터 객체) | 파일 (Markdown, CSV 등) + `manifest.json` | 웹 대시보드 화면 |
 | **주요 사용자** | 파이썬 개발자 | 데이터 엔지니어, 분석가 | 비개발자, 기획자, 운영자 |
@@ -166,10 +164,10 @@ graph LR
 
 | 규칙 | 설명 | 비유 |
 | :--- | :--- | :--- |
-| **Studio → Builder** | Studio는 Builder의 API를 호출할 수 있음 | 레스토랑 홀은 주방에 주문을 넣을 수 있음 |
-| **Builder → kpubdata** | Builder는 kpubdata를 파이썬 라이브러리로 import하여 사용 | 주방은 식재료 업체에서 재료를 받아옴 |
-| **kpubdata → 공공 API** | kpubdata는 외부 공공기관 서버에 HTTP 요청을 보냄 | 식재료 업체는 산지에서 재료를 수확함 |
-| **역방향 금지** | kpubdata는 Builder를, Builder는 Studio를 절대 import하거나 호출하지 않음 | 산지가 요리사에게 "이거 만들어"라고 지시하지 않음 |
+| **Studio → Builder** | Studio는 Builder의 API를 호출할 수 있음 | 제어실이 정유소에 생산 명령을 내림 |
+| **Builder → kpubdata** | Builder는 kpubdata를 파이썬 라이브러리로 import하여 사용 | 정유소는 원유 수입사로부터 원유를 공급받음 |
+| **kpubdata → 공공 API** | kpubdata는 외부 공공기관 서버에 HTTP 요청을 보냄 | 원유 수입사는 유전(공공기관)에서 원유를 채굴함 |
+| **역방향 금지** | kpubdata는 Builder를, Builder는 Studio를 절대 import하거나 호출하지 않음 | 유전이 정유소에게 "이거 만들어"라고 지시하지 않음 |
 
 ---
 
@@ -343,17 +341,17 @@ A: kpubdata의 `providers/` 디렉토리에 새 어댑터를 추가합니다. Bu
 ### 프로젝트별 아키텍처 문서
 | 프로젝트 | 아키텍처 | README |
 | :--- | :--- | :--- |
-| kpubdata | [ARCHITECTURE.md](../ARCHITECTURE.md) | [README.md](../README.md) |
+| kpubdata | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata/blob/main/ARCHITECTURE.md) | [README.md](https://github.com/yeongseon/kpubdata/blob/main/README.md) |
 | kpubdata-builder | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-builder/blob/main/ARCHITECTURE.md) | [README.md](https://github.com/yeongseon/kpubdata-builder/blob/main/README.md) |
 | kpubdata-studio | [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata-studio/blob/main/ARCHITECTURE.md) | [README.md](https://github.com/yeongseon/kpubdata-studio/blob/main/README.md) |
 
 ### 이 저장소(kpubdata) 내 문서
 | 문서 | 설명 |
 | :--- | :--- |
-| [CANONICAL_MODEL.md](../CANONICAL_MODEL.md) | 표준 데이터 모델 정의 |
-| [PROVIDER_ADAPTER_CONTRACT.md](../PROVIDER_ADAPTER_CONTRACT.md) | 어댑터 구현 규약 |
-| [API_SPEC.md](../API_SPEC.md) | 파이썬 API 명세 |
-| [CONTRIBUTING.md](../CONTRIBUTING.md) | 프로젝트 기여 가이드 |
+| [CANONICAL_MODEL.md](https://github.com/yeongseon/kpubdata/blob/main/CANONICAL_MODEL.md) | 표준 데이터 모델 정의 |
+| [PROVIDER_ADAPTER_CONTRACT.md](https://github.com/yeongseon/kpubdata/blob/main/PROVIDER_ADAPTER_CONTRACT.md) | 어댑터 구현 규약 |
+| [API_SPEC.md](https://github.com/yeongseon/kpubdata/blob/main/API_SPEC.md) | 파이썬 API 명세 |
+| [CONTRIBUTING.md](contributing.md) | 프로젝트 기여 가이드 |
 
 ### 참고 학습 자료
 | 개념 | 설명 | 링크 |

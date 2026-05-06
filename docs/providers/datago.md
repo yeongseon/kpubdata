@@ -788,4 +788,4 @@ uv run pytest tests/integration/test_datago_live.py -m integration -ra -v
 - [공공데이터포털 공식 사이트](https://www.data.go.kr)
 - [공공데이터 활용지원센터](https://www.data.go.kr/bbs/qna/list.do) (문의: 1566-0025)
 - [datago API 기술 참고자료](../datago-api-reference.md)
-- [SUPPORTED_DATA.md](../../SUPPORTED_DATA.md)
+- [SUPPORTED_DATA.md](https://github.com/yeongseon/kpubdata/blob/main/SUPPORTED_DATA.md)

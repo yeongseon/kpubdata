@@ -1,0 +1,38 @@
+{
+  "rentBikeStatus": {
+    "list_total_count": 5,
+    "RESULT": {
+      "CODE": "INFO-000",
+      "MESSAGE": "정상 처리되었습니다."
+    },
+    "row": [
+      {
+        "rackTotCnt": "15",
+        "stationName": "102. 망원역 1번출구 앞",
+        "parkingBikeTotCnt": "7",
+        "shared": "47",
+        "stationLatitude": "37.55564880",
+        "stationLongitude": "126.91062927",
+        "stationId": "ST-4"
+      },
+      {
+        "rackTotCnt": "20",
+        "stationName": "103. 합정역 1번출구 앞",
+        "parkingBikeTotCnt": "12",
+        "shared": "60",
+        "stationLatitude": "37.55000000",
+        "stationLongitude": "126.91400000",
+        "stationId": "ST-5"
+      },
+      {
+        "rackTotCnt": "10",
+        "stationName": "104. 홍대입구역 2번출구 앞",
+        "parkingBikeTotCnt": "3",
+        "shared": "30",
+        "stationLatitude": "37.55700000",
+        "stationLongitude": "126.92500000",
+        "stationId": "ST-6"
+      }
+    ]
+  }
+}

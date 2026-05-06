@@ -453,6 +453,11 @@ class DataGoAdapter:
         self, payload: dict[str, object], dataset: DatasetRef | None = None
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
         dataset_id = dataset.id if dataset is not None else ""
+        envelope_style = dataset.raw_metadata.get("envelope_style") if dataset is not None else None
+
+        if envelope_style == "its_flat":
+            return self._validate_its_flat_envelope(payload, dataset_id)
+
         response_obj = payload.get("response")
         if not isinstance(response_obj, dict):
             logger.debug(
@@ -467,10 +472,27 @@ class DataGoAdapter:
 
         response_dict = cast(dict[str, object], response_obj)
 
-        envelope_style = dataset.raw_metadata.get("envelope_style") if dataset is not None else None
         if envelope_style == "gyeonggi_msg":
             return self._validate_gyeonggi_msg_envelope(response_dict, dataset_id)
         return self._validate_standard_envelope(response_dict, dataset_id)
+
+    def _validate_its_flat_envelope(
+        self, payload: dict[str, object], dataset_id: str
+    ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        result_code = self._coerce_result_code(payload.get("resultCode"), dataset_id)
+        result_msg_raw = payload.get("resultMsg")
+        result_msg = (
+            result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
+        )
+        logger.debug(
+            "data.go.kr result",
+            extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
+        )
+        if not _is_success_code(result_code):
+            self._raise_for_result_code(result_code, result_msg, dataset_id)
+
+        items = self._normalize_items(payload.get("items"))
+        return payload, items
 
     def _parse_odcloud_response(
         self, payload: dict[str, object], dataset: DatasetRef

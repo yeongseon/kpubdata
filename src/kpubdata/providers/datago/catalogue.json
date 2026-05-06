@@ -86,6 +86,23 @@
     }
   },
   {
+    "dataset_key": "dur_usjnt_taboo",
+    "name": "의약품 안전사용서비스 DUR 병용금기 품목정보 (DUR Co-use Taboo)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getUsjntTabooInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR co-use taboo drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
     "dataset_key": "building_title",
     "name": "건축물대장 표제부 (Building Title Info)",
     "base_url": "http://apis.data.go.kr/1613000/BldRgstService_v2",
@@ -435,6 +452,24 @@
     "description": "Seoul Metro shortest path between two subway stations",
     "tags": ["transportation", "subway", "route"],
     "source_url": "https://www.data.go.kr",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "road_traffic",
+    "name": "국토교통부 실시간 도로교통정보 (Real-time Road Traffic Info)",
+    "base_url": "https://openapi.its.go.kr:9443",
+    "default_operation": "trafficInfo",
+    "envelope_style": "its_flat",
+    "representation": "api_json",
+    "service_key_param": "apiKey",
+    "format_param": "getType",
+    "description": "ITS National Transport Information Center real-time road traffic flow (speed, travel time, congestion)",
+    "tags": ["transportation", "traffic", "realtime"],
+    "source_url": "https://www.data.go.kr/data/15040463/openapi.do",
     "operations": ["list", "raw"],
     "query_support": {
       "pagination": "offset",

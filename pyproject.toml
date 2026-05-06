@@ -65,6 +65,10 @@ dev = [
   "ruff>=0.5,<1",
   "xmltodict>=0.13,<1",
 ]
+docs = [
+  "mkdocs-material>=9.5,<10",
+  "pymdown-extensions>=10,<11",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kpubdata"]

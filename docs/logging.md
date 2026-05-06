@@ -131,6 +131,6 @@ servicekey, service_key, api_key, apikey, token, authorization, secret, password
 
 ## 관련 문서
 
-- [ARCHITECTURE.md](../ARCHITECTURE.md) — 전체 아키텍처와 계층 구분
-- [PROVIDER_ADAPTER_CONTRACT.md](../PROVIDER_ADAPTER_CONTRACT.md) — 어댑터 구현 시 로거 사용 규약
-- [API_SPEC.md](../API_SPEC.md) — 공개 API 명세
+- [ARCHITECTURE.md](https://github.com/yeongseon/kpubdata/blob/main/ARCHITECTURE.md) — 전체 아키텍처와 계층 구분
+- [PROVIDER_ADAPTER_CONTRACT.md](https://github.com/yeongseon/kpubdata/blob/main/PROVIDER_ADAPTER_CONTRACT.md) — 어댑터 구현 시 로거 사용 규약
+- [API_SPEC.md](https://github.com/yeongseon/kpubdata/blob/main/API_SPEC.md) — 공개 API 명세

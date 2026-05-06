@@ -1,0 +1,31 @@
+{
+  "resultCode": "00",
+  "resultMsg": "OK",
+  "numOfRows": 10,
+  "pageNo": 1,
+  "totalCount": 3,
+  "type": "all",
+  "items": [
+    {
+      "roadName": "경부고속도로",
+      "linkId": "1610038501",
+      "speed": 95.4,
+      "travelTime": 142,
+      "createdDate": "20260505100000"
+    },
+    {
+      "roadName": "서해안고속도로",
+      "linkId": "1620007702",
+      "speed": 27.1,
+      "travelTime": 510,
+      "createdDate": "20260505100000"
+    },
+    {
+      "roadName": "올림픽대로",
+      "linkId": "1630001501",
+      "speed": 48.6,
+      "travelTime": 320,
+      "createdDate": "20260505100000"
+    }
+  ]
+}

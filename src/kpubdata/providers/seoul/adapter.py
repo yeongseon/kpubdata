@@ -163,15 +163,39 @@ class SeoulAdapter:
         base_url = self._require_dataset_metadata(dataset, "base_url")
         service_name = self._service_name(dataset, operation=operation)
         path_suffix = "/".join(quote(value, safe="") for value in path_params.values())
-        return (
-            f"{base_url}/{self._require_api_key()}/json/{service_name}/"
-            f"{start_index}/{end_index}/{path_suffix}"
+        base_path = (
+            f"{base_url}/{self._require_api_key()}/json/{service_name}/{start_index}/{end_index}"
         )
+        if path_suffix:
+            return f"{base_path}/{path_suffix}"
+        return base_path
 
     def _service_name(self, dataset: DatasetRef, operation: str | None) -> str:
         if operation is not None and operation:
             return operation
         return self._require_dataset_metadata(dataset, "default_operation")
+
+    def _envelope_key(
+        self,
+        payload: dict[str, object],
+        service_name: str,
+        dataset_id: str,
+    ) -> str:
+        """Resolve the envelope key for a Seoul API response.
+
+        Some Seoul APIs use an envelope key that differs from the service name
+        (e.g. bikeList -> rentBikeStatus). When the catalogue entry includes an
+        ``envelope_key`` metadata field we try that first, falling back to
+        *service_name* for backwards compatibility.
+        """
+        # Look up the dataset to check for an explicit envelope_key override.
+        ds = self._datasets_by_key.get(dataset_id.removeprefix("seoul."))
+        if ds is not None:
+            override = ds.raw_metadata.get("envelope_key")
+            if isinstance(override, str) and override and override in payload:
+                return override
+        # Default: use the service name itself.
+        return service_name
 
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
         response = self._transport.request("GET", url, dataset_id=dataset_id, provider="seoul")
@@ -194,10 +218,20 @@ class SeoulAdapter:
         service_name: str,
         dataset_id: str,
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        body_obj = payload.get(service_name)
+        # Detect top-level error responses (no envelope wrapper).
+        # Some Seoul APIs return {"status": 500, "code": "ERROR-...", "message": "..."}.
+        if "code" in payload and "message" in payload and service_name not in payload:
+            code_raw = payload.get("code")
+            message_raw = payload.get("message")
+            code = code_raw if isinstance(code_raw, str) else "ERROR-UNKNOWN"
+            message = message_raw if isinstance(message_raw, str) else "Provider returned error"
+            self._raise_for_result_code(code, message, dataset_id)
+
+        envelope_key = self._envelope_key(payload, service_name, dataset_id)
+        body_obj = payload.get(envelope_key)
         if not isinstance(body_obj, dict):
             raise ProviderResponseError(
-                f"Malformed response envelope: missing {service_name}",
+                f"Malformed response envelope: missing {envelope_key}",
                 provider="seoul",
                 dataset_id=dataset_id,
             )
@@ -279,12 +313,6 @@ class SeoulAdapter:
         for value in cast(list[object], raw):
             if isinstance(value, str) and value:
                 names.append(value)
-        if not names:
-            raise ProviderResponseError(
-                "Dataset metadata missing required_path_params",
-                provider="seoul",
-                dataset_id=dataset.id,
-            )
         return tuple(names)
 
     def _require_dataset_metadata(self, dataset: DatasetRef, key: str) -> str:

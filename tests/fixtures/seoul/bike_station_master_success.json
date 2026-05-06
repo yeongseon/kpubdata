@@ -1,0 +1,47 @@
+{
+  "stationInfo": {
+    "list_total_count": 3230,
+    "RESULT": {
+      "CODE": "INFO-000",
+      "MESSAGE": "정상 처리되었습니다."
+    },
+    "row": [
+      {
+        "STA_LOC": "마포구",
+        "RENT_ID": "ST-10",
+        "RENT_NO": "00108",
+        "RENT_NM": "서교동 사거리",
+        "RENT_ID_NM": "108. 서교동 사거리",
+        "HOLD_NUM": "12",
+        "STA_ADD1": "서울특별시 마포구 양화로 93",
+        "STA_ADD2": "427",
+        "STA_LAT": "37.55274582",
+        "STA_LONG": "126.91861725"
+      },
+      {
+        "STA_LOC": "마포구",
+        "RENT_ID": "ST-11",
+        "RENT_NO": "00109",
+        "RENT_NM": "망원역 1번출구",
+        "RENT_ID_NM": "109. 망원역 1번출구",
+        "HOLD_NUM": "15",
+        "STA_ADD1": "서울특별시 마포구 월드컵로 66",
+        "STA_ADD2": "",
+        "STA_LAT": "37.55564880",
+        "STA_LONG": "126.91062927"
+      },
+      {
+        "STA_LOC": "영등포구",
+        "RENT_ID": "ST-12",
+        "RENT_NO": "00110",
+        "RENT_NM": "여의도공원 앞",
+        "RENT_ID_NM": "110. 여의도공원 앞",
+        "HOLD_NUM": "20",
+        "STA_ADD1": "서울특별시 영등포구 여의공원로 68",
+        "STA_ADD2": "",
+        "STA_LAT": "37.52600000",
+        "STA_LONG": "126.92200000"
+      }
+    ]
+  }
+}

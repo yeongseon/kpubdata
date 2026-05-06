@@ -312,6 +312,21 @@ def test_datago_metro_path(require_datago_key: None, live_client: Client) -> Non
 
 
 @pytest.mark.integration
+@pytest.mark.skip(
+    reason="ITS Open API requires a separate apiKey from openapi.its.go.kr "
+    "(not data.go.kr serviceKey)"
+)
+def test_datago_road_traffic(require_datago_key: None, live_client: Client) -> None:
+    _ = require_datago_key
+    ds = live_client.dataset("datago.road_traffic")
+
+    result = ds.call_raw("trafficInfo", type="all", drcType="all")
+
+    assert isinstance(result, dict)
+    assert "resultCode" in result
+
+
+@pytest.mark.integration
 def test_datago_g2b_contract(require_datago_key: None, live_client: Client) -> None:
     _ = require_datago_key
     ds = live_client.dataset("datago.g2b_contract")

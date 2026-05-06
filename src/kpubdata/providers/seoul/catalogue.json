@@ -17,6 +17,7 @@
     "name": "서울시 공공자전거 이용정보 월별 (Ttareungi Monthly)",
     "base_url": "http://openapi.seoul.go.kr:8088",
     "default_operation": "tbCycleRentUseMonthInfo",
+    "envelope_key": "cycleRentUseMonthInfo",
     "representation": "api_json",
     "description": "Seoul public bicycle (Ttareungi) monthly usage statistics",
     "tags": ["transportation", "bicycle", "monthly"],
@@ -24,5 +25,33 @@
     "operations": ["list", "raw"],
     "query_support": {"pagination": "index", "max_page_size": 1000},
     "required_path_params": ["RENT_NM"]
+  },
+  {
+    "dataset_key": "bike_realtime",
+    "name": "서울시 공공자전거 따릉이 실시간 대여정보 (Ttareungi Realtime)",
+    "base_url": "http://openapi.seoul.go.kr:8088",
+    "default_operation": "bikeList",
+    "envelope_key": "rentBikeStatus",
+    "representation": "api_json",
+    "description": "Real-time Seoul public bicycle (Ttareungi) station availability",
+    "tags": ["transportation", "bicycle", "realtime"],
+    "source_url": "https://data.seoul.go.kr/dataList/OA-15493/A/1/datasetView.do",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "index", "max_page_size": 1000},
+    "required_path_params": []
+  },
+  {
+    "dataset_key": "bike_station_master",
+    "name": "서울시 공공자전거 따릉이 대여소 마스터 정보 (Ttareungi Station Master)",
+    "base_url": "http://openapi.seoul.go.kr:8088",
+    "default_operation": "tbCycleStationInfo",
+    "envelope_key": "stationInfo",
+    "representation": "api_json",
+    "description": "Seoul public bicycle (Ttareungi) station master information",
+    "tags": ["transportation", "bicycle", "station"],
+    "source_url": "https://data.seoul.go.kr/",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "index", "max_page_size": 1000},
+    "required_path_params": []
   }
 ]

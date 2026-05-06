@@ -2,21 +2,7 @@
 
 이 문서는 KPubData 프로젝트의 전체적인 구조와 동작 원리를 시각화된 다이어그램을 통해 설명합니다. 새로운 개발자가 프로젝트의 설계 철학을 빠르게 이해하고 기술적 세부 사항을 파악하는 데 도움을 주기 위해 작성되었습니다.
 
----
 
-## 목차
-1. [시스템 전체 구조 (High-Level System Architecture)](#1-시스템-전체-구조-high-level-system-architecture)
-2. [모듈 의존성 그래프 (Module Dependency Graph)](#2-모듈-의존성-그래프-module-dependency-graph)
-3. [클래스 계층 구조 (Class Hierarchy)](#3-클래스-계층-구조-class-hierarchy)
-4. [요청-응답 흐름 (Request-Response Data Flow)](#4-요청-응답-흐름-request-response-data-flow)
-5. [에러 처리 흐름 (Error Handling Flow)](#5-에러-처리-흐름-error-handling-flow)
-6. [데이터셋 발견 흐름 (Dataset Discovery Flow)](#6-데이터셋-발견-흐름-dataset-discovery-flow)
-7. [data.go.kr 응답 구조 (data.go.kr Response Envelope)](#7-datagokr-응답-구조-datagokr-response-envelope)
-8. [프로바이더 어댑터 계약 (Provider Adapter Contract)](#8-프로바이더-어댑터-계약-provider-adapter-contract)
-9. [재시도 및 Rate Limit 전략 (Retry & Rate Limit Strategy)](#9-재시도-및-rate-limit-전략-retry--rate-limit-strategy)
-10. [패키지 구조 (Package Structure)](#10-패키지-구조-package-structure)
-
----
 
 ## 1. 시스템 전체 구조 (High-Level System Architecture)
 
@@ -40,7 +26,7 @@ graph TB
     end
 
     subgraph Provider_Layer [Provider Layer]
-        ProviderAdapter["&lt;&lt;Protocol&gt;&gt;<br/>ProviderAdapter"]
+        ProviderAdapter["<<Protocol>><br/>ProviderAdapter"]
         DataGoAdapter[DataGoAdapter]
         SeoulAdapter[SeoulAdapter stub]
         AirKoreaAdapter[AirKoreaAdapter stub]
@@ -453,10 +439,7 @@ stateDiagram-v2
     Failure --> RaiseError: Raise TransportError
     RaiseError --> [*]
 
-    note right of Delay
-        delay = backoff_factor * 2^(attempt-1)
-        Or use 'Retry-After' header if available
-    end
+    note right of Delay : delay = backoff_factor × 2^(attempt-1), or use Retry-After header
 ```
 
 ---
