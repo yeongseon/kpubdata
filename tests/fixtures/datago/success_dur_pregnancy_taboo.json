@@ -1,0 +1,33 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "600000001",
+            "ITEM_NAME": "샘플정I",
+            "ENTP_NAME": "샘플제약",
+            "CLASS_NAME": "해열진통소염제",
+            "PREGNANT_GRADE": "1등급",
+            "PREGNANT_PROHBT_CN": "임부금기 대표 샘플"
+          },
+          {
+            "ITEM_SEQ": "600000002",
+            "ITEM_NAME": "샘플캡슐J",
+            "ENTP_NAME": "예시제약",
+            "CLASS_NAME": "기타의 화학요법제",
+            "PREGNANT_GRADE": "2등급",
+            "PREGNANT_PROHBT_CN": "임부금기 대표 샘플"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
