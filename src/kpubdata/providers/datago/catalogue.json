@@ -103,6 +103,23 @@
     }
   },
   {
+    "dataset_key": "dur_older_adult_caution",
+    "name": "의약품 안전사용서비스 DUR 노인주의 정보조회 (DUR Older Adult Caution)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getOdsnAtentInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR older adult caution drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds", "older-adult"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
     "dataset_key": "building_title",
     "name": "건축물대장 표제부 (Building Title Info)",
     "base_url": "http://apis.data.go.kr/1613000/BldRgstService_v2",

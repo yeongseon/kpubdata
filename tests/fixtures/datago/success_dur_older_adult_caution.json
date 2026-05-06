@@ -1,0 +1,31 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "300000001",
+            "ITEM_NAME": "샘플정E",
+            "ENTP_NAME": "샘플제약",
+            "CLASS_NAME": "기타의 순환계용약",
+            "ODSN_ATENT_CN": "노인주의 대표 샘플"
+          },
+          {
+            "ITEM_SEQ": "300000002",
+            "ITEM_NAME": "샘플캡슐F",
+            "ENTP_NAME": "예시제약",
+            "CLASS_NAME": "해열진통소염제",
+            "ODSN_ATENT_CN": "노인주의 대표 샘플"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
