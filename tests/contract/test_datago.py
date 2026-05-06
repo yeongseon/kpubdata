@@ -74,3 +74,29 @@ class TestDataGoAdapterContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("getVilageFcst", {})
+
+
+class TestDataGoSportsFacilityAdapterContract(ProviderAdapterContract):
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["sports_facility_success.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "sports_facility"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("sports_facility")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query()
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("", {})
