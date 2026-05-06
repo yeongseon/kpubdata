@@ -1,0 +1,22 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "FCLTY_NM": "테스트 체육시설",
+            "FCLTY_ADDR": "서울특별시 테스트구 테스트로 1",
+            "FCLTY_TY_NM": "체육관"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 1
+    }
+  }
+}
