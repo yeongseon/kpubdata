@@ -6,6 +6,7 @@ from typing import cast
 import pytest
 
 from kpubdata.config import KPubDataConfig
+from kpubdata.core.capability import Operation, PaginationMode
 from kpubdata.core.models import DatasetRef, Query
 from kpubdata.providers.datago.adapter import DataGoAdapter
 from kpubdata.transport.http import HttpTransport
@@ -74,3 +75,28 @@ class TestDataGoAdapterContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("getVilageFcst", {})
+
+
+def test_dur_usjnt_taboo_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_usjnt_taboo.json"])
+
+    dataset = adapter.get_dataset("dur_usjnt_taboo")
+
+    assert dataset.id == "datago.dur_usjnt_taboo"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_usjnt_taboo_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(["success_dur_usjnt_taboo.json", "success_dur_usjnt_taboo.json"])
+    dataset = adapter.get_dataset("dur_usjnt_taboo")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(dataset, "getUsjntTabooInfoList03", {"itemName": "샘플"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None

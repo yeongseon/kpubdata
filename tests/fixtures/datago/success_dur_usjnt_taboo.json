@@ -1,0 +1,33 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "200000001",
+            "ITEM_NAME": "샘플정A",
+            "ENTP_NAME": "샘플제약",
+            "MIXTURE_ITEM_SEQ": "200000002",
+            "MIXTURE_ITEM_NAME": "샘플캡슐B",
+            "PROHBT_CONTENT": "병용금기 대표 샘플"
+          },
+          {
+            "ITEM_SEQ": "200000003",
+            "ITEM_NAME": "샘플정C",
+            "ENTP_NAME": "예시제약",
+            "MIXTURE_ITEM_SEQ": "200000004",
+            "MIXTURE_ITEM_NAME": "샘플주사D",
+            "PROHBT_CONTENT": "병용금기 대표 샘플"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
