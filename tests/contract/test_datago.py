@@ -77,7 +77,6 @@ class TestDataGoAdapterContract(ProviderAdapterContract):
         return ("getVilageFcst", {})
 
 
-
 class TestDataGoSportsFacilityAdapterContract(ProviderAdapterContract):
     @pytest.fixture()
     def adapter(self) -> DataGoAdapter:
@@ -103,6 +102,7 @@ class TestDataGoSportsFacilityAdapterContract(ProviderAdapterContract):
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("", {})
 
+
 def test_dur_usjnt_taboo_dataset_contract_metadata() -> None:
     adapter = _build_adapter(["success_dur_usjnt_taboo.json"])
 
@@ -126,4 +126,3 @@ def test_dur_usjnt_taboo_dataset_contract_query_and_raw() -> None:
     assert len(batch.items) == 2
     assert all(isinstance(item, dict) for item in batch.items)
     assert raw is not None
-
