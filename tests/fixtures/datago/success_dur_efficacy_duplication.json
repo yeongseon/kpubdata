@@ -1,0 +1,37 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "400000001",
+            "ITEM_NAME": "샘플정G",
+            "ENTP_NAME": "샘플제약",
+            "DUR_SEQ": "DUR-EF-0001",
+            "DUR_NAME": "효능군중복",
+            "SERS_NAME": "해열진통소염제",
+            "CLASS_NAME": "해열진통소염제",
+            "PROHBT_CONTENT": "효능군중복 대표 샘플"
+          },
+          {
+            "ITEM_SEQ": "400000002",
+            "ITEM_NAME": "샘플캡슐H",
+            "ENTP_NAME": "예시제약",
+            "DUR_SEQ": "DUR-EF-0002",
+            "DUR_NAME": "효능군중복",
+            "SERS_NAME": "소화성궤양용제",
+            "CLASS_NAME": "소화성궤양용제",
+            "PROHBT_CONTENT": "효능군중복 대표 샘플"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
