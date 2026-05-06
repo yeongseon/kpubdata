@@ -79,6 +79,7 @@ uv run ruff format --check .
 uv run mypy src
 uv run pytest
 uv run python -m build
+mkdocs build --strict
 ```
 
 ## Adapter work rules
