@@ -31,6 +31,41 @@ export KPUBDATA_BOK_API_KEY="your-key"
 - 날짜 형식: `YYYYMM` (예: `"202401"`)
 - frequency: `M` (월별, 기본값), `D` (일별), `A` (연간)
 
+### usd_krw (원/달러 환율 매매기준율)
+
+한국은행 ECOS에서 제공하는 원/달러 환율 매매기준율 데이터를 조회합니다.
+
+- 통계 코드: `731Y003`
+- 항목 코드: `0000003` (원/달러 매매기준율)
+- 필수 파라미터: `start_date`, `end_date`
+- 날짜 형식: `YYYYMMDD` (예: `"20240101"`)
+- frequency: `D` (일별)
+
+```python
+ds = client.dataset("bok.usd_krw")
+result = ds.list(start_date="20240101", end_date="20240131")
+
+for item in result.items:
+    print(f"{item['TIME']} — {item['DATA_VALUE']}원")
+```
+
+### bond_yield_3y (국고채 3년물 수익률)
+
+한국은행 ECOS에서 제공하는 국고채 3년물 수익률 데이터를 조회합니다.
+
+- 통계 코드: `817Y002`
+- 항목 코드: `010200000` (국고채 3년)
+- 필수 파라미터: `start_date`, `end_date`
+- 날짜 형식: `YYYYMMDD` (예: `"20240101"`)
+- frequency: `D` (일별)
+
+```python
+ds = client.dataset("bok.bond_yield_3y")
+result = ds.list(start_date="20240101", end_date="20240131")
+
+for item in result.items:
+    print(f"{item['TIME']} — {item['DATA_VALUE']}%")
+```
 ## 실사용 예제
 
 ### 기본 조회: 월별 기준금리 출력

@@ -1,21 +1,84 @@
-# ADR 0002: Standardize UX, not every native API shape
+# ADR 0002: UX를 표준화하되, 네이티브 API 형태는 표준화하지 않는다
 
-## Status
-Accepted
+## 상태
 
-## Context
-A single perfect universal query language for all Korean public-data providers would be misleading and fragile.
+승인됨 (Accepted)
 
-## Decision
-Standardize entry points and result envelopes while allowing provider-specific parameters and raw access.
+## 배경
 
-## Consequences
+공공데이터 API를 통합할 때 "어디까지 표준화할 것인가"가 핵심 설계 질문입니다.
 
-### Positive
-- more honest abstraction
-- easier debugging
-- better long-term adapter compatibility
+- **과도한 표준화**: 모든 기관의 파라미터명, 응답 필드, 페이지네이션을 하나로 통일 → "가짜 보편성" 문제 발생
+- **표준화 부재**: 기관마다 완전히 다른 사용법 → 사용자가 매번 새 API를 학습해야 함
 
-### Negative
-- some provider-specific knowledge still leaks into advanced use cases
+실제 사례:
+- BOK ECOS는 `start_date`/`end_date`를 URL 경로 세그먼트로 받고, datago는 쿼리 파라미터로 받음
+- KOSIS는 `orgId`/`tblId`가 필수이지만, datago에는 해당 개념이 없음
+- Seoul Open API는 인증키를 URL 경로에 넣고, 나머지는 쿼리 파라미터로 받음
 
+이런 차이를 억지로 하나의 파라미터 스키마로 맞추면, 결국 `**kwargs`나 provider-specific 필드가 난무하게 되어 표준화의 의미가 사라집니다.
+
+## 결정
+
+**진입점(Entry Point)과 결과 봉투(Result Envelope)만 표준화하고, 기관별 파라미터와 내부 데이터 구조는 그대로 둔다.**
+
+### 표준화하는 것 (UX 계층)
+
+| 항목 | 표준 |
+|---|---|
+| 클라이언트 생성 | `Client.from_env()` / `Client(provider_keys={...})` |
+| 데이터셋 접근 | `client.dataset("provider.dataset_key")` |
+| 데이터 조회 | `ds.list(**params)` → `RecordBatch` |
+| 단건 조회 | `ds.get(**params)` → `Record` |
+| 스키마 확인 | `ds.schema()` → 필드 목록 |
+| 원본 호출 | `ds.call_raw(operation, **params)` → raw dict |
+| 결과 봉투 | `RecordBatch(items, total_count, metadata)` |
+| 에러 체계 | `AuthError`, `InvalidRequestError`, `ProviderResponseError` 등 |
+| 기능 선언 | `adapter.capabilities` → 지원/미지원 명시 |
+
+### 표준화하지 않는 것 (Native 계층)
+
+| 항목 | 이유 |
+|---|---|
+| 기관별 필수 파라미터명 | 기관이 정의한 것이며, 임의 변환 시 디버깅 불가 |
+| 날짜 형식 (`YYYYMM` vs `YYYYMMDD`) | 기관별 frequency에 따라 다름 |
+| 응답 필드명 (`DATA_VALUE`, `DT`, `BPLC_NM` 등) | 원본 필드명 유지가 디버깅과 문서 대조에 유리 |
+| 페이지네이션 파라미터 | adapter가 내부적으로 처리하되 사용자에게 노출하지 않음 |
+
+## 고려한 대안
+
+### 대안 1: 완전 필드 매핑 (Full Field Normalization)
+
+모든 기관의 응답 필드를 통일된 이름으로 변환(예: `DATA_VALUE` → `value`, `DT` → `value`).
+
+- **장점**: 사용자가 기관 무관하게 동일 필드명 사용 가능
+- **단점**: 원본 API 문서와 대조 불가, 기관별 추가 필드 손실, 디버깅 시 "이 `value`가 원래 뭐였지?" 문제
+- **기각 이유**: 디버깅 가능성(debuggability)이 프레임워크의 핵심 가치
+
+### 대안 2: 파라미터 이름 통일 (Unified Parameter Names)
+
+모든 기관에 `start_date`, `end_date`, `region` 등 통일 파라미터 사용.
+
+- **장점**: 사용자가 기관별 파라미터를 외울 필요 없음
+- **단점**: 기관별 고유 파라미터(`sidoName`, `fyr`, `tblId` 등)를 매핑할 수 없음, 새 파라미터 추가 시 매번 매핑 규칙 정의 필요
+- **기각 이유**: 매핑 비용 > 학습 비용. 각 기관 문서 2~3개 파라미터 외우는 게 더 현실적
+
+## 영향
+
+### 긍정적
+
+- **정직한 추상화**: 사용자가 "이 라이브러리가 뭘 해주고 뭘 안 해주는지" 명확히 앎
+- **디버깅 용이**: 원본 API 문서와 1:1 대응되어, 문제 발생 시 기관 문서를 바로 참조 가능
+- **장기 호환성**: 기관 API가 변경되어도 adapter만 수정하면 되고, 표준 인터페이스는 유지됨
+- **Raw Escape Hatch**: `call_raw`를 통해 표준화 범위 밖의 모든 기능에 접근 가능
+
+### 부정적
+
+- **기관별 지식 필요**: 고급 사용 시 해당 기관의 파라미터명을 알아야 함
+- **크로스-기관 집계 어려움**: 여러 기관 데이터를 통합 분석하려면 사용자가 필드 매핑을 직접 해야 함 → 향후 `kpubdata-builder`에서 해결 예정
+
+## 관련 문서
+
+- [CANONICAL_MODEL.md](https://github.com/yeongseon/kpubdata/blob/main/CANONICAL_MODEL.md)
+- [API_SPEC.md](https://github.com/yeongseon/kpubdata/blob/main/API_SPEC.md)
+- [ADR 0001: 방언 기반 아키텍처 채택](./0001-dialect-inspired-architecture.md)

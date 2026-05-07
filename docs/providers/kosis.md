@@ -33,6 +33,23 @@ export KPUBDATA_KOSIS_API_KEY="your-key"
 - 날짜 형식: `YYYYMM` (예: `"202401"`)
 - 기간 구분: `M` (월별, 기본값)
 
+### industrial_production (광공업생산지수)
+
+통계청에서 제공하는 광공업생산지수(통계표 ID: `DT_1J22003`)를 조회합니다. 제조업, 광업 등 산업별 생산 활동 수준을 지수화한 데이터입니다.
+
+- 통계기관 코드: `101` (통계청)
+- 통계표 ID: `DT_1J22003`
+- 필수 파라미터: `start_date`, `end_date`
+- 날짜 형식: `YYYYMM` (예: `"202401"`)
+- 기간 구분: `M` (월별, 기본값)
+
+```python
+ds = client.dataset("kosis.industrial_production")
+result = ds.list(start_date="202401", end_date="202412")
+
+for item in result.items[:5]:
+    print(f"{item['PRD_DE']} {item['C1_NM']}: {item['DT']}")
+```
 ## 실사용 예제
 
 ### 기본 조회: 월별 이동자수 출력
