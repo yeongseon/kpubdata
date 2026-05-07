@@ -1,0 +1,31 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "400000001",
+            "ITEM_NAME": "샘플정G",
+            "ENTP_NAME": "샘플제약",
+            "CLASS_NAME": "혈압강하제",
+            "CPCTY_ATENT_CN": "용량주의 대표 샘플"
+          },
+          {
+            "ITEM_SEQ": "400000002",
+            "ITEM_NAME": "샘플캡슐H",
+            "ENTP_NAME": "예시제약",
+            "CLASS_NAME": "당뇨병용제",
+            "CPCTY_ATENT_CN": "용량주의 대표 샘플"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

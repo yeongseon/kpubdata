@@ -160,3 +160,182 @@ def test_dur_product_info_dataset_contract_query_and_raw() -> None:
     assert len(batch.items) == 2
     assert all(isinstance(item, dict) for item in batch.items)
     assert raw is not None
+
+
+def test_dur_age_taboo_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_age_taboo.json"])
+
+    dataset = adapter.get_dataset("dur_age_taboo")
+
+    assert dataset.id == "datago.dur_age_taboo"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_age_taboo_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(["success_dur_age_taboo.json", "success_dur_age_taboo.json"])
+    dataset = adapter.get_dataset("dur_age_taboo")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(dataset, "getSpcifyAgrdeTabooInfoList03", {"itemName": "샘플"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_dur_dosage_caution_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_dosage_caution.json"])
+
+    dataset = adapter.get_dataset("dur_dosage_caution")
+
+    assert dataset.id == "datago.dur_dosage_caution"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_dosage_caution_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(
+        [
+            "success_dur_dosage_caution.json",
+            "success_dur_dosage_caution.json",
+        ]
+    )
+    dataset = adapter.get_dataset("dur_dosage_caution")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(dataset, "getCpctyAtentInfoList03", {"itemName": "샘플"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_dur_medication_period_caution_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_medication_period_caution.json"])
+
+    dataset = adapter.get_dataset("dur_medication_period_caution")
+
+    assert dataset.id == "datago.dur_medication_period_caution"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_medication_period_caution_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(
+        [
+            "success_dur_medication_period_caution.json",
+            "success_dur_medication_period_caution.json",
+        ]
+    )
+    dataset = adapter.get_dataset("dur_medication_period_caution")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(dataset, "getMdctnPdAtentInfoList03", {"itemName": "샘플"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_dur_efficacy_duplication_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_efficacy_duplication.json"])
+
+    dataset = adapter.get_dataset("dur_efficacy_duplication")
+
+    assert dataset.id == "datago.dur_efficacy_duplication"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_efficacy_duplication_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(
+        [
+            "success_dur_efficacy_duplication.json",
+            "success_dur_efficacy_duplication.json",
+        ]
+    )
+    dataset = adapter.get_dataset("dur_efficacy_duplication")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(dataset, "getEfcyDplctInfoList03", {"itemName": "샘플"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_dur_er_tablet_split_caution_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_er_tablet_split_caution.json"])
+
+    dataset = adapter.get_dataset("dur_er_tablet_split_caution")
+
+    assert dataset.id == "datago.dur_er_tablet_split_caution"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_er_tablet_split_caution_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(
+        [
+            "success_dur_er_tablet_split_caution.json",
+            "success_dur_er_tablet_split_caution.json",
+        ]
+    )
+    dataset = adapter.get_dataset("dur_er_tablet_split_caution")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(
+        dataset,
+        "getSeobangjeongPartitnAtentInfoList03",
+        {"itemName": "샘플"},
+    )
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_dur_pregnancy_taboo_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_dur_pregnancy_taboo.json"])
+
+    dataset = adapter.get_dataset("dur_pregnancy_taboo")
+
+    assert dataset.id == "datago.dur_pregnancy_taboo"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_dur_pregnancy_taboo_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(
+        [
+            "success_dur_pregnancy_taboo.json",
+            "success_dur_pregnancy_taboo.json",
+        ]
+    )
+    dataset = adapter.get_dataset("dur_pregnancy_taboo")
+
+    batch = adapter.query_records(dataset, Query(filters={"itemName": "샘플"}))
+    raw = adapter.call_raw(dataset, "getPwnmTabooInfoList03", {"itemName": "샘플"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None

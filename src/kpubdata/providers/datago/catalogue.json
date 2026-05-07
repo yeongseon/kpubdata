@@ -137,6 +137,108 @@
     }
   },
   {
+    "dataset_key": "dur_age_taboo",
+    "name": "의약품 안전사용서비스 DUR 특정연령대금기 정보조회 (DUR Age Taboo)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getSpcifyAgrdeTabooInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR age-specific taboo drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds", "age-taboo"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "dur_dosage_caution",
+    "name": "의약품 안전사용서비스 DUR 용량주의 정보조회 (DUR Dosage Caution)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getCpctyAtentInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR dosage caution drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds", "dosage"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "dur_medication_period_caution",
+    "name": "의약품 안전사용서비스 DUR 투여기간주의 정보조회 (DUR Medication Period Caution)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getMdctnPdAtentInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR medication period caution drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds", "medication-period"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "dur_efficacy_duplication",
+    "name": "의약품 안전사용서비스 DUR 효능군중복 정보조회 (DUR Efficacy Duplication)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getEfcyDplctInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR efficacy group duplication drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds", "efficacy-duplication"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "dur_er_tablet_split_caution",
+    "name": "의약품 안전사용서비스 DUR 서방정분할주의 정보조회 (DUR ER Tablet Split Caution)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getSeobangjeongPartitnAtentInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR extended-release tablet split caution drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds", "er-tablet-split-caution"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "dur_pregnancy_taboo",
+    "name": "의약품 안전사용서비스 DUR 임부금기 정보조회 (DUR Pregnancy Taboo)",
+    "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
+    "default_operation": "getPwnmTabooInfoList03",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "MFDS DUR pregnancy taboo drug product information",
+    "tags": ["healthcare", "medicine", "dur", "mfds", "pregnancy"],
+    "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
     "dataset_key": "building_title",
     "name": "건축물대장 표제부 (Building Title Info)",
     "base_url": "http://apis.data.go.kr/1613000/BldRgstService_v2",

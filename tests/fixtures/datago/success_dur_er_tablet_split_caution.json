@@ -1,0 +1,31 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "500000001",
+            "ITEM_NAME": "샘플서방정A",
+            "ENTP_NAME": "샘플제약",
+            "CLASS_NAME": "정신신경용제",
+            "SEOBANGJEONG_PARTITN_ATENT_CN": "서방정분할주의 대표 샘플"
+          },
+          {
+            "ITEM_SEQ": "500000002",
+            "ITEM_NAME": "예시서방정B",
+            "ENTP_NAME": "예시제약",
+            "CLASS_NAME": "혈압강하제",
+            "SEOBANGJEONG_PARTITN_ATENT_CN": "서방정분할주의 대표 샘플"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

@@ -501,11 +501,9 @@ def test_fixture_road_traffic_call_raw_returns_full_envelope() -> None:
     assert payload == expected
     payload_dict = cast(dict[str, object], payload)
     assert payload_dict["resultCode"] == "00"
-    items = payload_dict["items"]
-    assert isinstance(items, list)
+    items = cast(list[dict[str, object]], payload_dict["items"])
     assert len(items) == 3
     first = items[0]
-    assert isinstance(first, dict)
     assert first["roadName"] == "경부고속도로"
     assert first["linkId"] == "1610038501"
 
@@ -532,3 +530,185 @@ def test_fixture_g2b_catalog_parses() -> None:
     assert "prdctNm" in batch.items[0]
     assert "crtfcTyNm" in batch.items[0]
     assert batch.total_count == 2
+
+
+def test_fixture_dur_age_taboo_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_dur_age_taboo.json", "dur_age_taboo")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플정G"
+    assert "CLASS_NAME" in batch.items[0]
+    assert "SPCIFY_AGRDE_TABOO_CN" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_age_taboo_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_dur_age_taboo.json", "dur_age_taboo")
+    expected = load_json_fixture("success_dur_age_taboo.json")
+
+    payload = adapter.call_raw(dataset, "getSpcifyAgrdeTabooInfoList03", {"itemName": "샘플"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_dur_dosage_caution_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_dosage_caution.json", "dur_dosage_caution"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플정G"
+    assert "CLASS_NAME" in batch.items[0]
+    assert "CPCTY_ATENT_CN" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_dosage_caution_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_dosage_caution.json", "dur_dosage_caution"
+    )
+    expected = load_json_fixture("success_dur_dosage_caution.json")
+
+    payload = adapter.call_raw(dataset, "getCpctyAtentInfoList03", {"itemName": "샘플"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_dur_medication_period_caution_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_medication_period_caution.json",
+        "dur_medication_period_caution",
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플정I"
+    assert "CLASS_NAME" in batch.items[0]
+    assert "MDCTN_PD_ATENT_CN" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_medication_period_caution_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_medication_period_caution.json",
+        "dur_medication_period_caution",
+    )
+    expected = load_json_fixture("success_dur_medication_period_caution.json")
+
+    payload = adapter.call_raw(dataset, "getMdctnPdAtentInfoList03", {"itemName": "샘플"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_dur_efficacy_duplication_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_efficacy_duplication.json", "dur_efficacy_duplication"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플정G"
+    assert "SERS_NAME" in batch.items[0]
+    assert "PROHBT_CONTENT" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_efficacy_duplication_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_efficacy_duplication.json", "dur_efficacy_duplication"
+    )
+    expected = load_json_fixture("success_dur_efficacy_duplication.json")
+
+    payload = adapter.call_raw(dataset, "getEfcyDplctInfoList03", {"itemName": "샘플"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_dur_er_tablet_split_caution_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_er_tablet_split_caution.json", "dur_er_tablet_split_caution"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플서방정A"
+    assert "CLASS_NAME" in batch.items[0]
+    assert "SEOBANGJEONG_PARTITN_ATENT_CN" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_er_tablet_split_caution_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_er_tablet_split_caution.json", "dur_er_tablet_split_caution"
+    )
+    expected = load_json_fixture("success_dur_er_tablet_split_caution.json")
+
+    payload = adapter.call_raw(
+        dataset,
+        "getSeobangjeongPartitnAtentInfoList03",
+        {"itemName": "샘플"},
+    )
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_dur_pregnancy_taboo_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_pregnancy_taboo.json", "dur_pregnancy_taboo"
+    )
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["ITEM_NAME"] == "샘플정I"
+    assert "PREGNANT_GRADE" in batch.items[0]
+    assert "PREGNANT_PROHBT_CN" in batch.items[0]
+    assert batch.total_count == 2
+
+
+def test_fixture_dur_pregnancy_taboo_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter(
+        "success_dur_pregnancy_taboo.json", "dur_pregnancy_taboo"
+    )
+    expected = load_json_fixture("success_dur_pregnancy_taboo.json")
+
+    payload = adapter.call_raw(dataset, "getPwnmTabooInfoList03", {"itemName": "샘플"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response

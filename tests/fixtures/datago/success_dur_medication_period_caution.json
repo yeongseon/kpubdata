@@ -1,0 +1,31 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "ITEM_SEQ": "500000001",
+            "ITEM_NAME": "샘플정I",
+            "ENTP_NAME": "샘플제약",
+            "CLASS_NAME": "항전간제",
+            "MDCTN_PD_ATENT_CN": "투여기간주의 대표 샘플"
+          },
+          {
+            "ITEM_SEQ": "500000002",
+            "ITEM_NAME": "샘플캡슐J",
+            "ENTP_NAME": "예시제약",
+            "CLASS_NAME": "최면진정제",
+            "MDCTN_PD_ATENT_CN": "투여기간주의 대표 샘플"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
