@@ -80,7 +80,7 @@ curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?ser
 
 ## KPubData에서 신청해야 할 API 목록
 
-현재 KPubData가 지원하는 datago 데이터셋을 모두 사용하려면, 아래 22개 API를 각각 활용신청해야 합니다.
+현재 KPubData가 지원하는 datago 데이터셋을 모두 사용하려면, 아래 API를 각각 활용신청해야 합니다. (최신 목록은 [SUPPORTED_DATA.md](https://github.com/yeongseon/kpubdata/blob/main/SUPPORTED_DATA.md) 기준)
 
 | # | data.go.kr 검색어 | 제공기관 | 승인 방식 |
 |---|---|---|---|
@@ -779,10 +779,9 @@ export KPUBDATA_DATAGO_API_KEY="your-key"
 uv run pytest tests/integration/test_datago_live.py -m integration -ra -v
 ```
 
-## 실 API 검증 현황
+## 검증 현황
 
-현재 datago 데이터셋은 fixture 기반 테스트 검증 단계입니다. 실 API 검증은 키 활성화 후 진행 예정입니다.
-
+데이터셋별 검증 수준(텍스트 검증 / 실API 검증)은 [SUPPORTED_DATA.md](https://github.com/yeongseon/kpubdata/blob/main/SUPPORTED_DATA.md)를 참고하세요.
 ## 관련 문서
 
 - [공공데이터포털 공식 사이트](https://www.data.go.kr)
