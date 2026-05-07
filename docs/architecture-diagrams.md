@@ -28,12 +28,14 @@ graph TB
     subgraph Provider_Layer [Provider Layer]
         ProviderAdapter["<<Protocol>><br/>ProviderAdapter"]
         DataGoAdapter[DataGoAdapter]
-        SeoulAdapter[SeoulAdapter stub]
-        AirKoreaAdapter[AirKoreaAdapter stub]
+        SeoulAdapter[SeoulAdapter]
+        BokAdapter[BokAdapter]
+        KosisAdapter[KosisAdapter]
 
         ProviderAdapter -.-> DataGoAdapter
         ProviderAdapter -.-> SeoulAdapter
-        ProviderAdapter -.-> AirKoreaAdapter
+        ProviderAdapter -.-> BokAdapter
+        ProviderAdapter -.-> KosisAdapter
     end
 
     subgraph Transport_Layer [Transport Layer]
@@ -44,7 +46,7 @@ graph TB
     end
 
     subgraph External [External API]
-        DataGoAPI[data.go.kr API]
+        DataGoAPI["공공 API<br/>(data.go.kr / data.seoul.go.kr / ecos 등)"]
     end
 
     Client --> Catalog
@@ -339,13 +341,15 @@ flowchart LR
         Catalog --> Registry
         Registry --> P1[DataGoAdapter]
         Registry --> P2[SeoulAdapter]
-        Registry --> P3[AirKoreaAdapter]
+        Registry --> P3[BokAdapter]
+        Registry --> P4[KosisAdapter]
         
         P1 -->|list_datasets| L1[Dataset List]
         P2 -->|list_datasets| L2[Dataset List]
         P3 -->|list_datasets| L3[Dataset List]
+        P4 -->|list_datasets| L4[Dataset List]
         
-        L1 & L2 & L3 --> Merge[Merge & Filter]
+        L1 & L2 & L3 & L4 --> Merge[Merge & Filter]
     end
     
     Merge -->|return list| User
@@ -409,13 +413,15 @@ graph TB
 
     subgraph Implementation [Implementation Status]
         DataGo[DataGoAdapter] -- "Fully Implemented" --> Protocol
-        Seoul[SeoulAdapter] -- "Stub (NotImplemented)" --> Protocol
-        AirKorea[AirKoreaAdapter] -- "Stub (NotImplemented)" --> Protocol
+        Seoul[SeoulAdapter] -- "Fully Implemented" --> Protocol
+        Bok[BokAdapter] -- "Fully Implemented" --> Protocol
+        Kosis[KosisAdapter] -- "Fully Implemented" --> Protocol
     end
 
     style DataGo fill:#bfb
-    style Seoul fill:#fbb
-    style AirKorea fill:#fbb
+    style Seoul fill:#bfb
+    style Bok fill:#bfb
+    style Kosis fill:#bfb
 ```
 
 ---
@@ -470,6 +476,11 @@ src/kpubdata/
     ├── datago/
     │   ├── adapter.py   # 공공데이터포털(data.go.kr) 전용 어댑터 구현
     │   └── catalogue.json # 큐레이션된 데이터셋 정의 데이터
-    ├── seoul/            # 서울시 열린데이터 광장 어댑터 (스텁)
-    └── airkorea/         # 에어코리아(대기오염) 어댑터 (스텁)
-```
+    ├── seoul/
+    │   ├── adapter.py   # 서울 열린데이터광장 전용 어댑터 구현
+    │   └── catalogue.json # 서울 데이터셋 정의
+    ├── bok/              # 한국은행 ECOS 어댑터
+    ├── kosis/            # 통계청 KOSIS 어댑터
+    ├── lofin/            # 지방재정365 어댑터
+    ├── krx/              # 한국거래소 어댑터
+    └── ...               # 기타 프로바이더

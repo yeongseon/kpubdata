@@ -5,12 +5,9 @@ This document summarizes the public API conventions of **data.go.kr**
 
 ## 1. Scope
 
-**v0.1 targets the `apis.data.go.kr` endpoint family only.**
-
-The portal also hosts datasets under `api.odcloud.kr`, which uses a
-different auth mechanism, envelope shape, and pagination model.
-A separate adapter (or dialect section) will cover odcloud in a future
-release.
+`datago` 어댑터는 `apis.data.go.kr`와 `api.odcloud.kr` 계열을 모두 지원합니다.
+`provider_family: "odcloud"` 메타데이터로 프로토콜을 분기합니다.
+(`social_enterprise` 데이터셋이 ODcloud 프로토콜을 사용합니다.)
 
 ## 2. Authentication
 

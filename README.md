@@ -417,16 +417,7 @@ print(df.head())
 
 자세한 사용법은 [docs/providers/datago.md](./docs/providers/datago.md#generic-범용-엔드포인트)와 [SUPPORTED_DATA.md](./SUPPORTED_DATA.md#비상구--고급-기능-escape-hatches)를 참고하세요.
 
-### 공개 데이터셋 (Published Datasets)
-
-KPubData로 수집한 데이터를 정제하여 공개 플랫폼에 업로드하고 있습니다.
-
-| 데이터셋 | 플랫폼 | 규모 | 링크 |
-|---|---|---|---|
-| 서울 따릉이 월별 이용정보 | HuggingFace | ~119,000건 (11MB) | [kpubdata/seoul-bike-rent-month](https://huggingface.co/datasets/kpubdata/seoul-bike-rent-month) |
-| 서울 따릉이 월별 이용정보 | Kaggle | ~119,000건 (11MB) | [yschoe/seoul-bike-rent-month](https://www.kaggle.com/datasets/yschoe/seoul-bike-rent-month) |
-
-수집 방법 및 업로드 코드는 [docs/providers/seoul.md](./docs/providers/seoul.md#published-datasets-공개-데이터셋)를 참고하세요.
+> **참고**: 데이터셋 게시(Publishing) 및 HuggingFace/Kaggle 업로드는 [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder)에서 관리합니다. kpubdata는 데이터 수집/정규화만 담당합니다.
 
 ## 문서 가이드 (Document Guide)
 

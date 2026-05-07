@@ -68,12 +68,9 @@ uv run mypy src        # 타입 체크
 - **난이도**: `difficulty:beginner` — 3개 파일만 수정하면 돼요.
 - **왜 하는 거예요?**: 파이썬 기본 에러(`ValueError`)를 쓰면 "이 에러가 우리 프로젝트에서 온 건지, 다른 라이브러리에서 온 건지" 구분이 안 돼요. 프로젝트 전용 에러로 바꾸면 디버깅이 훨씬 쉬워져요.
 
-### 다른 초보자 추천 이슈
 
-| 이슈 | 제목 | 난이도 | 유형 |
-|:---|:---|:---|:---|
-| [#65](https://github.com/yeongseon/kpubdata/issues/65) | 미완성 adapter(seoul, airkorea) public export 정리 | beginner | 코드 정리 |
-| [#59](https://github.com/yeongseon/kpubdata/issues/59) | More examples and documentation | beginner | 문서/예제 |
+> 초보자 추천 이슈는 `good first issue` 또는 `difficulty:beginner` 라벨로 필터링하세요.
+> 문서 작업은 `type:docs` 라벨을 참고하면 코드 없이 시작할 수 있어요.
 
 ### 이슈 할당받기
 
