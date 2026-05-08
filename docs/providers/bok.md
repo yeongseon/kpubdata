@@ -31,6 +31,17 @@ export KPUBDATA_BOK_API_KEY="your-key"
 - 날짜 형식: `YYYYMM` (예: `"202401"`)
 - frequency: `M` (월별, 기본값), `D` (일별), `A` (연간)
 
+### money_supply (통화량 M2)
+
+한국은행 ECOS의 광의통화(M2) 월별 통계를 조회합니다. 현재 KPubData에서는
+M2 상품별 구성내역 중 총계 항목을 제공합니다.
+
+- 통계 코드: `101Y003`
+- 항목 코드: `BBHS00` (M2 평잔, 계절조정계열)
+- 필수 파라미터: `start_date`, `end_date`
+- 날짜 형식: `YYYYMM` (예: `"202401"`)
+- frequency: `M` (월별)
+
 ## 실사용 예제
 
 ### 기본 조회: 월별 기준금리 출력
@@ -95,6 +106,18 @@ avg_2024 = sum(float(i["DATA_VALUE"]) for i in result_2024.items) / len(result_2
 print(f"2023 평균: {avg_2023:.2f}%")
 print(f"2024 평균: {avg_2024:.2f}%")
 print(f"변동폭: {avg_2024 - avg_2023:+.2f}%p")
+```
+
+### 통화량(M2) 월별 조회
+
+```python
+result = client.dataset("bok.money_supply").list(
+    start_date="202401",
+    end_date="202403",
+)
+
+for item in result.items:
+    print(f"{item['TIME']} — {item['DATA_VALUE']} {item['UNIT_NAME']}")
 ```
 
 ### 월별 기준금리 표 만들기

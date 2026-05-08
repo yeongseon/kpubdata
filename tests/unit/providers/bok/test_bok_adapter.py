@@ -120,6 +120,41 @@ def test_catalogue_includes_bond_yield_3y_daily_dataset() -> None:
     ]
 
 
+def test_catalogue_includes_money_supply_monthly_dataset() -> None:
+    _, dataset, _ = _build_adapter_with_transport([], dataset_key="money_supply")
+    catalogue = cast(
+        list[dict[str, object]],
+        json.loads(files("kpubdata.providers.bok").joinpath("catalogue.json").read_text()),
+    )
+    money_supply_entry = next(
+        entry for entry in catalogue if entry["dataset_key"] == "money_supply"
+    )
+
+    assert dataset.id == "bok.money_supply"
+    assert dataset.name == "통화량(M2) (Money Supply M2)"
+    assert dataset.description == "Bank of Korea ECOS M2 money supply monthly data"
+    assert dataset.raw_metadata["stat_code"] == "101Y003"
+    assert dataset.raw_metadata["item_code1"] == "BBHS00"
+    assert dataset.tags == ("finance", "money-supply", "monetary-aggregate")
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination.value == "offset"
+    assert dataset.query_support.max_page_size == 1000
+    assert money_supply_entry["query_support"] == {
+        "pagination": "offset",
+        "max_page_size": 1000,
+        "frequency": ["M"],
+    }
+    raw_fields = cast(list[dict[str, object]], dataset.raw_metadata["fields"])
+    assert [field["name"] for field in raw_fields] == [
+        "TIME",
+        "DATA_VALUE",
+        "UNIT_NAME",
+        "STAT_CODE",
+        "ITEM_CODE1",
+        "ITEM_NAME1",
+    ]
+
+
 def test_query_records_returns_single_page_and_sets_next_page() -> None:
     payload = _success_payload(items=[{"id": 1}, {"id": 2}], total_count=5)
     adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
