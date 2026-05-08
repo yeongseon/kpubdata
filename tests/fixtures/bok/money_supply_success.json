@@ -1,0 +1,34 @@
+{
+  "StatisticSearch": {
+    "list_total_count": 3,
+    "row": [
+      {
+        "STAT_CODE": "101Y003",
+        "STAT_NAME": "M2 상품별 구성내역(평잔, 계절조정계열)",
+        "ITEM_CODE1": "BBHS00",
+        "ITEM_NAME1": "M2(평잔, 계절조정계열)",
+        "UNIT_NAME": "십억원",
+        "TIME": "202401",
+        "DATA_VALUE": "3896400.7"
+      },
+      {
+        "STAT_CODE": "101Y003",
+        "STAT_NAME": "M2 상품별 구성내역(평잔, 계절조정계열)",
+        "ITEM_CODE1": "BBHS00",
+        "ITEM_NAME1": "M2(평잔, 계절조정계열)",
+        "UNIT_NAME": "십억원",
+        "TIME": "202402",
+        "DATA_VALUE": "3910225.4"
+      },
+      {
+        "STAT_CODE": "101Y003",
+        "STAT_NAME": "M2 상품별 구성내역(평잔, 계절조정계열)",
+        "ITEM_CODE1": "BBHS00",
+        "ITEM_NAME1": "M2(평잔, 계절조정계열)",
+        "UNIT_NAME": "십억원",
+        "TIME": "202403",
+        "DATA_VALUE": "3924831.2"
+      }
+    ]
+  }
+}

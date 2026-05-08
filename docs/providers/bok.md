@@ -66,6 +66,21 @@ result = ds.list(start_date="20240101", end_date="20240131")
 for item in result.items:
     print(f"{item['TIME']} — {item['DATA_VALUE']}%")
 ```
+
+### money_supply (통화량 M2, 구 통계)
+
+한국은행 ECOS의 광의통화(M2) 평잔 계절조정계열 월별 통계를 조회합니다.
+
+> **주의**: 이 통계표(`101Y003`)는 2006년 통화지표 개편 이전의 구 시계열로,
+> 월별 데이터는 **1986년 1월 ~ 2004년 9월**까지만 제공됩니다.
+
+- 통계 코드: `101Y003`
+- 항목 코드: `BBHS00` (M2 평잔, 계절조정계열)
+- 데이터 범위: `198601` ~ `200409` (월별)
+- 필수 파라미터: `start_date`, `end_date`
+- 날짜 형식: `YYYYMM` (예: `"200301"`)
+- frequency: `M` (월별)
+
 ## 실사용 예제
 
 ### 기본 조회: 월별 기준금리 출력
@@ -130,6 +145,18 @@ avg_2024 = sum(float(i["DATA_VALUE"]) for i in result_2024.items) / len(result_2
 print(f"2023 평균: {avg_2023:.2f}%")
 print(f"2024 평균: {avg_2024:.2f}%")
 print(f"변동폭: {avg_2024 - avg_2023:+.2f}%p")
+```
+
+### 통화량(M2) 월별 조회
+
+```python
+result = client.dataset("bok.money_supply").list(
+    start_date="202401",
+    end_date="202403",
+)
+
+for item in result.items:
+    print(f"{item['TIME']} — {item['DATA_VALUE']} {item['UNIT_NAME']}")
 ```
 
 ### 월별 기준금리 표 만들기

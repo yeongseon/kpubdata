@@ -25,6 +25,32 @@
     ]
   },
   {
+    "dataset_key": "money_supply",
+    "name": "통화량(M2) (Money Supply M2)",
+    "base_url": "https://ecos.bok.or.kr/api/StatisticSearch",
+    "default_operation": "StatisticSearch",
+    "representation": "api_json",
+    "stat_code": "101Y003",
+    "item_code1": "BBHS00",
+    "description": "Bank of Korea ECOS M2 money supply monthly data",
+    "tags": ["finance", "money-supply", "monetary-aggregate"],
+    "source_url": "https://ecos.bok.or.kr/api/StatisticSearch",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000,
+      "frequency": ["M"]
+    },
+    "fields": [
+      {"name": "TIME", "title": "기간", "type": "string", "constraints": {"format": "YYYYMM", "pattern": "^\\d{6}$"}},
+      {"name": "DATA_VALUE", "title": "통화량(M2)", "type": "string"},
+      {"name": "UNIT_NAME", "title": "단위", "type": "string"},
+      {"name": "STAT_CODE", "title": "통계표코드", "type": "string", "constraints": {"pattern": "^[A-Z0-9]+$"}},
+      {"name": "ITEM_CODE1", "title": "항목코드", "type": "string"},
+      {"name": "ITEM_NAME1", "title": "항목명", "type": "string"}
+    ]
+  },
+  {
     "dataset_key": "usd_krw",
     "name": "원/달러 환율 매매기준율 (USD/KRW Exchange Rate)",
     "base_url": "https://ecos.bok.or.kr/api/StatisticSearch",
