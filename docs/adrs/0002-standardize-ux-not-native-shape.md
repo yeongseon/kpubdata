@@ -29,10 +29,10 @@
 | 클라이언트 생성 | `Client.from_env()` / `Client(provider_keys={...})` |
 | 데이터셋 접근 | `client.dataset("provider.dataset_key")` |
 | 데이터 조회 | `ds.list(**params)` → `RecordBatch` |
-| 단건 조회 | `ds.get(**params)` → `Record` |
 | 스키마 확인 | `ds.schema()` → 필드 목록 |
-| 원본 호출 | `ds.call_raw(operation, **params)` → raw dict |
-| 결과 봉투 | `RecordBatch(items, total_count, metadata)` |
+| 원본 호출 | `ds.call_raw(operation, **params)` → provider-native object |
+| 결과 봉투 | `RecordBatch(items, meta, next_page, next_cursor)` |
+| 페이지네이션 UX | `page`, `page_size`, `cursor` — 표준 파라미터로 노출 |
 | 에러 체계 | `AuthError`, `InvalidRequestError`, `ProviderResponseError` 등 |
 | 기능 선언 | `adapter.capabilities` → 지원/미지원 명시 |
 
@@ -43,7 +43,7 @@
 | 기관별 필수 파라미터명 | 기관이 정의한 것이며, 임의 변환 시 디버깅 불가 |
 | 날짜 형식 (`YYYYMM` vs `YYYYMMDD`) | 기관별 frequency에 따라 다름 |
 | 응답 필드명 (`DATA_VALUE`, `DT`, `BPLC_NM` 등) | 원본 필드명 유지가 디버깅과 문서 대조에 유리 |
-| 페이지네이션 파라미터 | adapter가 내부적으로 처리하되 사용자에게 노출하지 않음 |
+| 페이지네이션 내부 매핑 | adapter가 표준 `page`/`page_size`를 기관별 형식(`pageNo`/`numOfRows`, 인덱스 등)으로 변환 |
 
 ## 고려한 대안
 
