@@ -160,16 +160,16 @@ def test_money_supply_query_records_builds_monthly_ecos_url_and_parses_fixture()
     batch = adapter.query_records(
         dataset,
         Query(
-            start_date="202401",
-            end_date="202403",
+            start_date="200301",
+            end_date="200303",
             extra={"frequency": "M"},
         ),
     )
 
     request_url = cast(str, transport.calls[0]["url"])
     assert "/StatisticSearch/" in request_url
-    assert "101Y003/M/202401/202403/BBHS00" in request_url
+    assert "101Y003/M/200301/200303/BBHS00" in request_url
     assert len(batch.items) == 3
-    assert [item["TIME"] for item in batch.items] == ["202401", "202402", "202403"]
+    assert [item["TIME"] for item in batch.items] == ["200301", "200302", "200303"]
     assert {item["STAT_CODE"] for item in batch.items} == {"101Y003"}
     assert {item["ITEM_CODE1"] for item in batch.items} == {"BBHS00"}

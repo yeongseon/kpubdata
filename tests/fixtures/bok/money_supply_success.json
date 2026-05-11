@@ -8,8 +8,8 @@
         "ITEM_CODE1": "BBHS00",
         "ITEM_NAME1": "M2(평잔, 계절조정계열)",
         "UNIT_NAME": "십억원",
-        "TIME": "202401",
-        "DATA_VALUE": "3896400.7"
+        "TIME": "200301",
+        "DATA_VALUE": "880250.7"
       },
       {
         "STAT_CODE": "101Y003",
@@ -17,8 +17,8 @@
         "ITEM_CODE1": "BBHS00",
         "ITEM_NAME1": "M2(평잔, 계절조정계열)",
         "UNIT_NAME": "십억원",
-        "TIME": "202402",
-        "DATA_VALUE": "3910225.4"
+        "TIME": "200302",
+        "DATA_VALUE": "886412.3"
       },
       {
         "STAT_CODE": "101Y003",
@@ -26,8 +26,8 @@
         "ITEM_CODE1": "BBHS00",
         "ITEM_NAME1": "M2(평잔, 계절조정계열)",
         "UNIT_NAME": "십억원",
-        "TIME": "202403",
-        "DATA_VALUE": "3924831.2"
+        "TIME": "200303",
+        "DATA_VALUE": "893075.8"
       }
     ]
   }

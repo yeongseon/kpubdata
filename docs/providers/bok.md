@@ -147,12 +147,12 @@ print(f"2024 평균: {avg_2024:.2f}%")
 print(f"변동폭: {avg_2024 - avg_2023:+.2f}%p")
 ```
 
-### 통화량(M2) 월별 조회
+### 통화량(M2) 월별 조회 (구 통계, ~2004.09)
 
 ```python
 result = client.dataset("bok.money_supply").list(
-    start_date="202401",
-    end_date="202403",
+    start_date="200301",
+    end_date="200303",
 )
 
 for item in result.items:

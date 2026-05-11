@@ -131,8 +131,11 @@ def test_catalogue_includes_money_supply_monthly_dataset() -> None:
     )
 
     assert dataset.id == "bok.money_supply"
-    assert dataset.name == "통화량(M2) (Money Supply M2)"
-    assert dataset.description == "Bank of Korea ECOS M2 money supply monthly data"
+    assert dataset.name == "통화량(M2) 구 통계 (Money Supply M2, Legacy Series)"
+    assert (
+        dataset.description
+        == "Bank of Korea ECOS M2 money supply monthly data (legacy series, 198601-200409)"
+    )
     assert dataset.raw_metadata["stat_code"] == "101Y003"
     assert dataset.raw_metadata["item_code1"] == "BBHS00"
     assert dataset.tags == ("finance", "money-supply", "monetary-aggregate")
