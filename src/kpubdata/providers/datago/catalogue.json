@@ -623,5 +623,30 @@
     "source_url": "https://www.data.go.kr",
     "operations": ["raw"],
     "generic": true
+  },
+  {
+      "dataset_key": "agri_price",
+      "name": "친환경농산물 가격정보 (Eco-Friendly Agricultural Product Price)",
+      "base_url": "https://apis.data.go.kr/B552845/ecoFriendly",
+      "default_operation": "price",
+      "representation": "api_json",
+      "service_key_param": "serviceKey",
+      "format_param": "returnType",
+      "description": "aT(Korea Agro-Fisheries & Food Trade Corporation) eco-friendly agricultural product price information",
+      "tags": [
+          "agriculture",
+          "price",
+          "eco-friendly",
+          "at"
+      ],
+      "source_url": "https://www.data.go.kr/data/15156073/openapi.do",
+      "operations": [
+          "list",
+          "raw"
+      ],
+      "query_support": {
+          "pagination": "offset",
+          "max_page_size": 1000
+      }
   }
 ]
