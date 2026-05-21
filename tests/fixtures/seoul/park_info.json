@@ -1,0 +1,16 @@
+{
+  "GetParkInfo": {
+    "list_total_count": 1,
+    "RESULT": {
+      "CODE": "INFO-000",
+      "MESSAGE": "정상 처리되었습니다"
+    },
+    "row": [
+      {
+        "PARKING_NAME": "샘플 공영주차장",
+        "ADDR": "서울특별시 중구",
+        "TEL": "02-000-0000"
+      }
+    ]
+  }
+}
