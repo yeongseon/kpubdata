@@ -141,3 +141,29 @@ class TestSeoulBikeStationMasterContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("tbCycleStationInfo", {"page_no": 1, "page_size": 5})
+
+
+class TestSeoulParkInfoContract(ProviderAdapterContract):
+    @pytest.fixture()
+    def adapter(self) -> ProviderAdapter:
+        return _build_adapter(["park_info.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "park_info"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: ProviderAdapter) -> DatasetRef:
+        return adapter.get_dataset("park_info")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query()
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("GetParkInfo", {"page_no": 1, "page_size": 5})

@@ -55,16 +55,17 @@
     "required_path_params": []
   },
   {
-  "dataset_key": "park_info",
-  "name": "서울시 공영주차장 안내 정보 (Public Parking Lot Info)",
-  "base_url": "http://openapi.seoul.go.kr:8088",
-  "default_operation": "GetParkInfo",
-  "representation": "api_json",
-  "description": "Seoul public parking lot information",
-  "tags": ["transportation", "parking", "public"],
-  "source_url": "https://data.seoul.go.kr/",
-  "operations": ["list", "raw"],
-  "query_support": {"pagination": "index", "max_page_size": 1000},
-  "required_path_params": []
-}
+    "dataset_key": "park_info",
+    "name": "서울시 공영주차장 안내 정보 (Public Parking Lot Info)",
+    "base_url": "http://openapi.seoul.go.kr:8088",
+    "default_operation": "GetParkInfo",
+    "representation": "api_json",
+    "description": "Seoul public parking lot information",
+    "tags": ["transportation", "parking", "public"],
+    "source_url": "https://data.seoul.go.kr/",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "index", "max_page_size": 1000},
+    "required_path_params": []
+  }
 ]
+
