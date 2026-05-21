@@ -712,3 +712,30 @@ def test_fixture_dur_pregnancy_taboo_call_raw_returns_full_envelope() -> None:
     assert isinstance(response, dict)
     assert "header" in response
     assert "body" in response
+
+
+def test_fixture_agri_price_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_agri_price.json", "agri_price")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 3
+    assert batch.items[0]["item_nm"] == "쌀"
+    assert "exmn_dd_prc" in batch.items[0]
+    assert "sgg_nm" in batch.items[0]
+    assert "grd_nm" in batch.items[0]
+    assert batch.total_count == 3
+
+
+def test_fixture_agri_price_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_agri_price.json", "agri_price")
+    expected = load_json_fixture("success_agri_price.json")
+
+    payload = adapter.call_raw(dataset, "price", {"cond[exmn_ymd::GTE]": "20240101"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response

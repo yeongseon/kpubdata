@@ -339,3 +339,33 @@ def test_dur_pregnancy_taboo_dataset_contract_query_and_raw() -> None:
     assert len(batch.items) == 2
     assert all(isinstance(item, dict) for item in batch.items)
     assert raw is not None
+
+
+def test_agri_price_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_agri_price.json"])
+
+    dataset = adapter.get_dataset("agri_price")
+
+    assert dataset.id == "datago.agri_price"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_agri_price_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(
+        [
+            "success_agri_price.json",
+            "success_agri_price.json",
+        ]
+    )
+    dataset = adapter.get_dataset("agri_price")
+
+    batch = adapter.query_records(dataset, Query(filters={"cond[exmn_ymd::GTE]": "20240101"}))
+    raw = adapter.call_raw(dataset, "price", {"cond[exmn_ymd::GTE]": "20240101"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 3
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None

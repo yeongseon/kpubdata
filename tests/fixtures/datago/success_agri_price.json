@@ -1,0 +1,83 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "exmn_ymd": "20240115",
+            "se_cd": "01",
+            "se_nm": "소매",
+            "ctgry_cd": "100",
+            "ctgry_nm": "식량작물",
+            "item_cd": "111",
+            "item_nm": "쌀",
+            "vrty_cd": "01",
+            "vrty_nm": "20kg",
+            "grd_cd": "07",
+            "grd_nm": "유기농",
+            "sgg_cd": "1101",
+            "sgg_nm": "서울",
+            "unit": "20kg",
+            "unit_sz": "20",
+            "mrkt_cd": "0110200",
+            "mrkt_nm": "서울",
+            "exmn_dd_prc": "72800",
+            "exmn_dd_cnvs_prc": "3640",
+            "orgnl_reg_dt": "20240115120000"
+          },
+          {
+            "exmn_ymd": "20240115",
+            "se_cd": "01",
+            "se_nm": "소매",
+            "ctgry_cd": "200",
+            "ctgry_nm": "채소류",
+            "item_cd": "211",
+            "item_nm": "배추",
+            "vrty_cd": "01",
+            "vrty_nm": "배추",
+            "grd_cd": "08",
+            "grd_nm": "무농약",
+            "sgg_cd": "1101",
+            "sgg_nm": "서울",
+            "unit": "1포기",
+            "unit_sz": "1",
+            "mrkt_cd": "0110200",
+            "mrkt_nm": "서울",
+            "exmn_dd_prc": "4500",
+            "exmn_dd_cnvs_prc": "4500",
+            "orgnl_reg_dt": "20240115120000"
+          },
+          {
+            "exmn_ymd": "20240115",
+            "se_cd": "01",
+            "se_nm": "소매",
+            "ctgry_cd": "400",
+            "ctgry_nm": "과일류",
+            "item_cd": "411",
+            "item_nm": "사과",
+            "vrty_cd": "02",
+            "vrty_nm": "후지",
+            "grd_cd": "07",
+            "grd_nm": "유기농",
+            "sgg_cd": "2100",
+            "sgg_nm": "부산",
+            "unit": "10개",
+            "unit_sz": "10",
+            "mrkt_cd": "0210100",
+            "mrkt_nm": "부산",
+            "exmn_dd_prc": "35000",
+            "exmn_dd_cnvs_prc": "3500",
+            "orgnl_reg_dt": "20240115120000"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 3
+    }
+  }
+}
