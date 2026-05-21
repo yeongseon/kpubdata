@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import builtins
 import logging
+import re
 import unicodedata
+from dataclasses import dataclass
 from difflib import SequenceMatcher
 from typing import cast
 
@@ -18,46 +20,137 @@ logger = logging.getLogger("kpubdata.catalog")
 # Minimum relevance score (0.0–1.0) for a dataset to appear in search results.
 _DEFAULT_SCORE_THRESHOLD = 0.5
 
+# Token-overlap scoring band — always strictly less than the substring 1.0 score
+# so that exact substring matches keep their ranking priority.
+_TOKEN_OVERLAP_FLOOR = 0.7
+_TOKEN_OVERLAP_CEIL = 0.95
+
+# Unicode word tokens (letters, digits, underscore). Identifier-like tokens such
+# as ``village_fcst`` remain a single token, which matches how dataset_key
+# strings are written in provider catalogues.
+_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
+
 
 def _normalize(text: str) -> str:
     """NFC-normalize, strip, and casefold a string for search comparison."""
     return unicodedata.normalize("NFC", text).strip().casefold()
 
 
-def _score_dataset(needle: str, dataset: DatasetRef) -> float:
-    """Score a dataset against a search term.
+def _tokenize(text: str) -> frozenset[str]:
+    """Split *text* into a deterministic set of normalized word tokens."""
+    if not text:
+        return frozenset()
+    return frozenset(_TOKEN_RE.findall(_normalize(text)))
 
-    Returns a relevance score between 0.0 and 1.0.  An exact substring
-    match in any searchable field yields 1.0.  Otherwise the best
-    ``SequenceMatcher`` ratio across fields is returned.
 
-    Searchable fields: name, description, tags, id.
+@dataclass(slots=True, frozen=True)
+class _IndexedItem:
+    """Pre-computed search payload for a single dataset.
+
+    Bundles a :class:`DatasetRef` with its normalized field strings and a
+    deterministic token set, so that :class:`Catalog.search` can score each
+    item without recomputing per-call normalization work.
     """
-    needle_lower = _normalize(needle)
-    if not needle_lower:
+
+    dataset: DatasetRef
+    fields: tuple[str, ...]
+    tokens: frozenset[str]
+
+
+def _build_index(datasets: builtins.list[DatasetRef]) -> builtins.list[_IndexedItem]:
+    """Materialize an in-memory search index over *datasets*.
+
+    Each item exposes normalized field strings (name, description, tags, id,
+    dataset_key, provider) and the union of word tokens extracted from those
+    fields. Building the index is O(n) over the candidate set and runs once
+    per search call.
+    """
+    index: builtins.list[_IndexedItem] = []
+    for dataset in datasets:
+        field_sources: builtins.list[str] = [
+            dataset.name,
+            dataset.id,
+            dataset.dataset_key,
+            dataset.provider,
+        ]
+        if dataset.description:
+            field_sources.append(dataset.description)
+        field_sources.extend(dataset.tags)
+
+        normalized_fields: builtins.list[str] = []
+        tokens: set[str] = set()
+        for source in field_sources:
+            normalized = _normalize(source)
+            normalized_fields.append(normalized)
+            tokens.update(_TOKEN_RE.findall(normalized))
+
+        index.append(
+            _IndexedItem(
+                dataset=dataset,
+                fields=tuple(normalized_fields),
+                tokens=frozenset(tokens),
+            )
+        )
+    return index
+
+
+def _score_indexed(
+    needle: str,
+    needle_tokens: frozenset[str],
+    item: _IndexedItem,
+) -> float:
+    """Score *item* against a pre-normalized query and its token set.
+
+    Scoring layers, in priority order:
+
+    1. **Exact substring** in any indexed field → ``1.0``.
+    2. **Token overlap** = matched query tokens / total query tokens, mapped
+       into ``[_TOKEN_OVERLAP_FLOOR, _TOKEN_OVERLAP_CEIL]`` so that token
+       evidence never outranks a substring match.
+    3. **Fuzzy fallback** via ``SequenceMatcher`` ratio across fields.
+
+    The final score is ``max(layer 2, layer 3)`` when layer 1 misses, which
+    preserves prior recall (fuzzy results are never dropped) while letting
+    token evidence promote near-threshold matches.
+    """
+    if not needle:
         return 1.0
 
-    fields: builtins.list[str] = []
-    fields.append(_normalize(dataset.name))
-    if dataset.description:
-        fields.append(_normalize(dataset.description))
-    for tag in dataset.tags:
-        fields.append(_normalize(tag))
-    fields.append(_normalize(dataset.id))
-
-    # Fast path: exact substring match → score 1.0
-    for text in fields:
-        if needle_lower in text:
+    for text in item.fields:
+        if needle in text:
             return 1.0
 
-    # Slow path: fuzzy matching via SequenceMatcher
-    best: float = 0.0
-    for text in fields:
-        ratio = SequenceMatcher(None, needle_lower, text).ratio()
-        if ratio > best:
-            best = ratio
+    overlap_score = 0.0
+    if needle_tokens:
+        matched = len(needle_tokens & item.tokens)
+        if matched:
+            ratio = matched / len(needle_tokens)
+            overlap_score = (
+                _TOKEN_OVERLAP_FLOOR + (_TOKEN_OVERLAP_CEIL - _TOKEN_OVERLAP_FLOOR) * ratio
+            )
 
-    return best
+    fuzzy_score = 0.0
+    for text in item.fields:
+        candidate = SequenceMatcher(None, needle, text).ratio()
+        if candidate > fuzzy_score:
+            fuzzy_score = candidate
+
+    return max(overlap_score, fuzzy_score)
+
+
+def _score_dataset(needle: str, dataset: DatasetRef) -> float:
+    """Score a single dataset against *needle* (public-internal helper).
+
+    Retained for callers that want to score one dataset without materializing
+    a full index. Internally builds a one-shot index entry so behavior stays
+    aligned with :class:`Catalog.search`.
+    """
+    needle_normalized = _normalize(needle)
+    if not needle_normalized:
+        return 1.0
+    needle_tokens = frozenset(_TOKEN_RE.findall(needle_normalized))
+    index = _build_index([dataset])
+    return _score_indexed(needle_normalized, needle_tokens, index[0])
 
 
 class Catalog:
@@ -116,12 +209,16 @@ class Catalog:
             extra={"text": text, "provider_filter": provider, "threshold": threshold},
         )
         candidates = self.list(provider=provider)
+        index = _build_index(candidates)
+
+        needle_normalized = _normalize(text)
+        needle_tokens = frozenset(_TOKEN_RE.findall(needle_normalized))
 
         scored: builtins.list[tuple[float, DatasetRef]] = []
-        for dataset in candidates:
-            score = _score_dataset(text, dataset)
+        for item in index:
+            score = _score_indexed(needle_normalized, needle_tokens, item)
             if score >= threshold:
-                scored.append((score, dataset))
+                scored.append((score, item.dataset))
 
         # Sort by score descending, then by id for stable ordering
         scored.sort(key=lambda pair: (-pair[0], pair[1].id))
