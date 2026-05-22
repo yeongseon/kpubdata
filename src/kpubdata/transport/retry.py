@@ -21,16 +21,16 @@ def with_retry(
 ) -> T:
     """지수 백오프 재시도와 함께 ``fn``을 실행한다.
 
-    Args:
+    매개변수:
         fn: 실행할 호출 가능 객체.
         max_retries: 첫 시도 이후 재시도 횟수.
         backoff_factor: 지수 백오프의 기준 계수.
         retryable_exceptions: 재시도를 유발해야 하는 예외 타입들.
 
-    Returns:
+    반환값:
         ``fn``이 반환한 값.
 
-    Raises:
+    예외:
         BaseException: ``fn``에서 발생한 마지막 예외를 다시 발생시킨다.
         ValueError: 재시도 구성 값이 유효하지 않은 경우.
     """

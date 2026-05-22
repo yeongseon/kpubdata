@@ -182,10 +182,10 @@ class HttpTransport:
     ) -> httpx.Response:
         """재시도 로직과 함께 HTTP 요청을 실행한다.
 
-        Returns:
+        반환값:
             원시 ``httpx.Response``.
 
-        Raises:
+        예외:
             TransportError: 타임아웃이 아닌 전송 실패가 발생한 경우.
             TransportTimeoutError: 타임아웃 실패가 발생한 경우.
         """

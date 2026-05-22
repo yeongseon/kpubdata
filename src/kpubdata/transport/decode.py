@@ -59,7 +59,7 @@ def decode_json(data: str | bytes) -> object:
 def decode_xml(data: str | bytes) -> dict[str, object]:
     """XML을 dict로 디코딩한다.
 
-    Raises:
+    예외:
         ImportError: ``xmltodict``가 설치되지 않은 경우.
         ParseError: 파싱에 실패한 경우.
     """

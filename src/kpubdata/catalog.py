@@ -166,7 +166,7 @@ class Catalog:
     def list(self, *, provider: str | None = None) -> builtins.list[DatasetRef]:
         """탐색 가능한 데이터셋을 반환하며, 필요하면 Provider로 필터링한다.
 
-        Raises:
+        예외:
             ProviderNotRegisteredError: ``provider``가 주어졌지만 알 수 없는 경우.
         """
 
@@ -202,7 +202,7 @@ class Catalog:
         결과는 관련도 점수에 따라 내림차순으로 반환된다.
         점수가 *threshold*(0.0–1.0)를 충족하는 데이터셋만 포함된다.
 
-        Raises:
+        예외:
             ProviderNotRegisteredError: ``provider``가 주어졌지만 알 수 없는 경우.
         """
 
@@ -240,7 +240,7 @@ class Catalog:
     def resolve(self, dataset_id: str) -> tuple[ProviderAdapter, DatasetRef]:
         """``provider.dataset_key``를 어댑터와 데이터셋 참조로 해석한다.
 
-        Raises:
+        예외:
             DatasetNotFoundError: 데이터셋 id 형식이 잘못되었거나 찾을 수 없는 경우.
             ProviderNotRegisteredError: Provider가 등록되지 않은 경우.
         """
