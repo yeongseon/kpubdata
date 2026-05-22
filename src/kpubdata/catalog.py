@@ -1,4 +1,4 @@
-"""Catalog — dataset discovery, search, and resolution."""
+"""카탈로그 — 데이터셋 탐색, 검색, 해석."""
 
 from __future__ import annotations
 
@@ -32,12 +32,12 @@ _TOKEN_RE = re.compile(r"\w+", re.UNICODE)
 
 
 def _normalize(text: str) -> str:
-    """NFC-normalize, strip, and casefold a string for search comparison."""
+    """검색 비교를 위해 문자열을 NFC 정규화하고 공백 제거 후 소문자화한다."""
     return unicodedata.normalize("NFC", text).strip().casefold()
 
 
 def _tokenize(text: str) -> frozenset[str]:
-    """Split *text* into a deterministic set of normalized word tokens."""
+    """*text*를 결정적인 정규화 단어 토큰 집합으로 분해한다."""
     if not text:
         return frozenset()
     return frozenset(_TOKEN_RE.findall(_normalize(text)))
@@ -45,11 +45,11 @@ def _tokenize(text: str) -> frozenset[str]:
 
 @dataclass(slots=True, frozen=True)
 class _IndexedItem:
-    """Pre-computed search payload for a single dataset.
+    """단일 데이터셋용 사전 계산 검색 페이로드.
 
-    Bundles a :class:`DatasetRef` with its normalized field strings and a
-    deterministic token set, so that :class:`Catalog.search` can score each
-    item without recomputing per-call normalization work.
+    :class:`DatasetRef`와 정규화된 필드 문자열, 결정적인 토큰 집합을 함께
+    보관하여 :class:`Catalog.search`가 호출마다 정규화 작업을 다시 하지 않고도
+    각 항목의 점수를 계산할 수 있게 한다.
     """
 
     dataset: DatasetRef
@@ -58,12 +58,12 @@ class _IndexedItem:
 
 
 def _build_index(datasets: builtins.list[DatasetRef]) -> builtins.list[_IndexedItem]:
-    """Materialize an in-memory search index over *datasets*.
+    """*datasets*에 대한 메모리 내 검색 인덱스를 구성한다.
 
-    Each item exposes normalized field strings (name, description, tags, id,
-    dataset_key, provider) and the union of word tokens extracted from those
-    fields. Building the index is O(n) over the candidate set and runs once
-    per search call.
+    각 항목은 정규화된 필드 문자열(name, description, tags, id,
+    dataset_key, provider)과 그 필드들에서 추출한 단어 토큰의 합집합을
+    노출한다. 인덱스 구성은 후보 집합 크기에 대해 O(n)이며 검색 호출당 한 번
+    실행된다.
     """
     index: builtins.list[_IndexedItem] = []
     for dataset in datasets:
@@ -99,19 +99,19 @@ def _score_indexed(
     needle_tokens: frozenset[str],
     item: _IndexedItem,
 ) -> float:
-    """Score *item* against a pre-normalized query and its token set.
+    """사전 정규화된 질의와 그 토큰 집합으로 *item*의 점수를 계산한다.
 
-    Scoring layers, in priority order:
+    우선순위에 따른 점수 계층은 다음과 같다.
 
-    1. **Exact substring** in any indexed field → ``1.0``.
-    2. **Token overlap** = matched query tokens / total query tokens, mapped
-       into ``[_TOKEN_OVERLAP_FLOOR, _TOKEN_OVERLAP_CEIL]`` so that token
-       evidence never outranks a substring match.
-    3. **Fuzzy fallback** via ``SequenceMatcher`` ratio across fields.
+    1. 인덱싱된 필드 어디에서든 **정확한 부분 문자열** 일치 → ``1.0``.
+    2. **토큰 중첩도** = 일치한 질의 토큰 수 / 전체 질의 토큰 수. 이 값은
+       ``[_TOKEN_OVERLAP_FLOOR, _TOKEN_OVERLAP_CEIL]`` 구간으로 사상되어,
+       토큰 증거가 부분 문자열 일치보다 높은 순위를 차지하지 않게 한다.
+    3. 필드 전반의 ``SequenceMatcher`` 비율을 이용한 **퍼지 보정**.
 
-    The final score is ``max(layer 2, layer 3)`` when layer 1 misses, which
-    preserves prior recall (fuzzy results are never dropped) while letting
-    token evidence promote near-threshold matches.
+    1단계가 일치하지 않으면 최종 점수는 ``max(2단계, 3단계)``가 된다. 이는
+    기존 재현율을 유지하면서(퍼지 결과를 버리지 않으면서) 토큰 증거로 임계값
+    근처의 결과를 더 잘 끌어올리기 위함이다.
     """
     if not needle:
         return 1.0
@@ -139,11 +139,11 @@ def _score_indexed(
 
 
 def _score_dataset(needle: str, dataset: DatasetRef) -> float:
-    """Score a single dataset against *needle* (public-internal helper).
+    """단일 데이터셋을 *needle*에 대해 점수화한다(공개 내부 헬퍼).
 
-    Retained for callers that want to score one dataset without materializing
-    a full index. Internally builds a one-shot index entry so behavior stays
-    aligned with :class:`Catalog.search`.
+    전체 인덱스를 만들지 않고 한 데이터셋만 점수화하려는 호출자를 위해
+    유지된다. 내부적으로 일회성 인덱스 항목을 만들어 동작이
+    :class:`Catalog.search`와 일치하도록 한다.
     """
     needle_normalized = _normalize(needle)
     if not needle_normalized:
@@ -154,18 +154,20 @@ def _score_dataset(needle: str, dataset: DatasetRef) -> float:
 
 
 class Catalog:
-    """Provides dataset discovery across registered providers."""
+    """등록된 Provider 전반에서 데이터셋 탐색 기능을 제공한다."""
+
+    _registry: ProviderRegistry
 
     def __init__(self, registry: ProviderRegistry) -> None:
-        """Initialize catalog bound to a provider registry."""
+        """제공자 레지스트리에 연결된 카탈로그를 초기화한다."""
 
         self._registry = registry
 
     def list(self, *, provider: str | None = None) -> builtins.list[DatasetRef]:
-        """Return discoverable datasets, optionally filtered by provider.
+        """탐색 가능한 데이터셋을 반환하며, 필요하면 Provider로 필터링한다.
 
         Raises:
-            ProviderNotRegisteredError: If ``provider`` is given but unknown.
+            ProviderNotRegisteredError: ``provider``가 주어졌지만 알 수 없는 경우.
         """
 
         logger.debug("Catalog list", extra={"provider_filter": provider})
@@ -236,11 +238,11 @@ class Catalog:
         return results
 
     def resolve(self, dataset_id: str) -> tuple[ProviderAdapter, DatasetRef]:
-        """Resolve ``provider.dataset_key`` into an adapter and dataset ref.
+        """``provider.dataset_key``를 어댑터와 데이터셋 참조로 해석한다.
 
         Raises:
-            DatasetNotFoundError: If the dataset id is malformed or not found.
-            ProviderNotRegisteredError: If the provider is not registered.
+            DatasetNotFoundError: 데이터셋 id 형식이 잘못되었거나 찾을 수 없는 경우.
+            ProviderNotRegisteredError: Provider가 등록되지 않은 경우.
         """
 
         provider_name, dataset_key = self._split_dataset_id(dataset_id)
@@ -278,7 +280,7 @@ class Catalog:
             ) from exc
 
     def _get_adapter(self, provider: str) -> ProviderAdapter:
-        """Fetch provider adapter from registry or raise canonical error."""
+        """레지스트리에서 Provider 어댑터를 가져오거나 정규 예외를 발생시킨다."""
 
         try:
             return cast(ProviderAdapter, self._registry.get(provider))
@@ -287,7 +289,7 @@ class Catalog:
 
     @staticmethod
     def _split_dataset_id(dataset_id: str) -> tuple[str, str]:
-        """Split canonical dataset id into ``(provider, dataset_key)``."""
+        """정규 데이터셋 id를 ``(provider, dataset_key)``로 분리한다."""
 
         parts = dataset_id.split(".", 1)
         if len(parts) != 2 or not parts[0] or not parts[1]:
@@ -297,4 +299,4 @@ class Catalog:
         return parts[0], parts[1]
 
 
-__all__ = ["Catalog"]
+__all__ = ["Catalog", "_score_dataset", "_tokenize"]

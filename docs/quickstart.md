@@ -109,7 +109,7 @@ python first_query.py
 ```
 kpubdata.exceptions.AuthError: Provider key not configured for 'bok'
 ```
-→ Step 4의 환경변수 설정을 다시 확인하세요. 터미널을 새로 열었다면 export 명령을 다시 실행해야 합니다.
+→ 4단계의 환경 변수 설정을 다시 확인하세요. 터미널을 새로 열었다면 export 명령을 다시 실행해야 합니다.
 
 ### "날짜 형식 오류"
 ```

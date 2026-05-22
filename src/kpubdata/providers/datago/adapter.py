@@ -82,17 +82,17 @@ class DataGoAdapter:
 
     @property
     def name(self) -> str:
-        """Return canonical provider key."""
+        """정규 Provider 키를 반환한다."""
 
         return "datago"
 
     def list_datasets(self) -> list[DatasetRef]:
-        """List datasets available from data.go.kr."""
+        """data.go.kr에서 사용 가능한 데이터셋 목록을 반환한다."""
 
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
-        """Search datasets available from data.go.kr."""
+        """data.go.kr에서 사용 가능한 데이터셋을 검색한다."""
 
         needle = text.casefold()
         return [
@@ -102,7 +102,7 @@ class DataGoAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
-        """Resolve provider-local dataset key for data.go.kr."""
+        """data.go.kr용 Provider 로컬 데이터셋 키를 해석한다."""
 
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
@@ -119,7 +119,7 @@ class DataGoAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
-        """Query records from a data.go.kr dataset."""
+        """data.go.kr 데이터셋에서 레코드를 조회한다."""
 
         if self._is_generic(dataset):
             logger.debug(
@@ -213,7 +213,7 @@ class DataGoAdapter:
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """Provider 고유의 data.go.kr API 작업을 호출한다.
+        """data.go.kr 고유 API 작업을 호출한다.
 
         ``datago.generic``는 선별된 카탈로그에 없는 data.go.kr 엔드포인트를 위한
         raw 전용 비상구다. 정규화, 페이지네이션, 스키마 처리 없이 디코딩된 원시

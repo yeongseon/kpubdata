@@ -591,27 +591,6 @@ ds = client.dataset("datago.g2b_catalog")
 raw = ds.call_raw("getShoppingMallPrdctInfoList", prdctNm="펌프", numOfRows="10")
 ```
 
-### subway_passengers (지하철역별 승하차 인원)
-
-서울교통공사에서 제공하는 역별 일자/시간대별 승하차 인원 정보입니다. 카드종류·이용자유형별로 집계된 raw 데이터를 제공합니다.
-
-- 제공 기관: 서울교통공사
-- 데이터 ID: [15143845](https://www.data.go.kr/data/15143845/openapi.do)
-- 주요 파라미터: `pasngYmd` (통행일자, 필수), `stnCd` (역코드)
-
-| 파라미터 | 필수 | 설명 | 예시 |
-|---|---|---|---|
-| pasngYmd | 필수 | 통행일자 (YYYYMMDD, 최근 1주일치만 제공) | "20260521" |
-| stnCd | 선택 | 역코드 | "2828" |
-| numOfRows | 선택 | 한 페이지 결과 수 | "10" |
-
-​```python
-ds = client.dataset("datago.subway_passengers")
-result = ds.list(pasngYmd="20260521", numOfRows=10)
-for item in result.items[:5]:
-    print(item["stnNm"], item["pasngHr"], item["rideNope"], item["gffNope"])
-​```
-
 ## 공공데이터포털 API 특이사항
 
 - **응답 형식**: JSON과 XML을 모두 지원하는 경우가 많으나, KPubData는 내부적으로 JSON 형식을 우선 사용합니다.
