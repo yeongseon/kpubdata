@@ -1,4 +1,4 @@
-# 로깅 가이드 (Logging)
+# 로깅 가이드
 
 KPubData는 파이썬 표준 [`logging`](https://docs.python.org/3/library/logging.html) 모듈을 사용합니다. 별도의 의존성 없이 여러분이 사용 중인 로깅 설정에 자연스럽게 통합됩니다.
 
@@ -72,7 +72,7 @@ logging.getLogger("kpubdata.provider.datago").setLevel(logging.DEBUG)
 
 JSON 포맷터와 결합하면 곧바로 관측(observability) 파이프라인에 연결할 수 있습니다.
 
-## 실패 경로 디버깅 (Debugging failure paths)
+## 실패 경로 디버깅
 
 라이브 API 재현 시 원인 파악을 쉽게 하기 위해, 주요 실패 경로는 이제 예외를 던지기 **직전**에 DEBUG 로그를 남깁니다.
 

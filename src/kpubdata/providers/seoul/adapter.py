@@ -181,20 +181,20 @@ class SeoulAdapter:
         service_name: str,
         dataset_id: str,
     ) -> str:
-        """Resolve the envelope key for a Seoul API response.
+        """서울 API 응답에 사용할 envelope 키를 해석한다.
 
-        Some Seoul APIs use an envelope key that differs from the service name
-        (e.g. bikeList -> rentBikeStatus). When the catalogue entry includes an
-        ``envelope_key`` metadata field we try that first, falling back to
-        *service_name* for backwards compatibility.
+        일부 서울 API는 서비스 이름과 다른 envelope 키를 사용한다
+        (예: bikeList -> rentBikeStatus). 카탈로그 항목에 ``envelope_key``
+        메타데이터 필드가 있으면 이를 먼저 시도하고,
+        하위 호환성을 위해 실패 시 *service_name*으로 되돌아간다.
         """
-        # Look up the dataset to check for an explicit envelope_key override.
+        # 명시적인 envelope_key override가 있는지 확인하기 위해 데이터셋을 조회한다.
         ds = self._datasets_by_key.get(dataset_id.removeprefix("seoul."))
         if ds is not None:
             override = ds.raw_metadata.get("envelope_key")
             if isinstance(override, str) and override and override in payload:
                 return override
-        # Default: use the service name itself.
+        # 기본값: 서비스 이름 자체를 사용한다.
         return service_name
 
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
@@ -218,8 +218,8 @@ class SeoulAdapter:
         service_name: str,
         dataset_id: str,
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        # Detect top-level error responses (no envelope wrapper).
-        # Some Seoul APIs return {"status": 500, "code": "ERROR-...", "message": "..."}.
+        # 최상위 오류 응답(envelope wrapper 없음)을 감지한다.
+        # 일부 서울 API는 {"status": 500, "code": "ERROR-...", "message": "..."}를 반환한다.
         if "code" in payload and "message" in payload and service_name not in payload:
             code_raw = payload.get("code")
             message_raw = payload.get("message")

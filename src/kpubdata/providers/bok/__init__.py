@@ -1,4 +1,4 @@
-"""Bank of Korea ECOS provider adapter."""
+"""한국은행 ECOS Provider 어댑터."""
 
 from __future__ import annotations
 

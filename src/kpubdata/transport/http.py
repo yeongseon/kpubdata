@@ -1,10 +1,10 @@
-"""Thin HTTP transport — session management, retries, timeouts, decode.
+"""간결한 HTTP 전송 계층 — 세션 관리, 재시도, 타임아웃, 디코딩.
 
-This layer does NOT handle:
-- Auth injection (adapter responsibility)
-- Parameter naming conventions (adapter responsibility)
-- Response envelope parsing (adapter responsibility)
-- Provider-specific error mapping (adapter responsibility)
+이 계층은 다음을 처리하지 않는다:
+- 인증 주입(어댑터 책임)
+- 파라미터 이름 규칙(어댑터 책임)
+- 응답 엔벌로프 파싱(어댑터 책임)
+- Provider별 에러 매핑(어댑터 책임)
 """
 
 from __future__ import annotations
@@ -136,7 +136,7 @@ class HttpTransport:
         )
 
     def _resolve_verify(self, requirements: TransportRequirements | None) -> bool | ssl.SSLContext:
-        # TransportConfig.ssl_context takes precedence (set directly by adapter)
+        # TransportConfig.ssl_context가 우선한다(어댑터가 직접 설정).
         if self._config.ssl_context is not None:
             return self._config.ssl_context
         if requirements is None:
@@ -454,10 +454,10 @@ def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:
 
 
 def _parse_retry_after(header_value: str) -> float | None:
-    """Parse Retry-After header value as delay in seconds.
+    """Retry-After 헤더 값을 초 단위 지연으로 파싱한다.
 
-    Supports both delta-seconds and HTTP-date formats per RFC 7231 §7.1.3.
-    Returns None if the value cannot be parsed.
+    RFC 7231 §7.1.3에 따라 delta-seconds와 HTTP-date 형식을 모두 지원한다.
+    값을 파싱할 수 없으면 None을 반환한다.
     """
 
     normalized = header_value.strip()

@@ -1,4 +1,4 @@
-"""Local Finance 365 (LOFIN) provider adapter."""
+"""지방재정365(LOFIN) Provider 어댑터."""
 
 from __future__ import annotations
 

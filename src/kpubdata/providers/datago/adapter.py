@@ -1,4 +1,4 @@
-"""Data.go.kr adapter with curated dataset catalogue."""
+"""선별된 데이터셋 카탈로그를 포함한 data.go.kr 어댑터."""
 
 from __future__ import annotations
 
@@ -40,11 +40,11 @@ _DATAGO_403_HINT = (
 
 
 def _is_success_code(code: str) -> bool:
-    """Return True for any data.go.kr resultCode that signals success.
+    """성공을 나타내는 모든 data.go.kr resultCode에 대해 True를 반환한다.
 
-    Different endpoint families use different widths for the "no error" code:
-    "00" (most APIs) and "000" (RTMS family under apis.data.go.kr/1613000).
-    Both — and any zero-valued numeric variant — should be treated as success.
+    서로 다른 엔드포인트 계열은 "오류 없음" 코드를 다른 자릿수로 사용한다:
+    "00"(대부분의 API)와 "000"(apis.data.go.kr/1613000 하위 RTMS 계열)이다.
+    둘 다, 그리고 0 값을 나타내는 모든 숫자 변형은 성공으로 처리해야 한다.
     """
     try:
         return int(code) == 0
@@ -53,10 +53,9 @@ def _is_success_code(code: str) -> bool:
 
 
 class DataGoAdapter:
-    """Adapter for data.go.kr (공공데이터포털).
+    """data.go.kr(공공데이터포털)용 어댑터.
 
-    Provides a curated catalogue of supported datasets from the
-    apis.data.go.kr endpoint family.
+    apis.data.go.kr 엔드포인트 계열에서 지원하는 데이터셋의 선별된 카탈로그를 제공한다.
     """
 
     requires_api_key: bool = True
@@ -205,32 +204,29 @@ class DataGoAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
-        """Get schema metadata for a data.go.kr dataset.
+        """data.go.kr 데이터셋의 스키마 메타데이터를 반환한다.
 
-        Returns schema from curated catalogue metadata when available.
-        data.go.kr has no live schema discovery endpoint, so this
-        returns ``None`` for datasets without explicitly curated field
-        definitions in the catalogue.
+        가능하면 선별된 카탈로그 메타데이터에서 스키마를 반환한다.
+        data.go.kr에는 실시간 스키마 탐색 엔드포인트가 없으므로, 카탈로그에
+        명시적으로 선별된 필드 정의가 없는 데이터셋은 ``None``을 반환한다.
         """
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """Call provider-native data.go.kr API operation.
+        """Provider 고유의 data.go.kr API 작업을 호출한다.
 
-        ``datago.generic`` is a raw-only escape hatch for data.go.kr endpoints
-        that are not in the curated catalogue. It returns the raw decoded
-        response (dict) — no normalization, no pagination, no schema. Callers
-        must pass:
-          * ``_base_url`` (str, REQUIRED): endpoint base URL up to (but not
-            including) the operation name.
-          * ``_envelope`` (bool, default True): when True, validate the
-            standard ``response.header.resultCode`` envelope. Must be a real
-            bool — strings/ints are rejected.
-          * ``_service_key_param`` (str): override service-key param name.
-          * ``_format_param`` (str): override response-format param name.
+        ``datago.generic``는 선별된 카탈로그에 없는 data.go.kr 엔드포인트를 위한
+        raw 전용 비상구다. 정규화, 페이지네이션, 스키마 처리 없이 디코딩된 원시
+        응답(dict)을 그대로 반환한다. 호출자는 다음을 전달해야 한다:
+          * ``_base_url`` (str, 필수): 작업 이름을 제외한 엔드포인트 기본 URL.
+          * ``_envelope`` (bool, 기본값 True): True이면 표준
+            ``response.header.resultCode`` 엔벌로프를 검증한다. 실제 bool 값이어야 하며
+            문자열/정수는 허용되지 않는다.
+          * ``_service_key_param`` (str): service key 파라미터 이름을 재정의한다.
+          * ``_format_param`` (str): 응답 형식 파라미터 이름을 재정의한다.
 
-        A warning is logged if ``_base_url`` does not point to a
-        ``*.data.go.kr`` host. The call still proceeds — this is a soft check.
+        ``_base_url``이 ``*.data.go.kr`` 호스트를 가리키지 않으면 경고를 기록한다.
+        호출은 계속 진행되며, 이는 완화된 점검이다.
         """
 
         logger.debug(

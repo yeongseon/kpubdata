@@ -42,9 +42,9 @@ _KOSIS_DEFAULT_QUERY_PARAM_KEYS: tuple[str, ...] = (
 
 
 class KosisAdapter:
-    """KOSIS adapter.
+    """KOSIS 어댑터.
 
-    Query translation merge rule: dataset default_query_params < query.filters (caller wins).
+    질의 변환 병합 규칙: dataset default_query_params < query.filters (호출자 우선).
     """
 
     requires_api_key: bool = True

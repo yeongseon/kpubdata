@@ -4,7 +4,7 @@
 
 한국은행 경제통계시스템(ECOS)은 우리나라의 주요 경제지표를 조회할 수 있는 오픈 API 서비스입니다. KPubData는 ECOS의 복잡한 URL 경로 기반 파라미터 구조를 추상화하여, 표준화된 인터페이스로 경제 통계 데이터를 쉽게 조회할 수 있게 합니다.
 
-- KPubData provider 이름: `bok`
+- KPubData Provider 이름: `bok`
 - API 기반 URL: https://ecos.bok.or.kr/api/
 
 ## API 키 발급 방법
@@ -29,7 +29,7 @@ export KPUBDATA_BOK_API_KEY="your-key"
 - 항목 코드: `0101000` (한국은행 기준금리)
 - 필수 파라미터: `start_date`, `end_date`
 - 날짜 형식: `YYYYMM` (예: `"202401"`)
-- frequency: `M` (월별, 기본값), `D` (일별), `A` (연간)
+- 주기: `M` (월별, 기본값), `D` (일별), `A` (연간)
 
 ### usd_krw (원/달러 환율 매매기준율)
 
@@ -39,7 +39,7 @@ export KPUBDATA_BOK_API_KEY="your-key"
 - 항목 코드: `0000003` (원/달러 매매기준율)
 - 필수 파라미터: `start_date`, `end_date`
 - 날짜 형식: `YYYYMMDD` (예: `"20240101"`)
-- frequency: `D` (일별)
+- 주기: `D` (일별)
 
 ```python
 ds = client.dataset("bok.usd_krw")
@@ -57,7 +57,7 @@ for item in result.items:
 - 항목 코드: `010200000` (국고채 3년)
 - 필수 파라미터: `start_date`, `end_date`
 - 날짜 형식: `YYYYMMDD` (예: `"20240101"`)
-- frequency: `D` (일별)
+- 주기: `D` (일별)
 
 ```python
 ds = client.dataset("bok.bond_yield_3y")

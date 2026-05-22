@@ -1,4 +1,4 @@
-"""Capability metadata describing dataset operations and query support."""
+"""데이터셋 작업과 질의 지원을 설명하는 capability 메타데이터."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def _dataclass(
 
 
 class Operation(str, Enum):
-    """Major operations a dataset can support."""
+    """데이터셋이 지원할 수 있는 주요 작업."""
 
     LIST = "list"
     GET = "get"
@@ -35,7 +35,7 @@ class Operation(str, Enum):
 
 
 class PaginationMode(str, Enum):
-    """How a dataset supports pagination."""
+    """데이터셋이 페이지네이션을 지원하는 방식."""
 
     OFFSET = "offset"
     INDEX = "index"
@@ -45,7 +45,7 @@ class PaginationMode(str, Enum):
 
 @_dataclass(slots=True, frozen=True)
 class QuerySupport:
-    """Structured metadata about the list-query features a dataset supports."""
+    """데이터셋이 지원하는 목록 질의 기능에 대한 구조화된 메타데이터."""
 
     pagination: PaginationMode = PaginationMode.NONE
     filterable_fields: frozenset[str] = frozenset()

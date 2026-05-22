@@ -17,17 +17,17 @@ from kpubdata.registry import ProviderRegistry
 
 logger = logging.getLogger("kpubdata.catalog")
 
-# Minimum relevance score (0.0–1.0) for a dataset to appear in search results.
+# 검색 결과에 포함되기 위한 데이터셋의 최소 관련도 점수(0.0–1.0).
 _DEFAULT_SCORE_THRESHOLD = 0.5
 
-# Token-overlap scoring band — always strictly less than the substring 1.0 score
-# so that exact substring matches keep their ranking priority.
+# 토큰 중첩 점수 구간 — 항상 부분 문자열 1.0 점수보다 엄격히 낮게 유지하여
+# 정확한 부분 문자열 일치가 순위 우선권을 유지하도록 한다.
 _TOKEN_OVERLAP_FLOOR = 0.7
 _TOKEN_OVERLAP_CEIL = 0.95
 
-# Unicode word tokens (letters, digits, underscore). Identifier-like tokens such
-# as ``village_fcst`` remain a single token, which matches how dataset_key
-# strings are written in provider catalogues.
+# 유니코드 단어 토큰(문자, 숫자, 밑줄)이다. ``village_fcst`` 같은 식별자형 토큰은
+# 하나의 토큰으로 유지되며, 이는 Provider 카탈로그에서 dataset_key 문자열이
+# 작성되는 방식과 일치한다.
 _TOKEN_RE = re.compile(r"\w+", re.UNICODE)
 
 
@@ -195,13 +195,13 @@ class Catalog:
         provider: str | None = None,
         threshold: float = _DEFAULT_SCORE_THRESHOLD,
     ) -> builtins.list[DatasetRef]:
-        """Search datasets with fuzzy matching across name, description, tags, and id.
+        """이름, 설명, 태그, id를 대상으로 퍼지 매칭하여 데이터셋을 검색한다.
 
-        Results are scored by relevance and returned in descending order.
-        Only datasets whose score meets *threshold* (0.0–1.0) are included.
+        결과는 관련도 점수에 따라 내림차순으로 반환된다.
+        점수가 *threshold*(0.0–1.0)를 충족하는 데이터셋만 포함된다.
 
         Raises:
-            ProviderNotRegisteredError: If ``provider`` is given but unknown.
+            ProviderNotRegisteredError: ``provider``가 주어졌지만 알 수 없는 경우.
         """
 
         logger.debug(
@@ -220,7 +220,7 @@ class Catalog:
             if score >= threshold:
                 scored.append((score, item.dataset))
 
-        # Sort by score descending, then by id for stable ordering
+        # 점수 내림차순, 이후 안정적인 순서를 위해 id 기준으로 정렬
         scored.sort(key=lambda pair: (-pair[0], pair[1].id))
         results = [dataset for _, dataset in scored]
 
