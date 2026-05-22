@@ -1,12 +1,12 @@
 # AGENTS.md
 
-## Purpose
+## 목적
 
-This repository is built for agentic coding and Codex-heavy development.
+이 저장소는 에이전트 중심 코딩과 Codex 비중이 큰 개발을 위해 구축되었다.
 
-The project is a Python 3.10+ framework with a small stable public API and provider-specific adapters.
+이 프로젝트는 작고 안정적인 공개 API와 Provider별 어댑터를 갖춘 Python 3.10+ 프레임워크다.
 
-## Read these first
+## 먼저 읽을 문서
 
 1. `VALIDATION.md`
 2. `PRD.md`
@@ -16,53 +16,53 @@ The project is a Python 3.10+ framework with a small stable public API and provi
 6. `API_SPEC.md`
 7. `PACKAGING.md`
 
-## Rules of engagement
+## 작업 원칙
 
-- Keep the public API small.
-- Do not turn provider quirks into fake universal semantics.
-- Do not remove raw escape hatches.
-- Do not mark a capability as supported unless tests prove it.
-- Keep provider complexity in provider adapters.
-- Update tests and docs with every behavior change.
+- 공개 API는 작게 유지한다.
+- Provider별 특이사항을 가짜 범용 의미론으로 바꾸지 않는다.
+- raw 비상구를 제거하지 않는다.
+- 테스트로 증명되기 전에는 capability를 지원된다고 표시하지 않는다.
+- Provider 복잡성은 Provider 어댑터 내부에 유지한다.
+- 모든 동작 변경 시 테스트와 문서를 함께 갱신한다.
 - `SUPPORTED_DATA.md`는 지원 Provider/Dataset 현황의 단일 기준 문서(single source of truth)다.
 - Provider/Dataset의 지원 상태 또는 검증 수준이 바뀌면, 같은 PR에서 `SUPPORTED_DATA.md`를 반드시 업데이트한다.
 - `지원`은 fixture/unit/contract 테스트가 통과했을 때만 표시한다.
 - `실API 검증`은 실 API integration 테스트가 존재하고 통과했을 때만 표시한다. 그 전에는 `테스트 검증`으로 유지한다.
 
-## Language policy
+## 언어 정책
 
-- **Documentation**: Write in Korean by default. English expansion is planned for future releases.
-- **Code**: All code (variable names, function names, comments, docstrings) must be in English.
+- **Documentation**: 기본적으로 한국어로 작성한다. 영어 확장은 향후 릴리스에서 계획한다.
+- **Code**: 모든 코드(변수명, 함수명, 주석, docstring)는 한국어 우선을 따른다.
 - **Commit messages**: Always in English.
-- **Issue / PR titles and descriptions**: Korean is acceptable; English is also fine.
+- **Issue / PR titles and descriptions**: 한국어를 사용해도 되며, 영어도 괜찮다.
 
-## Dataset publishing rules
+## 데이터셋 게시 규칙
 
-> **Note**: Dataset publishing (HuggingFace/Kaggle upload) is managed in [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder). This repo (kpubdata) handles data collection and normalization only. See kpubdata-builder's AGENTS.md for publishing conventions.
+> **참고**: 데이터셋 게시(HuggingFace/Kaggle 업로드)는 [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder)에서 관리한다. 이 저장소(kpubdata)는 데이터 수집과 정규화만 담당한다. 게시 규칙은 kpubdata-builder의 AGENTS.md를 참고한다.
 
-## Branch rules
+## 브랜치 규칙
 
-- Default branch is `main`. **Never push directly to `main`.**
-- Always work on a feature branch and open a PR.
-- Branch naming: `feat/issue-<number>-<short-description>`, `fix/issue-<number>-<short-description>`, `docs/<short-description>`
-- Never force-push to `main`. Never delete `main`.
-- Never rename or delete branches you did not create.
-- If unsure about any git operation, **ask first — do not guess.**
+- 기본 브랜치는 `main`이다. **절대로 `main`에 직접 push하지 않는다.**
+- 항상 기능 브랜치에서 작업하고 PR을 연다.
+- 브랜치 이름 규칙: `feat/issue-<number>-<short-description>`, `fix/issue-<number>-<short-description>`, `docs/<short-description>`
+- `main`에는 절대로 force-push하지 않는다. `main`을 삭제하지 않는다.
+- 자신이 만들지 않은 브랜치를 이름 변경하거나 삭제하지 않는다.
+- git 작업이 확실하지 않다면 **추측하지 말고 먼저 묻는다.**
 
-## When to write a plan
+## 계획을 작성해야 할 때
 
-Before multi-file or architecture-affecting work, create or update a task plan in a local plan file.
+여러 파일에 걸치거나 아키텍처에 영향을 주는 작업 전에는 로컬 계획 파일에 작업 계획을 생성하거나 갱신한다.
 
-The plan should include:
+계획에는 다음이 포함되어야 한다:
 
-- scope
-- touched modules
-- risks
-- validation steps
+- 범위
+- 영향 받는 모듈
+- 위험 요소
+- 검증 단계
 
-## Quality gates
+## 품질 게이트
 
-Run before marking work complete:
+작업 완료로 표시하기 전에 다음을 실행한다:
 
 ```bash
 uv sync --extra dev
@@ -74,23 +74,23 @@ uv run python -m build
 mkdocs build --strict
 ```
 
-## Adapter work rules
+## 어댑터 작업 규칙
 
-When adding a provider adapter:
+Provider 어댑터를 추가할 때:
 
-- add fixture responses
-- add unit tests
-- add contract tests
-- document capabilities honestly
-- keep `call_raw` working
+- fixture 응답을 추가한다.
+- unit 테스트를 추가한다.
+- contract 테스트를 추가한다.
+- capability를 정직하게 문서화한다.
+- `call_raw`가 계속 동작하게 유지한다.
 
-## Public API change rule
+## 공개 API 변경 규칙
 
-If a public method, public model, or canonical exception changes:
+공개 메서드, 공개 모델, 또는 정규 예외가 변경되면:
 
-- update `API_SPEC.md`
-- update `PRD.md` if requirements changed
-- add release note/changelog entry
+- `API_SPEC.md`를 갱신한다.
+- 요구사항이 바뀌었다면 `PRD.md`를 갱신한다.
+- 릴리스 노트/변경 이력 항목을 추가한다.
 
 ---
 

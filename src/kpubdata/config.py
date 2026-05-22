@@ -1,12 +1,12 @@
-"""Configuration management — explicit construction and environment-based loading.
+"""설정 관리 — 명시적 구성과 환경 변수 기반 로딩.
 
-Key lookup order for provider keys:
-1. Explicit `provider_keys` dict passed to constructor
-2. Environment variable: KPUBDATA_{PROVIDER}_API_KEY (uppercased)
-3. Environment variable: {PROVIDER}_API_KEY (uppercased, fallback)
+Provider 키 조회 순서:
+1. 생성자에 전달한 명시적 `provider_keys` dict
+2. 환경 변수: KPUBDATA_{PROVIDER}_API_KEY (대문자)
+3. 환경 변수: {PROVIDER}_API_KEY (대문자, fallback)
 
-data.go.kr providers (localdata, lofin, semas) all use the "datago" key.
-Set KPUBDATA_DATAGO_API_KEY once for all data.go.kr-based providers.
+data.go.kr 계열 Provider(localdata, lofin, semas)는 모두 "datago" 키를 사용한다.
+모든 data.go.kr 기반 Provider에 대해 KPUBDATA_DATAGO_API_KEY를 한 번만 설정하면 된다.
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ logger = logging.getLogger("kpubdata.config")
 
 @dataclass
 class KPubDataConfig:
-    """Framework configuration."""
+    """프레임워크 설정."""
 
     provider_keys: dict[str, str] = field(default_factory=dict)
     timeout: float = 30.0
@@ -33,7 +33,7 @@ class KPubDataConfig:
     extra: dict[str, object] = field(default_factory=dict)
 
     def __repr__(self) -> str:
-        """Return concise debug representation without exposing secrets."""
+        """민감 정보를 노출하지 않는 간결한 디버그 표현을 반환한다."""
         providers = sorted(self.provider_keys.keys())
         return (
             "KPubDataConfig("
@@ -45,7 +45,7 @@ class KPubDataConfig:
         )
 
     def get_provider_key(self, provider: str) -> str | None:
-        """Look up API key for a provider following documented precedence."""
+        """문서화된 우선순위에 따라 Provider의 API 키를 조회한다."""
         normalized_provider = _normalize_provider_name(provider)
 
         explicit = _get_explicit_key(self.provider_keys, normalized_provider)
@@ -66,7 +66,7 @@ class KPubDataConfig:
         return None
 
     def require_provider_key(self, provider: str) -> str:
-        """Like get_provider_key but raises ConfigError if missing."""
+        """get_provider_key와 같지만 키가 없으면 ConfigError를 발생시킨다."""
         key = self.get_provider_key(provider)
         if key is not None:
             return key
@@ -75,10 +75,10 @@ class KPubDataConfig:
 
     @classmethod
     def from_env(cls, **overrides: Any) -> KPubDataConfig:
-        """Build config from environment variables.
+        """환경 변수로부터 설정을 구성한다.
 
-        Scans for KPUBDATA_*_API_KEY patterns.
-        Overrides can be passed as kwargs.
+        KPUBDATA_*_API_KEY 패턴을 스캔한다.
+        override 값은 kwargs로 전달할 수 있다.
         """
         scanned_keys: dict[str, str] = {}
         for env_name, env_value in os.environ.items():

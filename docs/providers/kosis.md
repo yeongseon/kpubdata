@@ -2,14 +2,14 @@
 
 ## 개요
 
-국가통계포털(KOSIS)은 통계청이 제공하는 대한민국 최대의 통계 서비스입니다. KPubData는 KOSIS Open API의 복잡한 쿼리 파라미터 구조를 추상화하여, 국가 승인 통계 데이터를 표준화된 방식으로 제공합니다.
+국가통계포털(KOSIS)은 통계청이 제공하는 대한민국 최대의 통계 서비스입니다. KPubData는 KOSIS 오픈 API의 복잡한 쿼리 파라미터 구조를 추상화하여, 국가 승인 통계 데이터를 표준화된 방식으로 제공합니다.
 
-- KPubData provider 이름: `kosis`
+- KPubData Provider 이름: `kosis`
 - API 기반 URL: https://kosis.kr/openapi/
 
 ## API 키 발급 방법
 
-1. [KOSIS Open API 포털](https://kosis.kr/openapi/index/index.jsp)에 접속합니다.
+1. [KOSIS 오픈 API 포털](https://kosis.kr/openapi/index/index.jsp)에 접속합니다.
 2. 로그인 또는 회원가입을 완료합니다.
 3. 메뉴에서 "활용신청"을 클릭하여 승인을 받습니다.
 4. 마이페이지의 인증키 관리에서 발급된 API 키를 확인합니다.

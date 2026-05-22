@@ -71,7 +71,7 @@ def test_catalogue_parses_industrial_production_default_query_params() -> None:
 
 def test_adapter_docstring_documents_default_query_params_merge_rule() -> None:
     assert KosisAdapter.__doc__ is not None
-    assert "dataset default_query_params < query.filters (caller wins)" in KosisAdapter.__doc__
+    assert "dataset default_query_params < query.filters (호출자 우선)" in KosisAdapter.__doc__
 
 
 def test_query_records_missing_start_date_logs_debug(caplog: pytest.LogCaptureFixture) -> None:

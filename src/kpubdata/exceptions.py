@@ -1,4 +1,4 @@
-"""KPubData exception hierarchy with structured error context."""
+"""구조화된 오류 컨텍스트를 갖는 KPubData 예외 계층."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any
 
 
 class PublicDataError(Exception):
-    """Base for all KPubData errors with structured context attributes."""
+    """구조화된 컨텍스트 속성을 갖는 모든 KPubData 오류의 기반 클래스."""
 
     def __init__(
         self,
@@ -20,7 +20,7 @@ class PublicDataError(Exception):
         retryable: bool = False,
         detail: object = None,
     ) -> None:
-        """Initialize an error with optional provider and transport metadata."""
+        """선택적 Provider/전송 메타데이터와 함께 오류를 초기화한다."""
 
         super().__init__(message)
         self.provider = provider
@@ -32,7 +32,7 @@ class PublicDataError(Exception):
         self.detail = detail
 
     def __repr__(self) -> str:
-        """Return a structured repr including provider and transport metadata."""
+        """Provider 및 전송 메타데이터를 포함한 구조화된 repr를 반환한다."""
         parts = [f"{type(self).__name__}({self.args[0]!r}"]
         if self.provider:
             parts.append(f"provider={self.provider!r}")
@@ -46,57 +46,57 @@ class PublicDataError(Exception):
 
 
 class ConfigError(PublicDataError):
-    """Raised when KPubData configuration is invalid or incomplete."""
+    """KPubData 설정이 잘못되었거나 불완전할 때 발생한다."""
 
 
 class AuthError(PublicDataError):
-    """Raised for authentication or authorization failures."""
+    """인증 또는 권한 부여 실패 시 발생한다."""
 
 
 class TransportError(PublicDataError):
-    """Raised for network and transport-layer failures."""
+    """네트워크 및 전송 계층 실패 시 발생한다."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        """Initialize a retryable transport error by default."""
+        """기본적으로 재시도 가능한 전송 오류를 초기화한다."""
 
         kwargs.setdefault("retryable", True)
         super().__init__(message, **kwargs)
 
 
 class TransportTimeoutError(TransportError):
-    """Raised when a provider request exceeds timeout limits."""
+    """Provider 요청이 타임아웃 한도를 초과할 때 발생한다."""
 
 
 class RateLimitError(TransportError):
-    """Raised when the provider rejects requests due to throttling."""
+    """Provider가 throttling 등으로 요청을 거부할 때 발생한다."""
 
 
 class ServiceUnavailableError(TransportError):
-    """Raised when the upstream provider service is temporarily unavailable."""
+    """상위 Provider 서비스가 일시적으로 사용 불가할 때 발생한다."""
 
 
 class ParseError(PublicDataError):
-    """Raised when provider payloads cannot be parsed safely."""
+    """Provider 페이로드를 안전하게 파싱할 수 없을 때 발생한다."""
 
 
 class InvalidRequestError(PublicDataError):
-    """Raised when query or operation inputs are semantically invalid."""
+    """질의 또는 작업 입력이 의미적으로 잘못되었을 때 발생한다."""
 
 
 class ProviderResponseError(PublicDataError):
-    """Raised when provider responses violate contract expectations."""
+    """Provider 응답이 계약 기대사항을 위반할 때 발생한다."""
 
 
 class UnsupportedCapabilityError(PublicDataError):
-    """Raised when a requested operation is unsupported for a dataset."""
+    """요청한 작업이 데이터셋에서 지원되지 않을 때 발생한다."""
 
 
 class DatasetNotFoundError(PublicDataError):
-    """Raised when a requested dataset identifier cannot be resolved."""
+    """요청한 데이터셋 식별자를 해석할 수 없을 때 발생한다."""
 
 
 class ProviderNotRegisteredError(PublicDataError):
-    """Raised when a provider key is not present in the registry."""
+    """Provider 키가 레지스트리에 없을 때 발생한다."""
 
 
 __all__ = [

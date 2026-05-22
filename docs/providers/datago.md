@@ -2,9 +2,9 @@
 
 ## 개요
 
-공공데이터포털(data.go.kr)은 대한민국 정부에서 운영하는 공공데이터 통합 플랫폼입니다. 기상청, 국토교통부, 한국환경공단 등 수많은 기관의 데이터를 Open API 형태로 제공합니다.
+공공데이터포털(data.go.kr)은 대한민국 정부에서 운영하는 공공데이터 통합 플랫폼입니다. 기상청, 국토교통부, 한국환경공단 등 수많은 기관의 데이터를 오픈 API 형태로 제공합니다.
 
-- KPubData provider 이름: `datago`
+- KPubData Provider 이름: `datago`
 - API 기반 URL: https://apis.data.go.kr
 
 ## API 키 발급 방법
@@ -43,8 +43,8 @@
 1. 승인이 완료되면 "마이페이지"로 이동합니다.
 2. **"개인 API인증키"** 섹션에서 발급된 인증키를 확인합니다.
 3. 공공데이터포털은 두 종류의 인증키를 제공합니다:
-   - **일반 인증키 (Decoding)**: 원본 키. KPubData에서는 이 키를 사용합니다.
-   - **Encoding 인증키**: URL 인코딩된 키. 직접 URL을 구성할 때 사용합니다.
+   - **일반 인증키(디코딩)**: 원본 키. KPubData에서는 이 키를 사용합니다.
+   - **인코딩 인증키**: URL 인코딩된 키. 직접 URL을 구성할 때 사용합니다.
 
 ### 5단계: 환경변수 설정
 
@@ -52,9 +52,9 @@
 export KPUBDATA_DATAGO_API_KEY="발급받은-일반-인증키"
 ```
 
-## API별 활용신청(활성화) requirement
+## API별 활용신청(활성화) 요구사항
 
-data.go.kr은 **계정용 공통 인증키 1개만 있으면 끝나는 구조가 아닙니다.** 호출하려는 Open API마다 상세 페이지에서 별도로 **활용신청**을 해야 합니다.
+data.go.kr은 **계정용 공통 인증키 1개만 있으면 끝나는 구조가 아닙니다.** 호출하려는 오픈 API마다 상세 페이지에서 별도로 **활용신청**을 해야 합니다.
 
 - 같은 `KPUBDATA_DATAGO_API_KEY`를 쓰더라도 API별 활성화 상태는 서로 다를 수 있습니다.
 - 활용신청 후 대부분의 API는 약 **1~5분 안에 자동 승인/활성화**됩니다.
@@ -590,27 +590,6 @@ for item in result.items[:3]:
 ds = client.dataset("datago.g2b_catalog")
 raw = ds.call_raw("getShoppingMallPrdctInfoList", prdctNm="펌프", numOfRows="10")
 ```
-
-### subway_passengers (지하철역별 승하차 인원)
-
-서울교통공사에서 제공하는 역별 일자/시간대별 승하차 인원 정보입니다. 카드종류·이용자유형별로 집계된 raw 데이터를 제공합니다.
-
-- 제공 기관: 서울교통공사
-- 데이터 ID: [15143845](https://www.data.go.kr/data/15143845/openapi.do)
-- 주요 파라미터: `pasngYmd` (통행일자, 필수), `stnCd` (역코드)
-
-| 파라미터 | 필수 | 설명 | 예시 |
-|---|---|---|---|
-| pasngYmd | 필수 | 통행일자 (YYYYMMDD, 최근 1주일치만 제공) | "20260521" |
-| stnCd | 선택 | 역코드 | "2828" |
-| numOfRows | 선택 | 한 페이지 결과 수 | "10" |
-
-​```python
-ds = client.dataset("datago.subway_passengers")
-result = ds.list(pasngYmd="20260521", numOfRows=10)
-for item in result.items[:5]:
-    print(item["stnNm"], item["pasngHr"], item["rideNope"], item["gffNope"])
-​```
 
 ## 공공데이터포털 API 특이사항
 

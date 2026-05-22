@@ -7,9 +7,9 @@ KPubData는 한국 공공데이터(data.go.kr 등)의 파편화된 API를 하나
 ## 특징
 
 - 🏛️ **다기관 통합** — 공공데이터포털, 한국은행, 통계청, 서울시 등 다수 기관 지원 (상세: [SUPPORTED_DATA.md](https://github.com/yeongseon/kpubdata/blob/main/SUPPORTED_DATA.md))
-- 🔌 **Dialect 아키텍처** — 핵심은 작고 안정적으로, 기관별 차이는 어댑터가 처리
-- 🐍 **Pythonic API** — `snake_case`, 타입 힌트, 직관적 메서드명
-- 🚪 **Raw 비상구** — 표준화된 접근과 원본 API 직접 호출을 모두 지원
+- 🔌 **방언(Dialect) 아키텍처** — 핵심은 작고 안정적으로, 기관별 차이는 어댑터가 처리
+- 🐍 **파이썬다운 API** — `snake_case`, 타입 힌트, 직관적 메서드명
+- 🚪 **원본(Raw) 비상구** — 표준화된 접근과 원본 API 직접 호출을 모두 지원
 - 📊 **pandas 통합** — 조회 결과를 DataFrame으로 즉시 변환
 
 ## 설치
@@ -41,4 +41,4 @@ for item in result.items:
 
 - [빠른 시작 가이드](quickstart.md) — 설치부터 첫 조회까지
 - [CLI 사용법](cli.md) — 터미널에서 바로 사용하기
-- [Cookbook](cookbook/getting-started.md) — 실전 예제 모음
+- [예제 모음(Cookbook)](cookbook/getting-started.md) — 실전 예제 모음

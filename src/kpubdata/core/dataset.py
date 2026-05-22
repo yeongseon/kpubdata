@@ -1,4 +1,4 @@
-"""Bound Dataset — the user-facing object for dataset operations."""
+"""바인딩된 Dataset — 데이터셋 작업을 위한 사용자 대상 객체."""
 
 from __future__ import annotations
 
@@ -21,54 +21,53 @@ _CANONICAL_QUERY_KEYS = frozenset(
 
 
 class Dataset:
-    """Bound dataset that routes operations to a provider adapter."""
+    """작업을 Provider 어댑터로 라우팅하는 바인딩된 데이터셋."""
 
     def __init__(self, ref: DatasetRef, adapter: ProviderAdapter) -> None:
-        """Initialize a dataset bound to its canonical ref and adapter."""
+        """정규 참조와 어댑터에 바인딩된 데이터셋을 초기화한다."""
 
         self._ref: DatasetRef = ref
         self._adapter: ProviderAdapter = adapter
 
     @property
     def ref(self) -> DatasetRef:
-        """Return immutable canonical dataset reference."""
+        """불변 정규 데이터셋 참조를 반환한다."""
 
         return self._ref
 
     @property
     def id(self) -> str:
-        """Return canonical dataset identifier."""
+        """정규 데이터셋 식별자를 반환한다."""
 
         return self._ref.id
 
     @property
     def name(self) -> str:
-        """Return human-readable dataset name."""
+        """사람이 읽기 쉬운 데이터셋 이름을 반환한다."""
 
         return self._ref.name
 
     @property
     def provider(self) -> str:
-        """Return provider identifier serving this dataset."""
+        """이 데이터셋을 제공하는 Provider 식별자를 반환한다."""
 
         return self._ref.provider
 
     @property
     def operations(self) -> frozenset[Operation]:
-        """Return declared operation capabilities for this dataset."""
+        """이 데이터셋에 선언된 작업 capability를 반환한다."""
 
         return self._ref.operations
 
     def list(self, **kwargs: object) -> RecordBatch:
-        """Query records from this dataset using canonical list semantics.
+        """정규 list 의미론으로 이 데이터셋의 레코드를 조회한다.
 
-        Canonical query parameters (``page``, ``page_size``, ``cursor``,
-        ``start_date``, ``end_date``, ``fields``, ``sort``) are extracted
-        into the corresponding ``Query`` fields.  Remaining kwargs are
-        passed as provider-specific ``filters``.
+        정규 질의 파라미터(``page``, ``page_size``, ``cursor``,
+        ``start_date``, ``end_date``, ``fields``, ``sort``)는 해당 ``Query`` 필드로
+        추출된다. 나머지 kwargs는 Provider별 ``filters``로 전달된다.
 
-        Raises:
-            UnsupportedCapabilityError: If this dataset does not support ``list``.
+        예외:
+            UnsupportedCapabilityError: 이 데이터셋이 ``list``를 지원하지 않을 때.
         """
 
         if Operation.LIST not in self._ref.operations:
@@ -210,7 +209,7 @@ class Dataset:
         )
 
     def schema(self) -> SchemaDescriptor | None:
-        """Return canonical schema metadata when the provider exposes it."""
+        """Provider가 제공하는 경우 정규 스키마 메타데이터를 반환한다."""
 
         logger.debug(
             "Dataset.schema requested",
@@ -219,10 +218,9 @@ class Dataset:
         return self._adapter.get_schema(self._ref)
 
     def call_raw(self, operation: str, **params: object) -> object:
-        """Execute a provider-native operation without canonical normalization.
+        """정규 정규화 없이 Provider 고유 작업을 실행한다.
 
-        Use this escape hatch for provider features not represented in the
-        canonical model.
+        정규 모델에 표현되지 않은 Provider 기능에는 이 비상구를 사용한다.
         """
 
         payload: dict[str, object] = {k: v for k, v in params.items()}
@@ -239,7 +237,7 @@ class Dataset:
 
     @override
     def __repr__(self) -> str:
-        """Return concise debug representation."""
+        """간결한 디버그 표현을 반환한다."""
 
         return f"Dataset({self._ref.id!r})"
 

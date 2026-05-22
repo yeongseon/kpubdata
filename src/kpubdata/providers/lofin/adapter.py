@@ -21,10 +21,10 @@ logger = logging.getLogger("kpubdata.provider.lofin")
 
 
 def _lofin_ssl_context() -> ssl.SSLContext:
-    """Create an SSL context compatible with the LOFIN server.
+    """LOFIN 서버와 호환되는 SSL 컨텍스트를 생성한다.
 
-    The LOFIN server (www.lofin365.go.kr) uses TLSv1.2 with AES256-SHA256,
-    which requires a relaxed security level in OpenSSL 3.x.
+    LOFIN 서버(www.lofin365.go.kr)는 TLSv1.2와 AES256-SHA256을 사용하며,
+    OpenSSL 3.x에서는 완화된 보안 수준이 필요하다.
     """
     ctx = ssl.create_default_context()
     ctx.check_hostname = False

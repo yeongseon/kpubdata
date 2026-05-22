@@ -1,4 +1,4 @@
-"""Client — the top-level entry point for KPubData."""
+"""Client — KPubData의 최상위 진입점."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ _BUILTIN_PROVIDERS = BUILTIN_PROVIDERS
 
 
 class Client:
-    """Top-level entry point for dataset discovery and bound operations."""
+    """데이터셋 탐색과 바인딩된 작업을 위한 최상위 진입점."""
 
     def __init__(
         self,
@@ -36,11 +36,11 @@ class Client:
         cache_ttl_seconds: int = 86400,
         **extra: object,
     ) -> None:
-        """Initialize a client with explicit provider and transport configuration.
+        """명시적인 Provider/전송 설정으로 클라이언트를 초기화한다.
 
-        Use ``provider_keys`` to supply credentials directly, and configure
-        transport behavior with ``timeout`` and ``max_retries``.
-        Built-in providers (datago, bok, kosis, lofin) are lazily registered by default.
+        ``provider_keys``로 인증 정보를 직접 전달하고,
+        ``timeout`` 및 ``max_retries``로 전송 동작을 설정한다.
+        내장 Provider(datago, bok, kosis, lofin)는 기본적으로 지연 등록된다.
         """
 
         self._config: KPubDataConfig = KPubDataConfig(
@@ -79,7 +79,7 @@ class Client:
 
     @classmethod
     def from_env(cls, **overrides: object) -> Client:
-        """Create a client from environment variables and explicit overrides."""
+        """환경 변수와 명시적 override 값으로 클라이언트를 생성한다."""
 
         cache_override = overrides.pop("cache", _UNSET)
         ttl_override = overrides.pop("cache_ttl_seconds", _UNSET)
@@ -95,18 +95,18 @@ class Client:
         )
 
     def __enter__(self) -> Client:
-        """Enter context manager and initialize transport client."""
+        """컨텍스트 매니저에 진입하고 전송 클라이언트를 초기화한다."""
 
         _ = self._transport.__enter__()
         return self
 
     def __exit__(self, *exc: object) -> None:
-        """Exit context manager and close transport resources."""
+        """컨텍스트 매니저를 종료하고 전송 리소스를 닫는다."""
 
         self.close()
 
     def close(self) -> None:
-        """Close underlying transport resources for this client."""
+        """이 클라이언트가 사용하는 하위 전송 리소스를 닫는다."""
 
         logger.debug(
             "Client closing",
@@ -119,16 +119,16 @@ class Client:
 
     @property
     def datasets(self) -> Catalog:
-        """Return catalog interface for discovery, search, and resolution."""
+        """탐색, 검색, 해석을 위한 카탈로그 인터페이스를 반환한다."""
 
         return self._catalog
 
     def dataset(self, dataset_id: str) -> Dataset:
-        """Bind and return a dataset object by canonical identifier.
+        """정규 식별자로 데이터셋 객체를 바인딩해 반환한다.
 
-        Raises:
-            DatasetNotFoundError: If the dataset id is invalid or unknown.
-            ProviderNotRegisteredError: If the provider is not registered.
+        예외:
+            DatasetNotFoundError: 데이터셋 ID가 잘못되었거나 알 수 없을 때.
+            ProviderNotRegisteredError: Provider가 등록되지 않았을 때.
         """
 
         logger.debug("Binding dataset", extra={"dataset_id": dataset_id})
@@ -144,11 +144,11 @@ class Client:
         return Dataset(ref=ref, adapter=adapter)
 
     def register_provider(self, adapter: object) -> None:
-        """Register a provider adapter in this client's registry.
+        """이 클라이언트의 레지스트리에 Provider 어댑터를 등록한다.
 
-        Raises:
-            TypeError: If the adapter does not satisfy the required protocol.
-            ValueError: If the provider is already registered.
+        예외:
+            TypeError: 어댑터가 필요한 프로토콜을 만족하지 않을 때.
+            ValueError: Provider가 이미 등록되어 있을 때.
         """
 
         logger.debug(
@@ -215,7 +215,7 @@ class Client:
 
     @override
     def __repr__(self) -> str:
-        """Return concise representation with known providers."""
+        """알려진 Provider를 포함한 간결한 표현을 반환한다."""
 
         return f"Client(providers=[{', '.join(self._registry)}])"
 

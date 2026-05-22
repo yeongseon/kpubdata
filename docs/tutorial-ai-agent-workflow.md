@@ -1,6 +1,6 @@
 # AI 코딩 에이전트와 함께하는 오픈소스 기여 튜토리얼
 
-이 문서는 대학교 2학년 정도의 기초 프로그래밍 지식을 가진 학생들을 위한 실전 가이드예요. GitHub에서 실제 이슈를 골라, AI 코딩 에이전트(GitHub Copilot, Cursor, Windsurf 등)의 도움을 받아 코드를 작성하고, PR(Pull Request)을 보내서 머지(Merge)되기까지의 **전체 과정**을 한 단계씩 따라가 볼게요.
+이 문서는 대학교 2학년 정도의 기초 프로그래밍 지식을 가진 학생들을 위한 실전 가이드예요. GitHub에서 실제 이슈를 골라, AI 코딩 에이전트(GitHub Copilot, Cursor, Windsurf 등)의 도움을 받아 코드를 작성하고, PR(풀 리퀘스트)을 보내서 병합되기까지의 **전체 과정**을 한 단계씩 따라가 볼게요.
 
 > 이 튜토리얼은 실제 이슈 **[#64](https://github.com/yeongseon/kpubdata/issues/64)**를 예시로 사용해요. 따라 하면서 실제 기여까지 할 수 있어요!
 
@@ -50,7 +50,7 @@ uv run mypy src        # 타입 체크
 
 ### 어디서 찾나요?
 
-프로젝트의 [Issues 탭](https://github.com/yeongseon/kpubdata/issues)으로 가세요. 이슈 목록이 보일 거예요. 이때 **라벨(Label)**이 중요해요:
+프로젝트의 [이슈 탭](https://github.com/yeongseon/kpubdata/issues)으로 가세요. 이슈 목록이 보일 거예요. 이때 **라벨**이 중요해요:
 
 | 라벨 | 의미 | 초보자 추천 |
 |:---|:---|:---|

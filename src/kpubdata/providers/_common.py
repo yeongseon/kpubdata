@@ -1,4 +1,4 @@
-"""Shared catalogue and schema utilities for provider adapters."""
+"""Provider 어댑터를 위한 공통 카탈로그 및 스키마 유틸리티."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ _CATALOGUE_CANONICAL_KEYS = frozenset(
 
 
 def load_catalogue(package_name: str, provider: str) -> tuple[DatasetRef, ...]:
-    """Load and parse a catalogue.json from a provider package."""
+    """Provider 패키지의 catalogue.json을 로드하고 파싱한다."""
     package_files = files(package_name)
     catalogue_text = package_files.joinpath("catalogue.json").read_text(encoding="utf-8")
     parsed_catalogue = cast(object, json.loads(catalogue_text))
@@ -69,7 +69,7 @@ def load_catalogue(package_name: str, provider: str) -> tuple[DatasetRef, ...]:
 
 
 def build_dataset_ref(provider: str, entry: dict[str, object]) -> DatasetRef:
-    """Build a DatasetRef from a raw catalogue entry dict."""
+    """원시 카탈로그 엔트리 dict로부터 DatasetRef를 구성한다."""
     dataset_key = require_string_field(entry, "dataset_key", provider)
     name = require_string_field(entry, "name", provider)
     representation_value = require_string_field(entry, "representation", provider)
@@ -126,7 +126,7 @@ def build_dataset_ref(provider: str, entry: dict[str, object]) -> DatasetRef:
 
 
 def _parse_query_support(entry: dict[str, object], provider: str) -> QuerySupport | None:
-    """Parse query_support from a catalogue entry."""
+    """카탈로그 엔트리에서 query_support를 파싱한다."""
     qs_raw_obj = entry.get("query_support")
     if not isinstance(qs_raw_obj, dict):
         return None
@@ -201,7 +201,7 @@ def _parse_field_constraints(entry: dict[str, object]) -> FieldConstraints | Non
 
 
 def build_schema_from_metadata(dataset: DatasetRef) -> SchemaDescriptor | None:
-    """Build SchemaDescriptor from catalogue metadata fields."""
+    """카탈로그 메타데이터 필드에서 SchemaDescriptor를 구성한다."""
     fields_raw = dataset.raw_metadata.get("fields")
     if not isinstance(fields_raw, list) or not fields_raw:
         return None
@@ -243,7 +243,7 @@ def build_schema_from_metadata(dataset: DatasetRef) -> SchemaDescriptor | None:
 
 
 def coerce_int(value: object, default: int) -> int:
-    """Coerce a value to int, returning default on failure."""
+    """값을 int로 강제 변환하고, 실패하면 기본값을 반환한다."""
     if isinstance(value, int):
         return value
     if isinstance(value, str):
@@ -255,7 +255,7 @@ def coerce_int(value: object, default: int) -> int:
 
 
 def require_string_field(entry: Mapping[str, object], field_name: str, provider: str) -> str:
-    """Extract a required non-empty string field from a catalogue entry."""
+    """카탈로그 엔트리에서 필수 비어 있지 않은 문자열 필드를 추출한다."""
     value = entry.get(field_name)
     if isinstance(value, str) and value:
         return value

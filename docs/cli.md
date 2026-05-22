@@ -56,7 +56,7 @@ kpubdata datasets list --search 금리 --format json
 kpubdata datasets show bok.base_rate
 ```
 
-JSON으로 보면 자동화에 더 편합니다.
+JSON으로 보면 자동화에 더 편리합니다.
 
 ```bash
 kpubdata datasets show bok.base_rate --format json
@@ -68,7 +68,7 @@ kpubdata datasets show bok.base_rate --format json
 - `name`
 - `provider`
 - `operations`
-- `capabilities`
+- `capability`
 - `raw_metadata_keys`
 
 ## fetch
@@ -109,8 +109,8 @@ kpubdata fetch lofin.expenditure_budget -p fyr=2024 --all --format table
 
 출력 형식은 다음을 지원합니다.
 
-- `table`: 첫 행의 키를 기준으로 최대 20개 열을 정렬 출력
-- `json`: 사람이 읽기 쉬운 pretty JSON 배열
+- `table`: 첫 행의 키를 기준으로 최대 20개 열을 정렬해 출력
+- `json`: 사람이 읽기 쉬운 들여쓰기된 JSON 배열
 - `csv`: 헤더 포함 CSV
 
 ## raw
@@ -130,7 +130,7 @@ kpubdata raw datago.air_quality getCtprvnRltmMesureDnsty \
   --output raw-air-quality.json
 ```
 
-`raw`는 항상 pretty JSON으로 출력합니다.
+`raw`는 항상 사람이 읽기 쉬운 JSON으로 출력합니다.
 
 ## 캐시와 로그 예시
 

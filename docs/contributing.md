@@ -10,7 +10,7 @@
 
 ## 빠른 요약
 
-1. **Fork & Clone** → 개인 계정으로 포크 후 로컬에 클론
+1. **포크 및 클론** → 개인 계정으로 포크 후 로컬에 클론
 2. **브랜치 생성** → `feat/issue-<번호>-<설명>` 형태
 3. **개발 환경** → `uv sync --extra dev`
 4. **품질 검증** → `uv run ruff check . && uv run pytest && uv run mypy src`

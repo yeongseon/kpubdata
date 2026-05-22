@@ -1,11 +1,11 @@
-"""Built-in provider manifest — single source of truth for provider discovery.
+"""내장 Provider 매니페스트 — Provider 탐색의 단일 기준 문서.
 
-Each entry maps a provider name to its module path and adapter class name.
-The ``Client`` lazily imports these modules on first access so that unused
-providers impose zero import cost.
+각 엔트리는 provider 이름을 모듈 경로와 어댑터 클래스 이름에 매핑한다.
+``Client``는 첫 접근 시 이 모듈들을 지연 import하므로, 사용하지 않는
+provider는 import 비용을 전혀 추가하지 않는다.
 
-To add a new built-in provider, append an entry here.  No other file needs
-to change for basic registration.
+새 내장 provider를 추가하려면 여기에 엔트리를 덧붙이면 된다. 기본 등록을 위해
+다른 파일을 변경할 필요는 없다.
 """
 
 from __future__ import annotations

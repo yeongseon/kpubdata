@@ -7,7 +7,7 @@
 KPubData의 `list()`, `schema()` 등은 기관마다 다른 파라미터를 표준화합니다.
 하지만 때로는 원본 API의 특수한 파라미터나 operation이 필요할 수 있습니다.
 
-`call_raw()`는 이런 경우를 위한 비상구(escape hatch)입니다.
+`call_raw()`는 이런 경우를 위한 비상구다.
 
 ## 기본 사용법
 
@@ -37,7 +37,7 @@ print(raw)
 | 페이지네이션 | 자동 (`list_all()`) | 직접 처리 |
 | 스키마 보장 | 있음 | 없음 |
 
-## Generic 엔드포인트 (datago)
+## 범용 엔드포인트 (datago)
 
 카탈로그에 등록되지 않은 data.go.kr API도 `datago.generic`으로 호출 가능합니다:
 

@@ -1,7 +1,7 @@
-"""Provider adapter registry with registration-time validation.
+"""등록 시점 검증을 포함한 Provider 어댑터 레지스트리.
 
-Validates that registered adapters conform to the ProviderAdapter protocol
-at registration time, not at call time.
+등록된 어댑터가 ProviderAdapter 프로토콜을 만족하는지
+호출 시점이 아니라 등록 시점에 검증한다.
 """
 
 from __future__ import annotations
@@ -26,23 +26,23 @@ _REQUIRED_METHODS = (
 
 
 class ProviderRegistry:
-    """Thread-safe registry for provider adapters."""
+    """Provider 어댑터를 위한 스레드 안전 레지스트리."""
 
     def __init__(self) -> None:
-        """Initialize empty eager/lazy adapter registries."""
+        """비어 있는 eager/lazy 어댑터 레지스트리를 초기화한다."""
         self._adapters: dict[str, Any] = {}
         self._lazy: dict[str, Any] = {}
         self._lock = RLock()
 
     def __repr__(self) -> str:
-        """Return concise debug representation."""
+        """간결한 디버그 표현을 반환한다."""
         with self._lock:
             eager_names = sorted(self._adapters.keys())
             lazy_names = sorted(self._lazy.keys())
         return f"ProviderRegistry(eager={eager_names}, lazy={lazy_names})"
 
     def register(self, adapter: Any) -> None:
-        """Register an adapter instance. Validates protocol conformance."""
+        """어댑터 인스턴스를 등록한다. 프로토콜 준수 여부를 검증한다."""
         self._validate_adapter(adapter)
         provider_name = str(adapter.name).strip().lower()
 
@@ -56,12 +56,11 @@ class ProviderRegistry:
         )
 
     def register_lazy(self, name: str, factory: Any, *, skip_if_exists: bool = False) -> None:
-        """Register a lazy-loaded adapter via callable factory.
+        """호출 가능한 팩토리를 통해 지연 로딩 어댑터를 등록한다.
 
-        When ``skip_if_exists`` is True, silently skip registration if the
-        provider name is already registered (eager or lazy).  This is used
-        by ``Client`` to register built-in providers without conflicting
-        with user-registered adapters.
+        ``skip_if_exists``가 True이면 Provider 이름이 이미 등록된 경우(eager 또는 lazy)
+        등록을 조용히 건너뛴다. 이는 ``Client``가 사용자 등록 어댑터와 충돌하지 않고
+        내장 Provider를 등록할 때 사용된다.
         """
         normalized_name = name.strip().lower()
         if not normalized_name:
@@ -87,7 +86,7 @@ class ProviderRegistry:
         )
 
     def get(self, name: str) -> Any:
-        """Retrieve adapter by provider name."""
+        """Provider 이름으로 어댑터를 가져온다."""
         normalized_name = name.strip().lower()
         with self._lock:
             adapter = self._adapters.get(normalized_name)
@@ -124,20 +123,20 @@ class ProviderRegistry:
         return lazy_adapter
 
     def __contains__(self, name: str) -> bool:
-        """Return True if adapter is registered eagerly or lazily."""
+        """어댑터가 eager 또는 lazy로 등록되어 있으면 True를 반환한다."""
         normalized_name = name.strip().lower()
         with self._lock:
             return normalized_name in self._adapters or normalized_name in self._lazy
 
     def __iter__(self) -> Iterator[str]:
-        """Iterate provider names currently known to the registry."""
+        """현재 레지스트리가 알고 있는 Provider 이름을 순회한다."""
         with self._lock:
             names = set(self._adapters.keys()) | set(self._lazy.keys())
         return iter(sorted(names))
 
     @staticmethod
     def _validate_adapter(adapter: Any) -> None:
-        """Check that adapter has required protocol methods."""
+        """어댑터가 필요한 프로토콜 메서드를 갖는지 확인한다."""
         name = getattr(adapter, "name", None)
         if not isinstance(name, str) or not name.strip():
             msg = "Adapter must define a non-empty string attribute 'name'"

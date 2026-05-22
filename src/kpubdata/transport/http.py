@@ -1,10 +1,10 @@
-"""Thin HTTP transport — session management, retries, timeouts, decode.
+"""간결한 HTTP 전송 계층 — 세션 관리, 재시도, 타임아웃, 디코딩.
 
-This layer does NOT handle:
-- Auth injection (adapter responsibility)
-- Parameter naming conventions (adapter responsibility)
-- Response envelope parsing (adapter responsibility)
-- Provider-specific error mapping (adapter responsibility)
+이 계층은 다음을 처리하지 않는다:
+- 인증 주입(어댑터 책임)
+- 파라미터 이름 규칙(어댑터 책임)
+- 응답 엔벌로프 파싱(어댑터 책임)
+- Provider별 에러 매핑(어댑터 책임)
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ _SENSITIVE_PARAM_KEYS = {
 
 @dataclass
 class TransportConfig:
-    """Transport-level configuration."""
+    """전송 계층 설정."""
 
     timeout: float = 30.0
     max_retries: int = 3
@@ -57,7 +57,7 @@ class TransportConfig:
 
 @dataclass(frozen=True)
 class TransportRequirements:
-    """Declarative transport customization for provider adapters."""
+    """제공자 어댑터를 위한 선언적 전송 커스터마이징."""
 
     verify_ssl: bool | None = None
     headers: Mapping[str, str] | None = None
@@ -65,7 +65,7 @@ class TransportRequirements:
 
 
 class HttpTransport:
-    """Managed httpx client with retry, timeout, and structured logging."""
+    """재시도, 타임아웃, 구조화 로깅을 갖춘 관리형 httpx 클라이언트."""
 
     def __init__(
         self,
@@ -74,7 +74,7 @@ class HttpTransport:
         cache: ResponseCache | None = None,
         cache_ttl_seconds: int = 86400,
     ) -> None:
-        """Initialize transport with optional explicit configuration."""
+        """선택적 명시 설정으로 전송 계층을 초기화한다."""
         self._config: TransportConfig = config or TransportConfig()
         self._requirements: TransportRequirements | None = requirements
         self._cache: ResponseCache | None = self._config.cache if cache is None else cache
@@ -102,17 +102,17 @@ class HttpTransport:
         )
 
     def __enter__(self) -> HttpTransport:
-        """Enter context manager and initialize client eagerly."""
+        """컨텍스트 관리자에 진입하며 클라이언트를 즉시 초기화한다."""
         self._client = self._build_client()
         return self
 
     def __exit__(self, *exc: object) -> None:
-        """Exit context manager and close managed client."""
+        """컨텍스트 관리자를 종료하고 관리 중인 클라이언트를 닫는다."""
         self.close()
 
     @override
     def __repr__(self) -> str:
-        """Return concise debug representation."""
+        """간결한 디버그 표현을 반환한다."""
         return (
             "HttpTransport("
             f"timeout={self._config.timeout}, "
@@ -136,7 +136,7 @@ class HttpTransport:
         )
 
     def _resolve_verify(self, requirements: TransportRequirements | None) -> bool | ssl.SSLContext:
-        # TransportConfig.ssl_context takes precedence (set directly by adapter)
+        # 어댑터가 직접 설정한 경우에는 TransportConfig.ssl_context를 우선 적용한다.
         if self._config.ssl_context is not None:
             return self._config.ssl_context
         if requirements is None:
@@ -148,14 +148,14 @@ class HttpTransport:
         return self._config.verify_ssl
 
     def close(self) -> None:
-        """Close client if initialized."""
+        """클라이언트가 초기화되었으면 닫는다."""
         if self._client is not None:
             self._client.close()
             self._client = None
 
     @property
     def client(self) -> httpx.Client:
-        """Get lazy-initialized shared ``httpx.Client`` instance."""
+        """지연 초기화되는 공유 ``httpx.Client`` 인스턴스를 반환한다."""
         if self._client is None:
             self._client = self._build_client()
         return self._client
@@ -180,14 +180,14 @@ class HttpTransport:
         dataset_id: str | None = None,
         provider: str | None = None,
     ) -> httpx.Response:
-        """Execute HTTP request with retry logic.
+        """재시도 로직과 함께 HTTP 요청을 실행한다.
 
-        Returns:
-            Raw ``httpx.Response``.
+        반환값:
+            원시 ``httpx.Response``.
 
-        Raises:
-            TransportError: On non-timeout transport failures.
-            TransportTimeoutError: On timeout failures.
+        예외:
+            TransportError: 타임아웃이 아닌 전송 실패가 발생한 경우.
+            TransportTimeoutError: 타임아웃 실패가 발생한 경우.
         """
         if self._config.max_retries < 0:
             msg = "max_retries must be >= 0"
@@ -454,10 +454,10 @@ def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:
 
 
 def _parse_retry_after(header_value: str) -> float | None:
-    """Parse Retry-After header value as delay in seconds.
+    """``Retry-After`` 헤더 값을 초 단위 지연으로 파싱한다.
 
-    Supports both delta-seconds and HTTP-date formats per RFC 7231 §7.1.3.
-    Returns None if the value cannot be parsed.
+    RFC 7231 §7.1.3에 따라 delta-seconds와 HTTP-date 형식을 모두 지원한다.
+    값을 파싱할 수 없으면 None을 반환한다.
     """
 
     normalized = header_value.strip()

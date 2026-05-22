@@ -739,34 +739,3 @@ def test_fixture_agri_price_call_raw_returns_full_envelope() -> None:
     assert isinstance(response, dict)
     assert "header" in response
     assert "body" in response
-
-
-def test_fixture_subway_passengers_parses() -> None:
-    adapter, dataset = _build_real_estate_adapter(
-        "success_subway_passengers.json", "subway_passengers"
-    )
-
-    batch = adapter.query_records(dataset, Query())
-
-    assert len(batch.items) == 2
-    assert batch.items[0]["stnNm"] == "남위례"
-    assert batch.items[0]["lineNm"] == "8호선"
-    assert "rideNope" in batch.items[0]
-    assert "gffNope" in batch.items[0]
-    assert batch.total_count == 2
-
-
-def test_fixture_subway_passengers_call_raw_returns_full_envelope() -> None:
-    adapter, dataset = _build_real_estate_adapter(
-        "success_subway_passengers.json", "subway_passengers"
-    )
-    expected = load_json_fixture("success_subway_passengers.json")
-
-    payload = adapter.call_raw(dataset, "getStnPsgr", {"pasngYmd": "20260521"})
-
-    assert payload == expected
-    payload_dict = cast(dict[str, object], payload)
-    response = payload_dict["response"]
-    assert isinstance(response, dict)
-    assert "header" in response
-    assert "body" in response

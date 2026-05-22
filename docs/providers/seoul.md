@@ -2,9 +2,9 @@
 
 ## 개요
 
-서울 열린데이터광장은 서울시 교통·환경·행정 데이터를 Open API로 제공합니다. KPubData의 `seoul` provider는 서울 Open API의 경로 기반 인증키, 서비스별 top-level envelope, 시작/종료 인덱스 기반 페이지네이션을 그대로 존중하면서 `list()`와 `call_raw()`를 제공합니다.
+서울 열린데이터광장은 서울시 교통·환경·행정 데이터를 오픈 API로 제공합니다. KPubData의 `seoul` Provider는 서울 오픈 API의 경로 기반 인증키, 서비스별 최상위 envelope, 시작/종료 인덱스 기반 페이지네이션을 그대로 존중하면서 `list()`와 `call_raw()`를 제공합니다.
 
-- KPubData provider 이름: `seoul`
+- KPubData Provider 이름: `seoul`
 - 포털: <https://data.seoul.go.kr/>
 
 ## 인증키 발급 및 환경 변수 설정
@@ -26,7 +26,7 @@ export KPUBDATA_SEOUL_API_KEY="your-seoul-api-key"
 
 `Client.from_env()`는 위 환경 변수를 자동으로 읽습니다.
 
-## 서울 Open API 호출 규칙
+## 서울 오픈 API 호출 규칙
 
 - 인증키는 **쿼리 파라미터가 아니라 URL 경로 세그먼트**입니다.
 - 응답 형식은 `json`으로 고정합니다.
@@ -192,8 +192,8 @@ for item in result.items:
 ## 참고
 
 - `list()`는 한 번에 한 페이지만 반환하며, 다음 페이지가 있으면 `RecordBatch.next_page`가 채워집니다.
-- 서울 Open API의 서비스명과 경로 파라미터 이름은 provider-specific semantics이므로 그대로 유지합니다.
-- 일부 서울 Open API는 응답 envelope 키가 서비스명과 다릅니다 (예: `bikeList` → `rentBikeStatus`). KPubData는 catalogue의 `envelope_key` 메타데이터로 이를 처리합니다.
+- 서울 오픈 API의 서비스명과 경로 파라미터 이름은 Provider 고유 의미론이므로 그대로 유지합니다.
+- 일부 서울 오픈 API는 응답 envelope 키가 서비스명과 다릅니다 (예: `bikeList` → `rentBikeStatus`). KPubData는 catalogue의 `envelope_key` 메타데이터로 이를 처리합니다.
 - 실API 검증 완료: `subway_realtime_arrival`, `bike_rent_month`, `bike_realtime`, `bike_station_master` (2026-05-05)
 
 

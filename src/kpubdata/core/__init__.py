@@ -1,4 +1,4 @@
-"""Core canonical models and capability metadata for KPubData."""
+"""KPubData의 핵심 정규 모델과 capability 메타데이터."""
 
 from __future__ import annotations
 

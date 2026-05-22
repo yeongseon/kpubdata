@@ -1,10 +1,11 @@
-"""Canonical domain models shared across providers and adapters."""
+"""Provider와 어댑터 전반에서 공유되는 정규 도메인 모델."""
 
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass as _stdlib_dataclass
 from dataclasses import field
+from importlib import import_module
 from types import MappingProxyType
 from typing import TypeVar
 
@@ -22,7 +23,7 @@ def _dataclass(
     slots: bool = False,
     frozen: bool = False,
 ) -> Callable[[type[_T]], type[_T]]:
-    """Return a decorator that applies ``dataclasses.dataclass`` with fixed options."""
+    """고정 옵션으로 ``dataclasses.dataclass``를 적용하는 데코레이터를 반환한다."""
 
     def _decorate(cls: type[_T]) -> type[_T]:
         return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)  # pyright: ignore[reportCallIssue]
@@ -31,25 +32,25 @@ def _dataclass(
 
 
 def _empty_proxy() -> MappingProxyType[str, object]:
-    """Return an empty immutable string-keyed mapping proxy."""
+    """비어 있는 불변 문자열 키 매핑 프록시를 반환한다."""
     return MappingProxyType({})
 
 
 def _empty_object_proxy() -> MappingProxyType[str, object]:
-    """Return an empty immutable object-valued mapping proxy."""
+    """비어 있는 불변 객체 값 매핑 프록시를 반환한다."""
     return MappingProxyType({})
 
 
 @_dataclass(slots=True, frozen=True)
 class DatasetRef:
-    """Canonical immutable reference to a provider dataset.
+    """Provider 데이터셋에 대한 정규 불변 참조.
 
-    Attributes:
-        description: Human-readable description of what this dataset provides.
-        tags: Categorization tags for discovery (e.g. ``("weather", "forecast")``).
-        source_url: URL to the original API documentation or data portal page.
-        query_support: Structured list-query feature metadata, if known.
-        raw_metadata: Provider-native discovery metadata for debugging.
+    속성:
+        description: 이 데이터셋이 제공하는 내용을 사람이 읽기 쉽게 설명한 문자열.
+        tags: 탐색용 분류 태그(예: ``("weather", "forecast")``).
+        source_url: 원본 API 문서 또는 데이터 포털 페이지의 URL.
+        query_support: 알려진 경우 구조화된 목록 질의 기능 메타데이터.
+        raw_metadata: 디버깅을 위한 Provider 고유 탐색 메타데이터.
     """
 
     id: str
@@ -65,23 +66,23 @@ class DatasetRef:
     source_url: str | None = None
 
     def supports(self, op: Operation) -> bool:
-        """Return whether this dataset supports the requested operation."""
+        """이 데이터셋이 요청된 작업을 지원하는지 반환한다."""
 
         return op in self.operations
 
     def __repr__(self) -> str:
-        """Return a concise developer-friendly representation."""
+        """개발자 친화적인 간결한 표현을 반환한다."""
         ops = ", ".join(sorted(operation.value for operation in self.operations))
         return f"DatasetRef(id={self.id!r}, provider={self.provider!r}, ops=[{ops}])"
 
 
 @_dataclass(slots=True)
 class Query:
-    """Provider-agnostic query object for listing records.
+    """레코드 목록 조회를 위한 Provider 비종속 질의 객체.
 
-    Attributes:
-        filters: Provider-specific filter payload merged into query translation.
-        extra: Additional provider-native parameters not covered canonically.
+    속성:
+        filters: 질의 변환에 병합되는 Provider별 필터 페이로드.
+        extra: 정규 필드로 포괄되지 않는 추가 Provider 고유 파라미터.
     """
 
     filters: dict[str, object] = field(default_factory=dict)
@@ -97,13 +98,13 @@ class Query:
 
 @_dataclass(slots=True)
 class RecordBatch:
-    """Batch of normalized records returned from a dataset query.
+    """데이터셋 질의에서 반환된 정규화 레코드 배치.
 
-    Attributes:
-        next_page: Next offset page number for offset pagination.
-        next_cursor: Opaque cursor token for cursor pagination.
-        raw: Provider-native response payload used to derive this batch.
-        meta: Additional adapter metadata that does not fit canonical fields.
+    속성:
+        next_page: 오프셋 페이지네이션을 위한 다음 페이지 번호.
+        next_cursor: 커서 페이지네이션을 위한 불투명 커서 토큰.
+        raw: 이 배치를 도출하는 데 사용한 Provider 고유 응답 페이로드.
+        meta: 정규 필드에 맞지 않는 추가 어댑터 메타데이터.
     """
 
     items: list[dict[str, object]]
@@ -124,16 +125,9 @@ class RecordBatch:
         return bool(self.items)
 
     def to_pandas(self) -> object:
-        """Convert items to a pandas ``DataFrame``.
-
-        Requires the ``pandas`` optional dependency.
-        Install with: ``pip install kpubdata[pandas]``
-
-        Returns:
-            A ``pandas.DataFrame`` built from :attr:`items`.
-        """
+        """items를 pandas ``DataFrame``으로 변환한다."""
         try:
-            import pandas as pd
+            pd = import_module("pandas")
         except ImportError:
             raise ImportError(
                 "pandas is required for to_pandas(). Install with: pip install kpubdata[pandas]"
@@ -143,18 +137,17 @@ class RecordBatch:
 
 @_dataclass(slots=True)
 class FieldConstraints:
-    """Structured constraints for a dataset field.
+    """데이터셋 필드의 구조화된 제약 조건.
 
-    All attributes are optional.  Only populate those that the provider
-    catalogue actually declares.
+    모든 속성은 선택 사항이다. Provider 카탈로그가 실제로 선언한 값만 채운다.
 
-    Attributes:
-        max_length: Maximum character length (string fields).
-        min_value: Minimum numeric value (number fields).
-        max_value: Maximum numeric value (number fields).
-        pattern: Regex pattern the value must match (e.g. ``"^\\\\d{6}$"``).
-        allowed_values: Closed set of permitted values.
-        format: Semantic format hint (e.g. ``"YYYYMM"``, ``"date"``, ``"url"``).
+    속성:
+        max_length: 최대 문자 길이(문자열 필드).
+        min_value: 최소 숫자 값(숫자 필드).
+        max_value: 최대 숫자 값(숫자 필드).
+        pattern: 값이 일치해야 하는 정규식 패턴(예: ``"^\\\\d{6}$"``).
+        allowed_values: 허용되는 값의 닫힌 집합.
+        format: 의미론적 형식 힌트(예: ``"YYYYMM"``, ``"date"``, ``"url"``).
     """
 
     max_length: int | None = None
@@ -167,11 +160,11 @@ class FieldConstraints:
 
 @_dataclass(slots=True)
 class FieldDescriptor:
-    """Describe a single field in a dataset schema.
+    """데이터셋 스키마의 단일 필드를 설명한다.
 
-    Attributes:
-        constraints: Optional structured constraints for the field.
-        raw: Provider-native field metadata retained for advanced use.
+    속성:
+        constraints: 필드에 대한 선택적 구조화 제약 조건.
+        raw: 고급 사용을 위해 보존한 Provider 고유 필드 메타데이터.
     """
 
     name: str
@@ -185,10 +178,10 @@ class FieldDescriptor:
 
 @_dataclass(slots=True)
 class SchemaDescriptor:
-    """Describe schema metadata exposed for a dataset.
+    """데이터셋에 대해 노출되는 스키마 메타데이터를 설명한다.
 
-    Attributes:
-        raw: Provider-native schema metadata retained without normalization.
+    속성:
+        raw: 정규화하지 않고 보존한 Provider 고유 스키마 메타데이터.
     """
 
     dataset: DatasetRef

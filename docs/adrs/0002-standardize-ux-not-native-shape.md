@@ -2,7 +2,7 @@
 
 ## 상태
 
-승인됨 (Accepted)
+승인됨
 
 ## 배경
 
@@ -20,7 +20,7 @@
 
 ## 결정
 
-**진입점(Entry Point)과 결과 봉투(Result Envelope)만 표준화하고, 기관별 파라미터와 내부 데이터 구조는 그대로 둔다.**
+**진입점과 결과 봉투만 표준화하고, 기관별 파라미터와 내부 데이터 구조는 그대로 둔다.**
 
 ### 표준화하는 것 (UX 계층)
 
@@ -30,32 +30,32 @@
 | 데이터셋 접근 | `client.dataset("provider.dataset_key")` |
 | 데이터 조회 | `ds.list(**params)` → `RecordBatch` |
 | 스키마 확인 | `ds.schema()` → 필드 목록 |
-| 원본 호출 | `ds.call_raw(operation, **params)` → provider-native object |
+| 원본 호출 | `ds.call_raw(operation, **params)` → Provider 고유 객체 |
 | 결과 봉투 | `RecordBatch(items, meta, next_page, next_cursor)` |
 | 페이지네이션 UX | `page`, `page_size`, `cursor` — 표준 파라미터로 노출 |
 | 에러 체계 | `AuthError`, `InvalidRequestError`, `ProviderResponseError` 등 |
 | 기능 선언 | `adapter.capabilities` → 지원/미지원 명시 |
 
-### 표준화하지 않는 것 (Native 계층)
+### 표준화하지 않는 것 (네이티브 계층)
 
 | 항목 | 이유 |
 |---|---|
 | 기관별 필수 파라미터명 | 기관이 정의한 것이며, 임의 변환 시 디버깅 불가 |
-| 날짜 형식 (`YYYYMM` vs `YYYYMMDD`) | 기관별 frequency에 따라 다름 |
+| 날짜 형식 (`YYYYMM` vs `YYYYMMDD`) | 기관별 주기(frequency)에 따라 다름 |
 | 응답 필드명 (`DATA_VALUE`, `DT`, `BPLC_NM` 등) | 원본 필드명 유지가 디버깅과 문서 대조에 유리 |
 | 페이지네이션 내부 매핑 | adapter가 표준 `page`/`page_size`를 기관별 형식(`pageNo`/`numOfRows`, 인덱스 등)으로 변환 |
 
 ## 고려한 대안
 
-### 대안 1: 완전 필드 매핑 (Full Field Normalization)
+### 대안 1: 완전 필드 매핑(전체 필드 정규화)
 
 모든 기관의 응답 필드를 통일된 이름으로 변환(예: `DATA_VALUE` → `value`, `DT` → `value`).
 
 - **장점**: 사용자가 기관 무관하게 동일 필드명 사용 가능
 - **단점**: 원본 API 문서와 대조 불가, 기관별 추가 필드 손실, 디버깅 시 "이 `value`가 원래 뭐였지?" 문제
-- **기각 이유**: 디버깅 가능성(debuggability)이 프레임워크의 핵심 가치
+- **기각 이유**: 디버깅 용이성이 프레임워크의 핵심 가치
 
-### 대안 2: 파라미터 이름 통일 (Unified Parameter Names)
+### 대안 2: 파라미터 이름 통일(통합 파라미터 이름)
 
 모든 기관에 `start_date`, `end_date`, `region` 등 통일 파라미터 사용.
 
@@ -70,12 +70,12 @@
 - **정직한 추상화**: 사용자가 "이 라이브러리가 뭘 해주고 뭘 안 해주는지" 명확히 앎
 - **디버깅 용이**: 원본 API 문서와 1:1 대응되어, 문제 발생 시 기관 문서를 바로 참조 가능
 - **장기 호환성**: 기관 API가 변경되어도 adapter만 수정하면 되고, 표준 인터페이스는 유지됨
-- **Raw Escape Hatch**: `call_raw`를 통해 표준화 범위 밖의 모든 기능에 접근 가능
+- **Raw 비상구**: `call_raw`를 통해 표준화 범위 밖의 모든 기능에 접근 가능
 
 ### 부정적
 
 - **기관별 지식 필요**: 고급 사용 시 해당 기관의 파라미터명을 알아야 함
-- **크로스-기관 집계 어려움**: 여러 기관 데이터를 통합 분석하려면 사용자가 필드 매핑을 직접 해야 함 → 향후 `kpubdata-builder`에서 해결 예정
+- **기관 간 집계 어려움**: 여러 기관 데이터를 통합 분석하려면 사용자가 필드 매핑을 직접 해야 함 → 향후 `kpubdata-builder`에서 해결 예정
 
 ## 관련 문서
 
