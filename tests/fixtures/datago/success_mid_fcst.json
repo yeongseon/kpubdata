@@ -1,0 +1,18 @@
+{
+  "response": {
+    "header": { "resultCode": "00", "resultMsg": "NORMAL_SERVICE" },
+    "body": {
+      "dataType": "JSON",
+      "items": {
+        "item": [
+          {
+            "wfSv": "○ (강수) 26일(화) 전국에, 27일(수) 오전 강원영동에 비가 내리겠습니다.\n○ (기온) 이번 예보기간 아침 기온은 12~21℃, 낮 기온은 22~29℃로 평년(최저기온 13~16℃, 최고기온 23~28℃)과 비슷하겠습니다."
+          }
+        ]
+      },
+      "pageNo": 1,
+      "numOfRows": 10,
+      "totalCount": 1
+    }
+  }
+}

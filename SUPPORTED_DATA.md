@@ -298,6 +298,10 @@
 | 지원 | 테스트 검증 | - | 한국거래소 (`krx`) | `investor_flow` | 투자자별 순매수 추이 | 인증 불필요 (`pykrx`) | [data.krx.co.kr](https://data.krx.co.kr/) | KRX 시장별 투자자 매수/매도/순매수, 기본 market `KOSPI` |
 | 지원 | 테스트 검증 | - | 한국거래소 (`krx`) | `market_valuation` | 시장 밸류에이션 지표 | 인증 불필요 (`pykrx`) | [data.krx.co.kr](https://data.krx.co.kr/) | KRX 시장 PER/PBR/배당수익률/EPS/BPS 일별 집계, 기본 market `KOSPI` |
 | 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `agri_price` | 친환경농산물 가격정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15156073](https://www.data.go.kr/data/15156073/openapi.do) | 한국농수산식품유통공사(aT) 제공 (ecoFriendly / `price`), [#88](https://github.com/yeongseon/kpubdata/issues/88) |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `mid_fcst` | 중기전망 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15059468](https://www.data.go.kr/data/15059468/openapi.do) | 기상청 제공 (MidFcstInfoService / `getMidFcst`), stnId+tmFc, [#94](https://github.com/yeongseon/kpubdata/issues/94) |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `mid_land_fcst` | 중기육상예보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15059468](https://www.data.go.kr/data/15059468/openapi.do) | 기상청 제공 (MidFcstInfoService / `getMidLandFcst`), regId+tmFc, [#94](https://github.com/yeongseon/kpubdata/issues/94) |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `mid_ta` | 중기기온 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15059468](https://www.data.go.kr/data/15059468/openapi.do) | 기상청 제공 (MidFcstInfoService / `getMidTa`), regId+tmFc, [#94](https://github.com/yeongseon/kpubdata/issues/94) |
+| 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `mid_sea_fcst` | 중기해상예보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15059468](https://www.data.go.kr/data/15059468/openapi.do) | 기상청 제공 (MidFcstInfoService / `getMidSeaFcst`), regId+tmFc, [#94](https://github.com/yeongseon/kpubdata/issues/94) |
 
 ## 한국거래소 (`krx`)
 

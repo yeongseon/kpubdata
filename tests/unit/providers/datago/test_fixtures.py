@@ -739,3 +739,109 @@ def test_fixture_agri_price_call_raw_returns_full_envelope() -> None:
     assert isinstance(response, dict)
     assert "header" in response
     assert "body" in response
+
+
+def test_fixture_mid_fcst_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_fcst.json", "mid_fcst")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 1
+    assert "wfSv" in batch.items[0]
+    assert batch.total_count == 1
+
+
+def test_fixture_mid_fcst_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_fcst.json", "mid_fcst")
+    expected = load_json_fixture("success_mid_fcst.json")
+
+    payload = adapter.call_raw(dataset, "getMidFcst", {"stnId": "108", "tmFc": "2026052206"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_mid_land_fcst_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_land_fcst.json", "mid_land_fcst")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 1
+    assert batch.items[0]["regId"] == "11B00000"
+    assert "rnSt4Am" in batch.items[0]
+    assert "wf4Am" in batch.items[0]
+    assert batch.total_count == 1
+
+
+def test_fixture_mid_land_fcst_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_land_fcst.json", "mid_land_fcst")
+    expected = load_json_fixture("success_mid_land_fcst.json")
+
+    payload = adapter.call_raw(
+        dataset, "getMidLandFcst", {"regId": "11B00000", "tmFc": "2026052206"}
+    )
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_mid_ta_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_ta.json", "mid_ta")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 1
+    assert batch.items[0]["regId"] == "11D20501"
+    assert "taMin4" in batch.items[0]
+    assert "taMax4" in batch.items[0]
+    assert batch.total_count == 1
+
+
+def test_fixture_mid_ta_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_ta.json", "mid_ta")
+    expected = load_json_fixture("success_mid_ta.json")
+
+    payload = adapter.call_raw(dataset, "getMidTa", {"regId": "11D20501", "tmFc": "2026052206"})
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
+
+
+def test_fixture_mid_sea_fcst_parses() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_sea_fcst.json", "mid_sea_fcst")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 1
+    assert batch.items[0]["regId"] == "12A20000"
+    assert "wf4Am" in batch.items[0]
+    assert "wh4AAm" in batch.items[0]
+    assert batch.total_count == 1
+
+
+def test_fixture_mid_sea_fcst_call_raw_returns_full_envelope() -> None:
+    adapter, dataset = _build_real_estate_adapter("success_mid_sea_fcst.json", "mid_sea_fcst")
+    expected = load_json_fixture("success_mid_sea_fcst.json")
+
+    payload = adapter.call_raw(
+        dataset, "getMidSeaFcst", {"regId": "12A20000", "tmFc": "2026052206"}
+    )
+
+    assert payload == expected
+    payload_dict = cast(dict[str, object], payload)
+    response = payload_dict["response"]
+    assert isinstance(response, dict)
+    assert "header" in response
+    assert "body" in response
