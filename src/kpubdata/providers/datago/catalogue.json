@@ -595,18 +595,21 @@
     }
   },
   {
-  "dataset_key": "subway_passengers",
-  "name": "지하철역별 승하차 인원 (Subway Station Passengers)",
-  "base_url": "https://apis.data.go.kr/B553766/psgr",
-  "default_operation": "getStnPsgr",
-  "representation": "api_json",
-  "service_key_param": "serviceKey",
-  "format_param": "dataType",
-  "description": "Seoul Metro per-station daily/hourly boarding and alighting passenger counts by card type and rider type",
-  "tags": ["transportation", "subway", "passengers"],
-  "source_url": "https://www.data.go.kr/data/15143845/openapi.do",
-  "operations": ["list", "raw"],
-  "query_support": { "pagination": "offset", "max_page_size": 1000 }
+    "dataset_key": "subway_passengers",
+    "name": "지하철역별 승하차 인원 (Subway Station Passengers)",
+    "base_url": "https://apis.data.go.kr/B553766/psgr",
+    "default_operation": "getStnPsgr",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "Seoul Metro per-station daily/hourly boarding and alighting passenger counts by card type and rider type",
+    "tags": ["transportation", "subway", "passengers"],
+    "source_url": "https://www.data.go.kr/data/15143845/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   },
   {
     "dataset_key": "road_traffic",

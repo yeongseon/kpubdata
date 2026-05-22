@@ -192,9 +192,10 @@ def test_page_size_over_1000_raises_invalid_request() -> None:
     with pytest.raises(InvalidRequestError, match="page_size must be <= 1000"):
         _ = adapter.query_records(dataset, Query(filters={"RENT_NM": "202401"}, page_size=1001))
 
-
 def test_query_records_builds_park_info_url() -> None:
-    adapter, transport = _build_adapter([FakeResponse(_load_fixture("park_info.json"))])
+    adapter, transport = _build_adapter(
+        [FakeResponse(_load_fixture("park_info.json"))]
+    )
     dataset = adapter.get_dataset("park_info")
 
     _ = adapter.query_records(dataset, Query(page_size=10))
@@ -205,7 +206,9 @@ def test_query_records_builds_park_info_url() -> None:
 
 
 def test_query_records_parses_park_info_response() -> None:
-    adapter, _ = _build_adapter([FakeResponse(_load_fixture("park_info.json"))])
+    adapter, _ = _build_adapter(
+        [FakeResponse(_load_fixture("park_info.json"))]
+    )
     dataset = adapter.get_dataset("park_info")
 
     batch = adapter.query_records(dataset, Query(page=1, page_size=10))
