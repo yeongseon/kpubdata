@@ -106,8 +106,11 @@ curl "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?ser
 | 20 | `나라장터 조달계약정보` ([15129427](https://www.data.go.kr/data/15129427/openapi.do)) | 조달청 | 자동 승인 |
 | 21 | `사회적기업 인증현황` ([15082035](https://www.data.go.kr/data/15082035/openapi.do)) | 고용노동부 | 자동 승인 |
 | 22 | `나라장터 종합쇼핑몰 품목정보` ([15129471](https://www.data.go.kr/data/15129471/openapi.do)) | 조달청 | 자동 승인 |
+| 23 | `중기예보 조회서비스` ([15059468](https://www.data.go.kr/data/15059468/openapi.do)) | 기상청 | 자동 승인 |
 
 > 💡 14~17은 모두 동일한 한국관광공사 TourAPI(KorService2) 단일 활용신청으로 한꺼번에 발급됩니다 — 활용신청은 1건이지만 4개 endpoint(`areaBasedList2`, `locationBasedList2`, `searchKeyword2`, `searchFestival2`)가 KPubData에서 별도 dataset_key로 노출됩니다.
+>
+> 💡 23은 기상청 중기예보 조회서비스(MidFcstInfoService) 단일 활용신청으로 4개 endpoint(`getMidFcst`, `getMidLandFcst`, `getMidTa`, `getMidSeaFcst`)가 모두 발급됩니다 — KPubData에서는 `mid_fcst`, `mid_land_fcst`, `mid_ta`, `mid_sea_fcst` 4개 dataset_key로 노출됩니다.
 
 ## 지원 데이터셋
 
@@ -589,6 +592,82 @@ for item in result.items[:3]:
 ```python
 ds = client.dataset("datago.g2b_catalog")
 raw = ds.call_raw("getShoppingMallPrdctInfoList", prdctNm="펌프", numOfRows="10")
+```
+
+### mid_fcst (중기전망조회)
+
+기상청에서 제공하는 중기전망 정보입니다. 발표 시점 기준 향후 3~10일의 강수·기온 전망을 서술형 텍스트(`wfSv`)로 제공합니다.
+
+- 제공 기관: 기상청
+- 데이터 ID: [15059468](https://www.data.go.kr/data/15059468/openapi.do)
+- 오퍼레이션: `getMidFcst`
+- 주요 파라미터: `stnId` (지점 번호), `tmFc` (발표시각)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| stnId | 필수 | 지점 번호 (108=전국) | "108" |
+| tmFc | 필수 | 발표시각 (YYYYMMDDHHmm). 일 2회 06시·18시 발표, 최근 24시간 조회 가능 | "202604010600" |
+
+```python
+ds = client.dataset("datago.mid_fcst")
+raw = ds.call_raw("getMidFcst", stnId="108", tmFc="202604010600")
+```
+
+### mid_land_fcst (중기육상예보조회)
+
+기상청에서 제공하는 중기육상예보 정보입니다. 지역(`regId`)별 강수확률(`rnStN`)과 날씨(`wfN`)를 3~10일 단위로 제공합니다.
+
+- 제공 기관: 기상청
+- 데이터 ID: [15059468](https://www.data.go.kr/data/15059468/openapi.do)
+- 오퍼레이션: `getMidLandFcst`
+- 주요 파라미터: `regId` (예보구역 코드), `tmFc` (발표시각)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| regId | 필수 | 예보구역 코드 (예: 11B00000=서울·인천·경기) | "11B00000" |
+| tmFc | 필수 | 발표시각 (YYYYMMDDHHmm). 일 2회 06시·18시 발표 | "202604010600" |
+
+```python
+ds = client.dataset("datago.mid_land_fcst")
+raw = ds.call_raw("getMidLandFcst", regId="11B00000", tmFc="202604010600")
+```
+
+### mid_ta (중기기온조회)
+
+기상청에서 제공하는 중기기온 정보입니다. 지역(`regId`)별 일 최저(`taMinN`)·최고(`taMaxN`) 기온을 3~10일 단위로 제공합니다.
+
+- 제공 기관: 기상청
+- 데이터 ID: [15059468](https://www.data.go.kr/data/15059468/openapi.do)
+- 오퍼레이션: `getMidTa`
+- 주요 파라미터: `regId` (지점 코드), `tmFc` (발표시각)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| regId | 필수 | 지점 코드 (예: 11D20501=춘천) | "11D20501" |
+| tmFc | 필수 | 발표시각 (YYYYMMDDHHmm). 일 2회 06시·18시 발표 | "202604010600" |
+
+```python
+ds = client.dataset("datago.mid_ta")
+raw = ds.call_raw("getMidTa", regId="11D20501", tmFc="202604010600")
+```
+
+### mid_sea_fcst (중기해상예보조회)
+
+기상청에서 제공하는 중기해상예보 정보입니다. 해역(`regId`)별 날씨(`wfN`)와 파고(`whNAAm`/`whNPm`)를 3~10일 단위로 제공합니다.
+
+- 제공 기관: 기상청
+- 데이터 ID: [15059468](https://www.data.go.kr/data/15059468/openapi.do)
+- 오퍼레이션: `getMidSeaFcst`
+- 주요 파라미터: `regId` (해역 코드), `tmFc` (발표시각)
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|---|---|---|---|
+| regId | 필수 | 해역 코드 (예: 12A20000=서해중부) | "12A20000" |
+| tmFc | 필수 | 발표시각 (YYYYMMDDHHmm). 일 2회 06시·18시 발표 | "202604010600" |
+
+```python
+ds = client.dataset("datago.mid_sea_fcst")
+raw = ds.call_raw("getMidSeaFcst", regId="12A20000", tmFc="202604010600")
 ```
 
 ## 공공데이터포털 API 특이사항
