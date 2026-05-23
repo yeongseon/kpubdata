@@ -42,6 +42,7 @@ def _is_success_code(code: str) -> bool:
 
 class SemasAdapter:
     """SemasAdapter과 관련된 값을 계산하거나 조회한다."""
+
     requires_api_key: bool = True
 
     def __init__(

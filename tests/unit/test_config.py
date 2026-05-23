@@ -21,6 +21,7 @@ class TestKPubDataConfig:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test explicit key 테스트가 검증하는 시나리오를 설명한다.
     def test_explicit_key(self) -> None:
         """

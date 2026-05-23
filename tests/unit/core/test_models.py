@@ -26,6 +26,7 @@ class TestOperation:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test values 테스트가 검증하는 시나리오를 설명한다.
     def test_values(self) -> None:
         """
@@ -71,6 +72,7 @@ class TestRepresentation:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test values 테스트가 검증하는 시나리오를 설명한다.
     def test_values(self) -> None:
         """
@@ -99,6 +101,7 @@ class TestQuerySupport:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test defaults 테스트가 검증하는 시나리오를 설명한다.
     def test_defaults(self) -> None:
         """
@@ -151,6 +154,7 @@ class TestDatasetRef:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def _make_ref(self, **kwargs: object) -> DatasetRef:
         """
         내부 헬퍼로서 make ref 처리를 담당한다.
@@ -329,6 +333,7 @@ class TestQuery:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test defaults 테스트가 검증하는 시나리오를 설명한다.
     def test_defaults(self) -> None:
         """
@@ -377,6 +382,7 @@ class TestRecordBatch:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def _make_ref(self) -> DatasetRef:
         """
         내부 헬퍼로서 make ref 처리를 담당한다.
@@ -475,6 +481,7 @@ class TestSchemaDescriptor:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test fields 테스트가 검증하는 시나리오를 설명한다.
     def test_fields(self) -> None:
         """
@@ -512,6 +519,7 @@ class TestFieldConstraints:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test all defaults none 테스트가 검증하는 시나리오를 설명한다.
     def test_all_defaults_none(self) -> None:
         """
@@ -610,6 +618,7 @@ class TestFieldDescriptorConstraints:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test default constraints none 테스트가 검증하는 시나리오를 설명한다.
     def test_default_constraints_none(self) -> None:
         """

@@ -34,6 +34,7 @@ class AdapterFactory(Protocol):
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __call__(
         self,
         fixture_names: list[str],
@@ -69,6 +70,7 @@ def _build_real_estate_adapter(
         속성 설명:
             생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
         """
+
         def __init__(self) -> None:
             """
             인스턴스가 사용할 내부 상태를 초기화한다.
@@ -93,6 +95,7 @@ def _build_real_estate_adapter(
         속성 설명:
             생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
         """
+
         def request(self, _method: str, _url: str, **_kwargs: object) -> _FakeResponse:
             """
             request 동작을 수행한다.

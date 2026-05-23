@@ -17,6 +17,7 @@ class TestWithRetry:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test success first try 테스트가 검증하는 시나리오를 설명한다.
     def test_success_first_try(self) -> None:
         """
@@ -85,6 +86,7 @@ class TestWithRetry:
         예시:
             테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
         """
+
         def always_fail() -> None:
             """
             always fail 동작을 수행한다.

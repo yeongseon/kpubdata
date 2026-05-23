@@ -41,6 +41,7 @@ def _lofin_ssl_context() -> ssl.SSLContext:
 
 class LofinAdapter:
     """LofinAdapter과 관련된 값을 계산하거나 조회한다."""
+
     requires_api_key: bool = True
 
     transport_requirements: TransportRequirements = TransportRequirements(

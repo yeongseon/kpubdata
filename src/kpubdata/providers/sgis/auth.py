@@ -24,12 +24,14 @@ _SECRET_ENV = "KPUBDATA_SGIS_CONSUMER_SECRET"
 @dataclass(slots=True)
 class _TokenState:
     """TokenState과 관련된 값을 계산하거나 조회한다."""
+
     value: str
     expires_at: datetime
 
 
 class SgisAuthClient:
     """SgisAuthClient과 관련된 값을 계산하거나 조회한다."""
+
     def __init__(self, *, config: KPubDataConfig, transport: HttpTransport) -> None:
         """인스턴스가 사용할 내부 상태를 초기화한다."""
         self._config: KPubDataConfig = config

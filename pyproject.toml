@@ -80,6 +80,11 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# 테스트 코드는 시나리오를 설명하는 한글 주석/문자열로 줄이 길어질 수 있어
+# E501(줄 길이)만 면제한다. 다른 규칙과 src 코드에는 그대로 적용된다.
+"tests/**" = ["E501"]
+
 [tool.mypy]
 python_version = "3.10"
 strict = true

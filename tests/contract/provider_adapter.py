@@ -23,6 +23,7 @@ class ProviderAdapterContract:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test isinstance provider adapter 테스트가 검증하는 시나리오를 설명한다.
     def test_isinstance_provider_adapter(self, adapter: ProviderAdapter) -> None:
         """

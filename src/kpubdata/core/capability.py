@@ -19,6 +19,7 @@ def _dataclass(
     frozen: bool = False,
 ) -> Callable[[type[_T]], type[_T]]:
     """고정 옵션을 적용하는 dataclass 데코레이터를 반환한다."""
+
     def _decorate(cls: type[_T]) -> type[_T]:
         """대상 클래스에 dataclass 옵션을 적용해 반환한다."""
         return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)

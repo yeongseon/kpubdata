@@ -50,6 +50,7 @@ class FakeResponse:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, payload: object, content_type: str = "application/json") -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -79,6 +80,7 @@ class FakeTransport:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, responses: list[FakeResponse]) -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -206,6 +208,7 @@ class AdapterFactory(Protocol):
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __call__(
         self,
         fixture_names: list[str],
@@ -223,6 +226,7 @@ class TestDataGoAdapterDiscovery:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test default catalogue loads 테스트가 검증하는 시나리오를 설명한다.
     def test_default_catalogue_loads(self) -> None:
         """
@@ -440,6 +444,7 @@ class TestDataGoAdapterRealEstateDatasets:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test catalogue contains all real estate datasets 테스트가 검증하는 시나리오를 설명한다.
     def test_catalogue_contains_all_real_estate_datasets(self) -> None:
         """
@@ -568,6 +573,7 @@ class TestDataGoAdapterQueryRecords:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test query records single page 테스트가 검증하는 시나리오를 설명한다.
     def test_query_records_single_page(self) -> None:
         """
@@ -902,6 +908,7 @@ class TestDataGoAdapterQueryRecords:
             속성 설명:
                 생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
             """
+
             def request(self, method: str, url: str, **kwargs: object) -> FakeResponse:
                 """
                 request 동작을 수행한다.
@@ -1060,6 +1067,7 @@ class TestDataGoAdapterCallRaw:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test call raw returns full payload 테스트가 검증하는 시나리오를 설명한다.
     def test_call_raw_returns_full_payload(self) -> None:
         """
@@ -1134,6 +1142,7 @@ class TestDataGoAdapterCatalogueOperations:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test default catalogue has operations 테스트가 검증하는 시나리오를 설명한다.
     def test_default_catalogue_has_operations(self) -> None:
         """
@@ -1190,6 +1199,7 @@ class TestDataGoAdapterXml:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test query records xml multi item 테스트가 검증하는 시나리오를 설명한다.
     def test_query_records_xml_multi_item(self, configured_adapter: AdapterFactory) -> None:
         """
@@ -1296,6 +1306,7 @@ class TestDataGoAdapterGetSchema:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test get schema returns none without fields 테스트가 검증하는 시나리오를 설명한다.
     def test_get_schema_returns_none_without_fields(self) -> None:
         """

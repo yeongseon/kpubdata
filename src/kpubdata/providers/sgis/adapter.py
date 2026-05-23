@@ -31,6 +31,7 @@ _BASE_URL = "https://sgisapi.kostat.go.kr/OpenAPI3"
 
 class _AuthClient(Protocol):
     """AuthClient과 관련된 값을 계산하거나 조회한다."""
+
     def get_access_token(self, *, force_refresh: bool = False) -> str: ...
 
     def invalidate(self) -> None: ...
@@ -38,6 +39,7 @@ class _AuthClient(Protocol):
 
 class SgisAdapter:
     """SgisAdapter과 관련된 값을 계산하거나 조회한다."""
+
     requires_api_key: bool = True
 
     def __init__(

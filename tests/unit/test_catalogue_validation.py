@@ -22,6 +22,7 @@ class _FakeCatalogueFile:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, text: str) -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -64,6 +65,7 @@ class _FakePackageFiles:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, text: str) -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -295,6 +297,7 @@ class TestBuildDatasetRefMetadata:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test description parsed 테스트가 검증하는 시나리오를 설명한다.
     def test_description_parsed(self) -> None:
         """
@@ -516,6 +519,7 @@ class TestBuildSchemaConstraints:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def _make_ref_with_fields(self, fields: list[dict[str, object]]) -> object:
         """
         내부 헬퍼로서 make ref with fields 처리를 담당한다.

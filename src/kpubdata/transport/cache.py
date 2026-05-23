@@ -17,6 +17,7 @@ logger = logging.getLogger("kpubdata.transport")
 
 class _CachePayload(TypedDict, total=False):
     """캐시 파일에 저장되는 직렬화 payload 구조다."""
+
     created_at: float
     ttl_seconds: float
     body_b64: str
@@ -38,6 +39,7 @@ _SENSITIVE_CACHE_KEY_NAMES = {
 
 class ResponseCache:
     """HTTP 응답 본문을 디스크에 저장하고 TTL로 만료를 관리한다."""
+
     def __init__(self, base_dir: str | Path | None = None) -> None:
         """기본 응답 캐시 디렉터리를 초기화한다."""
         self._base_dir: Path = Path(base_dir) if base_dir is not None else _default_cache_dir()

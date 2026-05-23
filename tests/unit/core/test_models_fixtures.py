@@ -150,6 +150,7 @@ class TestDatasetRefFromCatalogue:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test first entry core fields 테스트가 검증하는 시나리오를 설명한다.
     def test_first_entry_core_fields(self) -> None:
         """
@@ -313,6 +314,7 @@ class TestRecordBatchFromFixtures:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test single page batch shape 테스트가 검증하는 시나리오를 설명한다.
     def test_single_page_batch_shape(self) -> None:
         """
@@ -461,6 +463,7 @@ class TestQueryFromRealisticFilters:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test query with korean filters preserves exact values 테스트가 검증하는 시나리오를 설명한다.
     def test_query_with_korean_filters_preserves_exact_values(self) -> None:
         """
@@ -518,6 +521,7 @@ class TestCapabilityImmutability:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test query support is frozen 테스트가 검증하는 시나리오를 설명한다.
     def test_query_support_is_frozen(self) -> None:
         """

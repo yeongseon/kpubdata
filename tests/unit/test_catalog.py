@@ -176,6 +176,7 @@ class TestCatalog:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def _build(self) -> Catalog:
         """
         내부 헬퍼로서 build 처리를 담당한다.
