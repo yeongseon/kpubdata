@@ -89,19 +89,7 @@ class HttpTransport:
         config: TransportConfig,
         requirements: TransportRequirements,
     ) -> HttpTransport:
-        """
-        with requirements 동작을 수행한다.
-
-        매개변수:
-            config (TransportConfig): 호출자가 제공하는 입력 값이다.
-            requirements (TransportRequirements): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            HttpTransport: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """기본 전송 설정에 Provider 요구사항을 합친 새 HttpTransport를 만든다."""
         return cls(
             config=TransportConfig(
                 timeout=config.timeout,
@@ -136,23 +124,13 @@ class HttpTransport:
         )
 
     def _build_client(self, requirements: TransportRequirements | None = None) -> httpx.Client:
-        """
-        내부 헬퍼로서 build client 처리를 담당한다.
-
-        매개변수:
-            requirements (TransportRequirements | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            httpx.Client: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """현재 설정과 요구사항을 반영한 httpx.Client를 생성한다."""
         effective_requirements = requirements or self._requirements
         return httpx.Client(
             timeout=self._config.timeout,
             headers=_merge_headers(
                 self._config.headers,
+                # Provider 전용 헤더가 있으면 공용 헤더 위에 덮어쓴다.
                 None if effective_requirements is None else effective_requirements.headers,
             )
             or {},
@@ -161,25 +139,16 @@ class HttpTransport:
         )
 
     def _resolve_verify(self, requirements: TransportRequirements | None) -> bool | ssl.SSLContext:
-        """
-        내부 헬퍼로서 resolve verify 처리를 담당한다.
-
-        매개변수:
-            requirements (TransportRequirements | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            bool | ssl.SSLContext: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
-        # 어댑터가 직접 설정한 경우에는 TransportConfig.ssl_context를 우선 적용한다.
+        """SSL 검증 여부와 SSLContext의 최종 적용 값을 결정한다."""
+        # 명시적 SSLContext는 verify_ssl 불리언보다 구체적이므로 최우선으로 사용한다.
         if self._config.ssl_context is not None:
             return self._config.ssl_context
         if requirements is None:
             return self._config.verify_ssl
+        # Provider가 SSLContext factory를 제공하면 요청 직전에 전용 컨텍스트를 생성한다.
         if requirements.ssl_context_factory is not None:
             return requirements.ssl_context_factory()
+        # 마지막으로 Provider별 verify_ssl override가 있으면 기본 설정을 덮어쓴다.
         if requirements.verify_ssl is not None:
             return requirements.verify_ssl
         return self._config.verify_ssl
@@ -199,28 +168,12 @@ class HttpTransport:
 
     @property
     def cache(self) -> ResponseCache | None:
-        """
-        cache 동작을 수행한다.
-
-        반환값:
-            ResponseCache | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """현재 전송 인스턴스에 연결된 응답 캐시를 반환한다."""
         return self._cache
 
     @property
     def cache_ttl_seconds(self) -> int:
-        """
-        cache ttl seconds 동작을 수행한다.
-
-        반환값:
-            int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """응답 캐시에 적용할 기본 TTL 초 값을 반환한다."""
         return self._cache_ttl_seconds
 
     def request(
@@ -252,6 +205,7 @@ class HttpTransport:
             raise ValueError(msg)
 
         total_attempts = self._config.max_retries + 1
+        # 메서드/URL/헤더 조합이 안전할 때만 캐시 키를 만들고 GET 응답을 재사용한다.
         cache_key = self._make_cache_key(method=method, url=url, params=params, headers=headers)
         request_context = _request_context(dataset_id=dataset_id, provider=provider)
         if cache_key is not None and self._cache is not None:
@@ -400,6 +354,7 @@ class HttpTransport:
 
             delay: float
             if retry_delay is not None:
+                # 서버가 Retry-After를 주면 지수 백오프보다 서버 힌트를 우선한다.
                 delay = retry_delay
             else:
                 delay = cast(float, self._config.retry_backoff_factor * (2 ** (attempt - 1)))
@@ -426,21 +381,7 @@ class HttpTransport:
         params: dict[str, str] | None,
         headers: dict[str, str] | None,
     ) -> str | None:
-        """
-        내부 헬퍼로서 make cache key 처리를 담당한다.
-
-        매개변수:
-            method (str): 호출자가 제공하는 입력 값이다.
-            url (str): 호출자가 제공하는 입력 값이다.
-            params (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
-            headers (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """캐시 가능한 GET 요청에 대해서만 캐시 키를 계산한다."""
         if self._cache is None:
             return None
         if method.upper() != "GET":
@@ -451,35 +392,12 @@ class HttpTransport:
 
 
 def _is_retryable_status(status_code: int) -> bool:
-    """
-    내부 헬퍼로서 is retryable status 처리를 담당한다.
-
-    매개변수:
-        status_code (int): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """HTTP 상태 코드가 재시도 대상인지 반환한다."""
     return status_code == 429 or 500 <= status_code <= 599
 
 
 def _request_context(*, dataset_id: str | None, provider: str | None) -> dict[str, str]:
-    """
-    내부 헬퍼로서 request context 처리를 담당한다.
-
-    매개변수:
-        dataset_id (str | None): 호출자가 제공하는 입력 값이다.
-        provider (str | None): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """로그 extra에 넣을 dataset/provider 문맥 딕셔너리를 만든다."""
     context: dict[str, str] = {}
     if dataset_id is not None:
         context["dataset_id"] = dataset_id
@@ -492,19 +410,7 @@ def _merge_headers(
     base_headers: Mapping[str, str] | None,
     override_headers: Mapping[str, str] | None,
 ) -> dict[str, str] | None:
-    """
-    내부 헬퍼로서 merge headers 처리를 담당한다.
-
-    매개변수:
-        base_headers (Mapping[str, str] | None): 호출자가 제공하는 입력 값이다.
-        override_headers (Mapping[str, str] | None): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        dict[str, str] | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """기본 헤더와 재정의 헤더를 병합한 새 딕셔너리를 반환한다."""
     if base_headers is None and override_headers is None:
         return None
 
@@ -517,18 +423,7 @@ def _merge_headers(
 
 
 def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
-    """
-    내부 헬퍼로서 sanitize params 처리를 담당한다.
-
-    매개변수:
-        params (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """민감한 파라미터 값을 가린 로그용 파라미터 사본을 만든다."""
     if params is None:
         return {}
 
@@ -542,18 +437,7 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
 
 
 def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:
-    """
-    내부 헬퍼로서 cache headers subset 처리를 담당한다.
-
-    매개변수:
-        headers (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """캐시 키 계산에 안전한 헤더만 추려 반환한다."""
     if headers is None:
         return {}
     return {
@@ -562,37 +446,14 @@ def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:
 
 
 def _contains_sensitive_headers(headers: dict[str, str] | None) -> bool:
-    """
-    내부 헬퍼로서 contains sensitive headers 처리를 담당한다.
-
-    매개변수:
-        headers (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """헤더에 민감한 키가 포함되어 있는지 확인한다."""
     if headers is None:
         return False
     return any(key.casefold() in _SENSITIVE_PARAM_KEYS for key in headers)
 
 
 def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:
-    """
-    내부 헬퍼로서 response preview 처리를 담당한다.
-
-    매개변수:
-        response (httpx.Response): 호출자가 제공하는 입력 값이다.
-        max_chars (int): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """응답 본문을 디버그 로그용 짧은 미리보기 문자열로 만든다."""
     content_type = cast(str, response.headers.get("content-type", "")).casefold()
     is_text = (
         content_type.startswith("text/")

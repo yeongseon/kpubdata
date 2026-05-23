@@ -157,18 +157,7 @@ def _parse_query_support(entry: dict[str, object], provider: str) -> QuerySuppor
 
 
 def _parse_field_constraints(entry: dict[str, object]) -> FieldConstraints | None:
-    """
-    내부 헬퍼로서 parse field constraints 처리를 담당한다.
-
-    매개변수:
-        entry (dict[str, object]): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        FieldConstraints | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """field constraints을 파싱해 반환한다."""
     constraints_raw = entry.get("constraints")
     if not isinstance(constraints_raw, dict):
         return None

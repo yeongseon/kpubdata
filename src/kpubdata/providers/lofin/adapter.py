@@ -40,15 +40,7 @@ def _lofin_ssl_context() -> ssl.SSLContext:
 
 
 class LofinAdapter:
-    """
-    LofinAdapter 관련 역할을 캡슐화하는 클래스.
-
-    이 클래스는 ``src/kpubdata/providers/lofin/adapter.py`` 모듈 안에서 LofinAdapter의 상태와 동작을 함께 관리한다.
-    주요 메서드: __init__, name, list_datasets, search_datasets, get_dataset.
-
-    속성 설명:
-        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
-    """
+    """LofinAdapter과 관련된 값을 계산하거나 조회한다."""
     requires_api_key: bool = True
 
     transport_requirements: TransportRequirements = TransportRequirements(
@@ -62,20 +54,7 @@ class LofinAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
-        """
-        인스턴스가 사용할 내부 상태를 초기화한다.
-
-        매개변수:
-            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
-            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
-            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """인스턴스가 사용할 내부 상태를 초기화한다."""
         self._config: KPubDataConfig = config or KPubDataConfig()
         if transport is not None:
             self._transport: HttpTransport = transport
@@ -96,42 +75,15 @@ class LofinAdapter:
 
     @property
     def name(self) -> str:
-        """
-        name 동작을 수행한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """name과 관련된 값을 계산하거나 조회한다."""
         return "lofin"
 
     def list_datasets(self) -> list[DatasetRef]:
-        """
-        list datasets 동작을 수행한다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """list datasets과 관련된 값을 계산하거나 조회한다."""
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
-        """
-        search datasets 동작을 수행한다.
-
-        매개변수:
-            text (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """search datasets과 관련된 값을 계산하거나 조회한다."""
         needle = text.casefold()
         return [
             dataset
@@ -140,18 +92,7 @@ class LofinAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
-        """
-        get dataset 동작을 수행한다.
-
-        매개변수:
-            dataset_key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset을 반환한다."""
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -167,19 +108,7 @@ class LofinAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
-        """
-        query records 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """records을 수행한다."""
         page = query.page or 1
         page_size = query.page_size or 100
         logger.debug(
@@ -227,35 +156,11 @@ class LofinAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
-        """
-        get schema 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            SchemaDescriptor | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """schema을 반환한다."""
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """
-        call raw 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str): 호출자가 제공하는 입력 값이다.
-            params (dict[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """call raw과 관련된 값을 계산하거나 조회한다."""
         _ = operation
         logger.debug(
             "lofin call_raw",
@@ -276,15 +181,7 @@ class LofinAdapter:
         return payload
 
     def _require_api_key(self) -> str:
-        """
-        내부 헬퍼로서 require api key 처리를 담당한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 API 키을 읽고 없으면 예외를 발생시킨다."""
         return self._config.require_provider_key("datago")
 
     def _build_request_url(
@@ -295,21 +192,7 @@ class LofinAdapter:
         page_size: int,
         filters: dict[str, object] | None = None,
     ) -> str:
-        """
-        내부 헬퍼로서 build request url 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            page (int): 호출자가 제공하는 입력 값이다.
-            page_size (int): 호출자가 제공하는 입력 값이다.
-            filters (dict[str, object] | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """요청 URL을 구성해 반환한다."""
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
             logger.debug(
@@ -336,19 +219,7 @@ class LofinAdapter:
         return url
 
     def _request_and_decode(self, url: str, dataset_id: str = "") -> dict[str, object]:
-        """
-        내부 헬퍼로서 request and decode 처리를 담당한다.
-
-        매개변수:
-            url (str): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """request and decode과 관련된 값을 계산하거나 조회한다."""
         response = self._transport.request("GET", url, dataset_id=dataset_id, provider="lofin")
 
         try:
@@ -368,19 +239,7 @@ class LofinAdapter:
     def _validate_envelope(
         self, payload: dict[str, object], dataset: DatasetRef
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """
-        내부 헬퍼로서 validate envelope 처리를 담당한다.
-
-        매개변수:
-            payload (dict[str, object]): 호출자가 제공하는 입력 값이다.
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """envelope의 형식을 검증하고 필요한 값을 추출한다."""
         dataset_code = self._require_dataset_metadata(dataset, "api_code")
         body_obj = payload.get(dataset_code)
         if not isinstance(body_obj, list) or not body_obj:
@@ -440,19 +299,7 @@ class LofinAdapter:
         return metadata, items
 
     def _raise_for_top_level_result(self, payload: Mapping[str, object], dataset_id: str) -> None:
-        """
-        내부 헬퍼로서 raise for top level result 처리를 담당한다.
-
-        매개변수:
-            payload (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for top level result과 관련된 값을 계산하거나 조회한다."""
         result_obj = payload.get("RESULT")
         if not isinstance(result_obj, list):
             return
@@ -470,19 +317,7 @@ class LofinAdapter:
         )
 
     def _raise_for_result(self, payload: Mapping[str, object], dataset_id: str) -> None:
-        """
-        내부 헬퍼로서 raise for result 처리를 담당한다.
-
-        매개변수:
-            payload (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for result과 관련된 값을 계산하거나 조회한다."""
         result_obj = payload.get("RESULT")
         if not isinstance(result_obj, dict):
             return
@@ -505,20 +340,7 @@ class LofinAdapter:
         self._raise_for_result_code(code, message, dataset_id)
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
-        """
-        내부 헬퍼로서 raise for result code 처리를 담당한다.
-
-        매개변수:
-            code (str): 호출자가 제공하는 입력 값이다.
-            msg (str): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            NoReturn: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for 결과 코드과 관련된 값을 계산하거나 조회한다."""
         if code in {"ERROR-290", "ERROR-300"}:
             raise AuthError(
                 msg, provider="lofin", provider_code=code, dataset_id=dataset_id or None
@@ -538,19 +360,7 @@ class LofinAdapter:
         )
 
     def _require_dataset_metadata(self, dataset: DatasetRef, key: str) -> str:
-        """
-        내부 헬퍼로서 require dataset metadata 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 dataset metadata을 읽고 없으면 예외를 발생시킨다."""
         value = dataset.raw_metadata.get(key)
         if isinstance(value, str) and value:
             return value
@@ -561,18 +371,7 @@ class LofinAdapter:
         )
 
     def _normalize_rows(self, rows_wrapper: object) -> list[dict[str, object]]:
-        """
-        내부 헬퍼로서 normalize rows 처리를 담당한다.
-
-        매개변수:
-            rows_wrapper (object): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """rows을 정규화해 반환한다."""
         if rows_wrapper is None:
             return []
         if isinstance(rows_wrapper, list):
@@ -584,35 +383,14 @@ class LofinAdapter:
 
     @classmethod
     def _int_param(cls, params: Mapping[str, object], key: str, default: int) -> int:
-        """
-        내부 헬퍼로서 int param 처리를 담당한다.
-
-        매개변수:
-            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-            default (int): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """int param과 관련된 값을 계산하거나 조회한다."""
         value = params.get(key)
         coerced = coerce_int(value, default)
         return coerced if coerced > 0 else default
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
-        """
-        내부 헬퍼로서 load default catalogue 처리를 담당한다.
-
-        반환값:
-            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """기본 카탈로그을 로드해 반환한다."""
         return load_catalogue("kpubdata.providers.lofin", "lofin")
 
 

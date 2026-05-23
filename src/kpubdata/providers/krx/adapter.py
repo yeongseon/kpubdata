@@ -36,15 +36,7 @@ _INVESTOR_LABELS: tuple[tuple[str, str], ...] = (
 
 
 class _StockNamespace(Protocol):
-    """
-    _StockNamespace 관련 역할을 캡슐화하는 클래스.
-
-    이 클래스는 ``src/kpubdata/providers/krx/adapter.py`` 모듈 안에서 _StockNamespace의 상태와 동작을 함께 관리한다.
-    주요 메서드: get_index_ohlcv, get_index_ohlcv_by_date, get_market_trading_value_by_date, get_market_fundamental, get_market_fundamental_by_ticker.
-
-    속성 설명:
-        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
-    """
+    """StockNamespace과 관련된 값을 계산하거나 조회한다."""
     def get_index_ohlcv(self, start_date: str, end_date: str, ticker: str) -> pd.DataFrame: ...
 
     def get_index_ohlcv_by_date(
@@ -86,28 +78,12 @@ class _StockNamespace(Protocol):
 
 
 class _PykrxNamespace(Protocol):
-    """
-    _PykrxNamespace 관련 역할을 캡슐화하는 클래스.
-
-    이 클래스는 ``src/kpubdata/providers/krx/adapter.py`` 모듈 안에서 _PykrxNamespace의 상태와 동작을 함께 관리한다.
-    주요 메서드: 없음.
-
-    속성 설명:
-        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
-    """
+    """PykrxNamespace과 관련된 값을 계산하거나 조회한다."""
     stock: _StockNamespace
 
 
 class KrxAdapter:
-    """
-    KrxAdapter 관련 역할을 캡슐화하는 클래스.
-
-    이 클래스는 ``src/kpubdata/providers/krx/adapter.py`` 모듈 안에서 KrxAdapter의 상태와 동작을 함께 관리한다.
-    주요 메서드: __init__, name, list_datasets, search_datasets, get_dataset.
-
-    속성 설명:
-        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
-    """
+    """KrxAdapter과 관련된 값을 계산하거나 조회한다."""
     requires_api_key: bool = False
 
     def __init__(
@@ -117,20 +93,7 @@ class KrxAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
-        """
-        인스턴스가 사용할 내부 상태를 초기화한다.
-
-        매개변수:
-            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
-            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
-            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """인스턴스가 사용할 내부 상태를 초기화한다."""
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -147,42 +110,15 @@ class KrxAdapter:
 
     @property
     def name(self) -> str:
-        """
-        name 동작을 수행한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """name과 관련된 값을 계산하거나 조회한다."""
         return "krx"
 
     def list_datasets(self) -> list[DatasetRef]:
-        """
-        list datasets 동작을 수행한다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """list datasets과 관련된 값을 계산하거나 조회한다."""
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
-        """
-        search datasets 동작을 수행한다.
-
-        매개변수:
-            text (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """search datasets과 관련된 값을 계산하거나 조회한다."""
         needle = text.casefold()
         return [
             dataset
@@ -194,18 +130,7 @@ class KrxAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
-        """
-        get dataset 동작을 수행한다.
-
-        매개변수:
-            dataset_key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset을 반환한다."""
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -221,19 +146,7 @@ class KrxAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
-        """
-        query records 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """records을 수행한다."""
         resolved_dataset = self.get_dataset(dataset.dataset_key)
         frame = self._dispatch_dataframe(
             resolved_dataset,
@@ -254,35 +167,11 @@ class KrxAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
-        """
-        get schema 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            SchemaDescriptor | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """schema을 반환한다."""
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """
-        call raw 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str): 호출자가 제공하는 입력 값이다.
-            params (dict[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """call raw과 관련된 값을 계산하거나 조회한다."""
         _ = operation
         resolved_dataset = self.get_dataset(dataset.dataset_key)
         frame = self._dispatch_dataframe(
@@ -295,15 +184,7 @@ class KrxAdapter:
         return self._frame_to_records(frame)
 
     def _dataset_handlers(self) -> Mapping[str, Callable[[DatasetRef, Query], pd.DataFrame]]:
-        """
-        내부 헬퍼로서 dataset handlers 처리를 담당한다.
-
-        반환값:
-            Mapping[str, Callable[[DatasetRef, Query], pd.DataFrame]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset handlers과 관련된 값을 계산하거나 조회한다."""
         return {
             "kospi_index": self._fetch_kospi_index,
             "investor_flow": self._fetch_investor_flow,
@@ -311,15 +192,7 @@ class KrxAdapter:
         }
 
     def _dataset_raw_handlers(self) -> Mapping[str, Callable[[DatasetRef, Query], pd.DataFrame]]:
-        """
-        내부 헬퍼로서 dataset raw handlers 처리를 담당한다.
-
-        반환값:
-            Mapping[str, Callable[[DatasetRef, Query], pd.DataFrame]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset raw handlers과 관련된 값을 계산하거나 조회한다."""
         return {
             "kospi_index": self._fetch_kospi_index,
             "investor_flow": self._fetch_investor_flow_raw,
@@ -329,15 +202,7 @@ class KrxAdapter:
     def _dataset_normalizers(
         self,
     ) -> Mapping[str, Callable[[pd.DataFrame, DatasetRef, Query], list[dict[str, object]]]]:
-        """
-        내부 헬퍼로서 dataset normalizers 처리를 담당한다.
-
-        반환값:
-            Mapping[str, Callable[[pd.DataFrame, DatasetRef, Query], list[dict[str, object]]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset normalizers과 관련된 값을 계산하거나 조회한다."""
         return {
             "kospi_index": self._normalize_kospi_index,
             "investor_flow": self._normalize_investor_flow,
@@ -350,20 +215,7 @@ class KrxAdapter:
         query: Query,
         handlers: Mapping[str, Callable[[DatasetRef, Query], pd.DataFrame]],
     ) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 dispatch dataframe 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-            handlers (Mapping[str, Callable[[DatasetRef, Query], pd.DataFrame]]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dispatch dataframe과 관련된 값을 계산하거나 조회한다."""
         handler = handlers.get(dataset.dataset_key)
         if handler is None:
             raise DatasetNotFoundError(
@@ -384,19 +236,7 @@ class KrxAdapter:
             ) from exc
 
     def _fetch_kospi_index(self, dataset: DatasetRef, query: Query) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 fetch kospi index 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """kospi index 데이터를 조회해 반환한다."""
         stock = self._stock_api()
         start_date, end_date = self._require_date_range(dataset, query)
         ticker = self._resolve_string_param(query, "ticker") or self._metadata_default(
@@ -412,19 +252,7 @@ class KrxAdapter:
             raise
 
     def _fetch_investor_flow(self, dataset: DatasetRef, query: Query) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 fetch investor flow 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """investor flow 데이터를 조회해 반환한다."""
         stock = self._stock_api()
         start_date, end_date = self._require_date_range(dataset, query)
         market = self._resolve_string_param(query, "market") or self._metadata_default(
@@ -439,19 +267,7 @@ class KrxAdapter:
         return self._combine_investor_frames(buy_frame, sell_frame)
 
     def _fetch_investor_flow_raw(self, dataset: DatasetRef, query: Query) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 fetch investor flow raw 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """investor flow raw 데이터를 조회해 반환한다."""
         stock = self._stock_api()
         start_date, end_date = self._require_date_range(dataset, query)
         market = self._resolve_string_param(query, "market") or self._metadata_default(
@@ -461,19 +277,7 @@ class KrxAdapter:
         return stock.get_market_trading_value_by_date(start_date, end_date, market, on=on)
 
     def _fetch_market_valuation(self, dataset: DatasetRef, query: Query) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 fetch market valuation 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """market valuation 데이터를 조회해 반환한다."""
         stock = self._stock_api()
         start_date, end_date = self._require_date_range(dataset, query)
         market = self._resolve_string_param(query, "market") or self._metadata_default(
@@ -497,21 +301,7 @@ class KrxAdapter:
         end_date: str,
         market: str,
     ) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 fetch market valuation by day 처리를 담당한다.
-
-        매개변수:
-            stock (_StockNamespace): 호출자가 제공하는 입력 값이다.
-            start_date (str): 호출자가 제공하는 입력 값이다.
-            end_date (str): 호출자가 제공하는 입력 값이다.
-            market (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """market valuation by day 데이터를 조회해 반환한다."""
         rows: list[dict[str, object]] = []
         for day in pd.date_range(
             start=pd.Timestamp(start_date), end=pd.Timestamp(end_date), freq="D"
@@ -543,19 +333,7 @@ class KrxAdapter:
         buy_frame: pd.DataFrame,
         sell_frame: pd.DataFrame,
     ) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 combine investor frames 처리를 담당한다.
-
-        매개변수:
-            buy_frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-            sell_frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """investor frames을 결합해 반환한다."""
         rows: list[dict[str, object]] = []
         for day in buy_frame.index:
             for raw_label, normalized_label in _INVESTOR_LABELS:
@@ -579,18 +357,7 @@ class KrxAdapter:
         return pd.DataFrame(rows)
 
     def _aggregate_market_valuation_frame(self, frame: pd.DataFrame) -> pd.DataFrame:
-        """
-        내부 헬퍼로서 aggregate market valuation frame 처리를 담당한다.
-
-        매개변수:
-            frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            pd.DataFrame: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """market valuation frame을 집계해 반환한다."""
         if isinstance(frame.index, pd.DatetimeIndex):
             return frame
         if "date" in frame.columns:
@@ -603,20 +370,7 @@ class KrxAdapter:
         dataset: DatasetRef,
         query: Query,
     ) -> list[dict[str, object]]:
-        """
-        내부 헬퍼로서 normalize kospi index 처리를 담당한다.
-
-        매개변수:
-            frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """kospi index을 정규화해 반환한다."""
         _ = dataset, query
         records = self._frame_to_records(frame)
         return [
@@ -639,20 +393,7 @@ class KrxAdapter:
         dataset: DatasetRef,
         query: Query,
     ) -> list[dict[str, object]]:
-        """
-        내부 헬퍼로서 normalize investor flow 처리를 담당한다.
-
-        매개변수:
-            frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """investor flow을 정규화해 반환한다."""
         market = self._resolve_string_param(query, "market") or self._metadata_default(
             dataset, "market"
         )
@@ -675,20 +416,7 @@ class KrxAdapter:
         dataset: DatasetRef,
         query: Query,
     ) -> list[dict[str, object]]:
-        """
-        내부 헬퍼로서 normalize market valuation 처리를 담당한다.
-
-        매개변수:
-            frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """market valuation을 정규화해 반환한다."""
         market = self._resolve_string_param(query, "market") or self._metadata_default(
             dataset, "market"
         )
@@ -707,39 +435,15 @@ class KrxAdapter:
         ]
 
     def _load_default_catalogue(self) -> tuple[DatasetRef, ...]:
-        """
-        내부 헬퍼로서 load default catalogue 처리를 담당한다.
-
-        반환값:
-            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """기본 카탈로그을 로드해 반환한다."""
         return load_catalogue("kpubdata.providers.krx", "krx")
 
     def _import_pykrx(self) -> object:
-        """
-        내부 헬퍼로서 import pykrx 처리를 담당한다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """import pykrx과 관련된 값을 계산하거나 조회한다."""
         return importlib.import_module("pykrx")
 
     def _load_pykrx(self) -> _PykrxNamespace:
-        """
-        내부 헬퍼로서 load pykrx 처리를 담당한다.
-
-        반환값:
-            _PykrxNamespace: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """pykrx을 로드해 반환한다."""
         if self._pykrx is not None:
             return self._pykrx
         try:
@@ -750,31 +454,11 @@ class KrxAdapter:
         return self._pykrx
 
     def _stock_api(self) -> _StockNamespace:
-        """
-        내부 헬퍼로서 stock api 처리를 담당한다.
-
-        반환값:
-            _StockNamespace: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """stock api과 관련된 값을 계산하거나 조회한다."""
         return self._load_pykrx().stock
 
     def _require_date_range(self, dataset: DatasetRef, query: Query) -> tuple[str, str]:
-        """
-        내부 헬퍼로서 require date range 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            tuple[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 date range을 읽고 없으면 예외를 발생시킨다."""
         start_date = query.start_date or self._resolve_string_param(query, "start_date")
         end_date = query.end_date or self._resolve_string_param(query, "end_date")
         if start_date is None or end_date is None:
@@ -787,18 +471,7 @@ class KrxAdapter:
 
     @staticmethod
     def _query_from_params(params: Mapping[str, object]) -> Query:
-        """
-        내부 헬퍼로서 query from params 처리를 담당한다.
-
-        매개변수:
-            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            Query: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """from params을 수행한다."""
         query = Query()
         for key, value in params.items():
             if key == "start_date" and isinstance(value, str):
@@ -811,19 +484,7 @@ class KrxAdapter:
 
     @staticmethod
     def _resolve_string_param(query: Query, key: str) -> str | None:
-        """
-        내부 헬퍼로서 resolve string param 처리를 담당한다.
-
-        매개변수:
-            query (Query): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """설정과 기본값을 바탕으로 string param을 결정한다."""
         if key in query.filters:
             filter_value = query.filters[key]
             if isinstance(filter_value, str) and filter_value:
@@ -836,19 +497,7 @@ class KrxAdapter:
 
     @staticmethod
     def _metadata_default(dataset: DatasetRef, key: str) -> str:
-        """
-        내부 헬퍼로서 metadata default 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """metadata default과 관련된 값을 계산하거나 조회한다."""
         raw_value = dataset.raw_metadata.get("default_query_params")
         if isinstance(raw_value, Mapping):
             value = raw_value.get(key)
@@ -862,34 +511,11 @@ class KrxAdapter:
 
     @staticmethod
     def _has_columns(frame: pd.DataFrame, *columns: str) -> bool:
-        """
-        내부 헬퍼로서 has columns 처리를 담당한다.
-
-        매개변수:
-            frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-            *columns (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """columns가 충족되는지 반환한다."""
         return all(column in frame.columns for column in columns)
 
     def _frame_to_records(self, frame: pd.DataFrame) -> list[dict[str, object]]:
-        """
-        내부 헬퍼로서 frame to records 처리를 담당한다.
-
-        매개변수:
-            frame (pd.DataFrame): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """frame to records과 관련된 값을 계산하거나 조회한다."""
         reset_frame = frame.reset_index()
         records = cast(list[dict[str, object]], reset_frame.to_dict(orient="records"))
         return [
@@ -898,36 +524,14 @@ class KrxAdapter:
         ]
 
     def _to_python_value(self, value: object) -> object:
-        """
-        내부 헬퍼로서 to python value 처리를 담당한다.
-
-        매개변수:
-            value (object): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """python value 형태로 변환한다."""
         if isinstance(value, pd.Timestamp):
             return value.strftime("%Y-%m-%d")
         return value
 
     @staticmethod
     def _coerce_numeric_value(value: object) -> int | float:
-        """
-        내부 헬퍼로서 coerce numeric value 처리를 담당한다.
-
-        매개변수:
-            value (object): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            int | float: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """입력값을 numeric value 표현으로 변환한다."""
         if isinstance(value, bool):
             return int(value)
         if isinstance(value, int | float):
@@ -939,18 +543,7 @@ class KrxAdapter:
 
     @staticmethod
     def _format_date(value: object) -> str:
-        """
-        내부 헬퍼로서 format date 처리를 담당한다.
-
-        매개변수:
-            value (object): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """date을 문자열 형식으로 변환한다."""
         if isinstance(value, str):
             if len(value) == 8 and value.isdigit():
                 return datetime.strptime(value, "%Y%m%d").strftime("%Y-%m-%d")

@@ -62,20 +62,7 @@ class KosisAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
-        """
-        인스턴스가 사용할 내부 상태를 초기화한다.
-
-        매개변수:
-            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
-            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
-            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """인스턴스가 사용할 내부 상태를 초기화한다."""
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -91,42 +78,15 @@ class KosisAdapter:
 
     @property
     def name(self) -> str:
-        """
-        name 동작을 수행한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """name과 관련된 값을 계산하거나 조회한다."""
         return "kosis"
 
     def list_datasets(self) -> list[DatasetRef]:
-        """
-        list datasets 동작을 수행한다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """list datasets과 관련된 값을 계산하거나 조회한다."""
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
-        """
-        search datasets 동작을 수행한다.
-
-        매개변수:
-            text (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """search datasets과 관련된 값을 계산하거나 조회한다."""
         needle = text.casefold()
         return [
             dataset
@@ -135,18 +95,7 @@ class KosisAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
-        """
-        get dataset 동작을 수행한다.
-
-        매개변수:
-            dataset_key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset을 반환한다."""
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -162,19 +111,7 @@ class KosisAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
-        """
-        query records 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """records을 수행한다."""
         _page_size = query.page_size or 100
         logger.debug(
             "kosis query_records",
@@ -211,35 +148,11 @@ class KosisAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
-        """
-        get schema 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            SchemaDescriptor | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """schema을 반환한다."""
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """
-        call raw 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str): 호출자가 제공하는 입력 값이다.
-            params (dict[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """call raw과 관련된 값을 계산하거나 조회한다."""
         logger.debug(
             "kosis call_raw",
             extra={
@@ -255,31 +168,11 @@ class KosisAdapter:
         return payload
 
     def _require_api_key(self) -> str:
-        """
-        내부 헬퍼로서 require api key 처리를 담당한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 API 키을 읽고 없으면 예외를 발생시킨다."""
         return self._config.require_provider_key("kosis")
 
     def _build_request_url(self, dataset: DatasetRef, query: Query) -> str:
-        """
-        내부 헬퍼로서 build request url 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """요청 URL을 구성해 반환한다."""
         start_date = query.start_date
         end_date = query.end_date
         if not isinstance(start_date, str) or not start_date:
@@ -320,20 +213,7 @@ class KosisAdapter:
         operation: str,
         params: Mapping[str, object],
     ) -> str:
-        """
-        내부 헬퍼로서 build raw url 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str): 호출자가 제공하는 입력 값이다.
-            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raw url을 구성해 반환한다."""
         request_params = self._build_base_params(dataset)
         selected_operation = operation.strip()
         if selected_operation and selected_operation != "statisticsParameterData":
@@ -344,18 +224,7 @@ class KosisAdapter:
         return self._compose_url(dataset, request_params)
 
     def _build_base_params(self, dataset: DatasetRef) -> dict[str, str]:
-        """
-        내부 헬퍼로서 build base params 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """기본 파라미터을 구성해 반환한다."""
         api_key = self._require_api_key()
         org_id = self._require_dataset_metadata(dataset, "org_id")
         tbl_id = self._require_dataset_metadata(dataset, "tbl_id")
@@ -382,18 +251,7 @@ class KosisAdapter:
 
     @staticmethod
     def _get_default_query_params(dataset: DatasetRef) -> dict[str, str]:
-        """
-        내부 헬퍼로서 get default query params 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """default query params을 반환한다."""
         raw_defaults = dataset.raw_metadata.get("default_query_params")
         if not isinstance(raw_defaults, Mapping):
             return {}
@@ -407,37 +265,13 @@ class KosisAdapter:
         return default_query_params
 
     def _compose_url(self, dataset: DatasetRef, params: Mapping[str, str]) -> str:
-        """
-        내부 헬퍼로서 compose url 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            params (Mapping[str, str]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """compose url과 관련된 값을 계산하거나 조회한다."""
         base_url = self._require_dataset_metadata(dataset, "base_url")
         query_string = urlencode(params)
         return f"{base_url}?{query_string}"
 
     def _request_and_decode(self, url: str, dataset_id: str) -> object:
-        """
-        내부 헬퍼로서 request and decode 처리를 담당한다.
-
-        매개변수:
-            url (str): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """request and decode과 관련된 값을 계산하거나 조회한다."""
         response = self._transport.request("GET", url, dataset_id=dataset_id, provider="kosis")
 
         try:
@@ -456,19 +290,7 @@ class KosisAdapter:
         raise ParseError("Decoded payload is neither an object nor an array", provider="kosis")
 
     def _extract_items(self, payload: object, dataset_id: str) -> list[dict[str, object]]:
-        """
-        내부 헬퍼로서 extract items 처리를 담당한다.
-
-        매개변수:
-            payload (object): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """items에서 필요한 값을 추출한다."""
         if isinstance(payload, dict):
             self._raise_for_error_payload(cast(dict[str, object], payload), dataset_id)
 
@@ -487,19 +309,7 @@ class KosisAdapter:
         return [cast(dict[str, object], item) for item in payload_items if isinstance(item, dict)]
 
     def _raise_for_error_payload(self, payload: Mapping[str, object], dataset_id: str) -> NoReturn:
-        """
-        내부 헬퍼로서 raise for error payload 처리를 담당한다.
-
-        매개변수:
-            payload (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            NoReturn: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for error payload과 관련된 값을 계산하거나 조회한다."""
         code_raw = payload.get("err")
         message_raw = payload.get("errMsg")
         code = code_raw if isinstance(code_raw, str) else None
@@ -536,19 +346,7 @@ class KosisAdapter:
 
     @staticmethod
     def _require_dataset_metadata(dataset: DatasetRef, field_name: str) -> str:
-        """
-        내부 헬퍼로서 require dataset metadata 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            field_name (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 dataset metadata을 읽고 없으면 예외를 발생시킨다."""
         value = dataset.raw_metadata.get(field_name)
         if isinstance(value, str) and value:
             return value
@@ -560,15 +358,7 @@ class KosisAdapter:
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
-        """
-        내부 헬퍼로서 load default catalogue 처리를 담당한다.
-
-        반환값:
-            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """기본 카탈로그을 로드해 반환한다."""
         return load_catalogue("kpubdata.providers.kosis", "kosis")
 
 
