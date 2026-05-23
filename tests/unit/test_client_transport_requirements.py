@@ -28,6 +28,7 @@ class _AdapterWithoutRequirements:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     instances: list[object] = []
 
     def __init__(self, *, config: object, transport: HttpTransport) -> None:
@@ -162,6 +163,7 @@ class _AdapterWithRequirements:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     instances: list[object] = []
 
     def __init__(self, *, config: object, transport: HttpTransport) -> None:

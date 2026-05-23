@@ -22,6 +22,7 @@ class _Adapter:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     @property
     def name(self) -> str:
         """
@@ -302,6 +303,7 @@ def test_user_adapter_overrides_builtin() -> None:
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
+
     class _DatagoOverride(_Adapter):
         """
         _DatagoOverride 관련 역할을 캡슐화하는 클래스.
@@ -312,6 +314,7 @@ def test_user_adapter_overrides_builtin() -> None:
         속성 설명:
             생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
         """
+
         @property
         def name(self) -> str:
             """

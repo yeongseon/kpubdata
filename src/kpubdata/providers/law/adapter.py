@@ -23,6 +23,7 @@ logger = logging.getLogger("kpubdata.provider.law")
 
 class LawAdapter:
     """LawAdapter과 관련된 값을 계산하거나 조회한다."""
+
     requires_api_key: bool = True
 
     def __init__(

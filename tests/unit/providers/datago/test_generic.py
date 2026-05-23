@@ -28,6 +28,7 @@ class FakeResponse:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, payload: object, content_type: str = "application/json") -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -57,6 +58,7 @@ class FakeTransport:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, responses: list[FakeResponse]) -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -142,6 +144,7 @@ class TestDataGoGenericDataset:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test generic dataset in catalogue 테스트가 검증하는 시나리오를 설명한다.
     def test_generic_dataset_in_catalogue(self) -> None:
         """

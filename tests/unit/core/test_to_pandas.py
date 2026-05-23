@@ -40,6 +40,7 @@ class _FakeDataFrame:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     _data: list[dict[str, object]]
     columns: list[str]
 
@@ -82,6 +83,7 @@ class _FakePandasModule(ModuleType):
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     DataFrame: type[_FakeDataFrame] = _FakeDataFrame
 
 
@@ -204,6 +206,7 @@ def test_to_pandas_real_pandas_if_available() -> None:
         속성 설명:
             생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
         """
+
         shape: tuple[int, int]
         columns: list[str]
 
@@ -217,6 +220,7 @@ def test_to_pandas_real_pandas_if_available() -> None:
         속성 설명:
             생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
         """
+
         DataFrame: type[_DataFrameLike]
 
     pd = cast(_PandasModule, pytest.importorskip("pandas"))

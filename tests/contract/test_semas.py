@@ -61,6 +61,7 @@ class _FakeResponse:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, data: bytes, content_type: str = "application/json") -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -90,6 +91,7 @@ class _FixtureTransport:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, fixture_names: list[str]) -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -138,6 +140,7 @@ class _AdapterFactory(Protocol):
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __call__(
         self,
         *,
@@ -182,6 +185,7 @@ class TestSemasAdapterContract(ProviderAdapterContract):
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     @pytest.fixture()
     def adapter(self) -> ProviderAdapter:
         """

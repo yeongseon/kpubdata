@@ -28,6 +28,7 @@ class _FakeAdapter:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     name = "fake"
 
     def __init__(self) -> None:
@@ -213,6 +214,7 @@ class TestClientLogging:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test init emits debug 테스트가 검증하는 시나리오를 설명한다.
     def test_init_emits_debug(self, caplog: pytest.LogCaptureFixture) -> None:
         """
@@ -300,6 +302,7 @@ class TestRegistryLogging:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test register logs 테스트가 검증하는 시나리오를 설명한다.
     def test_register_logs(self, caplog: pytest.LogCaptureFixture) -> None:
         """
@@ -387,6 +390,7 @@ class TestCatalogLogging:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test list logs 테스트가 검증하는 시나리오를 설명한다.
     def test_list_logs(self, fake_client: Client, caplog: pytest.LogCaptureFixture) -> None:
         """
@@ -499,6 +503,7 @@ class TestDatasetLogging:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test list logs 테스트가 검증하는 시나리오를 설명한다.
     def test_list_logs(self, fake_client: Client, caplog: pytest.LogCaptureFixture) -> None:
         """
@@ -592,6 +597,7 @@ class TestDatasetLogging:
             속성 설명:
                 생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
             """
+
             name = "fake"
 
             def __init__(self) -> None:
@@ -686,6 +692,7 @@ class TestDecodeLogging:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     # test json parse failure logs 테스트가 검증하는 시나리오를 설명한다.
     def test_json_parse_failure_logs(self, caplog: pytest.LogCaptureFixture) -> None:
         """

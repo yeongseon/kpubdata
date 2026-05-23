@@ -187,7 +187,8 @@ class Client:
                 """Provider 모듈을 늦게 import하는 어댑터 생성 함수를 만든다."""
 
                 def _factory() -> ProviderAdapter:
-                    """Provider 클래스를 로드하고 필요하면 전용 HttpTransport를 붙여 인스턴스를 만든다."""
+                    """Provider 클래스를 로드하고 필요하면 전용 HttpTransport를 붙여
+                    인스턴스를 만든다."""
                     import importlib
 
                     module = importlib.import_module(mod)

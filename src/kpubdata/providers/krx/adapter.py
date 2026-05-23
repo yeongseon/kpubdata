@@ -37,6 +37,7 @@ _INVESTOR_LABELS: tuple[tuple[str, str], ...] = (
 
 class _StockNamespace(Protocol):
     """StockNamespace과 관련된 값을 계산하거나 조회한다."""
+
     def get_index_ohlcv(self, start_date: str, end_date: str, ticker: str) -> pd.DataFrame: ...
 
     def get_index_ohlcv_by_date(
@@ -79,11 +80,13 @@ class _StockNamespace(Protocol):
 
 class _PykrxNamespace(Protocol):
     """PykrxNamespace과 관련된 값을 계산하거나 조회한다."""
+
     stock: _StockNamespace
 
 
 class KrxAdapter:
     """KrxAdapter과 관련된 값을 계산하거나 조회한다."""
+
     requires_api_key: bool = False
 
     def __init__(

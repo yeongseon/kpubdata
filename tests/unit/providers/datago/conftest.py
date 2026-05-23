@@ -80,6 +80,7 @@ class FakeResponse:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, data: bytes, content_type: str = "application/json") -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -109,6 +110,7 @@ class FixtureTransport:
     속성 설명:
         생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
     """
+
     def __init__(self, fixture_names: list[str], content_type: str = "application/json") -> None:
         """
         인스턴스가 사용할 내부 상태를 초기화한다.
@@ -163,6 +165,7 @@ def configured_adapter() -> Callable[
     예외:
         구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
     """
+
     def _build(
         fixture_names: list[str],
         content_type: str = "application/json",
