@@ -1,3 +1,9 @@
+"""KPubData Python 모듈.
+
+이 파일은 ``src/kpubdata/providers/localdata/adapter.py`` 경로의 구현을 담는다.
+주요 클래스와 함수는 공개 API, 전송 계층, Provider 어댑터 중 하나의 역할을 담당한다.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -23,6 +29,18 @@ logger = logging.getLogger("kpubdata.provider.localdata")
 
 
 def _is_success_code(code: str) -> bool:
+    """
+    내부 헬퍼로서 is success code 처리를 담당한다.
+
+    매개변수:
+        code (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     try:
         return int(code) == 0
     except ValueError:
@@ -30,6 +48,15 @@ def _is_success_code(code: str) -> bool:
 
 
 class LocaldataAdapter:
+    """
+    LocaldataAdapter 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``src/kpubdata/providers/localdata/adapter.py`` 모듈 안에서 LocaldataAdapter의 상태와 동작을 함께 관리한다.
+    주요 메서드: __init__, name, list_datasets, search_datasets, get_dataset.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     requires_api_key: bool = True
 
     def __init__(
@@ -39,6 +66,20 @@ class LocaldataAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
+            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
+            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -54,12 +95,42 @@ class LocaldataAdapter:
 
     @property
     def name(self) -> str:
+        """
+        name 동작을 수행한다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return "localdata"
 
     def list_datasets(self) -> list[DatasetRef]:
+        """
+        list datasets 동작을 수행한다.
+
+        반환값:
+            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
+        """
+        search datasets 동작을 수행한다.
+
+        매개변수:
+            text (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         needle = text.casefold()
         return [
             dataset
@@ -68,6 +139,18 @@ class LocaldataAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
+        """
+        get dataset 동작을 수행한다.
+
+        매개변수:
+            dataset_key (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -83,6 +166,19 @@ class LocaldataAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
+        """
+        query records 동작을 수행한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            query (Query): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         page = query.page or 1
         page_size = query.page_size or 100
         logger.debug(
@@ -138,9 +234,35 @@ class LocaldataAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
+        """
+        get schema 동작을 수행한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            SchemaDescriptor | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
+        """
+        call raw 동작을 수행한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            operation (str): 호출자가 제공하는 입력 값이다.
+            params (dict[str, object]): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         logger.debug(
             "localdata call_raw",
             extra={
@@ -162,9 +284,31 @@ class LocaldataAdapter:
         return payload
 
     def _require_api_key(self) -> str:
+        """
+        내부 헬퍼로서 require api key 처리를 담당한다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._config.require_provider_key("datago")
 
     def _build_request_url(self, dataset: DatasetRef, operation: str | None = None) -> str:
+        """
+        내부 헬퍼로서 build request url 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            operation (str | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
             logger.debug(
@@ -183,6 +327,18 @@ class LocaldataAdapter:
         return base_url_raw
 
     def _build_base_params(self, dataset: DatasetRef) -> dict[str, str]:
+        """
+        내부 헬퍼로서 build base params 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         api_key = self._require_api_key()
         service_key_param_raw = dataset.raw_metadata.get("service_key_param", "serviceKey")
         format_param_raw = dataset.raw_metadata.get("format_param", "type")
@@ -199,6 +355,20 @@ class LocaldataAdapter:
     def _request_and_decode(
         self, url: str, params: Mapping[str, object], dataset_id: str
     ) -> dict[str, object]:
+        """
+        내부 헬퍼로서 request and decode 처리를 담당한다.
+
+        매개변수:
+            url (str): 호출자가 제공하는 입력 값이다.
+            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         string_params = {key: str(value) for key, value in params.items()}
         response = self._transport.request(
             "GET",
@@ -232,6 +402,19 @@ class LocaldataAdapter:
     def _validate_envelope(
         self, payload: dict[str, object], dataset_id: str = ""
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        """
+        내부 헬퍼로서 validate envelope 처리를 담당한다.
+
+        매개변수:
+            payload (dict[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         response_obj = payload.get("response")
         if not isinstance(response_obj, dict):
             raise ProviderResponseError(
@@ -278,6 +461,20 @@ class LocaldataAdapter:
         return body_dict, items
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
+        """
+        내부 헬퍼로서 raise for result code 처리를 담당한다.
+
+        매개변수:
+            code (str): 호출자가 제공하는 입력 값이다.
+            msg (str): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            NoReturn: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if code in {"30", "31", "20", "32"}:
             raise AuthError(msg, provider="localdata", provider_code=code)
         if code == "22":
@@ -296,6 +493,18 @@ class LocaldataAdapter:
         raise ProviderResponseError(msg, provider="localdata", provider_code=code)
 
     def _normalize_items(self, items_wrapper: object) -> list[dict[str, object]]:
+        """
+        내부 헬퍼로서 normalize items 처리를 담당한다.
+
+        매개변수:
+            items_wrapper (object): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if items_wrapper is None:
             return []
 
@@ -322,6 +531,15 @@ class LocaldataAdapter:
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
+        """
+        내부 헬퍼로서 load default catalogue 처리를 담당한다.
+
+        반환값:
+            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return load_catalogue("kpubdata.providers.localdata", "localdata")
 
 

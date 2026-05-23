@@ -1,3 +1,9 @@
+"""KPubData Python 모듈.
+
+이 파일은 ``src/kpubdata/providers/law/adapter.py`` 경로의 구현을 담는다.
+주요 클래스와 함수는 공개 API, 전송 계층, Provider 어댑터 중 하나의 역할을 담당한다.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -16,6 +22,15 @@ logger = logging.getLogger("kpubdata.provider.law")
 
 
 class LawAdapter:
+    """
+    LawAdapter 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``src/kpubdata/providers/law/adapter.py`` 모듈 안에서 LawAdapter의 상태와 동작을 함께 관리한다.
+    주요 메서드: __init__, name, list_datasets, search_datasets, get_dataset.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     requires_api_key: bool = True
 
     def __init__(
@@ -25,6 +40,20 @@ class LawAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
+            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
+            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -40,12 +69,42 @@ class LawAdapter:
 
     @property
     def name(self) -> str:
+        """
+        name 동작을 수행한다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return "law"
 
     def list_datasets(self) -> list[DatasetRef]:
+        """
+        list datasets 동작을 수행한다.
+
+        반환값:
+            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
+        """
+        search datasets 동작을 수행한다.
+
+        매개변수:
+            text (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         needle = text.casefold()
         return [
             dataset
@@ -54,6 +113,18 @@ class LawAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
+        """
+        get dataset 동작을 수행한다.
+
+        매개변수:
+            dataset_key (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -69,6 +140,19 @@ class LawAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
+        """
+        query records 동작을 수행한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            query (Query): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         page = query.page or 1
         page_size = query.page_size or self._default_page_size(dataset)
         logger.debug(
@@ -113,9 +197,35 @@ class LawAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
+        """
+        get schema 동작을 수행한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            SchemaDescriptor | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
+        """
+        call raw 동작을 수행한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            operation (str): 호출자가 제공하는 입력 값이다.
+            params (dict[str, object]): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         logger.debug(
             "law call_raw",
             extra={
@@ -141,6 +251,15 @@ class LawAdapter:
         return self._request_and_decode(url, dataset.id)
 
     def _require_api_key(self) -> str:
+        """
+        내부 헬퍼로서 require api key 처리를 담당한다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._config.require_provider_key("law")
 
     def _build_request_url(
@@ -152,6 +271,22 @@ class LawAdapter:
         page_size: int,
         operation: str | None = None,
     ) -> str:
+        """
+        내부 헬퍼로서 build request url 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            params (Mapping[str, object] | None): 호출자가 제공하는 입력 값이다.
+            page (int): 호출자가 제공하는 입력 값이다.
+            page_size (int): 호출자가 제공하는 입력 값이다.
+            operation (str | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         base_url = self._require_dataset_metadata(dataset, "base_url")
         request_params: dict[str, str] = {
             "OC": self._require_api_key(),
@@ -175,6 +310,19 @@ class LawAdapter:
         return f"{base_url}?{urlencode(request_params)}"
 
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
+        """
+        내부 헬퍼로서 request and decode 처리를 담당한다.
+
+        매개변수:
+            url (str): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         response = self._transport.request("GET", url, dataset_id=dataset_id, provider="law")
 
         try:
@@ -195,6 +343,19 @@ class LawAdapter:
     def _extract_items(
         self, payload: dict[str, object], dataset: DatasetRef
     ) -> list[dict[str, object]]:
+        """
+        내부 헬퍼로서 extract items 처리를 담당한다.
+
+        매개변수:
+            payload (dict[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         item_key = self._require_dataset_metadata(dataset, "item_key")
         items_obj = payload.get(item_key)
         if items_obj is None:
@@ -211,6 +372,19 @@ class LawAdapter:
         )
 
     def _raise_for_error_payload(self, payload: Mapping[str, object], dataset_id: str) -> None:
+        """
+        내부 헬퍼로서 raise for error payload 처리를 담당한다.
+
+        매개변수:
+            payload (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         result_code = payload.get("resultCode")
         result_msg = payload.get("resultMsg") or payload.get("message") or payload.get("error")
 
@@ -223,6 +397,20 @@ class LawAdapter:
                 self._raise_provider_error("AUTH", result_msg, dataset_id)
 
     def _raise_provider_error(self, code: str, message: object, dataset_id: str) -> None:
+        """
+        내부 헬퍼로서 raise provider error 처리를 담당한다.
+
+        매개변수:
+            code (str): 호출자가 제공하는 입력 값이다.
+            message (object): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         resolved_message = (
             message if isinstance(message, str) and message else "Provider returned error"
         )
@@ -242,6 +430,19 @@ class LawAdapter:
         )
 
     def _require_dataset_metadata(self, dataset: DatasetRef, key: str) -> str:
+        """
+        내부 헬퍼로서 require dataset metadata 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            key (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         value = dataset.raw_metadata.get(key)
         if isinstance(value, str) and value:
             return value
@@ -252,9 +453,33 @@ class LawAdapter:
         )
 
     def _default_operation(self, dataset: DatasetRef) -> str:
+        """
+        내부 헬퍼로서 default operation 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._require_dataset_metadata(dataset, "default_operation")
 
     def _default_page_size(self, dataset: DatasetRef) -> int:
+        """
+        내부 헬퍼로서 default page size 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         max_page_size = (
             dataset.query_support.max_page_size if dataset.query_support is not None else None
         )
@@ -262,6 +487,20 @@ class LawAdapter:
 
     @classmethod
     def _int_param(cls, params: Mapping[str, object], key: str, default: int) -> int:
+        """
+        내부 헬퍼로서 int param 처리를 담당한다.
+
+        매개변수:
+            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
+            key (str): 호출자가 제공하는 입력 값이다.
+            default (int): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         value = params.get(key)
         if isinstance(value, int):
             return value
@@ -272,4 +511,13 @@ class LawAdapter:
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
+        """
+        내부 헬퍼로서 load default catalogue 처리를 담당한다.
+
+        반환값:
+            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return load_catalogue("kpubdata.providers.law", "law")

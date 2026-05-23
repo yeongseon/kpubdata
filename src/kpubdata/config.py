@@ -104,15 +104,52 @@ class KPubDataConfig:
 
 
 def _normalize_provider_name(provider: str) -> str:
+    """
+    내부 헬퍼로서 normalize provider name 처리를 담당한다.
+
+    매개변수:
+        provider (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     return provider.strip().lower()
 
 
 def _provider_env_token(provider: str) -> str:
+    """
+    내부 헬퍼로서 provider env token 처리를 담당한다.
+
+    매개변수:
+        provider (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     token = re.sub(r"[^A-Za-z0-9]", "_", provider)
     return token.upper()
 
 
 def _get_explicit_key(provider_keys: dict[str, str], provider: str) -> str | None:
+    """
+    내부 헬퍼로서 get explicit key 처리를 담당한다.
+
+    매개변수:
+        provider_keys (dict[str, str]): 호출자가 제공하는 입력 값이다.
+        provider (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if provider in provider_keys and provider_keys[provider]:
         return provider_keys[provider]
 

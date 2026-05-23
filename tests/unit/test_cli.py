@@ -1,3 +1,9 @@
+"""테스트 모듈.
+
+이 파일은 ``tests/unit/test_cli.py`` 경로의 테스트 시나리오와 보조 객체를 정의한다.
+회귀 방지와 공개 계약 검증을 위해 핵심 흐름, 예외, 가장자리 조건을 확인한다.
+"""
+
 from __future__ import annotations
 
 import json
@@ -20,6 +26,15 @@ main = cli_module.main
 
 
 def _make_ref() -> DatasetRef:
+    """
+    내부 헬퍼로서 make ref 처리를 담당한다.
+
+    반환값:
+        DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     return DatasetRef(
         id="bok.base_rate",
         provider="bok",
@@ -37,26 +52,104 @@ def _make_ref() -> DatasetRef:
 
 
 class FakeCatalog:
+    """
+    FakeCatalog 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``tests/unit/test_cli.py`` 모듈 안에서 FakeCatalog의 상태와 동작을 함께 관리한다.
+    주요 메서드: __init__, list, resolve.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     def __init__(self, dataset_ref: DatasetRef) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            dataset_ref (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self._dataset_ref: DatasetRef = dataset_ref
 
     def list(self, *, provider: str | None = None) -> list[DatasetRef]:
+        """
+        list 동작을 수행한다.
+
+        매개변수:
+            provider (str | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if provider is not None and provider != self._dataset_ref.provider:
             return []
         return [self._dataset_ref]
 
     def resolve(self, dataset_id: str) -> tuple[object, DatasetRef]:
+        """
+        resolve 동작을 수행한다.
+
+        매개변수:
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            tuple[object, DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if dataset_id != self._dataset_ref.id:
             raise DatasetNotFoundError(f"Dataset not found: {dataset_id}", dataset_id=dataset_id)
         return object(), self._dataset_ref
 
 
 class FakeDataset:
+    """
+    FakeDataset 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``tests/unit/test_cli.py`` 모듈 안에서 FakeDataset의 상태와 동작을 함께 관리한다.
+    주요 메서드: __init__, list, list_all, call_raw.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     def __init__(self, dataset_ref: DatasetRef) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            dataset_ref (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self.ref: DatasetRef = dataset_ref
         self.list_calls: list[dict[str, object]] = []
 
     def list(self, **kwargs: object) -> RecordBatch:
+        """
+        list 동작을 수행한다.
+
+        매개변수:
+            **kwargs (object): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self.list_calls.append(kwargs)
         return RecordBatch(
             items=[
@@ -67,21 +160,79 @@ class FakeDataset:
         )
 
     def list_all(self, **kwargs: object) -> Generator[RecordBatch, None, None]:
+        """
+        list all 동작을 수행한다.
+
+        매개변수:
+            **kwargs (object): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            Generator[RecordBatch, None, None]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self.list_calls.append(kwargs)
         yield RecordBatch(items=[{"TIME": "202401", "DATA_VALUE": "3.5"}], dataset=self.ref)
         yield RecordBatch(items=[{"TIME": "202402", "DATA_VALUE": "3.5"}], dataset=self.ref)
 
     def call_raw(self, operation: str, **params: object) -> object:
+        """
+        call raw 동작을 수행한다.
+
+        매개변수:
+            operation (str): 호출자가 제공하는 입력 값이다.
+            **params (object): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return {"operation": operation, "params": params}
 
 
 class FakeClient:
+    """
+    FakeClient 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``tests/unit/test_cli.py`` 모듈 안에서 FakeClient의 상태와 동작을 함께 관리한다.
+    주요 메서드: __init__, dataset, close.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     def __init__(self, dataset_ref: DatasetRef) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            dataset_ref (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self.datasets: FakeCatalog = FakeCatalog(dataset_ref)
         self.dataset_stub: FakeDataset = FakeDataset(dataset_ref)
         self.closed: bool = False
 
     def dataset(self, dataset_id: str) -> FakeDataset:
+        """
+        dataset 동작을 수행한다.
+
+        매개변수:
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            FakeDataset: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if dataset_id != self.dataset_stub.ref.id:
             raise DatasetNotFoundError(f"Dataset not found: {dataset_id}", dataset_id=dataset_id)
         logging.getLogger("kpubdata.client").debug(
@@ -90,26 +241,94 @@ class FakeClient:
         return self.dataset_stub
 
     def close(self) -> None:
+        """
+        close 동작을 수행한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self.closed = True
 
 
 @final
 class RaisingClient(FakeClient):
+    """
+    RaisingClient 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``tests/unit/test_cli.py`` 모듈 안에서 RaisingClient의 상태와 동작을 함께 관리한다.
+    주요 메서드: __init__, dataset.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     def __init__(self, dataset_ref: DatasetRef, exc: Exception) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            dataset_ref (DatasetRef): 호출자가 제공하는 입력 값이다.
+            exc (Exception): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         super().__init__(dataset_ref)
         self._exc: Exception = exc
 
     @override
     def dataset(self, dataset_id: str) -> FakeDataset:
+        """
+        dataset 동작을 수행한다.
+
+        매개변수:
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            FakeDataset: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         _ = dataset_id
         raise self._exc
 
 
 @pytest.fixture
 def fake_client(monkeypatch: pytest.MonkeyPatch) -> FakeClient:
+    """
+    fake client 동작을 수행한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        FakeClient: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     client = FakeClient(_make_ref())
 
     def _fake_create_client(*, cache_enabled: bool, provider_keys: dict[str, str]) -> FakeClient:
+        """
+        내부 헬퍼로서 fake create client 처리를 담당한다.
+
+        매개변수:
+            cache_enabled (bool): 호출자가 제공하는 입력 값이다.
+            provider_keys (dict[str, str]): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            FakeClient: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         _ = cache_enabled, provider_keys
         return client
 
@@ -117,7 +336,23 @@ def fake_client(monkeypatch: pytest.MonkeyPatch) -> FakeClient:
     return client
 
 
+# test version prints and exits zero 테스트가 검증하는 시나리오를 설명한다.
 def test_version_prints_and_exits_zero(capsys: pytest.CaptureFixture[str]) -> None:
+    """
+    test version prints and exits zero 시나리오를 검증한다.
+
+    매개변수:
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     exit_code = main(["--version"])
 
     captured = capsys.readouterr()
@@ -127,7 +362,23 @@ def test_version_prints_and_exits_zero(capsys: pytest.CaptureFixture[str]) -> No
     assert captured.out.strip()
 
 
+# test main without command prints help 테스트가 검증하는 시나리오를 설명한다.
 def test_main_without_command_prints_help(capsys: pytest.CaptureFixture[str]) -> None:
+    """
+    test main without command prints help 시나리오를 검증한다.
+
+    매개변수:
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     exit_code = main([])
 
     captured = capsys.readouterr()
@@ -137,9 +388,26 @@ def test_main_without_command_prints_help(capsys: pytest.CaptureFixture[str]) ->
     assert captured.err == ""
 
 
+# test datasets list json outputs valid json 테스트가 검증하는 시나리오를 설명한다.
 def test_datasets_list_json_outputs_valid_json(
     fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test datasets list json outputs valid json 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     exit_code = main(["datasets", "list", "--format", "json"])
 
     captured = capsys.readouterr()
@@ -158,9 +426,26 @@ def test_datasets_list_json_outputs_valid_json(
     assert fake_client.closed is True
 
 
+# test datasets show json outputs metadata 테스트가 검증하는 시나리오를 설명한다.
 def test_datasets_show_json_outputs_metadata(
     fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test datasets show json outputs metadata 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     exit_code = main(["datasets", "show", "bok.base_rate", "--format", "json"])
 
     captured = capsys.readouterr()
@@ -181,9 +466,26 @@ def test_datasets_show_json_outputs_metadata(
     assert fake_client.closed is True
 
 
+# test fetch csv calls dataset list with kwargs and emits csv 테스트가 검증하는 시나리오를 설명한다.
 def test_fetch_csv_calls_dataset_list_with_kwargs_and_emits_csv(
     fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test fetch csv calls dataset list with kwargs and emits csv 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     exit_code = main(
         [
             "fetch",
@@ -205,7 +507,24 @@ def test_fetch_csv_calls_dataset_list_with_kwargs_and_emits_csv(
     assert captured.err == ""
 
 
+# test fetch all json writes output file 테스트가 검증하는 시나리오를 설명한다.
 def test_fetch_all_json_writes_output_file(fake_client: FakeClient, tmp_path: Path) -> None:
+    """
+    test fetch all json writes output file 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        tmp_path (Path): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     output_file = tmp_path / "records.json"
 
     exit_code = main(
@@ -232,7 +551,24 @@ def test_fetch_all_json_writes_output_file(fake_client: FakeClient, tmp_path: Pa
     ]
 
 
+# test raw writes pretty json to output file 테스트가 검증하는 시나리오를 설명한다.
 def test_raw_writes_pretty_json_to_output_file(fake_client: FakeClient, tmp_path: Path) -> None:
+    """
+    test raw writes pretty json to output file 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        tmp_path (Path): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     output_file = tmp_path / "raw.json"
 
     exit_code = main(
@@ -257,9 +593,26 @@ def test_raw_writes_pretty_json_to_output_file(fake_client: FakeClient, tmp_path
     assert fake_client.closed is True
 
 
+# test invalid dataset id returns exit two and stderr 테스트가 검증하는 시나리오를 설명한다.
 def test_invalid_dataset_id_returns_exit_two_and_stderr(
     fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test invalid dataset id returns exit two and stderr 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     exit_code = main(["datasets", "show", "bok.unknown", "--format", "json"])
 
     captured = capsys.readouterr()
@@ -270,9 +623,26 @@ def test_invalid_dataset_id_returns_exit_two_and_stderr(
     assert fake_client.closed is True
 
 
+# test invalid param format returns exit two 테스트가 검증하는 시나리오를 설명한다.
 def test_invalid_param_format_returns_exit_two(
     fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test invalid param format returns exit two 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     exit_code = main(["fetch", "bok.base_rate", "-p", "invalid"])
 
     captured = capsys.readouterr()
@@ -283,12 +653,42 @@ def test_invalid_param_format_returns_exit_two(
     assert fake_client.closed is True
 
 
+# test auth error returns exit three 테스트가 검증하는 시나리오를 설명한다.
 def test_auth_error_returns_exit_three(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test auth error returns exit three 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     client = RaisingClient(_make_ref(), AuthError("bad key"))
 
     def _fake_create_client(*, cache_enabled: bool, provider_keys: dict[str, str]) -> RaisingClient:
+        """
+        내부 헬퍼로서 fake create client 처리를 담당한다.
+
+        매개변수:
+            cache_enabled (bool): 호출자가 제공하는 입력 값이다.
+            provider_keys (dict[str, str]): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            RaisingClient: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         _ = cache_enabled, provider_keys
         return client
 
@@ -303,12 +703,42 @@ def test_auth_error_returns_exit_three(
     assert client.closed is True
 
 
+# test transport error returns exit four 테스트가 검증하는 시나리오를 설명한다.
 def test_transport_error_returns_exit_four(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test transport error returns exit four 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     client = RaisingClient(_make_ref(), TransportError("network down"))
 
     def _fake_create_client(*, cache_enabled: bool, provider_keys: dict[str, str]) -> RaisingClient:
+        """
+        내부 헬퍼로서 fake create client 처리를 담당한다.
+
+        매개변수:
+            cache_enabled (bool): 호출자가 제공하는 입력 값이다.
+            provider_keys (dict[str, str]): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            RaisingClient: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         _ = cache_enabled, provider_keys
         return client
 
@@ -323,12 +753,42 @@ def test_transport_error_returns_exit_four(
     assert client.closed is True
 
 
+# test unexpected error returns exit one 테스트가 검증하는 시나리오를 설명한다.
 def test_unexpected_error_returns_exit_one(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test unexpected error returns exit one 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     client = RaisingClient(_make_ref(), RuntimeError("boom"))
 
     def _fake_create_client(*, cache_enabled: bool, provider_keys: dict[str, str]) -> RaisingClient:
+        """
+        내부 헬퍼로서 fake create client 처리를 담당한다.
+
+        매개변수:
+            cache_enabled (bool): 호출자가 제공하는 입력 값이다.
+            provider_keys (dict[str, str]): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            RaisingClient: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         _ = cache_enabled, provider_keys
         return client
 
@@ -343,9 +803,27 @@ def test_unexpected_error_returns_exit_one(
     assert client.closed is True
 
 
+# test log level debug sets logger level and emits debug log 테스트가 검증하는 시나리오를 설명한다.
 def test_log_level_debug_sets_logger_level_and_emits_debug_log(
     fake_client: FakeClient, caplog: pytest.LogCaptureFixture, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """
+    test log level debug sets logger level and emits debug log 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        caplog (pytest.LogCaptureFixture): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     caplog.set_level(logging.DEBUG, logger="kpubdata")
 
     exit_code = main(["--log-level", "debug", "fetch", "bok.base_rate", "--format", "json"])
@@ -359,7 +837,23 @@ def test_log_level_debug_sets_logger_level_and_emits_debug_log(
     assert "binding dataset" in caplog.text
 
 
+# test cli helper functions cover formats and serialization 테스트가 검증하는 시나리오를 설명한다.
 def test_cli_helper_functions_cover_formats_and_serialization(tmp_path: Path) -> None:
+    """
+    test cli helper functions cover formats and serialization 시나리오를 검증한다.
+
+    매개변수:
+        tmp_path (Path): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     csv_headers = cast(Callable[..., list[str]], cli_module.__dict__["_csv_headers"])
     get_version = cast(Callable[[], str], cli_module.__dict__["_get_version"])
     parse_assignments = cast(
@@ -432,12 +926,40 @@ def test_cli_helper_functions_cover_formats_and_serialization(tmp_path: Path) ->
     assert get_version()
 
 
+# test get version falls back to package version 테스트가 검증하는 시나리오를 설명한다.
 def test_get_version_falls_back_to_package_version(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    test get version falls back to package version 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     from importlib.metadata import PackageNotFoundError
 
     get_version = cast(Callable[[], str], cli_module.__dict__["_get_version"])
 
     def _raise_package_not_found(_: str) -> str:
+        """
+        내부 헬퍼로서 raise package not found 처리를 담당한다.
+
+        매개변수:
+            _ (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         raise PackageNotFoundError
 
     monkeypatch.setattr("kpubdata.cli.version", _raise_package_not_found)

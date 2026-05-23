@@ -67,6 +67,20 @@ class DataGoAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
+            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
+            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -337,16 +351,62 @@ class DataGoAdapter:
 
     @staticmethod
     def _is_generic(dataset: DatasetRef) -> bool:
+        """
+        내부 헬퍼로서 is generic 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return bool(dataset.raw_metadata.get("generic"))
 
     @staticmethod
     def _is_odcloud(dataset: DatasetRef) -> bool:
+        """
+        내부 헬퍼로서 is odcloud 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return dataset.raw_metadata.get("provider_family") == "odcloud"
 
     def _require_api_key(self) -> str:
+        """
+        내부 헬퍼로서 require api key 처리를 담당한다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._config.require_provider_key("datago")
 
     def _build_request_url(self, dataset: DatasetRef, operation: str | None = None) -> str:
+        """
+        내부 헬퍼로서 build request url 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            operation (str | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
             raise ProviderResponseError(
@@ -366,6 +426,20 @@ class DataGoAdapter:
         service_key_param_override: str | None = None,
         format_param_override: str | None = None,
     ) -> dict[str, str]:
+        """
+        내부 헬퍼로서 build base params 처리를 담당한다.
+
+        매개변수:
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+            service_key_param_override (str | None): 호출자가 제공하는 입력 값이다.
+            format_param_override (str | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         api_key = self._require_api_key()
         service_key_param_raw = (
             service_key_param_override
@@ -397,6 +471,20 @@ class DataGoAdapter:
     def _request_and_decode(
         self, url: str, params: Mapping[str, object], dataset_id: str = ""
     ) -> dict[str, object]:
+        """
+        내부 헬퍼로서 request and decode 처리를 담당한다.
+
+        매개변수:
+            url (str): 호출자가 제공하는 입력 값이다.
+            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         string_params = {key: str(value) for key, value in params.items()}
         try:
             response = self._transport.request(
@@ -442,12 +530,37 @@ class DataGoAdapter:
 
     @staticmethod
     def _is_http_403(exc: TransportError) -> bool:
+        """
+        내부 헬퍼로서 is http 403 처리를 담당한다.
+
+        매개변수:
+            exc (TransportError): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         cause = exc.__cause__
         return isinstance(cause, httpx.HTTPStatusError) and cause.response.status_code == 403
 
     def _validate_envelope(
         self, payload: dict[str, object], dataset: DatasetRef | None = None
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        """
+        내부 헬퍼로서 validate envelope 처리를 담당한다.
+
+        매개변수:
+            payload (dict[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset (DatasetRef | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         dataset_id = dataset.id if dataset is not None else ""
         envelope_style = dataset.raw_metadata.get("envelope_style") if dataset is not None else None
 
@@ -475,6 +588,19 @@ class DataGoAdapter:
     def _validate_its_flat_envelope(
         self, payload: dict[str, object], dataset_id: str
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        """
+        내부 헬퍼로서 validate its flat envelope 처리를 담당한다.
+
+        매개변수:
+            payload (dict[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         result_code = self._coerce_result_code(payload.get("resultCode"), dataset_id)
         result_msg_raw = payload.get("resultMsg")
         result_msg = (
@@ -493,6 +619,19 @@ class DataGoAdapter:
     def _parse_odcloud_response(
         self, payload: dict[str, object], dataset: DatasetRef
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        """
+        내부 헬퍼로서 parse odcloud response 처리를 담당한다.
+
+        매개변수:
+            payload (dict[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         data_obj = payload.get("data")
         if data_obj is None:
             return payload, []
@@ -513,6 +652,19 @@ class DataGoAdapter:
     def _validate_standard_envelope(
         self, response_dict: dict[str, object], dataset_id: str
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        """
+        내부 헬퍼로서 validate standard envelope 처리를 담당한다.
+
+        매개변수:
+            response_dict (dict[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         header_obj = response_dict.get("header")
         if not isinstance(header_obj, dict):
             raise ProviderResponseError(
@@ -551,6 +703,19 @@ class DataGoAdapter:
     def _validate_gyeonggi_msg_envelope(
         self, response_dict: dict[str, object], dataset_id: str
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
+        """
+        내부 헬퍼로서 validate gyeonggi msg envelope 처리를 담당한다.
+
+        매개변수:
+            response_dict (dict[str, object]): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         header_obj = response_dict.get("msgHeader")
         if not isinstance(header_obj, dict):
             raise ProviderResponseError(
@@ -581,6 +746,19 @@ class DataGoAdapter:
         return body_dict, items
 
     def _coerce_result_code(self, result_code: object, dataset_id: str) -> str:
+        """
+        내부 헬퍼로서 coerce result code 처리를 담당한다.
+
+        매개변수:
+            result_code (object): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if isinstance(result_code, str):
             return result_code
         if isinstance(result_code, int):
@@ -592,6 +770,18 @@ class DataGoAdapter:
         )
 
     def _extract_gyeonggi_msg_items_wrapper(self, body_dict: dict[str, object]) -> object:
+        """
+        내부 헬퍼로서 extract gyeonggi msg items wrapper 처리를 담당한다.
+
+        매개변수:
+            body_dict (dict[str, object]): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         list_values: list[object] = [
             value for value in body_dict.values() if isinstance(value, list)
         ]
@@ -600,6 +790,20 @@ class DataGoAdapter:
         return body_dict
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
+        """
+        내부 헬퍼로서 raise for result code 처리를 담당한다.
+
+        매개변수:
+            code (str): 호출자가 제공하는 입력 값이다.
+            msg (str): 호출자가 제공하는 입력 값이다.
+            dataset_id (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            NoReturn: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         extra = {"dataset_id": dataset_id, "result_code": code, "result_msg": msg}
         if code in {"30", "31", "20", "32"}:
             logger.debug("Datago API envelope error", extra=extra)
@@ -625,6 +829,18 @@ class DataGoAdapter:
         raise ProviderResponseError(msg, provider="datago", provider_code=code)
 
     def _normalize_items(self, items_wrapper: object) -> list[dict[str, object]]:
+        """
+        내부 헬퍼로서 normalize items 처리를 담당한다.
+
+        매개변수:
+            items_wrapper (object): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if items_wrapper is None:
             return []
 
@@ -651,6 +867,15 @@ class DataGoAdapter:
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
+        """
+        내부 헬퍼로서 load default catalogue 처리를 담당한다.
+
+        반환값:
+            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return load_catalogue("kpubdata.providers.datago", "datago")
 
 

@@ -18,7 +18,29 @@ def _dataclass(
     slots: bool = False,
     frozen: bool = False,
 ) -> Callable[[type[_T]], type[_T]]:
+    """
+    내부 헬퍼로서 dataclass 처리를 담당한다.
+
+    매개변수:
+        slots (bool): 호출자가 제공하는 입력 값이다.
+        frozen (bool): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        Callable[[type[_T]], type[_T]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     def _decorate(cls: type[_T]) -> type[_T]:
+        """
+        내부 헬퍼로서 decorate 처리를 담당한다.
+
+        반환값:
+            type[_T]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)
 
     return _decorate
