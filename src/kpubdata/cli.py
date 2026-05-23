@@ -1,3 +1,9 @@
+"""KPubData Python 모듈.
+
+이 파일은 ``src/kpubdata/cli.py`` 경로의 구현을 담는다.
+주요 클래스와 함수는 공개 API, 전송 계층, Provider 어댑터 중 하나의 역할을 담당한다.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -32,6 +38,18 @@ _MAX_CELL_WIDTH = 40
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """
+    main 동작을 수행한다.
+
+    매개변수:
+        argv (Sequence[str] | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     parser = _build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
     parsed_values = vars(args)
@@ -62,6 +80,15 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _build_parser() -> argparse.ArgumentParser:
+    """
+    내부 헬퍼로서 build parser 처리를 담당한다.
+
+    반환값:
+        argparse.ArgumentParser: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     parser = argparse.ArgumentParser(prog="kpubdata")
     _ = parser.add_argument("--cache", action="store_true", help="Enable response cache")
     _ = parser.add_argument(
@@ -127,6 +154,18 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _configure_logging(level_name: str) -> bool:
+    """
+    내부 헬퍼로서 configure logging 처리를 담당한다.
+
+    매개변수:
+        level_name (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     level_map = {
         "warning": logging.WARNING,
         "info": logging.INFO,
@@ -141,6 +180,18 @@ def _configure_logging(level_name: str) -> bool:
 
 
 def _run_command(args: argparse.Namespace) -> int:
+    """
+    내부 헬퍼로서 run command 처리를 담당한다.
+
+    매개변수:
+        args (argparse.Namespace): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     values = vars(args)
     version_flag = cast(bool, values.get("version", False))
     command = cast(str | None, values.get("command"))
@@ -170,12 +221,38 @@ def _run_command(args: argparse.Namespace) -> int:
 
 
 def _create_client(*, cache_enabled: bool, provider_keys: dict[str, str]) -> Client:
+    """
+    내부 헬퍼로서 create client 처리를 담당한다.
+
+    매개변수:
+        cache_enabled (bool): 호출자가 제공하는 입력 값이다.
+        provider_keys (dict[str, str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        Client: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if cache_enabled:
         return Client.from_env(provider_keys=provider_keys, cache=True)
     return Client.from_env(provider_keys=provider_keys)
 
 
 def _handle_datasets_command(client: Client, args: argparse.Namespace) -> int:
+    """
+    내부 헬퍼로서 handle datasets command 처리를 담당한다.
+
+    매개변수:
+        client (Client): 호출자가 제공하는 입력 값이다.
+        args (argparse.Namespace): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     values = vars(args)
     datasets_command = cast(str | None, values.get("datasets_command"))
 
@@ -246,6 +323,19 @@ def _handle_datasets_command(client: Client, args: argparse.Namespace) -> int:
 
 
 def _handle_fetch_command(client: Client, args: argparse.Namespace) -> int:
+    """
+    내부 헬퍼로서 handle fetch command 처리를 담당한다.
+
+    매개변수:
+        client (Client): 호출자가 제공하는 입력 값이다.
+        args (argparse.Namespace): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     values = vars(args)
     params = _parse_assignments(cast(list[str], values.get("param", [])), flag_name="-p/--param")
     list_kwargs: dict[str, object] = dict(params)
@@ -275,6 +365,19 @@ def _handle_fetch_command(client: Client, args: argparse.Namespace) -> int:
 
 
 def _handle_raw_command(client: Client, args: argparse.Namespace) -> int:
+    """
+    내부 헬퍼로서 handle raw command 처리를 담당한다.
+
+    매개변수:
+        client (Client): 호출자가 제공하는 입력 값이다.
+        args (argparse.Namespace): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     values = vars(args)
     params = _parse_assignments(cast(list[str], values.get("param", [])), flag_name="-p/--param")
     dataset_id = cast(str, values.get("dataset_id"))
@@ -287,6 +390,18 @@ def _handle_raw_command(client: Client, args: argparse.Namespace) -> int:
 
 
 def _dataset_summary(dataset: DatasetRef) -> dict[str, object]:
+    """
+    내부 헬퍼로서 dataset summary 처리를 담당한다.
+
+    매개변수:
+        dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     return {
         "id": dataset.id,
         "name": dataset.name,
@@ -296,6 +411,18 @@ def _dataset_summary(dataset: DatasetRef) -> dict[str, object]:
 
 
 def _dataset_details(dataset: DatasetRef) -> dict[str, object]:
+    """
+    내부 헬퍼로서 dataset details 처리를 담당한다.
+
+    매개변수:
+        dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     return {
         "id": dataset.id,
         "name": dataset.name,
@@ -307,6 +434,18 @@ def _dataset_details(dataset: DatasetRef) -> dict[str, object]:
 
 
 def _query_support_payload(query_support: QuerySupport | None) -> dict[str, object] | None:
+    """
+    내부 헬퍼로서 query support payload 처리를 담당한다.
+
+    매개변수:
+        query_support (QuerySupport | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, object] | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if query_support is None:
         return None
     return {
@@ -319,6 +458,19 @@ def _query_support_payload(query_support: QuerySupport | None) -> dict[str, obje
 
 
 def _render_records(items: list[dict[str, object]], *, output_format: str) -> str:
+    """
+    내부 헬퍼로서 render records 처리를 담당한다.
+
+    매개변수:
+        items (list[dict[str, object]]): 호출자가 제공하는 입력 값이다.
+        output_format (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if output_format == "json":
         return json.dumps(_to_jsonable(items), ensure_ascii=False, indent=2)
     if output_format == "csv":
@@ -327,6 +479,18 @@ def _render_records(items: list[dict[str, object]], *, output_format: str) -> st
 
 
 def _render_csv(items: list[dict[str, object]]) -> str:
+    """
+    내부 헬퍼로서 render csv 처리를 담당한다.
+
+    매개변수:
+        items (list[dict[str, object]]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     output = io.StringIO()
     headers = _csv_headers(items)
     writer = csv.DictWriter(output, fieldnames=headers, extrasaction="ignore")
@@ -338,6 +502,19 @@ def _render_csv(items: list[dict[str, object]]) -> str:
 
 
 def _render_table(rows: Sequence[Mapping[str, object]], *, headers: Sequence[str]) -> str:
+    """
+    내부 헬퍼로서 render table 처리를 담당한다.
+
+    매개변수:
+        rows (Sequence[Mapping[str, object]]): 호출자가 제공하는 입력 값이다.
+        headers (Sequence[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if not headers:
         return "(no columns)"
     if not rows:
@@ -361,12 +538,36 @@ def _render_table(rows: Sequence[Mapping[str, object]], *, headers: Sequence[str
 
 
 def _table_headers(items: list[dict[str, object]]) -> list[str]:
+    """
+    내부 헬퍼로서 table headers 처리를 담당한다.
+
+    매개변수:
+        items (list[dict[str, object]]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        list[str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if not items:
         return []
     return list(items[0].keys())[:_MAX_TABLE_COLUMNS]
 
 
 def _csv_headers(items: list[dict[str, object]]) -> list[str]:
+    """
+    내부 헬퍼로서 csv headers 처리를 담당한다.
+
+    매개변수:
+        items (list[dict[str, object]]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        list[str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     headers: list[str] = []
     for item in items:
         for key in item:
@@ -376,6 +577,19 @@ def _csv_headers(items: list[dict[str, object]]) -> list[str]:
 
 
 def _parse_assignments(values: Sequence[str], *, flag_name: str) -> dict[str, str]:
+    """
+    내부 헬퍼로서 parse assignments 처리를 담당한다.
+
+    매개변수:
+        values (Sequence[str]): 호출자가 제공하는 입력 값이다.
+        flag_name (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     assignments: dict[str, str] = {}
     for value in values:
         key, parsed_value = _split_assignment(value, flag_name=flag_name)
@@ -384,6 +598,19 @@ def _parse_assignments(values: Sequence[str], *, flag_name: str) -> dict[str, st
 
 
 def _split_assignment(value: str, *, flag_name: str) -> tuple[str, str]:
+    """
+    내부 헬퍼로서 split assignment 처리를 담당한다.
+
+    매개변수:
+        value (str): 호출자가 제공하는 입력 값이다.
+        flag_name (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        tuple[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if "=" not in value:
         raise InvalidRequestError(f"{flag_name} expects KEY=VALUE: {value}")
     key, parsed_value = value.split("=", 1)
@@ -394,6 +621,19 @@ def _split_assignment(value: str, *, flag_name: str) -> tuple[str, str]:
 
 
 def _write_output(content: str, output_path: str | None) -> None:
+    """
+    내부 헬퍼로서 write output 처리를 담당한다.
+
+    매개변수:
+        content (str): 호출자가 제공하는 입력 값이다.
+        output_path (str | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if output_path is None:
         _ = sys.stdout.write(content)
         if not content.endswith("\n"):
@@ -403,10 +643,34 @@ def _write_output(content: str, output_path: str | None) -> None:
 
 
 def _operation_names(operations: Iterable[Operation]) -> list[str]:
+    """
+    내부 헬퍼로서 operation names 처리를 담당한다.
+
+    매개변수:
+        operations (Iterable[Operation]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        list[str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     return sorted(operation.value for operation in operations)
 
 
 def _to_jsonable(value: object) -> object:
+    """
+    내부 헬퍼로서 to jsonable 처리를 담당한다.
+
+    매개변수:
+        value (object): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, Enum):
@@ -433,6 +697,18 @@ def _to_jsonable(value: object) -> object:
 
 
 def _stringify_value(value: object) -> str:
+    """
+    내부 헬퍼로서 stringify value 처리를 담당한다.
+
+    매개변수:
+        value (object): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if value is None:
         return ""
     if isinstance(value, str):
@@ -443,16 +719,49 @@ def _stringify_value(value: object) -> str:
 
 
 def _truncate(value: str) -> str:
+    """
+    내부 헬퍼로서 truncate 처리를 담당한다.
+
+    매개변수:
+        value (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if len(value) <= _MAX_CELL_WIDTH:
         return value
     return f"{value[: _MAX_CELL_WIDTH - 1]}…"
 
 
 def _print_error(exc: BaseException) -> None:
+    """
+    내부 헬퍼로서 print error 처리를 담당한다.
+
+    매개변수:
+        exc (BaseException): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     print(f"error: {type(exc).__name__}: {exc}", file=sys.stderr)
 
 
 def _get_version() -> str:
+    """
+    내부 헬퍼로서 get version 처리를 담당한다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     try:
         return version("kpubdata")
     except PackageNotFoundError:

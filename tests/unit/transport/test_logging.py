@@ -1,3 +1,9 @@
+"""테스트 모듈.
+
+이 파일은 ``tests/unit/transport/test_logging.py`` 경로의 테스트 시나리오와 보조 객체를 정의한다.
+회귀 방지와 공개 계약 검증을 위해 핵심 흐름, 예외, 가장자리 조건을 확인한다.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -13,6 +19,19 @@ from kpubdata.transport.http import HttpTransport, TransportConfig
 
 
 def _response_with_content(content: bytes, content_type: str) -> httpx.Response:
+    """
+    내부 헬퍼로서 response with content 처리를 담당한다.
+
+    매개변수:
+        content (bytes): 호출자가 제공하는 입력 값이다.
+        content_type (str): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        httpx.Response: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     request = httpx.Request("GET", "https://example.test/resource")
     return httpx.Response(
         status_code=200,
@@ -22,7 +41,23 @@ def _response_with_content(content: bytes, content_type: str) -> httpx.Response:
     )
 
 
+# test request params log redacts service key 테스트가 검증하는 시나리오를 설명한다.
 def test_request_params_log_redacts_service_key(caplog: pytest.LogCaptureFixture) -> None:
+    """
+    test request params log redacts service key 시나리오를 검증한다.
+
+    매개변수:
+        caplog (pytest.LogCaptureFixture): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     transport = HttpTransport(TransportConfig(max_retries=0))
     response = _response_with_content(b'{"ok": true}', "application/json")
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
@@ -40,7 +75,23 @@ def test_request_params_log_redacts_service_key(caplog: pytest.LogCaptureFixture
     assert params == {"serviceKey": "[REDACTED]", "query": "station"}
 
 
+# test response preview logged and truncated 테스트가 검증하는 시나리오를 설명한다.
 def test_response_preview_logged_and_truncated(caplog: pytest.LogCaptureFixture) -> None:
+    """
+    test response preview logged and truncated 시나리오를 검증한다.
+
+    매개변수:
+        caplog (pytest.LogCaptureFixture): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     transport = HttpTransport(TransportConfig(max_retries=0))
     long_text = "a" * 900
     response = _response_with_content(long_text.encode("utf-8"), "text/plain; charset=utf-8")
@@ -60,7 +111,20 @@ def test_response_preview_logged_and_truncated(caplog: pytest.LogCaptureFixture)
     assert len(preview) == 500
 
 
+# test sanitize params redacts sensitive keys 테스트가 검증하는 시나리오를 설명한다.
 def test_sanitize_params_redacts_sensitive_keys() -> None:
+    """
+    test sanitize params redacts sensitive keys 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     sanitize_params = cast(
         Callable[[dict[str, object] | None], dict[str, str]],
         http_module._sanitize_params,
@@ -94,7 +158,20 @@ def test_sanitize_params_redacts_sensitive_keys() -> None:
     }
 
 
+# test response preview handles text and binary content 테스트가 검증하는 시나리오를 설명한다.
 def test_response_preview_handles_text_and_binary_content() -> None:
+    """
+    test response preview handles text and binary content 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     response_preview = cast(Callable[[httpx.Response], str], http_module._response_preview)
     text_response = _response_with_content(b'{"count": 1}', "application/json")
     binary_response = _response_with_content(b"\x00\x01\x02\x03", "application/octet-stream")
@@ -103,7 +180,20 @@ def test_response_preview_handles_text_and_binary_content() -> None:
     assert response_preview(binary_response) == "[binary content, 4 bytes]"
 
 
+# test debug gating skips sanitization and preview helpers 테스트가 검증하는 시나리오를 설명한다.
 def test_debug_gating_skips_sanitization_and_preview_helpers() -> None:
+    """
+    test debug gating skips sanitization and preview helpers 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     transport = HttpTransport(TransportConfig(max_retries=0))
     response = _response_with_content(b"ok", "text/plain")
 
@@ -122,7 +212,23 @@ def test_debug_gating_skips_sanitization_and_preview_helpers() -> None:
         _ = transport.request("GET", "https://example.test/resource", params={"serviceKey": "x"})
 
 
+# test request logs include dataset context 테스트가 검증하는 시나리오를 설명한다.
 def test_request_logs_include_dataset_context(caplog: pytest.LogCaptureFixture) -> None:
+    """
+    test request logs include dataset context 시나리오를 검증한다.
+
+    매개변수:
+        caplog (pytest.LogCaptureFixture): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
     transport = HttpTransport(TransportConfig(max_retries=0))
     response = _response_with_content(b'{"ok": true}', "application/json")
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")

@@ -89,6 +89,19 @@ class HttpTransport:
         config: TransportConfig,
         requirements: TransportRequirements,
     ) -> HttpTransport:
+        """
+        with requirements 동작을 수행한다.
+
+        매개변수:
+            config (TransportConfig): 호출자가 제공하는 입력 값이다.
+            requirements (TransportRequirements): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            HttpTransport: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return cls(
             config=TransportConfig(
                 timeout=config.timeout,
@@ -123,6 +136,18 @@ class HttpTransport:
         )
 
     def _build_client(self, requirements: TransportRequirements | None = None) -> httpx.Client:
+        """
+        내부 헬퍼로서 build client 처리를 담당한다.
+
+        매개변수:
+            requirements (TransportRequirements | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            httpx.Client: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         effective_requirements = requirements or self._requirements
         return httpx.Client(
             timeout=self._config.timeout,
@@ -136,6 +161,18 @@ class HttpTransport:
         )
 
     def _resolve_verify(self, requirements: TransportRequirements | None) -> bool | ssl.SSLContext:
+        """
+        내부 헬퍼로서 resolve verify 처리를 담당한다.
+
+        매개변수:
+            requirements (TransportRequirements | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            bool | ssl.SSLContext: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         # 어댑터가 직접 설정한 경우에는 TransportConfig.ssl_context를 우선 적용한다.
         if self._config.ssl_context is not None:
             return self._config.ssl_context
@@ -162,10 +199,28 @@ class HttpTransport:
 
     @property
     def cache(self) -> ResponseCache | None:
+        """
+        cache 동작을 수행한다.
+
+        반환값:
+            ResponseCache | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._cache
 
     @property
     def cache_ttl_seconds(self) -> int:
+        """
+        cache ttl seconds 동작을 수행한다.
+
+        반환값:
+            int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._cache_ttl_seconds
 
     def request(
@@ -371,6 +426,21 @@ class HttpTransport:
         params: dict[str, str] | None,
         headers: dict[str, str] | None,
     ) -> str | None:
+        """
+        내부 헬퍼로서 make cache key 처리를 담당한다.
+
+        매개변수:
+            method (str): 호출자가 제공하는 입력 값이다.
+            url (str): 호출자가 제공하는 입력 값이다.
+            params (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
+            headers (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            str | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         if self._cache is None:
             return None
         if method.upper() != "GET":
@@ -381,10 +451,35 @@ class HttpTransport:
 
 
 def _is_retryable_status(status_code: int) -> bool:
+    """
+    내부 헬퍼로서 is retryable status 처리를 담당한다.
+
+    매개변수:
+        status_code (int): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     return status_code == 429 or 500 <= status_code <= 599
 
 
 def _request_context(*, dataset_id: str | None, provider: str | None) -> dict[str, str]:
+    """
+    내부 헬퍼로서 request context 처리를 담당한다.
+
+    매개변수:
+        dataset_id (str | None): 호출자가 제공하는 입력 값이다.
+        provider (str | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     context: dict[str, str] = {}
     if dataset_id is not None:
         context["dataset_id"] = dataset_id
@@ -397,6 +492,19 @@ def _merge_headers(
     base_headers: Mapping[str, str] | None,
     override_headers: Mapping[str, str] | None,
 ) -> dict[str, str] | None:
+    """
+    내부 헬퍼로서 merge headers 처리를 담당한다.
+
+    매개변수:
+        base_headers (Mapping[str, str] | None): 호출자가 제공하는 입력 값이다.
+        override_headers (Mapping[str, str] | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, str] | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if base_headers is None and override_headers is None:
         return None
 
@@ -409,6 +517,18 @@ def _merge_headers(
 
 
 def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
+    """
+    내부 헬퍼로서 sanitize params 처리를 담당한다.
+
+    매개변수:
+        params (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if params is None:
         return {}
 
@@ -422,6 +542,18 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
 
 
 def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:
+    """
+    내부 헬퍼로서 cache headers subset 처리를 담당한다.
+
+    매개변수:
+        headers (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if headers is None:
         return {}
     return {
@@ -430,12 +562,37 @@ def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:
 
 
 def _contains_sensitive_headers(headers: dict[str, str] | None) -> bool:
+    """
+    내부 헬퍼로서 contains sensitive headers 처리를 담당한다.
+
+    매개변수:
+        headers (dict[str, str] | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if headers is None:
         return False
     return any(key.casefold() in _SENSITIVE_PARAM_KEYS for key in headers)
 
 
 def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:
+    """
+    내부 헬퍼로서 response preview 처리를 담당한다.
+
+    매개변수:
+        response (httpx.Response): 호출자가 제공하는 입력 값이다.
+        max_chars (int): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     content_type = cast(str, response.headers.get("content-type", "")).casefold()
     is_text = (
         content_type.startswith("text/")

@@ -1,3 +1,9 @@
+"""KPubData Python 모듈.
+
+이 파일은 ``src/kpubdata/transport/cache.py`` 경로의 구현을 담는다.
+주요 클래스와 함수는 공개 API, 전송 계층, Provider 어댑터 중 하나의 역할을 담당한다.
+"""
+
 from __future__ import annotations
 
 import base64
@@ -14,6 +20,15 @@ logger = logging.getLogger("kpubdata.transport")
 
 
 class _CachePayload(TypedDict, total=False):
+    """
+    _CachePayload 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``src/kpubdata/transport/cache.py`` 모듈 안에서 _CachePayload의 상태와 동작을 함께 관리한다.
+    주요 메서드: 없음.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     created_at: float
     ttl_seconds: float
     body_b64: str
@@ -34,14 +49,56 @@ _SENSITIVE_CACHE_KEY_NAMES = {
 
 
 class ResponseCache:
+    """
+    ResponseCache 관련 역할을 캡슐화하는 클래스.
+
+    이 클래스는 ``src/kpubdata/transport/cache.py`` 모듈 안에서 ResponseCache의 상태와 동작을 함께 관리한다.
+    주요 메서드: __init__, base_dir, get, set, clear.
+
+    속성 설명:
+        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
+    """
     def __init__(self, base_dir: str | Path | None = None) -> None:
+        """
+        인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            base_dir (str | Path | None): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         self._base_dir: Path = Path(base_dir) if base_dir is not None else _default_cache_dir()
 
     @property
     def base_dir(self) -> Path:
+        """
+        base dir 동작을 수행한다.
+
+        반환값:
+            Path: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._base_dir
 
     def get(self, key: str) -> bytes | None:
+        """
+        get 동작을 수행한다.
+
+        매개변수:
+            key (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            bytes | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         payload_path = self._payload_path(key)
         try:
             if not payload_path.exists():
@@ -70,6 +127,20 @@ class ResponseCache:
             return None
 
     def set(self, key: str, value: bytes, ttl_seconds: int) -> None:
+        """
+        set 동작을 수행한다.
+
+        매개변수:
+            key (str): 호출자가 제공하는 입력 값이다.
+            value (bytes): 호출자가 제공하는 입력 값이다.
+            ttl_seconds (int): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         payload_path = self._payload_path(key)
         try:
             payload_path.parent.mkdir(parents=True, exist_ok=True)
@@ -93,6 +164,15 @@ class ResponseCache:
             )
 
     def clear(self) -> None:
+        """
+        clear 동작을 수행한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         try:
             if not self._base_dir.exists():
                 return
@@ -105,6 +185,15 @@ class ResponseCache:
             )
 
     def clear_expired(self) -> None:
+        """
+        clear expired 동작을 수행한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         try:
             if not self._base_dir.exists():
                 return
@@ -128,9 +217,33 @@ class ResponseCache:
             )
 
     def _payload_path(self, key: str) -> Path:
+        """
+        내부 헬퍼로서 payload path 처리를 담당한다.
+
+        매개변수:
+            key (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            Path: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         return self._base_dir / f"{key}.json"
 
     def _delete_entry(self, key: str) -> None:
+        """
+        내부 헬퍼로서 delete entry 처리를 담당한다.
+
+        매개변수:
+            key (str): 호출자가 제공하는 입력 값이다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+        """
         try:
             self._payload_path(key).unlink(missing_ok=True)
         except Exception as exc:
@@ -150,6 +263,21 @@ def make_cache_key(
     params: Mapping[str, object] | None,
     headers_subset: Mapping[str, object] | None,
 ) -> str:
+    """
+    make cache key 동작을 수행한다.
+
+    매개변수:
+        method (str): 호출자가 제공하는 입력 값이다.
+        url (str): 호출자가 제공하는 입력 값이다.
+        params (Mapping[str, object] | None): 호출자가 제공하는 입력 값이다.
+        headers_subset (Mapping[str, object] | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     normalized_payload = {
         "method": method.upper(),
         "url": url,
@@ -163,6 +291,15 @@ def make_cache_key(
 
 
 def _default_cache_dir() -> Path:
+    """
+    내부 헬퍼로서 default cache dir 처리를 담당한다.
+
+    반환값:
+        Path: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     xdg_cache_home = os.environ.get("XDG_CACHE_HOME")
     if xdg_cache_home:
         return Path(xdg_cache_home) / "kpubdata" / "responses"
@@ -170,6 +307,18 @@ def _default_cache_dir() -> Path:
 
 
 def _normalize_mapping(values: Mapping[str, object] | None) -> list[tuple[str, str]]:
+    """
+    내부 헬퍼로서 normalize mapping 처리를 담당한다.
+
+    매개변수:
+        values (Mapping[str, object] | None): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        list[tuple[str, str]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     if values is None:
         return []
 
@@ -184,6 +333,18 @@ def _normalize_mapping(values: Mapping[str, object] | None) -> list[tuple[str, s
 
 
 def _is_expired(payload: _CachePayload) -> bool:
+    """
+    내부 헬퍼로서 is expired 처리를 담당한다.
+
+    매개변수:
+        payload (_CachePayload): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     created_at = payload.get("created_at")
     ttl_seconds = payload.get("ttl_seconds")
     if not isinstance(created_at, int | float) or not isinstance(ttl_seconds, int | float):
@@ -194,6 +355,18 @@ def _is_expired(payload: _CachePayload) -> bool:
 
 
 def _load_payload(payload_path: Path) -> _CachePayload | None:
+    """
+    내부 헬퍼로서 load payload 처리를 담당한다.
+
+    매개변수:
+        payload_path (Path): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        _CachePayload | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+    """
     raw_payload = cast(object, json.loads(payload_path.read_text(encoding="utf-8")))
     if not isinstance(raw_payload, dict):
         return None
