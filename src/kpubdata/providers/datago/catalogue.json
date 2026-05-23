@@ -640,5 +640,107 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "mid_fcst",
+    "name": "중기전망조회 (Mid-term Outlook)",
+    "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
+    "default_operation": "getMidFcst",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "KMA mid-term weather outlook narrative (3-10 days ahead). Keyed by stnId.",
+    "tags": [
+      "weather",
+      "forecast",
+      "mid-term",
+      "kma"
+    ],
+    "source_url": "https://www.data.go.kr/data/15059468/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "mid_land_fcst",
+    "name": "중기육상예보조회 (Mid-term Land Forecast)",
+    "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
+    "default_operation": "getMidLandFcst",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "KMA mid-term land forecast: precipitation probability and sky condition (3-10 days ahead). Keyed by regId.",
+    "tags": [
+      "weather",
+      "forecast",
+      "mid-term",
+      "kma"
+    ],
+    "source_url": "https://www.data.go.kr/data/15059468/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "mid_ta",
+    "name": "중기기온조회 (Mid-term Temperature)",
+    "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
+    "default_operation": "getMidTa",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "KMA mid-term temperature forecast: daily min/max with ranges (3-10 days ahead). Keyed by regId.",
+    "tags": [
+      "weather",
+      "forecast",
+      "mid-term",
+      "temperature",
+      "kma"
+    ],
+    "source_url": "https://www.data.go.kr/data/15059468/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "mid_sea_fcst",
+    "name": "중기해상예보조회 (Mid-term Sea Forecast)",
+    "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
+    "default_operation": "getMidSeaFcst",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "KMA mid-term sea forecast: sky condition and wave height (3-10 days ahead). Keyed by regId.",
+    "tags": [
+      "weather",
+      "forecast",
+      "mid-term",
+      "sea",
+      "kma"
+    ],
+    "source_url": "https://www.data.go.kr/data/15059468/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]

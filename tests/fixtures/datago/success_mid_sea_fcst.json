@@ -1,0 +1,31 @@
+{
+  "response": {
+    "header": { "resultCode": "00", "resultMsg": "NORMAL_SERVICE" },
+    "body": {
+      "dataType": "JSON",
+      "items": {
+        "item": [
+          {
+            "regId": "12A20000",
+            "wf3Am": "", "wf3Pm": "",
+            "wf4Am": "흐리고 비", "wf4Pm": "흐리고 비",
+            "wf5Am": "구름많음", "wf5Pm": "구름많음",
+            "wf6Am": "맑음", "wf6Pm": "맑음",
+            "wf7Am": "맑음", "wf7Pm": "맑음",
+            "wf8": "맑음", "wf9": "맑음", "wf10": "맑음",
+            "wh3AAm": 0.0, "wh3APm": 0.0, "wh3BAm": 0.0, "wh3BPm": 0.0,
+            "wh4AAm": 0.5, "wh4APm": 1.0, "wh4BAm": 1.5, "wh4BPm": 2.0,
+            "wh5AAm": 1.0, "wh5APm": 0.5, "wh5BAm": 2.0, "wh5BPm": 1.5,
+            "wh6AAm": 0.5, "wh6APm": 1.0, "wh6BAm": 1.5, "wh6BPm": 2.0,
+            "wh7AAm": 1.0, "wh7APm": 1.0, "wh7BAm": 2.0, "wh7BPm": 2.0,
+            "wh8A": 1.0, "wh8B": 2.0, "wh9A": 1.0, "wh9B": 2.0,
+            "wh10A": 1.0, "wh10B": 2.0
+          }
+        ]
+      },
+      "pageNo": 1,
+      "numOfRows": 10,
+      "totalCount": 1
+    }
+  }
+}

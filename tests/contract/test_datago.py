@@ -797,3 +797,109 @@ def test_agri_price_dataset_contract_query_and_raw() -> None:
     assert len(batch.items) == 3
     assert all(isinstance(item, dict) for item in batch.items)
     assert raw is not None
+
+
+def test_mid_fcst_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_mid_fcst.json"])
+
+    dataset = adapter.get_dataset("mid_fcst")
+
+    assert dataset.id == "datago.mid_fcst"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_mid_fcst_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(["success_mid_fcst.json", "success_mid_fcst.json"])
+    dataset = adapter.get_dataset("mid_fcst")
+
+    batch = adapter.query_records(dataset, Query(filters={"stnId": "108", "tmFc": "2026052206"}))
+    raw = adapter.call_raw(dataset, "getMidFcst", {"stnId": "108", "tmFc": "2026052206"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 1
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_mid_land_fcst_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_mid_land_fcst.json"])
+
+    dataset = adapter.get_dataset("mid_land_fcst")
+
+    assert dataset.id == "datago.mid_land_fcst"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_mid_land_fcst_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(["success_mid_land_fcst.json", "success_mid_land_fcst.json"])
+    dataset = adapter.get_dataset("mid_land_fcst")
+
+    batch = adapter.query_records(
+        dataset, Query(filters={"regId": "11B00000", "tmFc": "2026052206"})
+    )
+    raw = adapter.call_raw(dataset, "getMidLandFcst", {"regId": "11B00000", "tmFc": "2026052206"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 1
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_mid_ta_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_mid_ta.json"])
+
+    dataset = adapter.get_dataset("mid_ta")
+
+    assert dataset.id == "datago.mid_ta"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_mid_ta_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(["success_mid_ta.json", "success_mid_ta.json"])
+    dataset = adapter.get_dataset("mid_ta")
+
+    batch = adapter.query_records(
+        dataset, Query(filters={"regId": "11D20501", "tmFc": "2026052206"})
+    )
+    raw = adapter.call_raw(dataset, "getMidTa", {"regId": "11D20501", "tmFc": "2026052206"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 1
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
+def test_mid_sea_fcst_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_mid_sea_fcst.json"])
+
+    dataset = adapter.get_dataset("mid_sea_fcst")
+
+    assert dataset.id == "datago.mid_sea_fcst"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_mid_sea_fcst_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(["success_mid_sea_fcst.json", "success_mid_sea_fcst.json"])
+    dataset = adapter.get_dataset("mid_sea_fcst")
+
+    batch = adapter.query_records(
+        dataset, Query(filters={"regId": "12A20000", "tmFc": "2026052206"})
+    )
+    raw = adapter.call_raw(dataset, "getMidSeaFcst", {"regId": "12A20000", "tmFc": "2026052206"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 1
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
