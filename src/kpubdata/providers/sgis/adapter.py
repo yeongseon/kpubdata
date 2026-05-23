@@ -30,30 +30,14 @@ _BASE_URL = "https://sgisapi.kostat.go.kr/OpenAPI3"
 
 
 class _AuthClient(Protocol):
-    """
-    _AuthClient 관련 역할을 캡슐화하는 클래스.
-
-    이 클래스는 ``src/kpubdata/providers/sgis/adapter.py`` 모듈 안에서 _AuthClient의 상태와 동작을 함께 관리한다.
-    주요 메서드: get_access_token, invalidate.
-
-    속성 설명:
-        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
-    """
+    """AuthClient과 관련된 값을 계산하거나 조회한다."""
     def get_access_token(self, *, force_refresh: bool = False) -> str: ...
 
     def invalidate(self) -> None: ...
 
 
 class SgisAdapter:
-    """
-    SgisAdapter 관련 역할을 캡슐화하는 클래스.
-
-    이 클래스는 ``src/kpubdata/providers/sgis/adapter.py`` 모듈 안에서 SgisAdapter의 상태와 동작을 함께 관리한다.
-    주요 메서드: __init__, name, list_datasets, search_datasets, get_dataset.
-
-    속성 설명:
-        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
-    """
+    """SgisAdapter과 관련된 값을 계산하거나 조회한다."""
     requires_api_key: bool = True
 
     def __init__(
@@ -64,21 +48,7 @@ class SgisAdapter:
         catalogue: Sequence[DatasetRef] | None = None,
         auth_client: _AuthClient | None = None,
     ) -> None:
-        """
-        인스턴스가 사용할 내부 상태를 초기화한다.
-
-        매개변수:
-            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
-            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
-            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
-            auth_client (_AuthClient | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """인스턴스가 사용할 내부 상태를 초기화한다."""
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -98,42 +68,15 @@ class SgisAdapter:
 
     @property
     def name(self) -> str:
-        """
-        name 동작을 수행한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """name과 관련된 값을 계산하거나 조회한다."""
         return _SGIS_PROVIDER
 
     def list_datasets(self) -> list[DatasetRef]:
-        """
-        list datasets 동작을 수행한다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """list datasets과 관련된 값을 계산하거나 조회한다."""
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
-        """
-        search datasets 동작을 수행한다.
-
-        매개변수:
-            text (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """search datasets과 관련된 값을 계산하거나 조회한다."""
         needle = text.casefold()
         return [
             dataset
@@ -142,18 +85,7 @@ class SgisAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
-        """
-        get dataset 동작을 수행한다.
-
-        매개변수:
-            dataset_key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset을 반환한다."""
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -165,19 +97,7 @@ class SgisAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
-        """
-        query records 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """records을 수행한다."""
         endpoint = self._dataset_endpoint(dataset)
         request_params = self._build_boundary_params(dataset, query.filters)
         payload = self._request_geojson(
@@ -202,35 +122,11 @@ class SgisAdapter:
         return RecordBatch(items=items, dataset=dataset, total_count=len(items), raw=payload)
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
-        """
-        get schema 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            SchemaDescriptor | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """schema을 반환한다."""
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """
-        call raw 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str): 호출자가 제공하는 입력 값이다.
-            params (dict[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """call raw과 관련된 값을 계산하거나 조회한다."""
         endpoint = self._resolve_raw_endpoint(dataset, operation)
         request_params: dict[str, str] = {}
         for key, value in params.items():
@@ -244,19 +140,7 @@ class SgisAdapter:
         )
 
     def _resolve_raw_endpoint(self, dataset: DatasetRef, operation: str) -> str:
-        """
-        내부 헬퍼로서 resolve raw endpoint 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """설정과 기본값을 바탕으로 raw endpoint을 결정한다."""
         if operation == "list":
             return self._dataset_endpoint(dataset)
         if operation.startswith("http://") or operation.startswith("https://"):
@@ -271,19 +155,7 @@ class SgisAdapter:
     def _build_boundary_params(
         self, dataset: DatasetRef, filters: Mapping[str, object]
     ) -> dict[str, str]:
-        """
-        내부 헬퍼로서 build boundary params 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            filters (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            dict[str, str]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """boundary params을 구성해 반환한다."""
         params: dict[str, str] = {
             "year": str(dataset.raw_metadata.get("default_year", "2023")),
         }
@@ -310,20 +182,7 @@ class SgisAdapter:
         params: Mapping[str, str],
         dataset_id: str,
     ) -> dict[str, object]:
-        """
-        내부 헬퍼로서 request geojson 처리를 담당한다.
-
-        매개변수:
-            endpoint (str): 호출자가 제공하는 입력 값이다.
-            params (Mapping[str, str]): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """request geojson과 관련된 값을 계산하거나 조회한다."""
         url = self._make_url(endpoint)
         response = self._transport.request(
             "GET",
@@ -371,18 +230,7 @@ class SgisAdapter:
         return payload
 
     def _normalize_feature(self, feature: Mapping[str, object]) -> dict[str, object]:
-        """
-        내부 헬퍼로서 normalize feature 처리를 담당한다.
-
-        매개변수:
-            feature (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """feature을 정규화해 반환한다."""
         properties_obj = feature.get("properties")
         properties = (
             cast(dict[str, object], properties_obj) if isinstance(properties_obj, dict) else {}
@@ -399,19 +247,7 @@ class SgisAdapter:
         return item
 
     def _raise_for_err_code(self, payload: Mapping[str, object], dataset_id: str) -> None:
-        """
-        내부 헬퍼로서 raise for err code 처리를 담당한다.
-
-        매개변수:
-            payload (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for err code과 관련된 값을 계산하거나 조회한다."""
         err_code = _extract_err_code(payload)
         if err_code is None or err_code == 0:
             return
@@ -421,20 +257,7 @@ class SgisAdapter:
         self._raise_for_code(err_code, message, dataset_id)
 
     def _raise_for_code(self, err_code: int, message: str, dataset_id: str) -> NoReturn:
-        """
-        내부 헬퍼로서 raise for code 처리를 담당한다.
-
-        매개변수:
-            err_code (int): 호출자가 제공하는 입력 값이다.
-            message (str): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            NoReturn: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for code과 관련된 값을 계산하거나 조회한다."""
         provider_code = str(err_code)
         if err_code in {-100}:
             raise ProviderResponseError(
@@ -480,18 +303,7 @@ class SgisAdapter:
         )
 
     def _dataset_endpoint(self, dataset: DatasetRef) -> str:
-        """
-        내부 헬퍼로서 dataset endpoint 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset endpoint과 관련된 값을 계산하거나 조회한다."""
         endpoint_obj = dataset.raw_metadata.get("endpoint")
         if isinstance(endpoint_obj, str) and endpoint_obj:
             return endpoint_obj
@@ -503,47 +315,17 @@ class SgisAdapter:
 
     @staticmethod
     def _make_url(endpoint: str) -> str:
-        """
-        내부 헬퍼로서 make url 처리를 담당한다.
-
-        매개변수:
-            endpoint (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """url을 생성해 반환한다."""
         return f"{_BASE_URL}/{endpoint.lstrip('/')}"
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
-        """
-        내부 헬퍼로서 load default catalogue 처리를 담당한다.
-
-        반환값:
-            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """기본 카탈로그을 로드해 반환한다."""
         return load_catalogue("kpubdata.providers.sgis", _SGIS_PROVIDER)
 
 
 def _extract_err_code(payload: Mapping[str, object]) -> int | None:
-    """
-    내부 헬퍼로서 extract err code 처리를 담당한다.
-
-    매개변수:
-        payload (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        int | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """err code에서 필요한 값을 추출한다."""
     err_obj = payload.get("errCd")
     if isinstance(err_obj, int):
         return err_obj

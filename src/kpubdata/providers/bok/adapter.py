@@ -34,15 +34,7 @@ logger = logging.getLogger("kpubdata.provider.bok")
 
 
 class BokAdapter:
-    """
-    BokAdapter 관련 역할을 캡슐화하는 클래스.
-
-    이 클래스는 ``src/kpubdata/providers/bok/adapter.py`` 모듈 안에서 BokAdapter의 상태와 동작을 함께 관리한다.
-    주요 메서드: __init__, name, list_datasets, search_datasets, get_dataset.
-
-    속성 설명:
-        생성자와 클래스 본문에서 정의한 속성은 하위 메서드가 공통 문맥으로 재사용한다.
-    """
+    """BokAdapter과 관련된 값을 계산하거나 조회한다."""
     requires_api_key: bool = True
 
     def __init__(
@@ -52,20 +44,7 @@ class BokAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
-        """
-        인스턴스가 사용할 내부 상태를 초기화한다.
-
-        매개변수:
-            config (KPubDataConfig | None): 호출자가 제공하는 입력 값이다.
-            transport (HttpTransport | None): 호출자가 제공하는 입력 값이다.
-            catalogue (Sequence[DatasetRef] | None): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """인스턴스가 사용할 내부 상태를 초기화한다."""
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -81,42 +60,15 @@ class BokAdapter:
 
     @property
     def name(self) -> str:
-        """
-        name 동작을 수행한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """name과 관련된 값을 계산하거나 조회한다."""
         return "bok"
 
     def list_datasets(self) -> list[DatasetRef]:
-        """
-        list datasets 동작을 수행한다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """list datasets과 관련된 값을 계산하거나 조회한다."""
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
-        """
-        search datasets 동작을 수행한다.
-
-        매개변수:
-            text (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[DatasetRef]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """search datasets과 관련된 값을 계산하거나 조회한다."""
         needle = text.casefold()
         return [
             dataset
@@ -125,18 +77,7 @@ class BokAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
-        """
-        get dataset 동작을 수행한다.
-
-        매개변수:
-            dataset_key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            DatasetRef: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """dataset을 반환한다."""
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -152,19 +93,7 @@ class BokAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
-        """
-        query records 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """records을 수행한다."""
         page = query.page or 1
         page_size = query.page_size or 100
         frequency = self._resolve_frequency(query)
@@ -236,35 +165,11 @@ class BokAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
-        """
-        get schema 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            SchemaDescriptor | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """schema을 반환한다."""
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """
-        call raw 동작을 수행한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str): 호출자가 제공하는 입력 값이다.
-            params (dict[str, object]): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            object: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """call raw과 관련된 값을 계산하거나 조회한다."""
         logger.debug(
             "bok call_raw",
             extra={
@@ -293,15 +198,7 @@ class BokAdapter:
         return payload
 
     def _require_api_key(self) -> str:
-        """
-        내부 헬퍼로서 require api key 처리를 담당한다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 API 키을 읽고 없으면 예외를 발생시킨다."""
         return self._config.require_provider_key("bok")
 
     def _build_request_url(
@@ -315,24 +212,7 @@ class BokAdapter:
         start_date: str,
         end_date: str,
     ) -> str:
-        """
-        내부 헬퍼로서 build request url 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            operation (str | None): 호출자가 제공하는 입력 값이다.
-            start_index (int): 호출자가 제공하는 입력 값이다.
-            end_index (int): 호출자가 제공하는 입력 값이다.
-            frequency (str): 호출자가 제공하는 입력 값이다.
-            start_date (str): 호출자가 제공하는 입력 값이다.
-            end_date (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """요청 URL을 구성해 반환한다."""
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
             logger.debug(
@@ -366,19 +246,7 @@ class BokAdapter:
         )
 
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
-        """
-        내부 헬퍼로서 request and decode 처리를 담당한다.
-
-        매개변수:
-            url (str): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            dict[str, object]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """request and decode과 관련된 값을 계산하거나 조회한다."""
         response = self._transport.request("GET", url, dataset_id=dataset_id, provider="bok")
 
         try:
@@ -397,19 +265,7 @@ class BokAdapter:
     def _validate_envelope(
         self, payload: dict[str, object], dataset_id: str = ""
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """
-        내부 헬퍼로서 validate envelope 처리를 담당한다.
-
-        매개변수:
-            payload (dict[str, object]): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            tuple[dict[str, object], list[dict[str, object]]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """envelope의 형식을 검증하고 필요한 값을 추출한다."""
         self._raise_for_result(payload, dataset_id)
 
         body_obj = payload.get("StatisticSearch")
@@ -425,19 +281,7 @@ class BokAdapter:
         return body_dict, items
 
     def _raise_for_result(self, payload: Mapping[str, object], dataset_id: str) -> None:
-        """
-        내부 헬퍼로서 raise for result 처리를 담당한다.
-
-        매개변수:
-            payload (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for result과 관련된 값을 계산하거나 조회한다."""
         result_obj = payload.get("RESULT")
         if not isinstance(result_obj, dict):
             return
@@ -458,20 +302,7 @@ class BokAdapter:
         self._raise_for_result_code(code, message, dataset_id)
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
-        """
-        내부 헬퍼로서 raise for result code 처리를 담당한다.
-
-        매개변수:
-            code (str): 호출자가 제공하는 입력 값이다.
-            msg (str): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            NoReturn: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """raise for 결과 코드과 관련된 값을 계산하거나 조회한다."""
         normalized_msg = msg.casefold()
         if "인증키" in msg or "api key" in normalized_msg or "auth" in normalized_msg:
             raise AuthError(msg, provider="bok", provider_code=code, dataset_id=dataset_id or None)
@@ -499,34 +330,11 @@ class BokAdapter:
         )
 
     def _resolve_frequency(self, query: Query) -> str:
-        """
-        내부 헬퍼로서 resolve frequency 처리를 담당한다.
-
-        매개변수:
-            query (Query): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """설정과 기본값을 바탕으로 frequency을 결정한다."""
         return self._resolve_string_param(query, "frequency") or "M"
 
     def _resolve_string_param(self, query: Query, key: str) -> str | None:
-        """
-        내부 헬퍼로서 resolve string param 처리를 담당한다.
-
-        매개변수:
-            query (Query): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """설정과 기본값을 바탕으로 string param을 결정한다."""
         if key in query.extra:
             extra_value = query.extra[key]
             if isinstance(extra_value, str) and extra_value:
@@ -538,19 +346,7 @@ class BokAdapter:
         return None
 
     def _require_dataset_metadata(self, dataset: DatasetRef, key: str) -> str:
-        """
-        내부 헬퍼로서 require dataset metadata 처리를 담당한다.
-
-        매개변수:
-            dataset (DatasetRef): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 dataset metadata을 읽고 없으면 예외를 발생시킨다."""
         value = dataset.raw_metadata.get(key)
         if isinstance(value, str) and value:
             return value
@@ -561,18 +357,7 @@ class BokAdapter:
         )
 
     def _normalize_rows(self, rows_wrapper: object) -> list[dict[str, object]]:
-        """
-        내부 헬퍼로서 normalize rows 처리를 담당한다.
-
-        매개변수:
-            rows_wrapper (object): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            list[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """rows을 정규화해 반환한다."""
         if rows_wrapper is None:
             return []
         if isinstance(rows_wrapper, list):
@@ -584,19 +369,7 @@ class BokAdapter:
 
     @staticmethod
     def _string_param(params: Mapping[str, object], key: str) -> str | None:
-        """
-        내부 헬퍼로서 string param 처리를 담당한다.
-
-        매개변수:
-            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """string param과 관련된 값을 계산하거나 조회한다."""
         value = params.get(key)
         if isinstance(value, str) and value:
             return value
@@ -604,20 +377,7 @@ class BokAdapter:
 
     @classmethod
     def _require_param(cls, params: Mapping[str, object], key: str, dataset_id: str) -> str:
-        """
-        내부 헬퍼로서 require param 처리를 담당한다.
-
-        매개변수:
-            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-            dataset_id (str): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            str: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """필수 param을 읽고 없으면 예외를 발생시킨다."""
         value = cls._string_param(params, key)
         if value is not None:
             return value
@@ -631,35 +391,14 @@ class BokAdapter:
 
     @classmethod
     def _int_param(cls, params: Mapping[str, object], key: str, default: int) -> int:
-        """
-        내부 헬퍼로서 int param 처리를 담당한다.
-
-        매개변수:
-            params (Mapping[str, object]): 호출자가 제공하는 입력 값이다.
-            key (str): 호출자가 제공하는 입력 값이다.
-            default (int): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """int param과 관련된 값을 계산하거나 조회한다."""
         value = params.get(key)
         coerced = coerce_int(value, default)
         return coerced if coerced > 0 else default
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
-        """
-        내부 헬퍼로서 load default catalogue 처리를 담당한다.
-
-        반환값:
-            tuple[DatasetRef, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """기본 카탈로그을 로드해 반환한다."""
         return load_catalogue("kpubdata.providers.bok", "bok")
 
 

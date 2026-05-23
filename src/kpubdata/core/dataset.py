@@ -161,18 +161,7 @@ class Dataset:
         return batch
 
     def list_all(self, **kwargs: object) -> Generator[RecordBatch, None, None]:
-        """
-        list all 동작을 수행한다.
-
-        매개변수:
-            **kwargs (object): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            Generator[RecordBatch, None, None]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """다음 페이지나 커서가 있는 동안 RecordBatch를 연속으로 반환한다."""
         if Operation.LIST not in self._ref.operations:
             raise UnsupportedCapabilityError(
                 f"Dataset does not support list: {self._ref.id}",

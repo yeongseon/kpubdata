@@ -158,15 +158,7 @@ class Client:
         self._registry.register(adapter)
 
     def iter_authenticated_providers(self) -> tuple[ProviderAdapter, ...]:
-        """
-        iter authenticated providers 동작을 수행한다.
-
-        반환값:
-            tuple[ProviderAdapter, ...]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """API 키가 필요한 Provider 어댑터만 모아 튜플로 반환한다."""
         providers: list[ProviderAdapter] = []
         for provider_name in self._registry:
             adapter = cast(ProviderAdapter, self._registry.get(provider_name))
@@ -175,21 +167,14 @@ class Client:
         return tuple(providers)
 
     def _register_builtin_providers(self) -> None:
-        """
-        내부 헬퍼로서 register builtin providers 처리를 담당한다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """내장 Provider 목록을 지연 로딩 팩토리로 레지스트리에 등록한다."""
         config = self._config
         transport = self._transport
         transport_config = self._transport_config
         provider_transports = self._provider_transports
 
         for provider_name, module_path, class_name in _BUILTIN_PROVIDERS:
+            # 내장 Provider는 import 비용을 줄이기 위해 실제 사용 시점까지 지연 등록한다.
 
             def _make_factory(
                 mod: str,
@@ -199,41 +184,21 @@ class Client:
                 base_transport_config: TransportConfig,
                 owned_transports: list[HttpTransport],
             ) -> Callable[[], ProviderAdapter]:
-                """
-                내부 헬퍼로서 make factory 처리를 담당한다.
+                """Provider 모듈을 늦게 import하는 어댑터 생성 함수를 만든다."""
 
-                매개변수:
-                    mod (str): 호출자가 제공하는 입력 값이다.
-                    cfg (KPubDataConfig): 호출자가 제공하는 입력 값이다.
-                    tpt (HttpTransport): 호출자가 제공하는 입력 값이다.
-                    base_transport_config (TransportConfig): 호출자가 제공하는 입력 값이다.
-                    owned_transports (list[HttpTransport]): 호출자가 제공하는 입력 값이다.
-
-                반환값:
-                    Callable[[], ProviderAdapter]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-                예외:
-                    구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-                """
                 def _factory() -> ProviderAdapter:
-                    """
-                    내부 헬퍼로서 factory 처리를 담당한다.
-
-                    반환값:
-                        ProviderAdapter: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-                    예외:
-                        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-                    """
+                    """Provider 클래스를 로드하고 필요하면 전용 HttpTransport를 붙여 인스턴스를 만든다."""
                     import importlib
 
                     module = importlib.import_module(mod)
                     adapter_cls = cast(Callable[..., ProviderAdapter], getattr(module, cls))
                     adapter = adapter_cls(config=cfg, transport=tpt)
                     requirements = _get_transport_requirements(adapter)
+                    # 전송 요구사항이 없으면 공용 HttpTransport를 그대로 재사용한다.
                     if requirements is None:
                         return adapter
 
+                    # Provider별 SSL/헤더 요구사항이 있으면 별도 HttpTransport를 만들어 붙인다.
                     custom_transport = HttpTransport.with_requirements(
                         base_transport_config,
                         requirements,
@@ -270,18 +235,7 @@ _UNSET = object()
 
 
 def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequirements | None:
-    """
-    내부 헬퍼로서 get transport requirements 처리를 담당한다.
-
-    매개변수:
-        adapter (ProviderAdapter): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        TransportRequirements | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """어댑터가 선언한 전송 요구사항을 읽어 반환한다."""
     requirements = getattr(adapter, "transport_requirements", None)
     if requirements is None:
         return None
@@ -289,34 +243,12 @@ def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequiremen
 
 
 def _requires_api_key(adapter: ProviderAdapter) -> bool:
-    """
-    내부 헬퍼로서 requires api key 처리를 담당한다.
-
-    매개변수:
-        adapter (ProviderAdapter): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """어댑터가 API 키를 요구하는지 반환한다."""
     return cast(bool, getattr(adapter, "requires_api_key", True))
 
 
 def _resolve_cache(cache: bool | ResponseCache) -> ResponseCache | None:
-    """
-    내부 헬퍼로서 resolve cache 처리를 담당한다.
-
-    매개변수:
-        cache (bool | ResponseCache): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        ResponseCache | None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """cache 인자를 ResponseCache 인스턴스 또는 None으로 정규화한다."""
     if cache is False:
         return None
     if cache is True:
@@ -325,18 +257,7 @@ def _resolve_cache(cache: bool | ResponseCache) -> ResponseCache | None:
 
 
 def _resolve_cache_from_env(cache_override: object) -> bool | ResponseCache:
-    """
-    내부 헬퍼로서 resolve cache from env 처리를 담당한다.
-
-    매개변수:
-        cache_override (object): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        bool | ResponseCache: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """환경 변수 값을 읽어 캐시 사용 여부와 저장 위치를 결정한다."""
     if cache_override is not _UNSET:
         return cast(bool | ResponseCache, cache_override)
     if os.environ.get("KPUBDATA_CACHE") != "1":
@@ -348,18 +269,7 @@ def _resolve_cache_from_env(cache_override: object) -> bool | ResponseCache:
 
 
 def _resolve_cache_ttl(ttl_override: object) -> int:
-    """
-    내부 헬퍼로서 resolve cache ttl 처리를 담당한다.
-
-    매개변수:
-        ttl_override (object): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-    """
+    """override가 없으면 환경 변수에서 캐시 TTL 초 값을 읽는다."""
     if ttl_override is not _UNSET:
         return cast(int, ttl_override)
     raw_ttl = os.environ.get("KPUBDATA_CACHE_TTL")

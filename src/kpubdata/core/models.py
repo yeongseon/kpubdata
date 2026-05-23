@@ -26,15 +26,7 @@ def _dataclass(
     """고정 옵션으로 ``dataclasses.dataclass``를 적용하는 데코레이터를 반환한다."""
 
     def _decorate(cls: type[_T]) -> type[_T]:
-        """
-        내부 헬퍼로서 decorate 처리를 담당한다.
-
-        반환값:
-            type[_T]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """대상 클래스에 dataclass 옵션을 적용해 반환한다."""
         return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)  # pyright: ignore[reportCallIssue]
 
     return _decorate
@@ -125,39 +117,15 @@ class RecordBatch:
     meta: dict[str, object] = field(default_factory=dict)
 
     def __len__(self) -> int:
-        """
-        내부 헬퍼로서 len 처리를 담당한다.
-
-        반환값:
-            int: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """배치에 담긴 레코드 수를 반환한다."""
         return len(self.items)
 
     def __iter__(self) -> Iterator[dict[str, object]]:
-        """
-        내부 헬퍼로서 iter 처리를 담당한다.
-
-        반환값:
-            Iterator[dict[str, object]]: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """배치의 레코드를 순회하는 이터레이터를 반환한다."""
         return iter(self.items)
 
     def __bool__(self) -> bool:
-        """
-        내부 헬퍼로서 bool 처리를 담당한다.
-
-        반환값:
-            bool: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-        """
+        """배치에 레코드가 하나라도 있으면 True를 반환한다."""
         return bool(self.items)
 
     def to_pandas(self) -> object:
