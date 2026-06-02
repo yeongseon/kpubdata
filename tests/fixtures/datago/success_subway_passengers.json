@@ -1,0 +1,47 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL_CODE"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "pasngDe": "20260521",
+            "pasngHr": "23",
+            "lineNm": "8호선",
+            "stnCd": "2828",
+            "stnNo": "821",
+            "stnNm": "남위례",
+            "trnscdSeCd": "2",
+            "trnscdSeCdNm": "후불카드",
+            "trnscdUserSeCd": "01",
+            "trnscdUserSeCdNm": "일반",
+            "rideNope": "46",
+            "gffNope": "134",
+            "crtrYmd": "20260521"
+          },
+          {
+            "pasngDe": "20260521",
+            "pasngHr": "23",
+            "lineNm": "8호선",
+            "stnCd": "2827",
+            "stnNo": "827",
+            "stnNm": "모란",
+            "trnscdSeCd": "1",
+            "trnscdSeCdNm": "선불카드",
+            "trnscdUserSeCd": "01",
+            "trnscdUserSeCdNm": "일반",
+            "rideNope": "27",
+            "gffNope": "83",
+            "crtrYmd": "20260521"
+          }
+        ]
+      },
+      "pageNo": "1",
+      "numOfRows": "10",
+      "totalCount": "2"
+    }
+  }
+}
