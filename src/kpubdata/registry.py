@@ -11,7 +11,8 @@ from collections.abc import Iterator
 from threading import RLock
 from typing import Any
 
-from kpubdata.exceptions import ProviderNotRegisteredError
+from kpubdata.core.models import DatasetRef
+from kpubdata.exceptions import CapabilityContractError, ProviderNotRegisteredError
 
 logger = logging.getLogger("kpubdata.registry")
 
@@ -41,9 +42,17 @@ class ProviderRegistry:
             lazy_names = sorted(self._lazy.keys())
         return f"ProviderRegistry(eager={eager_names}, lazy={lazy_names})"
 
-    def register(self, adapter: Any) -> None:
-        """어댑터 인스턴스를 등록한다. 프로토콜 준수 여부를 검증한다."""
+    def register(self, adapter: Any, *, validate_capabilities: bool = True) -> None:
+        """어댑터 인스턴스를 등록한다. 프로토콜 준수 여부를 검증한다.
+
+        ``validate_capabilities=True``(기본값)이면 등록 시점에 ``list_datasets()``를
+        한 번 호출해 어댑터의 catalogue가 실제로 로드되는지, 각 dataset이 비어 있지
+        않은 ``operations`` 집합을 가지는지(즉 catalogue가 "지원" 거짓 표시를
+        하지 않는지)를 fail-fast로 확인한다. 위반 시 ``CapabilityContractError``.
+        """
         self._validate_adapter(adapter)
+        if validate_capabilities:
+            self._validate_capability_contract(adapter)
         provider_name = str(adapter.name).strip().lower()
 
         with self._lock:
@@ -105,6 +114,7 @@ class ProviderRegistry:
         )
         lazy_adapter = factory()
         self._validate_adapter(lazy_adapter)
+        self._validate_capability_contract(lazy_adapter)
         adapter_name = str(lazy_adapter.name).strip().lower()
         if adapter_name != normalized_name:
             raise TypeError(
@@ -155,6 +165,54 @@ class ProviderRegistry:
         ]
         if non_callable:
             raise TypeError(f"Adapter '{name}' has non-callable required methods: {non_callable}")
+
+    @staticmethod
+    def _validate_capability_contract(adapter: Any) -> None:
+        """어댑터의 catalogue가 정직한 capability 선언을 하는지 fail-fast로 검증한다.
+
+        ``list_datasets()`` 호출 자체가 실패하면 catalogue 로딩이 깨진 상태이므로
+        등록 자체를 차단한다. 그리고 노출되는 각 ``DatasetRef``가 비어 있지 않은
+        ``operations`` 집합을 갖는지 확인한다 — 빈 operations는 "이 dataset은
+        아무 일도 못 한다"는 거짓 표시이기 때문이다.
+        """
+        provider_name = str(getattr(adapter, "name", "<unknown>"))
+
+        try:
+            datasets = adapter.list_datasets()
+        except Exception as exc:
+            raise CapabilityContractError(
+                f"Adapter '{provider_name}' failed to enumerate datasets at registration: {exc}",
+                provider=provider_name,
+            ) from exc
+
+        if not isinstance(datasets, list):
+            raise CapabilityContractError(
+                f"Adapter '{provider_name}' list_datasets() must return a list, "
+                f"got {type(datasets).__name__}",
+                provider=provider_name,
+            )
+
+        empty_ops: list[str] = []
+        non_ref: list[str] = []
+        for entry in datasets:
+            if not isinstance(entry, DatasetRef):
+                non_ref.append(repr(entry))
+                continue
+            if not entry.operations:
+                empty_ops.append(entry.id)
+
+        if non_ref:
+            raise CapabilityContractError(
+                f"Adapter '{provider_name}' list_datasets() returned non-DatasetRef entries: "
+                f"{non_ref[:3]}",
+                provider=provider_name,
+            )
+        if empty_ops:
+            raise CapabilityContractError(
+                f"Adapter '{provider_name}' has datasets declaring empty operations: "
+                f"{empty_ops[:5]}. Empty operations is a dishonest capability declaration.",
+                provider=provider_name,
+            )
 
 
 __all__ = ["ProviderRegistry"]

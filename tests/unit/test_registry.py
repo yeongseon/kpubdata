@@ -274,3 +274,114 @@ class TestProviderRegistry:
         reg = ProviderRegistry()
         with pytest.raises(TypeError):
             reg.register(object())  # type: ignore[arg-type]
+
+
+class TestCapabilityContractValidation:
+    """등록 시점 capability 계약 검증(#231)에 대한 테스트."""
+
+    def _ds(self, key: str, *, operations: tuple[str, ...] = ("list", "raw")) -> object:
+        """테스트용 DatasetRef를 만든다."""
+        from kpubdata.core.capability import Operation
+        from kpubdata.core.models import DatasetRef
+        from kpubdata.core.representation import Representation
+
+        return DatasetRef(
+            id=f"fake.{key}",
+            provider="fake",
+            dataset_key=key,
+            name=key,
+            representation=Representation.API_JSON,
+            operations=frozenset(Operation(op) for op in operations),
+        )
+
+    def test_registration_calls_list_datasets_and_passes_for_honest_adapter(self) -> None:
+        """list_datasets가 비어 있지 않고 operations가 채워져 있으면 통과한다."""
+        from kpubdata.registry import ProviderRegistry
+
+        honest = FakeAdapter("honest")
+        honest_datasets = [self._ds("a"), self._ds("b")]
+        honest.list_datasets = lambda: honest_datasets  # type: ignore[method-assign]
+
+        reg = ProviderRegistry()
+        reg.register(honest)  # 예외가 발생하지 않아야 한다.
+        assert "honest" in reg
+
+    def test_registration_rejects_adapter_whose_list_datasets_crashes(self) -> None:
+        """list_datasets가 예외를 던지면 CapabilityContractError로 빠르게 실패한다."""
+        from kpubdata.exceptions import CapabilityContractError
+        from kpubdata.registry import ProviderRegistry
+
+        broken = FakeAdapter("broken")
+
+        def boom() -> list[object]:
+            raise RuntimeError("catalogue not loaded")
+
+        broken.list_datasets = boom  # type: ignore[method-assign]
+
+        reg = ProviderRegistry()
+        with pytest.raises(CapabilityContractError, match="failed to enumerate datasets"):
+            reg.register(broken)
+        assert "broken" not in reg
+
+    def test_registration_rejects_dataset_with_empty_operations(self) -> None:
+        """operations가 빈 집합인 dataset은 "지원 거짓 표시"로 간주해 거부한다."""
+        from kpubdata.exceptions import CapabilityContractError
+        from kpubdata.registry import ProviderRegistry
+
+        dishonest = FakeAdapter("dishonest")
+        dishonest_datasets = [self._ds("a", operations=())]
+        dishonest.list_datasets = lambda: dishonest_datasets  # type: ignore[method-assign]
+
+        reg = ProviderRegistry()
+        with pytest.raises(CapabilityContractError, match="empty operations"):
+            reg.register(dishonest)
+
+    def test_registration_rejects_non_list_return_value(self) -> None:
+        """list_datasets가 list가 아닌 값을 반환하면 거부한다."""
+        from kpubdata.exceptions import CapabilityContractError
+        from kpubdata.registry import ProviderRegistry
+
+        bad_shape = FakeAdapter("bad_shape")
+        bad_shape.list_datasets = lambda: "not a list"  # type: ignore[method-assign,return-value]
+
+        reg = ProviderRegistry()
+        with pytest.raises(CapabilityContractError, match="must return a list"):
+            reg.register(bad_shape)
+
+    def test_registration_rejects_non_dataset_ref_entries(self) -> None:
+        """list_datasets에 DatasetRef가 아닌 엔트리가 섞이면 거부한다."""
+        from kpubdata.exceptions import CapabilityContractError
+        from kpubdata.registry import ProviderRegistry
+
+        adapter = FakeAdapter("mixed")
+        adapter.list_datasets = lambda: [self._ds("ok"), {"not": "a ref"}]  # type: ignore[method-assign]
+
+        reg = ProviderRegistry()
+        with pytest.raises(CapabilityContractError, match="non-DatasetRef entries"):
+            reg.register(adapter)
+
+    def test_validate_capabilities_can_be_disabled(self) -> None:
+        """validate_capabilities=False면 capability 검증을 건너뛴다(deprecation 경로용)."""
+        from kpubdata.registry import ProviderRegistry
+
+        adapter = FakeAdapter("legacy")
+        adapter.list_datasets = lambda: [self._ds("a", operations=())]  # type: ignore[method-assign]
+
+        reg = ProviderRegistry()
+        reg.register(adapter, validate_capabilities=False)  # 예외가 없어야 한다.
+        assert "legacy" in reg
+
+    def test_lazy_registration_also_validates_capabilities_on_materialization(self) -> None:
+        """lazy 등록도 materialize 시점에 capability 검증을 거친다."""
+        from kpubdata.exceptions import CapabilityContractError
+        from kpubdata.registry import ProviderRegistry
+
+        def factory() -> FakeAdapter:
+            a = FakeAdapter("lazy_bad")
+            a.list_datasets = lambda: [self._ds("a", operations=())]  # type: ignore[method-assign]
+            return a
+
+        reg = ProviderRegistry()
+        reg.register_lazy("lazy_bad", factory)
+        with pytest.raises(CapabilityContractError):
+            reg.get("lazy_bad")
