@@ -799,6 +799,31 @@ def test_agri_price_dataset_contract_query_and_raw() -> None:
     assert raw is not None
 
 
+def test_subway_passengers_dataset_contract_metadata() -> None:
+    adapter = _build_adapter(["success_subway_passengers.json"])
+
+    dataset = adapter.get_dataset("subway_passengers")
+
+    assert dataset.id == "datago.subway_passengers"
+    assert Operation.LIST in dataset.operations
+    assert Operation.RAW in dataset.operations
+    assert dataset.query_support is not None
+    assert dataset.query_support.pagination is PaginationMode.OFFSET
+
+
+def test_subway_passengers_dataset_contract_query_and_raw() -> None:
+    adapter = _build_adapter(["success_subway_passengers.json", "success_subway_passengers.json"])
+    dataset = adapter.get_dataset("subway_passengers")
+
+    batch = adapter.query_records(dataset, Query(filters={"pasngYmd": "20260521"}))
+    raw = adapter.call_raw(dataset, "getStnPsgr", {"pasngYmd": "20260521"})
+
+    assert batch.dataset is dataset
+    assert len(batch.items) == 2
+    assert all(isinstance(item, dict) for item in batch.items)
+    assert raw is not None
+
+
 def test_mid_fcst_dataset_contract_metadata() -> None:
     adapter = _build_adapter(["success_mid_fcst.json"])
 
