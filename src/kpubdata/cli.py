@@ -131,6 +131,30 @@ def _build_parser() -> argparse.ArgumentParser:
     _ = raw_parser.add_argument("-p", "--param", action="append", default=[], metavar="KEY=VALUE")
     _ = raw_parser.add_argument("--output", help="Write output to a file")
 
+    scaffold_parser = subparsers.add_parser(
+        "scaffold", help="Generate skeleton files for a new provider adapter"
+    )
+    scaffold_sub = scaffold_parser.add_subparsers(dest="scaffold_command")
+    scaffold_provider = scaffold_sub.add_parser(
+        "provider", help="Scaffold a new provider adapter package"
+    )
+    _ = scaffold_provider.add_argument("name", help="Provider name (lowercase python identifier)")
+    _ = scaffold_provider.add_argument(
+        "--dataset-key",
+        default="sample",
+        help="Seed catalogue dataset_key (default: sample)",
+    )
+    _ = scaffold_provider.add_argument(
+        "--repo-root",
+        default=".",
+        help="Repository root containing src/ and tests/ (default: cwd)",
+    )
+    _ = scaffold_provider.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing scaffold files",
+    )
+
     return parser
 
 
@@ -164,6 +188,10 @@ def _run_command(args: argparse.Namespace) -> int:
     if command is None:
         _build_parser().print_help()
         return 0
+
+    # scaffold는 client/provider key가 필요 없으므로 별도 분기.
+    if command == "scaffold":
+        return _handle_scaffold_command(args)
 
     provider_keys = _parse_assignments(provider_key_values, flag_name="--provider-key")
     client = _create_client(cache_enabled=cache_enabled, provider_keys=provider_keys)
@@ -297,6 +325,42 @@ def _handle_raw_command(client: Client, args: argparse.Namespace) -> int:
     dataset = client.dataset(dataset_id)
     payload = dataset.call_raw(operation, **params)
     _write_output(json.dumps(_to_jsonable(payload), ensure_ascii=False, indent=2), output_path)
+    return 0
+
+
+def _handle_scaffold_command(args: argparse.Namespace) -> int:
+    """`kpubdata scaffold provider <name>` 처리 — 새 provider skeleton 생성."""
+    from kpubdata.scaffold import scaffold_provider
+
+    values = vars(args)
+    sub = cast(str | None, values.get("scaffold_command"))
+    if sub != "provider":
+        print(
+            "error: 'kpubdata scaffold' requires a subcommand (e.g. 'provider')",
+            file=sys.stderr,
+        )
+        return 2
+
+    name = cast(str, values.get("name"))
+    dataset_key = cast(str, values.get("dataset_key") or "sample")
+    repo_root = Path(cast(str, values.get("repo_root") or "."))
+    force = cast(bool, values.get("force", False))
+
+    try:
+        result = scaffold_provider(
+            name, repo_root=repo_root, dataset_key=dataset_key, overwrite=force
+        )
+    except (ValueError, FileExistsError) as exc:
+        print(f"error: scaffold failed: {exc}", file=sys.stderr)
+        return 1
+
+    print(f"Scaffolded provider '{name}' at {result.provider_dir}")
+    for path in result.created:
+        print(f"  + {path.relative_to(repo_root) if repo_root != Path('.') else path}")
+    print("Next steps:")
+    print(f"  - fill in adapter logic in {result.adapter_path}")
+    print(f"  - replace placeholder catalogue entry in {result.catalogue_path}")
+    print(f"  - run: pytest {result.contract_test_path}")
     return 0
 
 
