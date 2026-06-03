@@ -30,7 +30,7 @@ KPubData Product Family는 세 저장소가 독립적으로 릴리스되지만, 
 
 ## 2. 버전 규약 — Semantic Versioning
 
-세 저장소 모두 [Semantic Versioning 2.0](https://semver.org/lang/ko/) 을 따른다.
+세 저장소 모두 [Semantic Versioning 2.0](https://semver.org/lang/ko/)을 따른다.
 
 - **MAJOR**: 공개 API(`API_SPEC.md`/`builder-api.yaml`/`kpubdata-studio` 공개 라우트)에 호환성을 깨는 변경.
 - **MINOR**: 후방 호환되는 기능 추가. 예) 새 Provider, 새 Exporter, 새 엔드포인트.
