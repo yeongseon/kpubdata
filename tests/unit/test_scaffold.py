@@ -17,7 +17,12 @@ from kpubdata.scaffold import scaffold_provider
 
 
 def _shared_repo_root(tmp_path: Path) -> Path:
-    """src/__init__.py 골격이 들어간 임시 repo root를 만들어 반환한다."""
+    """스캐폴드가 기대하는 디렉터리(`src/kpubdata/providers`, `tests/contract`,
+    `tests/fixtures`)만 미리 만들어 둔 임시 repo root를 반환한다.
+
+    `__init__.py`를 비롯한 파이썬 파일은 생성하지 않는다 — 스캐폴드 자체가
+    필요한 파일을 다 만들어내는지 확인하기 위해서다.
+    """
     (tmp_path / "src" / "kpubdata" / "providers").mkdir(parents=True)
     (tmp_path / "tests" / "contract").mkdir(parents=True)
     (tmp_path / "tests" / "fixtures").mkdir(parents=True)
@@ -118,6 +123,20 @@ class TestScaffoldProvider:
 
         with pytest.raises(ValueError, match="dataset_key must match"):
             scaffold_provider("ok_name", repo_root=repo, dataset_key="Bad-Key")
+
+    def test_rejects_python_keyword_as_provider_name(self, tmp_path: Path) -> None:
+        # 정규식은 통과하지만 파이썬 예약어("class")는 생성된 코드의 import 문에서
+        # SyntaxError를 일으키므로 별도로 거부해야 한다.
+        repo = _shared_repo_root(tmp_path)
+
+        with pytest.raises(ValueError, match="Python keyword"):
+            scaffold_provider("class", repo_root=repo)
+
+    def test_rejects_python_keyword_as_dataset_key(self, tmp_path: Path) -> None:
+        repo = _shared_repo_root(tmp_path)
+
+        with pytest.raises(ValueError, match="Python keyword"):
+            scaffold_provider("ok_name", repo_root=repo, dataset_key="class")
 
 
 class TestScaffoldCli:
