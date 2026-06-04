@@ -385,3 +385,24 @@ class TestCapabilityContractValidation:
         reg.register_lazy("lazy_bad", factory)
         with pytest.raises(CapabilityContractError):
             reg.get("lazy_bad")
+
+    def test_duplicate_name_short_circuits_before_capability_validation(self) -> None:
+        """이미 등록된 이름이면 capability 검증(잠재적으로 비싼 catalogue 로드)을 건너뛴다."""
+        from kpubdata.registry import ProviderRegistry
+
+        reg = ProviderRegistry()
+        reg.register(FakeAdapter("dup_provider"))
+
+        call_count = {"n": 0}
+        second = FakeAdapter("dup_provider")
+
+        def expensive_list() -> list[object]:
+            call_count["n"] += 1
+            return []
+
+        second.list_datasets = expensive_list  # type: ignore[method-assign]
+
+        with pytest.raises(ValueError, match="already registered"):
+            reg.register(second)
+        # capability 검증이 이름 충돌 검사 뒤에 일어났다면 list_datasets는 호출되지 않아야 한다.
+        assert call_count["n"] == 0

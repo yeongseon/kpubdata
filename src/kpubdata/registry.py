@@ -49,13 +49,23 @@ class ProviderRegistry:
         한 번 호출해 어댑터의 catalogue가 실제로 로드되는지, 각 dataset이 비어 있지
         않은 ``operations`` 집합을 가지는지(즉 catalogue가 "지원" 거짓 표시를
         하지 않는지)를 fail-fast로 확인한다. 위반 시 ``CapabilityContractError``.
+
+        이름 충돌 검사는 capability 검증보다 먼저 수행한다 — capability 검증은
+        ``list_datasets()``를 호출해 catalogue 로드 비용(파일 I/O 등)이 들 수
+        있으므로, 어차피 거부될 등록에 그 비용을 지불하지 않는다.
         """
         self._validate_adapter(adapter)
-        if validate_capabilities:
-            self._validate_capability_contract(adapter)
         provider_name = str(adapter.name).strip().lower()
 
         with self._lock:
+            if provider_name in self._adapters or provider_name in self._lazy:
+                raise ValueError(f"Provider '{provider_name}' is already registered")
+
+        if validate_capabilities:
+            self._validate_capability_contract(adapter)
+
+        with self._lock:
+            # capability 검증 동안 다른 스레드가 같은 이름을 등록했을 가능성에 대비해 재확인.
             if provider_name in self._adapters or provider_name in self._lazy:
                 raise ValueError(f"Provider '{provider_name}' is already registered")
             self._adapters[provider_name] = adapter
@@ -210,7 +220,9 @@ class ProviderRegistry:
         if empty_ops:
             raise CapabilityContractError(
                 f"Adapter '{provider_name}' has datasets declaring empty operations: "
-                f"{empty_ops[:5]}. Empty operations is a dishonest capability declaration.",
+                f"{empty_ops[:5]}. An empty operations set is a dishonest capability "
+                "declaration — the dataset claims to be supported but exposes no callable "
+                "operation.",
                 provider=provider_name,
             )
 
