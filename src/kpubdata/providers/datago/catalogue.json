@@ -8,9 +8,16 @@
     "service_key_param": "serviceKey",
     "format_param": "dataType",
     "description": "Korea Meteorological Administration short-range forecast",
-    "tags": ["weather", "forecast", "kma"],
+    "tags": [
+      "weather",
+      "forecast",
+      "kma"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -25,9 +32,16 @@
     "service_key_param": "serviceKey",
     "format_param": "dataType",
     "description": "KMA ultra short-term observed weather conditions",
-    "tags": ["weather", "nowcast", "kma"],
+    "tags": [
+      "weather",
+      "nowcast",
+      "kma"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -42,9 +56,16 @@
     "service_key_param": "serviceKey",
     "format_param": "returnType",
     "description": "AirKorea real-time particulate matter and atmospheric pollution",
-    "tags": ["environment", "air-quality", "pollution"],
+    "tags": [
+      "environment",
+      "air-quality",
+      "pollution"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -60,9 +81,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Gyeonggi-do real-time bus arrival information",
-    "tags": ["transportation", "bus", "realtime"],
+    "tags": [
+      "transportation",
+      "bus",
+      "realtime"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -77,9 +105,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Hospital basic information and medical institution lookup",
-    "tags": ["healthcare", "hospital", "medical"],
+    "tags": [
+      "healthcare",
+      "hospital",
+      "medical"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -94,9 +129,17 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR co-use taboo drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -111,9 +154,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR older adult caution drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "older-adult"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "older-adult"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -128,9 +180,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "product"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "product"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -145,9 +206,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR age-specific taboo drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "age-taboo"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "age-taboo"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -162,9 +232,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR dosage caution drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "dosage"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "dosage"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -179,9 +258,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR medication period caution drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "medication-period"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "medication-period"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -196,9 +284,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR efficacy group duplication drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "efficacy-duplication"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "efficacy-duplication"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -213,9 +310,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR extended-release tablet split caution drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "er-tablet-split-caution"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "er-tablet-split-caution"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -230,9 +336,18 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "MFDS DUR pregnancy taboo drug product information",
-    "tags": ["healthcare", "medicine", "dur", "mfds", "pregnancy"],
+    "tags": [
+      "healthcare",
+      "medicine",
+      "dur",
+      "mfds",
+      "pregnancy"
+    ],
     "source_url": "https://www.data.go.kr/data/15059486/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -247,9 +362,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry title info from building ledger",
-    "tags": ["real-estate", "building", "registry"],
+    "tags": [
+      "real-estate",
+      "building",
+      "registry"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -264,9 +386,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry recap title info from building ledger",
-    "tags": ["real-estate", "building", "registry"],
+    "tags": [
+      "real-estate",
+      "building",
+      "registry"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -281,9 +410,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry floor outline info from building ledger",
-    "tags": ["real-estate", "building", "registry"],
+    "tags": [
+      "real-estate",
+      "building",
+      "registry"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -298,9 +434,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "MOLIT building registry exclusive/common area info from building ledger",
-    "tags": ["real-estate", "building", "registry"],
+    "tags": [
+      "real-estate",
+      "building",
+      "registry"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -315,9 +458,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT apartment trade real transaction data",
-    "tags": ["real-estate", "apartment", "trade"],
+    "tags": [
+      "real-estate",
+      "apartment",
+      "trade"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -332,9 +482,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT apartment rent real transaction data",
-    "tags": ["real-estate", "apartment", "rent"],
+    "tags": [
+      "real-estate",
+      "apartment",
+      "rent"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -349,9 +506,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT officetel trade real transaction data",
-    "tags": ["real-estate", "officetel", "trade"],
+    "tags": [
+      "real-estate",
+      "officetel",
+      "trade"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -366,9 +530,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT officetel rent real transaction data",
-    "tags": ["real-estate", "officetel", "rent"],
+    "tags": [
+      "real-estate",
+      "officetel",
+      "rent"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -383,9 +554,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT row house trade real transaction data",
-    "tags": ["real-estate", "row-house", "trade"],
+    "tags": [
+      "real-estate",
+      "row-house",
+      "trade"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -400,9 +578,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT row house rent real transaction data",
-    "tags": ["real-estate", "row-house", "rent"],
+    "tags": [
+      "real-estate",
+      "row-house",
+      "rent"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -417,9 +602,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT single house trade real transaction data",
-    "tags": ["real-estate", "single-house", "trade"],
+    "tags": [
+      "real-estate",
+      "single-house",
+      "trade"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -434,9 +626,16 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "MOLIT single house rent real transaction data",
-    "tags": ["real-estate", "single-house", "rent"],
+    "tags": [
+      "real-estate",
+      "single-house",
+      "rent"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -451,7 +650,10 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "Public procurement contract information from G2B (Korea ON-line E-Procurement System)",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -471,7 +673,10 @@
       "page_size": "perPage"
     },
     "description": "Certified social enterprise list from Ministry of Employment and Labor",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -486,7 +691,10 @@
     "service_key_param": "serviceKey",
     "format_param": "type",
     "description": "G2B comprehensive shopping mall product identification information",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -501,9 +709,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism information by region (TourAPI KorService2)",
-    "tags": ["tourism", "area", "travel"],
+    "tags": [
+      "tourism",
+      "area",
+      "travel"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -518,9 +733,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism information by latitude/longitude (TourAPI KorService2)",
-    "tags": ["tourism", "location", "travel"],
+    "tags": [
+      "tourism",
+      "location",
+      "travel"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -535,9 +757,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism keyword search (TourAPI KorService2)",
-    "tags": ["tourism", "search", "travel"],
+    "tags": [
+      "tourism",
+      "search",
+      "travel"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -552,9 +781,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "KTO Korean tourism festival/event search by date (TourAPI KorService2)",
-    "tags": ["tourism", "festival", "travel"],
+    "tags": [
+      "tourism",
+      "festival",
+      "travel"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -569,9 +805,16 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Seoul Metro real-time fare information by station pair",
-    "tags": ["transportation", "subway", "fare"],
+    "tags": [
+      "transportation",
+      "subway",
+      "fare"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -586,9 +829,40 @@
     "service_key_param": "serviceKey",
     "format_param": "_type",
     "description": "Seoul Metro shortest path between two subway stations",
-    "tags": ["transportation", "subway", "route"],
+    "tags": [
+      "transportation",
+      "subway",
+      "route"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "subway_passengers",
+    "name": "지하철역별 승하차 인원 (Subway Station Passengers)",
+    "base_url": "https://apis.data.go.kr/B553766/psgr",
+    "default_operation": "getStnPsgr",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "Seoul Metro per-station daily/hourly boarding and alighting passenger counts by card type and rider type",
+    "tags": [
+      "transportation",
+      "subway",
+      "passengers"
+    ],
+    "source_url": "https://www.data.go.kr/data/15143845/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -604,9 +878,16 @@
     "service_key_param": "apiKey",
     "format_param": "getType",
     "description": "ITS National Transport Information Center real-time road traffic flow (speed, travel time, congestion)",
-    "tags": ["transportation", "traffic", "realtime"],
+    "tags": [
+      "transportation",
+      "traffic",
+      "realtime"
+    ],
     "source_url": "https://www.data.go.kr/data/15040463/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -619,9 +900,14 @@
     "service_key_param": "serviceKey",
     "format_param": "resultType",
     "description": "Call any data.go.kr API endpoint by passing _base_url at call time. Only call_raw is supported; list() is not available because schema and pagination vary by endpoint.",
-    "tags": ["api", "generic"],
+    "tags": [
+      "api",
+      "generic"
+    ],
     "source_url": "https://www.data.go.kr",
-    "operations": ["raw"],
+    "operations": [
+      "raw"
+    ],
     "generic": true
   },
   {
@@ -633,9 +919,17 @@
     "service_key_param": "serviceKey",
     "format_param": "returnType",
     "description": "aT(Korea Agro-Fisheries & Food Trade Corporation) eco-friendly agricultural product price information",
-    "tags": ["agriculture", "price", "eco-friendly", "at"],
+    "tags": [
+      "agriculture",
+      "price",
+      "eco-friendly",
+      "at"
+    ],
     "source_url": "https://www.data.go.kr/data/15156073/openapi.do",
-    "operations": ["list", "raw"],
+    "operations": [
+      "list",
+      "raw"
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
