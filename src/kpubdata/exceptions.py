@@ -99,8 +99,17 @@ class ProviderNotRegisteredError(PublicDataError):
     """Provider 키가 레지스트리에 없을 때 발생한다."""
 
 
+class CapabilityContractError(PublicDataError):
+    """Provider 어댑터의 선언된 capability와 실제 동작이 일치하지 않을 때 발생한다.
+
+    예: catalogue의 dataset이 ``LIST``를 선언했지만 ``list_datasets`` 호출이
+    실패하거나, ``operations``가 빈 집합으로 선언된 dataset이 노출되는 경우.
+    """
+
+
 __all__ = [
     "AuthError",
+    "CapabilityContractError",
     "ConfigError",
     "DatasetNotFoundError",
     "InvalidRequestError",
