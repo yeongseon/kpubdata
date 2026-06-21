@@ -68,6 +68,7 @@ nav:
   - 아키텍처:
       - 시스템 구조: architecture-diagrams.md
       - Product Family: product-family-architecture.md
+      - 호환성 매트릭스: compatibility.md
       - datago API 참고: datago-api-reference.md
   - ADR:
       - "0001: Dialect 아키텍처": adrs/0001-dialect-inspired-architecture.md
