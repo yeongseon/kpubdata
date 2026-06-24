@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest tests/unit/providers/datago/ tests/contract/test_datago.py tests/unit/test_catalogue_validation.py -x --tb=short)",
+      "PowerShell(uv run pytest tests/unit/providers/datago/ tests/contract/test_datago.py tests/unit/test_catalogue_validation.py -x --tb=short 2>&1)",
+      "Bash(python -m pip install -e \".[dev]\" --quiet)",
+      "Bash(python -m pytest tests/unit/providers/datago/ tests/contract/test_datago.py tests/unit/test_catalogue_validation.py --tb=short)",
+      "Bash(git stash *)",
+      "Bash(python -m pytest tests/unit/providers/bok/test_bok_adapter.py::test_catalogue_includes_usd_krw_daily_dataset tests/unit/providers/kosis/test_adapter.py::test_catalogue_parses_industrial_production_default_query_params --tb=line -q)",
+      "Bash(python -m ruff check src/kpubdata/providers/datago/ tests/unit/providers/datago/ tests/integration/test_datago_live.py tests/contract/test_datago.py)"
+    ]
+  }
+}

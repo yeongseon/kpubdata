@@ -1,0 +1,19 @@
+{
+  "GetParkInfo": {
+    "list_total_count": 1,
+    "RESULT": {
+      "CODE": "INFO-000",
+      "MESSAGE": "정상 처리되었습니다"
+    },
+    "row": [
+      {
+        "PARK_ID": "001",
+        "PARK_NAME": "Test Park",
+        "ADDR": "Seoul, Test-gu",
+        "CAPACITY": "120",
+        "LAT": "37.5665",
+        "LNG": "126.9780"
+      }
+    ]
+  }
+}
