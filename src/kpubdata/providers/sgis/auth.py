@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import NoReturn, cast
@@ -146,7 +147,7 @@ class SgisAuthClient:
         raise ProviderResponseError(message, provider=_SGIS_PROVIDER, provider_code=provider_code)
 
 
-def _extract_err_code(payload: dict[str, object]) -> int | None:
+def _extract_err_code(payload: Mapping[str, object]) -> int | None:
     """err code에서 필요한 값을 추출한다."""
     err_obj = payload.get("errCd")
     if isinstance(err_obj, int):
@@ -172,3 +173,6 @@ def _coerce_epoch(value: object) -> int | None:
 
 
 __all__ = ["SgisAuthClient"]
+
+
+__all__ = ["SgisAuthClient", "_extract_err_code"]

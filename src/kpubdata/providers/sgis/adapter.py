@@ -21,7 +21,7 @@ from kpubdata.exceptions import (
     ServiceUnavailableError,
 )
 from kpubdata.providers._common import build_schema_from_metadata, load_catalogue
-from kpubdata.providers.sgis.auth import SgisAuthClient
+from kpubdata.providers.sgis.auth import SgisAuthClient, _extract_err_code
 from kpubdata.transport.decode import decode_json
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
@@ -324,19 +324,6 @@ class SgisAdapter:
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
         """기본 카탈로그을 로드해 반환한다."""
         return load_catalogue("kpubdata.providers.sgis", _SGIS_PROVIDER)
-
-
-def _extract_err_code(payload: Mapping[str, object]) -> int | None:
-    """err code에서 필요한 값을 추출한다."""
-    err_obj = payload.get("errCd")
-    if isinstance(err_obj, int):
-        return err_obj
-    if isinstance(err_obj, str):
-        try:
-            return int(err_obj)
-        except ValueError:
-            return None
-    return None
 
 
 __all__ = ["SgisAdapter"]
