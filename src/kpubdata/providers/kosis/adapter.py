@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Mapping, Sequence
-from typing import NoReturn, cast
+from typing import cast
 from urllib.parse import urlencode
 
 from kpubdata.config import KPubDataConfig
@@ -308,9 +308,11 @@ class KosisAdapter:
         payload_items = cast(list[object], payload)
         return [cast(dict[str, object], item) for item in payload_items if isinstance(item, dict)]
 
-    def _raise_for_error_payload(self, payload: Mapping[str, object], dataset_id: str) -> NoReturn:
-        """raise for error payload과 관련된 값을 계산하거나 조회한다."""
+    def _raise_for_error_payload(self, payload: Mapping[str, object], dataset_id: str) -> None:
+        """에러 페이로드를 검사하고 에러가 있으면 예외를 발생시킨다."""
         code_raw = payload.get("err")
+        if code_raw is None:
+            return  # "err" 필드 없음 = 정상 응답
         message_raw = payload.get("errMsg")
         code = code_raw if isinstance(code_raw, str) else None
         message = message_raw if isinstance(message_raw, str) else "KOSIS returned an error"

@@ -15,7 +15,7 @@ import pytest
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
-from kpubdata.exceptions import InvalidRequestError
+from kpubdata.exceptions import AuthError, InvalidRequestError, ProviderResponseError
 from kpubdata.providers._common import build_dataset_ref
 from kpubdata.providers.kosis.adapter import KosisAdapter
 from kpubdata.transport.http import HttpTransport
@@ -370,3 +370,36 @@ def test_query_records_ignores_non_kosis_default_query_param_keys() -> None:
     assert "itmId=T" in request_url
     assert "unknown=ignored" not in request_url
     assert request_url.count("apiKey=") == 1
+
+
+# test raise for error payload returns none when err field absent 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_error_payload_returns_none_when_err_field_absent() -> None:
+    """에러 필드 없는 딕셔너리 페이로드에서 _raise_for_error_payload가 None을 반환하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    # 에러 없는 딕셔너리 — 예외 없이 반환돼야 한다 (이전 구현은 항상 ProviderResponseError 발생)
+    result = adapter._raise_for_error_payload({"some_field": "some_value"}, dataset.id)
+    assert result is None
+
+
+# test raise for error payload raises auth error on code 30 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_error_payload_raises_auth_error_on_code_30() -> None:
+    """err=30 페이로드에서 AuthError가 발생하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    with pytest.raises(AuthError):
+        adapter._raise_for_error_payload({"err": "30", "errMsg": "인증키 오류"}, dataset.id)
+
+
+# test raise for error payload raises invalid request error on code 10 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_error_payload_raises_invalid_request_error_on_code_10() -> None:
+    """err=10 페이로드에서 InvalidRequestError가 발생하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    with pytest.raises(InvalidRequestError):
+        adapter._raise_for_error_payload({"err": "10", "errMsg": "잘못된 요청"}, dataset.id)
+
+
+# test raise for error payload raises provider response error on unknown code 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_error_payload_raises_provider_response_error_on_unknown_code() -> None:
+    """알 수 없는 err 코드 페이로드에서 ProviderResponseError가 발생하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    with pytest.raises(ProviderResponseError):
+        adapter._raise_for_error_payload({"err": "99", "errMsg": "기타 오류"}, dataset.id)
