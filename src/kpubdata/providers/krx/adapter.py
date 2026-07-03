@@ -304,8 +304,26 @@ class KrxAdapter:
         end_date: str,
         market: str,
     ) -> pd.DataFrame:
-        """market valuation by day 데이터를 조회해 반환한다."""
+        """날짜별 시장 PER/PBR/배당수익률을 조회해 DataFrame으로 반환한다.
+
+        .. warning::
+            이 메서드는 start_date~end_date 범위의 **달력상 모든 날짜**마다
+            ``pykrx.stock.get_market_fundamental_by_ticker`` API를 개별 호출한다.
+            호출 횟수는 O(N_days) 이므로 날짜 범위가 길수록 네트워크 요청이 많아진다.
+            예: 1년 조회 ≈ 365회 호출. 거래일(영업일)만 필터링하지 않으므로
+            주말·공휴일은 빈 응답을 반환하지만 호출 자체는 발생한다.
+        """
         rows: list[dict[str, object]] = []
+        total_days = len(
+            pd.date_range(start=pd.Timestamp(start_date), end=pd.Timestamp(end_date), freq="D")
+        )
+        if total_days > 90:  # noqa: PLR2004
+            logger.warning(
+                "KRX market_valuation: 날짜 범위 %d일 → API %d회 호출 예정",
+                total_days,
+                total_days,
+                extra={"provider": "krx", "dataset_id": "krx.market_valuation"},
+            )
         for day in pd.date_range(
             start=pd.Timestamp(start_date), end=pd.Timestamp(end_date), freq="D"
         ):
