@@ -15,7 +15,7 @@ import pytest
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query
-from kpubdata.exceptions import InvalidRequestError
+from kpubdata.exceptions import AuthError, InvalidRequestError, ProviderResponseError
 from kpubdata.providers.bok.adapter import BokAdapter
 from kpubdata.transport.http import HttpTransport
 
@@ -430,3 +430,39 @@ def test_query_records_zero_items_logs_debug(caplog: pytest.LogCaptureFixture) -
     assert record.__dict__["page"] == 1
     assert record.__dict__["page_size"] == 10
     assert record.__dict__["total_count"] == 0
+
+
+# test raise for result returns none when no result field 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_result_returns_none_when_no_result_field() -> None:
+    """RESULT 필드 없는 정상 응답에서 _raise_for_result가 None을 반환하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    result = adapter._raise_for_result({"StatisticSearch": {}}, dataset.id)
+    assert result is None
+
+
+# test raise for result raises on non error code in result field 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_result_raises_on_non_error_code_in_result_field() -> None:
+    """RESULT에 ERROR 외 코드가 있는 경우에도 예외가 발생하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    # 이전 구현: ERROR 외 코드는 성공으로 처리해 예외 미발생
+    # 수정 후: RESULT 필드 있으면 항상 오류 처리
+    with pytest.raises(ProviderResponseError):
+        adapter._raise_for_result({"RESULT": {"CODE": "INFO-100", "MESSAGE": "경고"}}, dataset.id)
+
+
+# test raise for result raises when result code absent 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_result_raises_when_result_code_absent() -> None:
+    """RESULT가 있지만 CODE 필드가 없는 예외 케이스를 오류로 처리하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    with pytest.raises(ProviderResponseError):
+        adapter._raise_for_result({"RESULT": {"MESSAGE": "코드 없음"}}, dataset.id)
+
+
+# test raise for result raises auth error on auth message 테스트가 검증하는 시나리오를 설명한다.
+def test_raise_for_result_raises_auth_error_on_auth_message() -> None:
+    """RESULT CODE=ERROR에 인증 메시지일 때 AuthError가 발생하는지 검증한다."""
+    adapter, dataset, _ = _build_adapter_with_transport([])
+    with pytest.raises(AuthError):
+        adapter._raise_for_result(
+            {"RESULT": {"CODE": "ERROR", "MESSAGE": "인증키가 유효하지 않습니다."}}, dataset.id
+        )
