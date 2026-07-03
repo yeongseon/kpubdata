@@ -172,7 +172,4 @@ def _coerce_epoch(value: object) -> int | None:
     return None
 
 
-__all__ = ["SgisAuthClient"]
-
-
 __all__ = ["SgisAuthClient", "_extract_err_code"]
