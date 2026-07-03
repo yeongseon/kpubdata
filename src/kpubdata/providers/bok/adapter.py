@@ -282,7 +282,7 @@ class BokAdapter:
         return body_dict, items
 
     def _raise_for_result(self, payload: Mapping[str, object], dataset_id: str) -> None:
-        """raise for result과 관련된 값을 계산하거나 조회한다."""
+        """RESULT 필드를 검사하고 오류인 경우 예외를 발생시킨다."""
         result_obj = payload.get("RESULT")
         if not isinstance(result_obj, dict):
             return
@@ -290,16 +290,13 @@ class BokAdapter:
         result_dict = cast(dict[str, object], result_obj)
         code_raw = result_dict.get("CODE")
         message_raw = result_dict.get("MESSAGE")
-        code = code_raw if isinstance(code_raw, str) else "ERROR"
+        code = code_raw if isinstance(code_raw, str) else "UNKNOWN"
         message = message_raw if isinstance(message_raw, str) else "Provider returned error"
         logger.debug(
             "BOK ECOS result",
             extra={"result_code": code, "result_msg": message, "dataset_id": dataset_id},
         )
-
-        if code != "ERROR":
-            return
-
+        # RESULT 필드가 있으면 항상 오류 — BOK ECOS는 성공 시 RESULT 없이 응답
         self._raise_for_result_code(code, message, dataset_id)
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
