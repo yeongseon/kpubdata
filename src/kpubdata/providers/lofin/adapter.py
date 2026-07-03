@@ -10,6 +10,7 @@ import logging
 import ssl
 from collections.abc import Mapping, Sequence
 from typing import NoReturn, cast
+from urllib.parse import quote
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
@@ -216,7 +217,7 @@ class LofinAdapter:
         )
         if filters:
             for key, value in filters.items():
-                url += f"&{key}={value}"
+                url += f"&{key}={quote(str(value), safe='')}"
         return url
 
     def _request_and_decode(self, url: str, dataset_id: str = "") -> dict[str, object]:
