@@ -2,34 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
-from dataclasses import dataclass as _stdlib_dataclass
+from collections.abc import Iterator
 from dataclasses import field
 from importlib import import_module
 from types import MappingProxyType
-from typing import TypeVar
 
-from typing_extensions import dataclass_transform
-
-from kpubdata.core.capability import Operation, QuerySupport
+from kpubdata.core.capability import Operation, QuerySupport, _dataclass
 from kpubdata.core.representation import Representation
-
-_T = TypeVar("_T")
-
-
-@dataclass_transform()
-def _dataclass(
-    *,
-    slots: bool = False,
-    frozen: bool = False,
-) -> Callable[[type[_T]], type[_T]]:
-    """고정 옵션으로 ``dataclasses.dataclass``를 적용하는 데코레이터를 반환한다."""
-
-    def _decorate(cls: type[_T]) -> type[_T]:
-        """대상 클래스에 dataclass 옵션을 적용해 반환한다."""
-        return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)  # pyright: ignore[reportCallIssue]
-
-    return _decorate
 
 
 def _empty_proxy() -> MappingProxyType[str, object]:

@@ -22,7 +22,7 @@ def _dataclass(
 
     def _decorate(cls: type[_T]) -> type[_T]:
         """대상 클래스에 dataclass 옵션을 적용해 반환한다."""
-        return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)
+        return _stdlib_dataclass(slots=slots, frozen=frozen)(cls)  # pyright: ignore[reportCallIssue]
 
     return _decorate
 
