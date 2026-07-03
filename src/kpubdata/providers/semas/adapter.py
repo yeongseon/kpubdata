@@ -183,7 +183,10 @@ class SemasAdapter:
         return payload
 
     def _require_api_key(self) -> str:
-        """필수 API 키을 읽고 없으면 예외를 발생시킨다."""
+        """공공데이터포털(data.go.kr) API 키를 읽고 없으면 예외를 발생시킨다.
+        localdata · semas · lofin 어댓터는 모두 data.go.kr 인증 시스템을 공유하며
+        단일 provider_key("datago")로 관리하는 것이 의도된 설계다.
+        """
         return self._config.require_provider_key("datago")
 
     def _build_request_url(self, dataset: DatasetRef, operation: str | None = None) -> str:
