@@ -34,7 +34,11 @@ logger = logging.getLogger("kpubdata.provider.bok")
 
 
 class BokAdapter:
-    """BokAdapter과 관련된 값을 계산하거나 조회한다."""
+    """한국은행 경제통계시스템(BOK ECOS) API 어댑터.
+
+    BOK ECOS(Economic Statistics System)에서 제공하는 100대 통계지표와
+    경제 시계열 데이터를 조회하고 정규화한다.
+    """
 
     requires_api_key: bool = True
 
@@ -45,7 +49,13 @@ class BokAdapter:
         transport: HttpTransport | None = None,
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
-        """인스턴스가 사용할 내부 상태를 초기화한다."""
+        """인스턴스가 사용할 내부 상태를 초기화한다.
+
+        매개변수:
+            config: KPubData 설정. None이면 기본값 사용.
+            transport: HTTP 전송 계층. None이면 새 인스턴스 생성.
+            catalogue: 데이터셋 목록. None이면 기본 카탈로그 로드.
+        """
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -61,15 +71,30 @@ class BokAdapter:
 
     @property
     def name(self) -> str:
-        """name과 관련된 값을 계산하거나 조회한다."""
+        """Provider 이름을 반환한다.
+
+        반환값:
+            항상 "bok" 문자열.
+        """
         return "bok"
 
     def list_datasets(self) -> list[DatasetRef]:
-        """list datasets과 관련된 값을 계산하거나 조회한다."""
+        """이 어댑터가 제공하는 모든 데이터셋 목록을 반환한다.
+
+        반환값:
+            DatasetRef 리스트. 각 항목은 BOK ECOS 통계 지표를 나타낸다.
+        """
         return list(self._datasets)
 
     def search_datasets(self, text: str) -> list[DatasetRef]:
-        """search datasets과 관련된 값을 계산하거나 조회한다."""
+        """데이터셋을 검색한다.
+
+        매개변수:
+            text: 검색어. 데이터셋 ID 또는 이름에서 대소문자 무시하고 부분 매칭.
+
+        반환값:
+            검색 조건에 일치하는 DatasetRef 리스트.
+        """
         needle = text.casefold()
         return [
             dataset
@@ -78,7 +103,17 @@ class BokAdapter:
         ]
 
     def get_dataset(self, dataset_key: str) -> DatasetRef:
-        """dataset을 반환한다."""
+        """주어진 키에 해당하는 데이터셋을 반환한다.
+
+        매개변수:
+            dataset_key: 데이터셋 고유 키 (예: "901Y009").
+
+        반환값:
+            DatasetRef 인스턴스.
+
+        예외:
+            DatasetNotFoundError: 해당 키의 데이터셋이 존재하지 않을 때.
+        """
         dataset = self._datasets_by_key.get(dataset_key)
         if dataset is not None:
             return dataset
@@ -94,7 +129,21 @@ class BokAdapter:
         )
 
     def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
-        """records을 수행한다."""
+        """BOK ECOS API를 호출하여 레코드를 조회한다.
+
+        매개변수:
+            dataset: 대상 데이터셋.
+            query: 조회 쿼리. start_date, end_date 필수. 주기(frequency)는 선택.
+
+        반환값:
+            RecordBatch. items에 조회된 레코드, total_count와 next_page 포함.
+
+        예외:
+            InvalidRequestError: start_date 또는 end_date 누락 시.
+            AuthError: API 키 인증 실패 시.
+            RateLimitError: 호출 한도 초과 시.
+            ServiceUnavailableError: BOK ECOS 서비스 점검 중일 때.
+        """
         page = query.page or 1
         page_size = query.page_size or 100
         frequency = self._resolve_frequency(query)
@@ -166,11 +215,31 @@ class BokAdapter:
         )
 
     def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
-        """schema을 반환한다."""
+        """데이터셋의 스키마 정보를 반환한다.
+
+        매개변수:
+            dataset: 대상 데이터셋.
+
+        반환값:
+            SchemaDescriptor 또는 None. 메타데이터에서 스키마를 구성할 수 없으면 None.
+        """
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """call raw과 관련된 값을 계산하거나 조회한다."""
+        """BOK ECOS API를 직접 호출하고 원본 응답을 반환한다 (비상구).
+
+        매개변수:
+            dataset: 대상 데이터셋.
+            operation: ECOS API 작업명 (예: "StatisticSearch"). 비어 있으면 기본 작업 사용.
+            params: API 파라미터. frequency, start_date, end_date, start_index, end_index 등.
+
+        반환값:
+            BOK ECOS API 원본 JSON 응답 (dict).
+
+        예외:
+            InvalidRequestError: 필수 파라미터 누락 시.
+            AuthError, RateLimitError, ServiceUnavailableError: API 오류 시.
+        """
         logger.debug(
             "bok call_raw",
             extra={
@@ -199,7 +268,14 @@ class BokAdapter:
         return payload
 
     def _require_api_key(self) -> str:
-        """필수 API 키을 읽고 없으면 예외를 발생시킨다."""
+        """필수 API 키를 읽고 없으면 예외를 발생시킨다.
+
+        반환값:
+            BOK ECOS API 키 (config에서 읽음).
+
+        예외:
+            AuthError: API 키가 설정되지 않았을 때.
+        """
         return self._config.require_provider_key("bok")
 
     def _build_request_url(
@@ -213,7 +289,23 @@ class BokAdapter:
         start_date: str,
         end_date: str,
     ) -> str:
-        """요청 URL을 구성해 반환한다."""
+        """BOK ECOS API 요청 URL을 구성한다.
+
+        매개변수:
+            dataset: 대상 데이터셋.
+            operation: API 작업명. None이면 메타데이터의 default_operation 사용.
+            start_index: 조회 시작 인덱스 (1부터 시작).
+            end_index: 조회 종료 인덱스.
+            frequency: 주기 코드 (예: "M"=월, "Q"=분기, "A"=연).
+            start_date: 조회 시작 날짜 (YYYYMMDD 또는 YYYYMM 형식).
+            end_date: 조회 종료 날짜 (YYYYMMDD 또는 YYYYMM 형식).
+
+        반환값:
+            BOK ECOS API 호출용 전체 URL 문자열.
+
+        예외:
+            ProviderResponseError: 메타데이터에 필수 필드 누락 시.
+        """
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
             logger.debug(
@@ -247,7 +339,18 @@ class BokAdapter:
         )
 
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
-        """request and decode과 관련된 값을 계산하거나 조회한다."""
+        """BOK ECOS API에 HTTP GET 요청을 보내고 JSON 응답을 디코딩한다.
+
+        매개변수:
+            url: 요청할 전체 URL.
+            dataset_id: 데이터셋 ID (로깅용).
+
+        반환값:
+            파싱된 JSON 응답 (dict).
+
+        예외:
+            ParseError: 응답 파싱 실패 또는 응답이 JSON object가 아닐 때.
+        """
         response = self._transport.request("GET", url, dataset_id=dataset_id, provider="bok")
 
         try:
@@ -266,7 +369,20 @@ class BokAdapter:
     def _validate_envelope(
         self, payload: dict[str, object], dataset_id: str = ""
     ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """envelope의 형식을 검증하고 필요한 값을 추출한다."""
+        """BOK ECOS API 응답 envelope의 형식을 검증하고 필요한 값을 추출한다.
+
+        매개변수:
+            payload: 디코딩된 API 응답 (dict).
+            dataset_id: 데이터셋 ID (로깅/예외용).
+
+        반환값:
+            (body_dict, items) 튜플.
+            body_dict는 StatisticSearch 본문, items는 레코드 리스트.
+
+        예외:
+            ProviderResponseError: envelope에 StatisticSearch가 없거나 형식 오류 시.
+            AuthError, RateLimitError, ServiceUnavailableError: RESULT 필드에 오류 코드 있을 때.
+        """
         self._raise_for_result(payload, dataset_id)
 
         body_obj = payload.get("StatisticSearch")
@@ -282,7 +398,19 @@ class BokAdapter:
         return body_dict, items
 
     def _raise_for_result(self, payload: Mapping[str, object], dataset_id: str) -> None:
-        """RESULT 필드를 검사하고 오류인 경우 예외를 발생시킨다."""
+        """BOK ECOS API 응답의 RESULT 필드를 확인하고 오류 시 예외를 발생시킨다.
+
+        매개변수:
+            payload: 디코딩된 API 응답.
+            dataset_id: 데이터셋 ID (예외 메시지용).
+
+        예외:
+            AuthError: 인증키 오류 시.
+            RateLimitError: 호출 한도 초과 시.
+            ServiceUnavailableError: 서비스 점검 중일 때.
+            InvalidRequestError: 잘못된 파라미터 사용 시.
+            ProviderResponseError: 기타 오류 시.
+        """
         result_obj = payload.get("RESULT")
         if not isinstance(result_obj, dict):
             return
@@ -300,7 +428,17 @@ class BokAdapter:
         self._raise_for_result_code(code, message, dataset_id)
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
-        """raise for 결과 코드과 관련된 값을 계산하거나 조회한다."""
+        """BOK ECOS API 오류 코드를 분석하여 적절한 예외를 발생시킨다.
+
+        매개변수:
+            code: RESULT.CODE 값.
+            msg: RESULT.MESSAGE 값.
+            dataset_id: 데이터셋 ID (예외 메시지용).
+
+        예외:
+            AuthError, RateLimitError, ServiceUnavailableError, InvalidRequestError,
+            또는 ProviderResponseError 중 하나. (항상 예외를 던지므로 반환하지 않음)
+        """
         normalized_msg = msg.casefold()
         if "인증키" in msg or "api key" in normalized_msg or "auth" in normalized_msg:
             raise AuthError(msg, provider="bok", provider_code=code, dataset_id=dataset_id or None)
@@ -328,11 +466,26 @@ class BokAdapter:
         )
 
     def _resolve_frequency(self, query: Query) -> str:
-        """설정과 기본값을 바탕으로 frequency을 결정한다."""
+        """쿼리에서 주기(frequency) 파라미터를 추출하거나 기본값을 반환한다.
+
+        매개변수:
+            query: Query 인스턴스.
+
+        반환값:
+            주기 코드 문자열 (예: "M"). 없으면 "M" (월간) 기본값.
+        """
         return self._resolve_string_param(query, "frequency") or "M"
 
     def _resolve_string_param(self, query: Query, key: str) -> str | None:
-        """설정과 기본값을 바탕으로 string param을 결정한다."""
+        """쿼리의 extra 또는 filters에서 문자열 파라미터를 추출한다.
+
+        매개변수:
+            query: Query 인스턴스.
+            key: 추출할 파라미터 키.
+
+        반환값:
+            파라미터 값 문자열 또는 None. extra 우선, 없으면 filters 확인.
+        """
         if key in query.extra:
             extra_value = query.extra[key]
             if isinstance(extra_value, str) and extra_value:
@@ -344,7 +497,18 @@ class BokAdapter:
         return None
 
     def _require_dataset_metadata(self, dataset: DatasetRef, key: str) -> str:
-        """필수 dataset metadata을 읽고 없으면 예외를 발생시킨다."""
+        """데이터셋 메타데이터에서 필수 필드를 읽고 없으면 예외를 발생시킨다.
+
+        매개변수:
+            dataset: DatasetRef 인스턴스.
+            key: 메타데이터 키 (예: "stat_code", "item_code1").
+
+        반환값:
+            메타데이터 값 문자열.
+
+        예외:
+            ProviderResponseError: 메타데이터에 해당 키가 없거나 값이 비어 있을 때.
+        """
         value = dataset.raw_metadata.get(key)
         if isinstance(value, str) and value:
             return value
@@ -355,7 +519,15 @@ class BokAdapter:
         )
 
     def _normalize_rows(self, rows_wrapper: object) -> list[dict[str, object]]:
-        """rows을 정규화해 반환한다."""
+        """BOK ECOS API 응답의 row 필드를 정규화하여 리스트로 반환한다.
+
+        매개변수:
+            rows_wrapper: API 응답의 row 값. None, dict, 또는 list일 수 있음.
+
+        반환값:
+            dict 리스트. row가 None이면 빈 리스트, dict 하나면 1개 항목 리스트,
+            list면 그 중 dict만 필터링하여 반환.
+        """
         if rows_wrapper is None:
             return []
         if isinstance(rows_wrapper, list):
@@ -367,7 +539,15 @@ class BokAdapter:
 
     @staticmethod
     def _string_param(params: Mapping[str, object], key: str) -> str | None:
-        """string param과 관련된 값을 계산하거나 조회한다."""
+        """call_raw params에서 문자열 파라미터를 추출한다.
+
+        매개변수:
+            params: 파라미터 dict.
+            key: 추출할 키.
+
+        반환값:
+            문자열 값 또는 None. 값이 없거나 문자열이 아니거나 비어 있으면 None.
+        """
         value = params.get(key)
         if isinstance(value, str) and value:
             return value
@@ -375,7 +555,19 @@ class BokAdapter:
 
     @classmethod
     def _require_param(cls, params: Mapping[str, object], key: str, dataset_id: str) -> str:
-        """필수 param을 읽고 없으면 예외를 발생시킨다."""
+        """call_raw params에서 필수 문자열 파라미터를 읽고 없으면 예외를 발생시킨다.
+
+        매개변수:
+            params: 파라미터 dict.
+            key: 필수 파라미터 키.
+            dataset_id: 데이터셋 ID (예외 메시지용).
+
+        반환값:
+            파라미터 값 문자열.
+
+        예외:
+            InvalidRequestError: 파라미터가 없거나 비어 있을 때.
+        """
         value = cls._string_param(params, key)
         if value is not None:
             return value
@@ -389,14 +581,27 @@ class BokAdapter:
 
     @classmethod
     def _int_param(cls, params: Mapping[str, object], key: str, default: int) -> int:
-        """int param과 관련된 값을 계산하거나 조회한다."""
+        """call_raw params에서 정수 파라미터를 추출하고 유효하지 않으면 기본값 반환.
+
+        매개변수:
+            params: 파라미터 dict.
+            key: 추출할 키.
+            default: 기본값 정수.
+
+        반환값:
+            정수 값. 변환 실패하거나 0 이하면 default 반환.
+        """
         value = params.get(key)
         coerced = coerce_int(value, default)
         return coerced if coerced > 0 else default
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
-        """기본 카탈로그을 로드해 반환한다."""
+        """기본 카탈로그를 로드하여 반환한다.
+
+        반환값:
+            kpubdata.providers.bok 패키지의 카탈로그에서 로드한 DatasetRef 튜플.
+        """
         return load_catalogue("kpubdata.providers.bok", "bok")
 
 
