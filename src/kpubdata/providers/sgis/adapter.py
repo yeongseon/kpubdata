@@ -326,5 +326,4 @@ class SgisAdapter:
         return load_catalogue("kpubdata.providers.sgis", _SGIS_PROVIDER)
 
 
-
 __all__ = ["SgisAdapter"]
