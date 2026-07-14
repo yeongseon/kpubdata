@@ -41,7 +41,7 @@ kpubdata = "kpubdata.cli:main"
 
 [project.optional-dependencies]
 xml = [
-  "xmltodict>=0.13,<1",
+  "xmltodict>=0.13,<2",
 ]
 pandas = [
   "pandas>=2.2,<3",
@@ -63,7 +63,7 @@ dev = [
   "pytest-cov>=5,<6",
   "pykrx>=1.0.45,<2",
   "ruff>=0.5,<1",
-  "xmltodict>=0.13,<1",
+  "xmltodict>=0.13,<2",
 ]
 docs = [
   "mkdocs-material>=9.5,<10",
