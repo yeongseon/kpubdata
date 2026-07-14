@@ -6,8 +6,20 @@
 - Product type: Python data access framework / SDK
 - Target runtime: Python 3.10+
 - Primary users: Python developers, backend developers, data engineers, agent/MCP developers
-- Product stage: architecture and bootstrap
+- Product stage: active development — current release `v0.5.0` (see §2-current status)
 
+## 2-current. 현재 제품 상태 (Current status — v0.5.0)
+
+> 이 절은 현재 실제로 출시된 제품 계약을 요약한다. 원래 초기 계획(§13 릴리스 계획의 v0.1)은 역사적 기록으로 보존하되, 아래 내용이 현재 기준이다.
+
+- **현재 버전**: `v0.5.0` (`pyproject.toml` 기준). PRD 초안이 가정한 "architecture and bootstrap" 단계를 이미 넘어섰다.
+- **지원 provider family**: `datago`, `localdata`, `semas`, `lofin`, `seoul`, `bok`, `krx`, `pykrx`, `sgis`, `law`, `kosis` 등 다수의 이질적 provider가 하나의 공개 인터페이스 아래 통합되어 있다. 정확한 데이터셋 수와 검증 수준은 [SUPPORTED_DATA.md](./SUPPORTED_DATA.md)를 단일 출처로 참조한다.
+- **핵심 API**: `Client` / `Client.from_env()`, `client.datasets.list()/search()`, `client.dataset(...)`, `dataset.list()/list_all()/schema()/call_raw()`, `RecordBatch`(+`to_pandas()`).
+- **CLI**: `kpubdata` 명령이 함께 설치되며 `datasets list/show`, `fetch`, `raw`, `scaffold provider` 서브커맨드를 제공한다.
+- **부가 기능**: 디스크 기반 응답 캐시(TTL), pandas 변환(`kpubdata[pandas]`), 전체 페이지 자동 순회(`list_all()`).
+- **여전히 유효한 비목표**: async 지원 없음, MCP/HTTP 서비스 레이어는 코어에 미포함(별도 레포로 분리 예정).
+
+> 향후 계획은 [ROADMAP.md](./ROADMAP.md), 버전별 변경 이력은 CHANGELOG를 단일 출처로 참조한다.
 ## 2. Problem statement
 
 Korean public-data APIs are difficult to use consistently because they vary by provider and service family in:
@@ -175,6 +187,15 @@ Acceptance:
 - `dataset.call_raw(...)` or provider raw call equivalent
 - raw payload preserved without normalization loss
 
+### FR-8. 대량 페이지네이션 (Bulk pagination)
+
+사용자는 여러 페이지를 수동으로 순회하지 않고 전체 결과를 받을 수 있어야 한다.
+
+Acceptance:
+
+- `dataset.list_all(...)`가 페이지를 자동 순회하며 `RecordBatch`를 생성(yield)한다
+- 각 provider의 페이지네이션 규칙 차이를 호출자가 알 필요 없다
+
 ### FR-9. Error normalization
 
 Provider-specific failures must map to canonical error types.
@@ -193,6 +214,35 @@ Acceptance:
 - XML and JSON in core scope
 - representation metadata attached to dataset descriptors
 - file/sheet/download capability represented even if not normalized in v0.1
+
+### FR-11. CLI
+
+프레임워크는 설치 시 `kpubdata` 명령을 함께 등록해 간단한 탐색·조회를 스크립트 없이 지원해야 한다.
+
+Acceptance:
+
+- `kpubdata datasets list` / `datasets show`
+- `kpubdata fetch <dataset> -p key=value ... --format ...`
+- `kpubdata raw` (원본 호출 비상구)
+- `kpubdata scaffold provider` (provider 어댑터 스캐폴딩)
+
+### FR-12. Tabular 변환
+
+결과 envelope는 선택적으로 pandas DataFrame으로 변환될 수 있어야 한다.
+
+Acceptance:
+
+- `RecordBatch.to_pandas()`
+- pandas는 선택 의존성(`kpubdata[pandas]` extra)으로 분리
+
+### FR-13. 응답 캐싱
+
+반복 호출 비용을 줄이기 위해 선택적 디스크 캐시를 지원해야 한다.
+
+Acceptance:
+
+- 디스크 기반 응답 캐시 활성화/비활성화
+- TTL 및 캐시 정리 지원 (자세한 내용은 [docs/caching.md](./docs/caching.md))
 
 ## 11. Non-functional requirements
 
@@ -240,7 +290,9 @@ client.getRTMSDataSvcAptTradeDev(...)
 
 ## 13. Release plan
 
-### v0.1
+> **참고**: 아래는 초기 릴리스 계획(역사적 기록)이다. v0.1·v0.2는 출시 완료(✅)되었고 provider 확장은 v0.5까지 진행되었다. 최신·향후 계획은 [ROADMAP.md](./ROADMAP.md)를 단일 출처로 참조한다. (예: MCP 어댑터는 코어에 포함하지 않고 별도 레포로 분리 예정.)
+
+### v0.1 ✅
 
 - core contracts
 - sync transport
@@ -249,7 +301,7 @@ client.getRTMSDataSvcAptTradeDev(...)
 - raw access
 - tests/docs/release skeleton
 
-### v0.2
+### v0.2 ✅
 
 - richer discovery metadata
 - plugin loading
