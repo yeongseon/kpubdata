@@ -140,7 +140,9 @@ def test_catalogue_parses_industrial_production_default_query_params() -> None:
     _, dataset, _ = _build_adapter_with_transport([], dataset_key="industrial_production")
     catalogue = cast(
         list[dict[str, object]],
-        json.loads(files("kpubdata.providers.kosis").joinpath("catalogue.json").read_text()),
+        json.loads(
+            files("kpubdata.providers.kosis").joinpath("catalogue.json").read_text(encoding="utf-8")
+        ),
     )
     entry = next(entry for entry in catalogue if entry["dataset_key"] == "industrial_production")
 
