@@ -12,6 +12,7 @@ contract test — 을 한 번에 만들어주어 첫 PR을 작성하기 위한 �
 
 from __future__ import annotations
 
+import errno
 import json
 import keyword
 import re
@@ -285,6 +286,33 @@ def test_{provider_name}_seed_dataset_metadata() -> None:
 '''
 
 
+def _cleanup_empty_directories(dirs: list[Path]) -> list[str]:
+    """깊은 디렉터리부터 순서대로 비어 있으면 제거한다.
+
+    이번 호출에서 새로 생성한 leaf 디렉터리를 cleanup하기 위한 helper.
+    호출 전부터 존재했거나 파일이 남아 있는 디렉터리는 삭제하지 않는다.
+
+    정상적으로 무시하는 상황:
+        - 디렉터리가 이미 존재하지 않음 (FileNotFoundError)
+        - 디렉터리가 비어 있지 않음 (errno.ENOTEMPTY)
+
+    반환값:
+        실제 삭제 실패의 오류 메시지 목록.
+    """
+    errors: list[str] = []
+    for directory in reversed(dirs):
+        try:
+            directory.rmdir()
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            if exc.errno == errno.ENOTEMPTY:
+                pass
+            else:
+                errors.append(f"{directory}: {type(exc).__name__}: {exc}")
+    return errors
+
+
 def scaffold_provider(
     name: str,
     *,
@@ -336,14 +364,61 @@ def scaffold_provider(
                 "Pass overwrite=True (or --force) to replace."
             )
 
+    provider_dir_existed = provider_dir.exists()
+    fixture_dir_existed = fixture_dir.exists()
+    contract_test_parent_existed = contract_test_path.parent.exists()
+
     provider_dir.mkdir(parents=True, exist_ok=True)
     fixture_dir.mkdir(parents=True, exist_ok=True)
     contract_test_path.parent.mkdir(parents=True, exist_ok=True)
 
-    created: list[Path] = []
-    for path, content in files.items():
-        path.write_text(content, encoding="utf-8")
-        created.append(path)
+    created_directories: list[Path] = []
+    if not provider_dir_existed:
+        created_directories.append(provider_dir)
+    if not fixture_dir_existed:
+        created_directories.append(fixture_dir)
+    if not contract_test_parent_existed:
+        created_directories.append(contract_test_path.parent)
+
+    existing_contents: dict[Path, bytes] = {}
+    new_files: set[Path] = set()
+    attempted: list[Path] = []
+
+    for path in files:
+        if path.exists():
+            existing_contents[path] = path.read_bytes()
+        else:
+            new_files.add(path)
+
+    try:
+        for path, content in files.items():
+            attempted.append(path)
+            path.write_text(content, encoding="utf-8")
+    except Exception as original_exc:
+        rollback_errors: list[str] = []
+
+        for path in reversed(attempted):
+            if path in existing_contents:
+                try:
+                    path.write_bytes(existing_contents[path])
+                except OSError as exc:
+                    rollback_errors.append(f"{path}: {type(exc).__name__}: {exc}")
+            else:
+                try:
+                    path.unlink(missing_ok=True)
+                except OSError as exc:
+                    rollback_errors.append(f"{path}: {type(exc).__name__}: {exc}")
+
+        dir_errors = _cleanup_empty_directories(created_directories)
+        rollback_errors.extend(dir_errors)
+
+        if rollback_errors:
+            details = "; ".join(rollback_errors)
+            raise RuntimeError(
+                f"scaffold failed and rollback was incomplete: {details}"
+            ) from original_exc
+
+        raise
 
     return ScaffoldResult(
         provider_dir=provider_dir,
@@ -353,7 +428,7 @@ def scaffold_provider(
         fixture_dir=fixture_dir,
         fixture_path=fixture_path,
         contract_test_path=contract_test_path,
-        created=tuple(created),
+        created=tuple(files.keys()),
     )
 
 
