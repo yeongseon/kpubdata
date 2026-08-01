@@ -12,7 +12,7 @@ from typing import cast
 
 from kpubdata.core.models import DatasetRef
 from kpubdata.core.protocol import ProviderAdapter
-from kpubdata.exceptions import DatasetNotFoundError, ProviderNotRegisteredError
+from kpubdata.exceptions import DatasetNotFoundError
 from kpubdata.registry import ProviderRegistry
 
 logger = logging.getLogger("kpubdata.catalog")
