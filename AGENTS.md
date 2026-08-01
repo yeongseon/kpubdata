@@ -164,34 +164,72 @@ sequenceDiagram
 
 ```text
 src/kpubdata/
-├── core/            # 핵심 비즈니스 로직 및 추상 클래스
-├── transport/       # HTTP 통신 처리
-├── providers/       # 데이터 제공 기관 정의
-├── adapters/        # 기관별 데이터 변환 로직 (가장 자주 수정하게 될 곳)
-├── client.py        # 사용자가 처음 만나는 입구
-├── catalog.py       # 사용 가능한 데이터셋 목록 관리
-└── exceptions.py    # 공통 에러 정의
+├── __init__.py            # 패키지 진입점
+├── client.py              # 사용자가 처음 만나는 입구
+├── catalog.py             # 사용 가능한 데이터셋 목록 관리
+├── cli.py                 # 명령행 인터페이스
+├── config.py              # 설정 및 API 키 관리
+├── registry.py            # Provider 어댑터 등록 및 검증
+├── scaffold.py            # 새 Provider 스캐폴딩 도구
+├── exceptions.py          # 공통 에러 정의
+├── core/                  # 핵심 비즈니스 로직 및 추상 클래스
+│   ├── __init__.py
+│   ├── capability.py      # 지원 가능 기능 메타데이터
+│   ├── dataset.py         # 데이터셋 참조 모델
+│   ├── models.py          # 핵심 데이터 모델 (Query, RecordBatch 등)
+│   ├── protocol.py        # 어댑터 프로토콜 정의
+│   └── representation.py  # 데이터 표현 방식
+├── transport/             # HTTP 통신 처리
+│   ├── __init__.py
+│   ├── http.py            # HTTP 클라이언트
+│   ├── cache.py           # 응답 캐싱
+│   ├── decode.py          # 응답 디코딩
+│   └── retry.py           # 재시도 로직
+└── providers/             # 데이터 제공 기관별 어댑터
+    ├── __init__.py
+    ├── _common.py         # Provider 공유클래스/함수
+    ├── manifest.py        # Provider 메타데이터
+    ├── bok/               # 한국은행 (BOK)
+    ├── datago/            # 공공데이터포털 (data.go.kr)
+    ├── kosis/             # KOSIS (한국통계정보시스템)
+    ├── krx/               # KRX (한국거래소)
+    ├── law/               # 법제처 (국가법령정보센터)
+    ├── localdata/         # 지방행정인허가데이터
+    ├── lofin/             # LFin (한국국토정보공사)
+    ├── semas/             # SEMAS (국립생태원)
+    ├── seoul/             # 서울시 (서울열린데이터광장)
+    │   └── datasets/      # 복잡한 Provider의 데이터셋 분리
+    └── sgis/              # SGIS (공간정보플랫폼)
 ```
 
 ```mermaid
 graph TD
-    root[src/kpubdata/] --> core[core/]
+    root[src/kpubdata/] --> client[client.py]
+    root --> catalog[catalog.py]
+    root --> cli[cli.py]
+    root --> config[config.py]
+    root --> registry[registry.py]
+    root --> scaffold[scaffold.py]
+    root --> exceptions[exceptions.py]
+    root --> core[core/]
     root --> transport[transport/]
     root --> providers[providers/]
-    root --> adapters[adapters/]
-    root --> client[client.py]
-    root --> catalog[catalog.py]
-    root --> exceptions[exceptions.py]
 
+    client --> client_desc[사용자 입구]
+    catalog --> catalog_desc[데이터셋 목록 관리]
+    cli --> cli_desc[명령행 인터페이스]
+    config --> config_desc[설정/API 키 관리]
+    registry --> registry_desc[어댑터 등록/검증]
+    scaffold --> scaffold_desc[스캐폴딩 도구]
+    exceptions --> exceptions_desc[공통 에러 정의]
     core --> core_desc[핵심 비즈니스 로직]
     transport --> transport_desc[HTTP 통신 처리]
-    providers --> providers_desc[기관 정의]
-    adapters --> adapters_desc[데이터 변환 로직]
+    providers --> providers_desc[기관별 어댑터]
 ```
 
 ### 이 파일을 수정해야 할 때
-- **새로운 데이터 기관을 추가하고 싶을 때**: `adapters/`에 새 디렉토리를 만들고 `core/`의 추상 클래스를 구현합니다.
-- **데이터 조회 방식을 개선하고 싶을 때**: `core/query.py`나 `core/record.py`를 수정합니다.
+- **새로운 데이터 기관을 추가하고 싶을 때**: `providers/`에 새 디렉토리를 만들고 `core/`의 추상 클래스를 구현합니다.
+- **데이터 조회 방식을 개선하고 싶을 때**: `core/models.py`의 `Query`나 `RecordBatch`를 수정합니다.
 
 ## 어댑터 개발 가이드
 
@@ -201,7 +239,7 @@ graph TD
 3. [ ] `list()`, `get()` 등 필요한 동작 구현
 4. [ ] `capabilities` 속성에 지원하는 기능 명시
 5. [ ] `call_raw`가 항상 원본 데이터를 반환하도록 보장
-6. [ ] `tests/unit/adapters/`에 유닛 테스트 추가
+6. [ ] `tests/unit/providers/`에 유닛 테스트 추가
 7. [ ] `tests/contract/`에 계약 테스트(Contract Test) 추가
 8. [ ] `SUPPORTED_DATA.md` 업데이트 (`상태`, `검증`, `인증`, `공식 문서`, `비고`)
 
