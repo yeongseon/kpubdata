@@ -195,8 +195,8 @@ src/kpubdata/
     ├── krx/               # KRX (한국거래소)
     ├── law/               # 법제처 (국가법령정보센터)
     ├── localdata/         # 지방행정인허가데이터
-    ├── lofin/             # LFin (한국국토정보공사)
-    ├── semas/             # SEMAS (국립생태원)
+    ├── lofin/             # 지방재정365 (LOFIN)
+    ├── semas/             # SEMAS Provider
     ├── seoul/             # 서울시 (서울열린데이터광장)
     │   └── datasets/      # 복잡한 Provider의 데이터셋 분리
     └── sgis/              # SGIS (공간정보플랫폼)
