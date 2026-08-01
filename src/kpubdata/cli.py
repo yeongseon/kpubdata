@@ -305,8 +305,43 @@ def _handle_fetch_command(client: Client, args: argparse.Namespace) -> int:
     dataset = client.dataset(dataset_id)
     if fetch_all:
         items: list[dict[str, object]] = []
-        for batch in dataset.list_all(**list_kwargs):
-            items.extend(batch.items)
+        # Extract max_pages from user-provided params to avoid mypy error
+        # User can pass -p max_pages=10, but we need to pass it explicitly
+        raw_max_pages = list_kwargs.pop("max_pages", None)
+
+        if raw_max_pages is not None:
+            # CLI parser returns strings, so we need to convert "10" to 10
+            max_pages_value: int | None = None
+            if isinstance(raw_max_pages, str):
+                try:
+                    max_pages_value = int(raw_max_pages)
+                except ValueError as err:
+                    raise InvalidRequestError(
+                        f"max_pages must be a positive integer or None, got string: {raw_max_pages}"
+                    ) from err
+            elif isinstance(raw_max_pages, bool):
+                raise InvalidRequestError(
+                    f"max_pages must be a positive integer or None, got bool: {raw_max_pages}"
+                )
+            elif isinstance(raw_max_pages, int):
+                max_pages_value = raw_max_pages
+            else:
+                raise InvalidRequestError(
+                    f"max_pages must be a positive integer or None, "
+                    f"got {type(raw_max_pages).__name__}: {raw_max_pages}"
+                )
+
+            if max_pages_value <= 0:
+                raise InvalidRequestError(
+                    f"max_pages must be a positive integer or None, got {max_pages_value}"
+                )
+            # Only pass max_pages when explicitly provided by user
+            for batch in dataset.list_all(max_pages=max_pages_value, **list_kwargs):
+                items.extend(batch.items)
+        else:
+            # No max_pages specified, use default
+            for batch in dataset.list_all(max_pages=None, **list_kwargs):
+                items.extend(batch.items)
         rendered = _render_records(items, output_format=output_format)
     else:
         batch = dataset.list(**list_kwargs)

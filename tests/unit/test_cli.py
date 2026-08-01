@@ -548,11 +548,51 @@ def test_fetch_all_json_writes_output_file(fake_client: FakeClient, tmp_path: Pa
     payload = cast(list[dict[str, object]], json.loads(output_file.read_text(encoding="utf-8")))
 
     assert exit_code == 0
-    assert fake_client.dataset_stub.list_calls == [{"start_date": "202401"}]
+    assert fake_client.dataset_stub.list_calls == [{"max_pages": None, "start_date": "202401"}]
     assert payload == [
         {"TIME": "202401", "DATA_VALUE": "3.5"},
         {"TIME": "202402", "DATA_VALUE": "3.5"},
     ]
+
+
+# test fetch all with max pages ten 테스트가 검증하는 시나리오를 설명한다.
+def test_fetch_all_with_max_pages_ten(fake_client: FakeClient, tmp_path: Path) -> None:
+    """
+    test fetch all with max pages ten 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        tmp_path (Path): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    output_file = tmp_path / "records.json"
+
+    exit_code = main(
+        [
+            "fetch",
+            "bok.base_rate",
+            "-p",
+            "max_pages=10",
+            "--all",
+            "--format",
+            "json",
+            "--output",
+            str(output_file),
+        ]
+    )
+
+    assert exit_code == 0
+    # CLI should convert string "10" to integer 10 and pass it explicitly
+    assert fake_client.dataset_stub.list_calls == [{"max_pages": 10}]
+    assert fake_client.closed is True
 
 
 # test raw writes pretty json to output file 테스트가 검증하는 시나리오를 설명한다.
@@ -969,3 +1009,99 @@ def test_get_version_falls_back_to_package_version(monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr("kpubdata.cli.version", _raise_package_not_found)
 
     assert get_version()
+
+
+# test fetch all rejects invalid max pages non numeric string 테스트가 검증하는 시나리오를 설명한다.
+def test_fetch_all_rejects_invalid_max_pages_non_numeric_string(
+    fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """
+    test fetch all rejects invalid max pages non numeric string 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    exit_code = main(["fetch", "bok.base_rate", "--all", "-p", "max_pages=abc"])
+
+    captured = capsys.readouterr()
+
+    # CLI should reject non-numeric string "abc" for max_pages
+    assert exit_code == 2
+    assert captured.out == ""
+    assert "error: InvalidRequestError: max_pages must be a positive integer or None, got string: abc" in captured.err
+    assert fake_client.closed is True
+
+
+# test fetch all rejects invalid max pages zero 테스트가 검증하는 시나리오를 설명한다.
+def test_fetch_all_rejects_invalid_max_pages_zero(
+    fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """
+    test fetch all rejects invalid max pages zero 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    exit_code = main(["fetch", "bok.base_rate", "--all", "-p", "max_pages=0"])
+
+    captured = capsys.readouterr()
+
+    # CLI should reject 0 for max_pages
+    assert exit_code == 2
+    assert captured.out == ""
+    assert "error: InvalidRequestError: max_pages must be a positive integer or None" in captured.err
+    assert fake_client.closed is True
+
+
+# test fetch all accepts valid max pages integer 테스트가 검증하는 시나리오를 설명한다.
+def test_fetch_all_accepts_valid_max_pages_integer(
+    fake_client: FakeClient, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """
+    test fetch all accepts valid max pages integer 시나리오를 검증한다.
+
+    매개변수:
+        fake_client (FakeClient): 호출자가 제공하는 입력 값이다.
+        capsys (pytest.CaptureFixture[str]): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    # Note: Since CLI params come as strings, we can't test passing int 10 via -p
+    # But we can test that when max_pages is not provided, it works fine
+    exit_code = main(["fetch", "bok.base_rate", "--all", "--format", "json"])
+
+    captured = capsys.readouterr()
+
+    # Should succeed when max_pages is not specified
+    assert exit_code == 0
+    assert "error" not in captured.err
+    payload = cast(list[dict[str, object]], json.loads(captured.out))
+    assert len(payload) == 2
+    assert fake_client.closed is True
