@@ -1038,7 +1038,10 @@ def test_fetch_all_rejects_invalid_max_pages_non_numeric_string(
     # CLI should reject non-numeric string "abc" for max_pages
     assert exit_code == 2
     assert captured.out == ""
-    assert "error: InvalidRequestError: max_pages must be a positive integer or None, got string: abc" in captured.err
+    assert (
+        "error: InvalidRequestError: max_pages must be a positive integer or None, got string: abc"
+        in captured.err
+    )
     assert fake_client.closed is True
 
 
@@ -1069,7 +1072,9 @@ def test_fetch_all_rejects_invalid_max_pages_zero(
     # CLI should reject 0 for max_pages
     assert exit_code == 2
     assert captured.out == ""
-    assert "error: InvalidRequestError: max_pages must be a positive integer or None" in captured.err
+    assert (
+        "error: InvalidRequestError: max_pages must be a positive integer or None" in captured.err
+    )
     assert fake_client.closed is True
 
 

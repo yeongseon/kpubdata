@@ -647,9 +647,7 @@ class TestDataset:
         adapter = MockAdapter()
         dataset_ref = _ref()
         # A single empty batch is allowed (might be legitimate)
-        adapter.batches = [
-            RecordBatch(items=[], dataset=dataset_ref, next_page=None)
-        ]
+        adapter.batches = [RecordBatch(items=[], dataset=dataset_ref, next_page=None)]
         ds = Dataset(ref=dataset_ref, adapter=adapter)
 
         # Should complete normally
@@ -737,9 +735,7 @@ class TestDataset:
         adapter = MockAdapter()
         dataset_ref = _ref()
         # First batch immediately returns to page 1 (cycle to itself)
-        adapter.batches = [
-            RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=1)
-        ]
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=1)]
         ds = Dataset(ref=dataset_ref, adapter=adapter)
 
         # Should detect cycle when trying to fetch page 1 again
@@ -762,9 +758,7 @@ class TestDataset:
         """
         adapter = MockAdapter()
         dataset_ref = _ref()
-        adapter.batches = [
-            RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)
-        ]
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)]
         ds = Dataset(ref=dataset_ref, adapter=adapter)
 
         _ = list(ds.list_all(max_pages=5, region="서울", code="11680"))
@@ -788,9 +782,7 @@ class TestDataset:
         """
         adapter = MockAdapter()
         dataset_ref = _ref()
-        adapter.batches = [
-            RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)
-        ]
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)]
         ds = Dataset(ref=dataset_ref, adapter=adapter)
 
         # max_pages=None should use default (1000)
@@ -813,9 +805,7 @@ class TestDataset:
         """
         adapter = MockAdapter()
         dataset_ref = _ref()
-        adapter.batches = [
-            RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)
-        ]
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)]
         ds = Dataset(ref=dataset_ref, adapter=adapter)
 
         # max_pages=1 should work
@@ -885,7 +875,9 @@ class TestDataset:
         ds = Dataset(ref=dataset_ref, adapter=adapter)
 
         # max_pages=True should raise InvalidRequestError
-        with pytest.raises(InvalidRequestError, match="must be None or a positive integer.*got bool"):
+        with pytest.raises(
+            InvalidRequestError, match="must be None or a positive integer.*got bool"
+        ):
             _ = list(ds.list_all(max_pages=True))
 
     # test list all rejects max pages string 테스트가 검증하는 시나리오를 설명한다.
@@ -907,5 +899,7 @@ class TestDataset:
         ds = Dataset(ref=dataset_ref, adapter=adapter)
 
         # max_pages="10" should raise InvalidRequestError
-        with pytest.raises(InvalidRequestError, match="must be None or a positive integer.*got str"):
+        with pytest.raises(
+            InvalidRequestError, match="must be None or a positive integer.*got str"
+        ):
             _ = list(ds.list_all(max_pages="10"))
