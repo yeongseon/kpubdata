@@ -164,12 +164,26 @@ sequenceDiagram
 
 ```text
 src/kpubdata/
-├── core/            # 핵심 비즈니스 로직 및 추상 클래스
-├── transport/       # HTTP 통신 처리
-├── providers/       # 데이터 제공 기관 정의
-├── adapters/        # 기관별 데이터 변환 로직 (가장 자주 수정하게 될 곳)
+├── core/            # 핵심 모델, 프로토콜, capability
+├── transport/       # HTTP, cache, retry, decode
+├── providers/       # 기관별 adapter 포함 (adapters/ 별도 없음)
+│   ├── datago/adapter.py
+│   ├── bok/adapter.py
+│   ├── kosis/adapter.py
+│   ├── krx/adapter.py
+│   ├── law/adapter.py
+│   ├── localdata/adapter.py
+│   ├── lofin/adapter.py
+│   ├── semas/adapter.py
+│   ├── seoul/adapter.py
+│   ├── sgis/adapter.py
+│   ├── _common.py
+│   └── manifest.py
 ├── client.py        # 사용자가 처음 만나는 입구
 ├── catalog.py       # 사용 가능한 데이터셋 목록 관리
+├── cli.py           # CLI 명령행 인터페이스
+├── config.py        # 구성 설정 관리
+├── registry.py      # Provider adapter 레지스트리
 └── exceptions.py    # 공통 에러 정의
 ```
 
@@ -178,20 +192,23 @@ graph TD
     root[src/kpubdata/] --> core[core/]
     root --> transport[transport/]
     root --> providers[providers/]
-    root --> adapters[adapters/]
     root --> client[client.py]
     root --> catalog[catalog.py]
+    root --> cli[cli.py]
+    root --> config[config.py]
+    root --> registry[registry.py]
     root --> exceptions[exceptions.py]
 
-    core --> core_desc[핵심 비즈니스 로직]
-    transport --> transport_desc[HTTP 통신 처리]
-    providers --> providers_desc[기관 정의]
-    adapters --> adapters_desc[데이터 변환 로직]
+    core --> core_desc[핵심 모델, 프로토콜, capability]
+    transport --> transport_desc[HTTP, cache, retry, decode]
+    providers --> providers_desc[기관별 adapter 포함]
+    providers --> adapters_desc[기관별 데이터 변환 로직 (providers/{name}/adapter.py)]
 ```
 
 ### 이 파일을 수정해야 할 때
-- **새로운 데이터 기관을 추가하고 싶을 때**: `adapters/`에 새 디렉토리를 만들고 `core/`의 추상 클래스를 구현합니다.
-- **데이터 조회 방식을 개선하고 싶을 때**: `core/query.py`나 `core/record.py`를 수정합니다.
+- **새로운 데이터 기관을 추가하고 싶을 때**: `providers/`에 새 디렉토리를 만들고 `adapter.py`에서 `core/protocol.py`의 `ProviderAdapter` 추상 클래스를 구현합니다.
+- **데이터 조회 방식을 개선하고 싶을 때**: `core/dataset.py`나 `core/models.py`를 수정합니다.
+- **전체 인터페이스를 추가하고 싶을 때**: `core/capability.py`와 `core/protocol.py`를 수정합니다.
 
 ## 어댑터 개발 가이드
 
@@ -201,7 +218,7 @@ graph TD
 3. [ ] `list()`, `get()` 등 필요한 동작 구현
 4. [ ] `capabilities` 속성에 지원하는 기능 명시
 5. [ ] `call_raw`가 항상 원본 데이터를 반환하도록 보장
-6. [ ] `tests/unit/adapters/`에 유닛 테스트 추가
+6. [ ] `tests/unit/providers/<provider>_test.py`에 유닛 테스트 추가
 7. [ ] `tests/contract/`에 계약 테스트(Contract Test) 추가
 8. [ ] `SUPPORTED_DATA.md` 업데이트 (`상태`, `검증`, `인증`, `공식 문서`, `비고`)
 
