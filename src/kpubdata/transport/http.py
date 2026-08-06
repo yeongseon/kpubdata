@@ -24,9 +24,6 @@ from typing_extensions import override
 from kpubdata.exceptions import TransportError, TransportTimeoutError
 from kpubdata.transport.cache import ResponseCache, make_cache_key
 
-if TYPE_CHECKING:
-    import ssl
-
 logger = logging.getLogger("kpubdata.transport")
 _SENSITIVE_PARAM_KEYS = {
     "servicekey",
