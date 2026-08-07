@@ -159,7 +159,9 @@ def test_catalogue_includes_usd_krw_daily_dataset() -> None:
     _, dataset, _ = _build_adapter_with_transport([], dataset_key="usd_krw")
     catalogue = cast(
         list[dict[str, object]],
-        json.loads(files("kpubdata.providers.bok").joinpath("catalogue.json").read_text()),
+        json.loads(
+            files("kpubdata.providers.bok").joinpath("catalogue.json").read_text(encoding="utf-8")
+        ),
     )
     usd_krw_entry = next(entry for entry in catalogue if entry["dataset_key"] == "usd_krw")
 
@@ -205,7 +207,9 @@ def test_catalogue_includes_bond_yield_3y_daily_dataset() -> None:
     _, dataset, _ = _build_adapter_with_transport([], dataset_key="bond_yield_3y")
     catalogue = cast(
         list[dict[str, object]],
-        json.loads(files("kpubdata.providers.bok").joinpath("catalogue.json").read_text()),
+        json.loads(
+            files("kpubdata.providers.bok").joinpath("catalogue.json").read_text(encoding="utf-8")
+        ),
     )
     bond_yield_3y_entry = next(
         entry for entry in catalogue if entry["dataset_key"] == "bond_yield_3y"
@@ -253,7 +257,9 @@ def test_catalogue_includes_money_supply_monthly_dataset() -> None:
     _, dataset, _ = _build_adapter_with_transport([], dataset_key="money_supply")
     catalogue = cast(
         list[dict[str, object]],
-        json.loads(files("kpubdata.providers.bok").joinpath("catalogue.json").read_text()),
+        json.loads(
+            files("kpubdata.providers.bok").joinpath("catalogue.json").read_text(encoding="utf-8")
+        ),
     )
     money_supply_entry = next(
         entry for entry in catalogue if entry["dataset_key"] == "money_supply"
