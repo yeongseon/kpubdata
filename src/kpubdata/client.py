@@ -156,13 +156,13 @@ class Client:
             "Registering external provider adapter",
             extra={"adapter_type": type(adapter).__name__},
         )
-        self._registry.register(adapter)
+        self._registry.register(cast(ProviderAdapter, adapter))
 
     def iter_authenticated_providers(self) -> tuple[ProviderAdapter, ...]:
         """API 키가 필요한 Provider 어댑터만 모아 튜플로 반환한다."""
         providers: list[ProviderAdapter] = []
         for provider_name in self._registry:
-            adapter = cast(ProviderAdapter, self._registry.get(provider_name))
+            adapter = self._registry.get(provider_name)
             if _requires_api_key(adapter):
                 providers.append(adapter)
         return tuple(providers)

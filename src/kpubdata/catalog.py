@@ -8,7 +8,6 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from difflib import SequenceMatcher
-from typing import cast
 
 from kpubdata.core.models import DatasetRef
 from kpubdata.core.protocol import ProviderAdapter
@@ -282,7 +281,7 @@ class Catalog:
     def _get_adapter(self, provider: str) -> ProviderAdapter:
         """레지스트리에서 Provider 어댑터를 가져오거나 정규 예외를 발생시킨다."""
 
-        return cast(ProviderAdapter, self._registry.get(provider))
+        return self._registry.get(provider)
 
     @staticmethod
     def _split_dataset_id(dataset_id: str) -> tuple[str, str]:
