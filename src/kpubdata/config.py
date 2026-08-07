@@ -74,7 +74,7 @@ class KPubDataConfig:
         raise ConfigError(f"Missing provider API key for '{provider}'")
 
     @classmethod
-    def from_env(cls, **overrides: Any) -> KPubDataConfig:
+    def from_env(cls, **overrides: object) -> KPubDataConfig:
         """Build config from environment variables.
 
         Scans for KPUBDATA_*_API_KEY patterns.
