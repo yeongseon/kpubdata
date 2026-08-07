@@ -272,6 +272,26 @@ Notes:
 - `filters` covers the normal case
 - `extra` exists so adapters can carry provider-native hints without contaminating the core model
 
+#### Validation
+
+Query validates common input shape and types at construction time, raising `InvalidRequestError` for invalid values:
+
+- `page`, `page_size`: must be positive integers (`>= 1`) or `None`; `bool`, zero, or negative values are rejected
+- `cursor`: must be a non-empty string or `None`
+- `start_date`, `end_date`: must be non-empty strings or `None`
+- `fields`, `sort`: must be lists of strings or `None`; elements are type-checked
+- `filters`, `extra`: must be dicts with string keys
+
+#### Canonical vs Provider-Specific Rules
+
+Canonical Query validates common input constraints. Provider-specific rules remain adapter responsibilities:
+
+- **Date representation** (e.g., `YYYYMM` vs `YYYYMMDD`): provider-specific, validated by adapters
+- **Required provider parameters** (e.g., specific datasets requiring `start_date`): validated by adapters
+- **Provider-specific ranges and semantics**: validated by adapters
+
+This separation ensures that invalid canonical inputs are rejected early (before provider invocation) while preserving provider flexibility for domain-specific constraints.
+
 ### 3.5 RecordBatch
 
 ```python

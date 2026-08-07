@@ -100,6 +100,25 @@ Dataset metadata may expose provider-specific pagination styles through
 `DatasetRef.query_support.pagination`, including `offset`, `cursor`, and
 index-window based `index` pagination.
 
+#### Query validation
+
+`list()` validates canonical query parameters and raises `InvalidRequestError` for invalid values before provider invocation:
+
+| Parameter | Accepted values |
+|---|---|
+| `page` | `None` or positive integer (`>= 1`) |
+| `page_size` | `None` or positive integer (`>= 1`) |
+| `cursor` | `None` or non-empty string |
+| `start_date`, `end_date` | `None` or non-empty string (provider-specific format) |
+| `fields`, `sort` | `None` or `list[str]` |
+
+Other kwargs are passed as provider-specific filters to the adapter. For example, `dataset.list(region="11", custom_param="value")` passes `{"region": "11", "custom_param": "value"}` as provider-specific filters.
+
+**Provider-specific rules** (enforced by adapters):
+- Required provider parameters (e.g., some datasets require `start_date`/`end_date`)
+- Provider-specific date formats (e.g., `YYYYMM` vs `YYYYMMDD`)
+- Provider-specific maximum page size
+
 ### Schema
 
 ```python
