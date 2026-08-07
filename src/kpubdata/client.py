@@ -13,6 +13,7 @@ from kpubdata.catalog import Catalog
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.protocol import ProviderAdapter
+from kpubdata.exceptions import ConfigError
 from kpubdata.providers.manifest import BUILTIN_PROVIDERS
 from kpubdata.registry import ProviderRegistry
 from kpubdata.transport.cache import ResponseCache
@@ -276,4 +277,7 @@ def _resolve_cache_ttl(ttl_override: object) -> int:
     raw_ttl = os.environ.get("KPUBDATA_CACHE_TTL")
     if raw_ttl is None or raw_ttl == "":
         return 86400
-    return int(raw_ttl)
+    try:
+        return int(raw_ttl)
+    except ValueError as exc:
+        raise ConfigError(f"KPUBDATA_CACHE_TTL must be an integer, got {raw_ttl!r}") from exc

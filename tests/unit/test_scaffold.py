@@ -139,6 +139,177 @@ class TestScaffoldProvider:
             scaffold_provider("ok_name", repo_root=repo, dataset_key="class")
 
 
+class TestScaffoldRollback:
+    def test_new_scaffold_failure_rolls_back_all_files(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        repo = _shared_repo_root(tmp_path)
+
+        write_count = 0
+        original_write_text = Path.write_text
+
+        def failing_write_text(self: Path, content: str, *, encoding: str = "utf-8") -> None:
+            nonlocal write_count
+            write_count += 1
+            if write_count == 3:
+                raise OSError("Simulated disk error")
+            original_write_text(self, content, encoding=encoding)
+
+        monkeypatch.setattr(Path, "write_text", failing_write_text)
+
+        with pytest.raises(OSError, match="Simulated disk error"):
+            scaffold_provider("rollback_test", repo_root=repo, dataset_key="sample")
+
+        for path in [
+            repo / "src" / "kpubdata" / "providers" / "rollback_test" / "__init__.py",
+            repo / "src" / "kpubdata" / "providers" / "rollback_test" / "adapter.py",
+            repo / "src" / "kpubdata" / "providers" / "rollback_test" / "catalogue.json",
+            repo / "tests" / "fixtures" / "rollback_test" / "success_sample.json",
+            repo / "tests" / "contract" / "test_rollback_test.py",
+        ]:
+            assert not path.exists(), f"File should be rolled back: {path}"
+
+        provider_dir = repo / "src" / "kpubdata" / "providers" / "rollback_test"
+        fixture_dir = repo / "tests" / "fixtures" / "rollback_test"
+        contract_test_dir = repo / "tests" / "contract"
+
+        assert not provider_dir.exists() or not list(provider_dir.iterdir())
+        assert not fixture_dir.exists() or not list(fixture_dir.iterdir())
+        assert contract_test_dir.exists()
+
+        result = scaffold_provider("rollback_test", repo_root=repo, dataset_key="sample")
+        assert result.adapter_path.exists()
+        assert result.contract_test_path.exists()
+
+    def test_overwrite_failure_restores_original_files(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        repo = _shared_repo_root(tmp_path)
+        original_result = scaffold_provider(
+            "overwrite_rollback", repo_root=repo, dataset_key="first"
+        )
+
+        original_init_bytes = original_result.init_path.read_bytes()
+        original_adapter_bytes = original_result.adapter_path.read_bytes()
+
+        original_result.catalogue_path.write_text('["custom content"]', encoding="utf-8")
+        original_result.fixture_path.write_text('{"custom": "fixture"}', encoding="utf-8")
+
+        write_count = 0
+        original_write_text = Path.write_text
+
+        def failing_write_text(self: Path, content: str, *, encoding: str = "utf-8") -> None:
+            nonlocal write_count
+            write_count += 1
+            if write_count == 2:
+                raise OSError("Simulated overwrite error")
+            original_write_text(self, content, encoding=encoding)
+
+        monkeypatch.setattr(Path, "write_text", failing_write_text)
+
+        with pytest.raises(OSError, match="Simulated overwrite error"):
+            scaffold_provider(
+                "overwrite_rollback", repo_root=repo, dataset_key="second", overwrite=True
+            )
+
+        assert original_result.init_path.exists()
+        assert original_result.adapter_path.exists()
+        assert original_result.catalogue_path.exists()
+        assert original_result.fixture_path.exists()
+        assert original_result.contract_test_path.exists()
+
+        assert original_result.init_path.read_bytes() == original_init_bytes, (
+            "First written file should be restored"
+        )
+        assert original_result.adapter_path.read_bytes() == original_adapter_bytes, (
+            "Second file should be unchanged"
+        )
+
+        catalogue_text = original_result.catalogue_path.read_text(encoding="utf-8")
+        assert catalogue_text == '["custom content"]', (
+            "catalogue was not attempted, should keep user modification"
+        )
+
+        fixture_text = original_result.fixture_path.read_text(encoding="utf-8")
+        assert fixture_text == '{"custom": "fixture"}', (
+            "fixture was not attempted, should keep user modification"
+        )
+
+        provider_dir = repo / "src" / "kpubdata" / "providers" / "overwrite_rollback"
+        fixture_dir = repo / "tests" / "fixtures" / "overwrite_rollback"
+
+        assert provider_dir.exists()
+        assert fixture_dir.exists()
+
+    def test_rollback_failure_reports_incomplete_rollback(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        repo = _shared_repo_root(tmp_path)
+        scaffold_provider("rollback_fail", repo_root=repo, dataset_key="first")
+
+        original_write_text = Path.write_text
+        original_write_bytes = Path.write_bytes
+
+        write_count = 0
+        rollback_count = 0
+
+        def failing_write_text(self: Path, content: str, *, encoding: str = "utf-8") -> None:
+            nonlocal write_count
+            write_count += 1
+            if write_count == 2:
+                raise OSError("simulated scaffold write failure")
+            original_write_text(self, content, encoding=encoding)
+
+        def failing_write_bytes(self: Path, content: bytes) -> None:
+            nonlocal rollback_count
+            rollback_count += 1
+            if rollback_count == 1:
+                raise OSError("simulated rollback failure")
+            original_write_bytes(self, content)
+
+        monkeypatch.setattr(Path, "write_text", failing_write_text)
+        monkeypatch.setattr(Path, "write_bytes", failing_write_bytes)
+
+        with pytest.raises(RuntimeError, match="rollback was incomplete") as exc_info:
+            scaffold_provider("rollback_fail", repo_root=repo, dataset_key="second", overwrite=True)
+
+        assert "simulated rollback failure" in str(exc_info.value)
+        assert exc_info.value.__cause__ is not None
+        assert isinstance(exc_info.value.__cause__, OSError)
+        assert "simulated scaffold write failure" in str(exc_info.value.__cause__)
+
+    def test_nonempty_provider_dir_is_not_reported_as_rollback_error(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        repo = _shared_repo_root(tmp_path)
+
+        write_count = 0
+        original_write_text = Path.write_text
+
+        def failing_write_text(self: Path, content: str, *, encoding: str = "utf-8") -> None:
+            nonlocal write_count
+            write_count += 1
+            if write_count == 2:
+                (
+                    repo / "src" / "kpubdata" / "providers" / "nonempty_test" / "other.txt"
+                ).write_text("other file", encoding="utf-8")
+                raise OSError("Simulated scaffold failure")
+            original_write_text(self, content, encoding=encoding)
+
+        monkeypatch.setattr(Path, "write_text", failing_write_text)
+
+        with pytest.raises(OSError, match="Simulated scaffold failure"):
+            scaffold_provider("nonempty_test", repo_root=repo, dataset_key="sample")
+
+        provider_dir = repo / "src" / "kpubdata" / "providers" / "nonempty_test"
+        assert provider_dir.exists()
+        assert (provider_dir / "other.txt").exists()
+        assert (provider_dir / "other.txt").read_text(encoding="utf-8") == "other file"
+
+        result = scaffold_provider("nonempty_test", repo_root=repo, dataset_key="sample")
+        assert result.adapter_path.exists()
+
+
 class TestScaffoldCli:
     def test_cli_subcommand_creates_files(
         self,

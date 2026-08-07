@@ -11,9 +11,10 @@ from typing_extensions import override
 from kpubdata.core.capability import Operation
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.protocol import ProviderAdapter
-from kpubdata.exceptions import UnsupportedCapabilityError
+from kpubdata.exceptions import InvalidRequestError, UnsupportedCapabilityError
 
 logger = logging.getLogger("kpubdata.dataset")
+
 
 
 def _build_query(kwargs: Mapping[str, object]) -> Query:
@@ -68,6 +69,7 @@ def _build_query(kwargs: Mapping[str, object]) -> Query:
         fields=cast(list[str] | None, fields),
         sort=cast(list[str] | None, sort),
     )
+_DEFAULT_MAX_PAGES = 1000
 
 
 class Dataset:
@@ -167,8 +169,23 @@ class Dataset:
         )
         return batch
 
-    def list_all(self, **kwargs: object) -> Generator[RecordBatch, None, None]:
-        """다음 페이지나 커서가 있는 동안 RecordBatch를 연속으로 반환한다."""
+    def list_all(
+        self,
+        *,
+        max_pages: int | None = None,
+        **kwargs: object,
+    ) -> Generator[RecordBatch, None, None]:
+        """다음 페이지나 커서가 있는 동안 RecordBatch를 연속으로 반환한다.
+
+        매개변수:
+            max_pages: 가져올 최대 페이지 수. 기본값은 1000입니다.
+                제한에 도달하면 InvalidRequestError를 발생시킵니다.
+            **kwargs: Provider 어댑터로 전달되는 필터 매개변수.
+
+        예외:
+            UnsupportedCapabilityError: 이 데이터셋이 ``list``를 지원하지 않을 때.
+            InvalidRequestError: max_pages 제한에 도달했거나 무한 루프가 감지되었을 때.
+        """
         if Operation.LIST not in self._ref.operations:
             raise UnsupportedCapabilityError(
                 f"Dataset does not support list: {self._ref.id}",
@@ -177,26 +194,104 @@ class Dataset:
                 operation=Operation.LIST.value,
             )
 
+        # Validate max_pages parameter
+        if max_pages is not None:
+            if isinstance(max_pages, bool):
+                raise InvalidRequestError(
+                    f"max_pages must be None or a positive integer, got bool: {max_pages}",
+                    provider=self._ref.provider,
+                    dataset_id=self._ref.id,
+                )
+            if not isinstance(max_pages, int):
+                raise InvalidRequestError(
+                    f"max_pages must be None or a positive integer, "
+                    f"got {type(max_pages).__name__}: {max_pages}",
+                    provider=self._ref.provider,
+                    dataset_id=self._ref.id,
+                )
+            if max_pages <= 0:
+                raise InvalidRequestError(
+                    f"max_pages must be None or a positive integer, got {max_pages}",
+                    provider=self._ref.provider,
+                    dataset_id=self._ref.id,
+                )
+
+        effective_max_pages = max_pages if max_pages is not None else _DEFAULT_MAX_PAGES
+        seen_pages: set[int] = set()
+        seen_cursors: set[str] = set()
+        consecutive_empty_batches = 0
+        MAX_CONSECUTIVE_EMPTY = 3
+
         logger.debug(
             "Dataset.list_all starting",
             extra={
                 "dataset_id": self._ref.id,
                 "provider": self._ref.provider,
                 "filter_keys": sorted(kwargs.keys()),
+                "max_pages": effective_max_pages,
             },
         )
         page_kwargs = dict(kwargs)
         batch = self.list(**page_kwargs)
         yield batch
         page_index = 1
+
+        # Mark the first request as seen to detect immediate cycles
+        # The first request always uses default pagination (page 1 or no cursor)
+        if page_kwargs.get("page") is None and page_kwargs.get("cursor") is None:
+            seen_pages.add(1)  # We implicitly requested page 1
+            seen_cursors.add("")  # We implicitly requested with no cursor
+
+        # Check for empty batch
+        if not batch.items:
+            consecutive_empty_batches += 1
+        else:
+            consecutive_empty_batches = 0
+
         while batch.next_page is not None or batch.next_cursor is not None:
             page_index += 1
+
+            # Max pages check
+            if page_index > effective_max_pages:
+                raise InvalidRequestError(
+                    f"Pagination limit exceeded: reached {page_index} pages "
+                    f"(max: {effective_max_pages}). "
+                    "This may indicate a bug in the provider API or an infinite pagination loop.",
+                    provider=self._ref.provider,
+                    dataset_id=self._ref.id,
+                )
+
+            # Cycle detection - check BEFORE making the request
+            next_continuation: object = None
             if batch.next_cursor is not None:
+                next_continuation = batch.next_cursor
                 page_kwargs["cursor"] = batch.next_cursor
                 _ = page_kwargs.pop("page", None)
+                # Check if we've already used this cursor
+                if batch.next_cursor in seen_cursors:
+                    raise InvalidRequestError(
+                        f"Detected pagination cycle: cursor '{batch.next_cursor}' "
+                        "was already requested. "
+                        "This may indicate a bug in the provider API pagination logic.",
+                        provider=self._ref.provider,
+                        dataset_id=self._ref.id,
+                    )
+                seen_cursors.add(batch.next_cursor)
             else:
+                next_continuation = batch.next_page
                 page_kwargs["page"] = batch.next_page
                 _ = page_kwargs.pop("cursor", None)
+                # Check if we've already used this page
+                if batch.next_page is not None and batch.next_page in seen_pages:
+                    raise InvalidRequestError(
+                        f"Detected pagination cycle: page {batch.next_page} was already requested. "
+                        f"This may indicate a bug in the provider API pagination logic.",
+                        provider=self._ref.provider,
+                        dataset_id=self._ref.id,
+                    )
+                if batch.next_page is not None:
+                    seen_pages.add(batch.next_page)
+
             logger.debug(
                 "Dataset.list_all advancing",
                 extra={
@@ -207,7 +302,24 @@ class Dataset:
                 },
             )
             batch = self.list(**page_kwargs)
+
+            # Check for consecutive empty batches
+            if not batch.items:
+                consecutive_empty_batches += 1
+                if consecutive_empty_batches >= MAX_CONSECUTIVE_EMPTY:
+                    raise InvalidRequestError(
+                        f"Received {MAX_CONSECUTIVE_EMPTY} consecutive empty batches "
+                        f"with continuation token. "
+                        f"Last continuation: {next_continuation}. "
+                        "This may indicate a bug in the provider API pagination logic.",
+                        provider=self._ref.provider,
+                        dataset_id=self._ref.id,
+                    )
+            else:
+                consecutive_empty_batches = 0
+
             yield batch
+
         logger.debug(
             "Dataset.list_all completed",
             extra={

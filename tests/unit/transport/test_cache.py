@@ -15,7 +15,7 @@ import httpx
 import pytest
 
 from kpubdata.client import Client
-from kpubdata.exceptions import TransportError
+from kpubdata.exceptions import ConfigError, TransportError
 from kpubdata.transport.cache import ResponseCache, make_cache_key
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
@@ -366,3 +366,115 @@ def test_client_from_env_explicit_cache_false_disables_env_cache(
     transport_config = cast(TransportConfig, client.__dict__["_transport_config"])
 
     assert transport_config.cache is None
+
+
+# test client from env invalid cache ttl raises config error 테스트가 검증하는 시나리오를 설명한다.
+def test_client_from_env_invalid_cache_ttl_raises_config_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    test client from env invalid cache ttl raises config error 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        잘못된 KPUBDATA_CACHE_TTL 값이 ConfigError로 보고되는지 확인한다.
+    """
+    monkeypatch.setenv("KPUBDATA_CACHE_TTL", "abc")
+
+    with pytest.raises(ConfigError) as exc_info:
+        Client.from_env()
+
+    error = exc_info.value
+    assert "KPUBDATA_CACHE_TTL" in str(error)
+    assert "integer" in str(error)
+    assert "'abc'" in str(error)
+    assert isinstance(error.__cause__, ValueError)
+
+
+# test client from env invalid cache ttl explicit override takes priority 테스트가 검증하는 시나리오를 설명한다.
+def test_client_from_env_invalid_cache_ttl_explicit_override_takes_priority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    test client from env invalid cache ttl explicit override takes priority 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        명시적 override가 환경변수보다 우선 적용되는지 확인한다.
+    """
+    monkeypatch.setenv("KPUBDATA_CACHE_TTL", "abc")
+
+    client = Client.from_env(cache_ttl_seconds=30)
+    transport_config = cast(TransportConfig, client.__dict__["_transport_config"])
+
+    assert transport_config.cache_ttl_seconds == 30
+
+
+# test client from env missing cache ttl uses default 테스트가 검증하는 시나리오를 설명한다.
+def test_client_from_env_missing_cache_ttl_uses_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    test client from env missing cache ttl uses default 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        환경변수가 없을 때 기본값 86400이 사용되는지 확인한다.
+    """
+    monkeypatch.delenv("KPUBDATA_CACHE_TTL", raising=False)
+
+    client = Client.from_env()
+    transport_config = cast(TransportConfig, client.__dict__["_transport_config"])
+
+    assert transport_config.cache_ttl_seconds == 86400
+
+
+# test client from env empty cache ttl uses default 테스트가 검증하는 시나리오를 설명한다.
+def test_client_from_env_empty_cache_ttl_uses_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    test client from env empty cache ttl uses default 시나리오를 검증한다.
+
+    매개변수:
+        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        환경변수가 빈 문자열일 때 기본값 86400이 사용되는지 확인한다.
+    """
+    monkeypatch.setenv("KPUBDATA_CACHE_TTL", "")
+
+    client = Client.from_env()
+    transport_config = cast(TransportConfig, client.__dict__["_transport_config"])
+
+    assert transport_config.cache_ttl_seconds == 86400
