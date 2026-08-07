@@ -16,7 +16,6 @@ from kpubdata.exceptions import InvalidRequestError, UnsupportedCapabilityError
 logger = logging.getLogger("kpubdata.dataset")
 
 
-
 def _build_query(kwargs: Mapping[str, object]) -> Query:
     """
     Build a Query from kwargs, separating canonical fields from provider-specific filters.
@@ -69,6 +68,8 @@ def _build_query(kwargs: Mapping[str, object]) -> Query:
         fields=cast(list[str] | None, fields),
         sort=cast(list[str] | None, sort),
     )
+
+
 _DEFAULT_MAX_PAGES = 1000
 
 
