@@ -8,7 +8,7 @@ from kpubdata.core.capability import Operation
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.representation import Representation
-from kpubdata.exceptions import UnsupportedCapabilityError
+from kpubdata.exceptions import InvalidRequestError, UnsupportedCapabilityError
 
 
 class MockAdapter:
@@ -97,7 +97,7 @@ class MockAdapter:
             RecordBatch: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
 
         예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+            구현체 내부 또한 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
         """
         self.last_query = query
         if self.batches:
@@ -488,3 +488,418 @@ class TestDataset:
 
         assert len(batches) == 1
         assert batches[0].items == [{"cursor": "a"}]
+
+    # test list all respects max pages parameter 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_respects_max_pages_parameter(self) -> None:
+        """
+        test list all respects max pages parameter 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # Create 5 pages of data
+        adapter.batches = [
+            RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=2),
+            RecordBatch(items=[{"page": 2}], dataset=dataset_ref, next_page=3),
+            RecordBatch(items=[{"page": 3}], dataset=dataset_ref, next_page=4),
+            RecordBatch(items=[{"page": 4}], dataset=dataset_ref, next_page=5),
+            RecordBatch(items=[{"page": 5}], dataset=dataset_ref, next_page=None),
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should complete normally with 5 pages when max_pages=10
+        batches = list(ds.list_all(max_pages=10))
+        assert len(batches) == 5
+
+    # test list all raises when max pages exceeded 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_raises_when_max_pages_exceeded(self) -> None:
+        """
+        test list all raises when max pages exceeded 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # Create many pages to exceed the limit
+        adapter.batches = [
+            RecordBatch(items=[{"page": i}], dataset=dataset_ref, next_page=i + 1)
+            for i in range(1, 15)
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should raise when exceeding max_pages=10
+        with pytest.raises(InvalidRequestError, match="Pagination limit exceeded"):
+            _ = list(ds.list_all(max_pages=10))
+
+    # test list all detects page cycle 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_detects_page_cycle(self) -> None:
+        """
+        test list all detects page cycle 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # Create a cycle: page 1 -> 2 -> 3 -> 2 -> 3 ...
+        adapter.batches = [
+            RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=2),
+            RecordBatch(items=[{"page": 2}], dataset=dataset_ref, next_page=3),
+            RecordBatch(items=[{"page": 3}], dataset=dataset_ref, next_page=2),  # cycle back to 2
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should detect the cycle when trying to fetch page 2 again
+        with pytest.raises(InvalidRequestError, match="pagination cycle"):
+            _ = list(ds.list_all())
+
+    # test list all detects cursor cycle 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_detects_cursor_cycle(self) -> None:
+        """
+        test list all detects cursor cycle 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # Create a cycle with cursors
+        adapter.batches = [
+            RecordBatch(items=[{"cursor": "a"}], dataset=dataset_ref, next_cursor="abc"),
+            RecordBatch(items=[{"cursor": "b"}], dataset=dataset_ref, next_cursor="def"),
+            RecordBatch(items=[{"cursor": "c"}], dataset=dataset_ref, next_cursor="abc"),  # cycle
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should detect the cycle when trying to use cursor "abc" again
+        with pytest.raises(InvalidRequestError, match="pagination cycle"):
+            _ = list(ds.list_all())
+
+    # test list all raises on consecutive empty batches 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_raises_on_consecutive_empty_batches(self) -> None:
+        """
+        test list all raises on consecutive empty batches 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # Provider keeps returning empty batches but with next_page
+        adapter.batches = [
+            RecordBatch(items=[], dataset=dataset_ref, next_page=2),
+            RecordBatch(items=[], dataset=dataset_ref, next_page=3),
+            RecordBatch(items=[], dataset=dataset_ref, next_page=4),
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should raise after 3 consecutive empty batches
+        with pytest.raises(InvalidRequestError, match="consecutive empty batches"):
+            _ = list(ds.list_all())
+
+    # test list all allows single empty batch 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_allows_single_empty_batch(self) -> None:
+        """
+        test list all allows single empty batch 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # A single empty batch is allowed (might be legitimate)
+        adapter.batches = [RecordBatch(items=[], dataset=dataset_ref, next_page=None)]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should complete normally
+        batches = list(ds.list_all())
+        assert len(batches) == 1
+        assert batches[0].items == []
+
+    # test list all handles mixed empty and non empty batches 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_handles_mixed_empty_and_non_empty_batches(self) -> None:
+        """
+        test list all handles mixed empty and non empty batches 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # Mix of empty and non-empty batches should be fine
+        adapter.batches = [
+            RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=2),
+            RecordBatch(items=[], dataset=dataset_ref, next_page=3),  # empty but has next
+            RecordBatch(items=[{"page": 3}], dataset=dataset_ref, next_page=None),
+        ]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should complete normally
+        batches = list(ds.list_all())
+        assert len(batches) == 3
+        assert [batch.items[0].get("page") if batch.items else None for batch in batches] == [
+            1,
+            None,
+            3,
+        ]
+
+    # test list all uses default max pages when not specified 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_uses_default_max_pages_when_not_specified(self) -> None:
+        """
+        test list all uses default max pages when not specified 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # Create a reasonable number of pages (should be under default limit)
+        adapter.batches = [
+            RecordBatch(items=[{"page": i}], dataset=dataset_ref, next_page=i + 1)
+            for i in range(1, 10)
+        ]
+        adapter.batches.append(
+            RecordBatch(items=[{"page": 10}], dataset=dataset_ref, next_page=None)
+        )
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should work with default max_pages
+        batches = list(ds.list_all())
+        assert len(batches) == 10
+
+    # test list all detects immediate cycle from first page 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_detects_immediate_cycle_from_first_page(self) -> None:
+        """
+        test list all detects immediate cycle from first page 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        # First batch immediately returns to page 1 (cycle to itself)
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=1)]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # Should detect cycle when trying to fetch page 1 again
+        with pytest.raises(InvalidRequestError, match="pagination cycle"):
+            _ = list(ds.list_all())
+
+    # test list all passes through filters with max pages 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_passes_through_filters_with_max_pages(self) -> None:
+        """
+        test list all passes through filters with max pages 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        _ = list(ds.list_all(max_pages=5, region="서울", code="11680"))
+
+        assert adapter.last_query is not None
+        assert adapter.last_query.filters == {"region": "서울", "code": "11680"}
+
+    # test list all with max pages None uses default 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_with_max_pages_none_uses_default(self) -> None:
+        """
+        test list all with max pages None uses default 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또한 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # max_pages=None should use default (1000)
+        batches = list(ds.list_all(max_pages=None))
+        assert len(batches) == 1
+
+    # test list all with max pages one 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_with_max_pages_one(self) -> None:
+        """
+        test list all with max pages one 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        adapter.batches = [RecordBatch(items=[{"page": 1}], dataset=dataset_ref, next_page=None)]
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # max_pages=1 should work
+        batches = list(ds.list_all(max_pages=1))
+        assert len(batches) == 1
+
+    # test list all rejects max pages zero 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_rejects_max_pages_zero(self) -> None:
+        """
+        test list all rejects max pages zero 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # max_pages=0 should raise InvalidRequestError
+        with pytest.raises(InvalidRequestError, match="must be None or a positive integer"):
+            _ = list(ds.list_all(max_pages=0))
+
+    # test list all rejects max pages negative 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_rejects_max_pages_negative(self) -> None:
+        """
+        test list all rejects max pages negative 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # max_pages=-1 should raise InvalidRequestError
+        with pytest.raises(InvalidRequestError, match="must be None or a positive integer"):
+            _ = list(ds.list_all(max_pages=-1))
+
+    # test list all rejects max pages true 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_rejects_max_pages_true(self) -> None:
+        """
+        test list all rejects max pages true 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # max_pages=True should raise InvalidRequestError
+        with pytest.raises(
+            InvalidRequestError, match="must be None or a positive integer.*got bool"
+        ):
+            _ = list(ds.list_all(max_pages=True))
+
+    # test list all rejects max pages string 테스트가 검증하는 시나리오를 설명한다.
+    def test_list_all_rejects_max_pages_string(self) -> None:
+        """
+        test list all rejects max pages string 시나리오를 검증한다.
+
+        반환값:
+            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+        예외:
+            구현체 내부 또은 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+        예시:
+            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+        """
+        adapter = MockAdapter()
+        dataset_ref = _ref()
+        ds = Dataset(ref=dataset_ref, adapter=adapter)
+
+        # max_pages="10" should raise InvalidRequestError
+        with pytest.raises(
+            InvalidRequestError, match="must be None or a positive integer.*got str"
+        ):
+            _ = list(ds.list_all(max_pages="10"))
