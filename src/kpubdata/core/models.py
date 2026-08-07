@@ -9,6 +9,7 @@ from types import MappingProxyType
 
 from kpubdata.core.capability import Operation, QuerySupport, _dataclass
 from kpubdata.core.representation import Representation
+from kpubdata.exceptions import InvalidRequestError
 
 
 def _empty_proxy() -> MappingProxyType[str, object]:
@@ -74,6 +75,104 @@ class Query:
     fields: list[str] | None = None
     sort: list[str] | None = None
     extra: dict[str, object] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Query 생성 시 canonical-level 타입 검증을 수행한다."""
+        self._validate_page()
+        self._validate_page_size()
+        self._validate_cursor()
+        self._validate_dates()
+        self._validate_fields()
+        self._validate_sort()
+        self._validate_dict_type(self.filters, "filters")
+        self._validate_dict_type(self.extra, "extra")
+
+    def _validate_page(self) -> None:
+        """page 필드가 유효한 정수인지 검증한다."""
+        if self.page is None:
+            return
+        if isinstance(self.page, bool):
+            raise InvalidRequestError("page must be an integer, not bool")
+        if not isinstance(self.page, int):
+            raise InvalidRequestError(
+                f"page must be an integer or None, got {type(self.page).__name__}"
+            )
+        if self.page < 1:
+            raise InvalidRequestError("page must be a positive integer (>= 1)")
+
+    def _validate_page_size(self) -> None:
+        """page_size 필드가 유효한 정수인지 검증한다."""
+        if self.page_size is None:
+            return
+        if isinstance(self.page_size, bool):
+            raise InvalidRequestError("page_size must be an integer, not bool")
+        if not isinstance(self.page_size, int):
+            raise InvalidRequestError(
+                f"page_size must be an integer or None, got {type(self.page_size).__name__}"
+            )
+        if self.page_size < 1:
+            raise InvalidRequestError("page_size must be a positive integer (>= 1)")
+
+    def _validate_cursor(self) -> None:
+        """cursor 필드가 문자열인지 검증한다."""
+        if self.cursor is None:
+            return
+        if not isinstance(self.cursor, str):
+            raise InvalidRequestError(
+                f"cursor must be a string or None, got {type(self.cursor).__name__}"
+            )
+        if self.cursor == "":
+            raise InvalidRequestError("cursor must be a non-empty string")
+
+    def _validate_dates(self) -> None:
+        """날짜 필드가 문자열이고 비어있지 않은지 검증한다."""
+        for field_name, value in (("start_date", self.start_date), ("end_date", self.end_date)):
+            if value is None:
+                continue
+            if not isinstance(value, str):
+                raise InvalidRequestError(
+                    f"{field_name} must be a string or None, got {type(value).__name__}"
+                )
+            if value == "" or value.isspace():
+                raise InvalidRequestError(f"{field_name} must be a non-empty string")
+
+    def _validate_fields(self) -> None:
+        """fields 필드가 문자열 리스트인지 검증한다."""
+        if self.fields is None:
+            return
+        if not isinstance(self.fields, list):
+            raise InvalidRequestError(
+                f"fields must be a list of strings or None, got {type(self.fields).__name__}"
+            )
+        for i, item in enumerate(self.fields):
+            if not isinstance(item, str):
+                raise InvalidRequestError(
+                    f"fields must contain only strings, got {type(item).__name__} at index {i}"
+                )
+
+    def _validate_sort(self) -> None:
+        """sort 필드가 문자열 리스트인지 검증한다."""
+        if self.sort is None:
+            return
+        if not isinstance(self.sort, list):
+            raise InvalidRequestError(
+                f"sort must be a list of strings or None, got {type(self.sort).__name__}"
+            )
+        for i, item in enumerate(self.sort):
+            if not isinstance(item, str):
+                raise InvalidRequestError(
+                    f"sort must contain only strings, got {type(item).__name__} at index {i}"
+                )
+
+    def _validate_dict_type(self, value: dict[str, object], field_name: str) -> None:
+        """dict 필드의 키가 문자열인지 검증한다."""
+        if not isinstance(value, dict):
+            raise InvalidRequestError(f"{field_name} must be a dict, got {type(value).__name__}")
+        for key in value:
+            if not isinstance(key, str):
+                raise InvalidRequestError(
+                    f"{field_name} keys must be strings, got {type(key).__name__}"
+                )
 
 
 @_dataclass(slots=True)

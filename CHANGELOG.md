@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Canonical Query validation now prevents invalid canonical query values from reaching provider adapters (#264)
+- `Dataset.list()` now validates canonical query parameters (`page`, `page_size`, `cursor`, `start_date`, `end_date`, `fields`, `sort`) before adapter invocation
+- Canonical keys are now routed by name (not by type) to prevent bypass via type mismatch (e.g., `dataset.list(page="1")` now raises `InvalidRequestError` instead of falling through to filters)
+- Date fields now reject empty strings and whitespace-only values
+- All query validation errors now raise `InvalidRequestError` instead of generic `TypeError`/`ValueError`
+
+### Changed
+
+- Query validation now performs type checking and basic value validation at Query creation time
+- Empty cursor strings (`""`) are now rejected as invalid
+
 ## [0.5.0] - 2026-04-28
 
 ### Added

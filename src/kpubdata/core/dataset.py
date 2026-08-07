@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Generator
+from collections.abc import Generator, Mapping
 from typing import cast
 
 from typing_extensions import override
@@ -15,9 +15,61 @@ from kpubdata.exceptions import InvalidRequestError, UnsupportedCapabilityError
 
 logger = logging.getLogger("kpubdata.dataset")
 
-_CANONICAL_QUERY_KEYS = frozenset(
-    {"page", "page_size", "cursor", "start_date", "end_date", "fields", "sort"}
-)
+
+def _build_query(kwargs: Mapping[str, object]) -> Query:
+    """
+    Build a Query from kwargs, separating canonical fields from provider-specific filters.
+
+    Canonical query parameters (extracted as direct Query fields):
+        page, page_size, cursor, start_date, end_date, fields, sort
+
+    All other kwargs are preserved in Query.filters for provider-specific handling.
+
+    Args:
+        kwargs: Raw keyword arguments from Dataset.list()
+
+    Returns:
+        Query with canonical fields populated and remaining kwargs in filters.
+    """
+    page: object = None
+    page_size: object = None
+    cursor: object = None
+    start_date: object = None
+    end_date: object = None
+    fields: object = None
+    sort: object = None
+    filters: dict[str, object] = {}
+
+    for key, value in kwargs.items():
+        if key == "page":
+            page = value
+        elif key == "page_size":
+            page_size = value
+        elif key == "cursor":
+            cursor = value
+        elif key == "start_date":
+            start_date = value
+        elif key == "end_date":
+            end_date = value
+        elif key == "fields":
+            fields = value
+        elif key == "sort":
+            sort = value
+        else:
+            filters[key] = value
+
+    return Query(
+        filters=filters,
+        page=cast(int | None, page),
+        page_size=cast(int | None, page_size),
+        cursor=cast(str | None, cursor),
+        start_date=cast(str | None, start_date),
+        end_date=cast(str | None, end_date),
+        fields=cast(list[str] | None, fields),
+        sort=cast(list[str] | None, sort),
+    )
+
+
 _DEFAULT_MAX_PAGES = 1000
 
 
@@ -87,64 +139,21 @@ class Dataset:
                 operation=Operation.LIST.value,
             )
 
-        page: int | None = None
-        page_size: int | None = None
-        cursor: str | None = None
-        start_date: str | None = None
-        end_date: str | None = None
-        fields_list: list[str] | None = None
-        sort_list: list[str] | None = None
-        filters: dict[str, object] = {}
+        query = _build_query(kwargs)
 
-        for key, value in kwargs.items():
-            if key == "page" and isinstance(value, int):
-                page = value
-            elif key == "page_size" and isinstance(value, int):
-                page_size = value
-            elif key == "cursor" and isinstance(value, str):
-                cursor = value
-            elif key == "start_date" and isinstance(value, str):
-                start_date = value
-            elif key == "end_date" and isinstance(value, str):
-                end_date = value
-            elif (
-                key == "fields"
-                and isinstance(value, list)
-                and all(isinstance(item, str) for item in cast(list[object], value))
-            ):
-                fields_list = cast(list[str], value)
-            elif (
-                key == "sort"
-                and isinstance(value, list)
-                and all(isinstance(item, str) for item in cast(list[object], value))
-            ):
-                sort_list = cast(list[str], value)
-            else:
-                filters[key] = value
-
-        query = Query(
-            filters=filters,
-            page=page,
-            page_size=page_size,
-            cursor=cursor,
-            start_date=start_date,
-            end_date=end_date,
-            fields=fields_list,
-            sort=sort_list,
-        )
         logger.debug(
             "Dataset.list dispatching",
             extra={
                 "dataset_id": self._ref.id,
                 "provider": self._ref.provider,
-                "page": page,
-                "page_size": page_size,
-                "cursor": cursor,
-                "start_date": start_date,
-                "end_date": end_date,
-                "fields": fields_list,
-                "sort": sort_list,
-                "filter_keys": sorted(filters.keys()),
+                "page": query.page,
+                "page_size": query.page_size,
+                "cursor": query.cursor,
+                "start_date": query.start_date,
+                "end_date": query.end_date,
+                "fields": query.fields,
+                "sort": query.sort,
+                "filter_keys": sorted(query.filters.keys()),
             },
         )
         batch = self._adapter.query_records(self._ref, query)
