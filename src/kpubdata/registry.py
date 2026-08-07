@@ -7,10 +7,10 @@ at registration time, not at call time.
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from threading import RLock
-from typing import Any
 
+from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.exceptions import ProviderNotRegisteredError
 
 logger = logging.getLogger("kpubdata.registry")
@@ -30,8 +30,8 @@ class ProviderRegistry:
 
     def __init__(self) -> None:
         """Initialize empty eager/lazy adapter registries."""
-        self._adapters: dict[str, Any] = {}
-        self._lazy: dict[str, Any] = {}
+        self._adapters: dict[str, ProviderAdapter] = {}
+        self._lazy: dict[str, Callable[[], ProviderAdapter]] = {}
         self._lock = RLock()
 
     def __repr__(self) -> str:
@@ -41,7 +41,7 @@ class ProviderRegistry:
             lazy_names = sorted(self._lazy.keys())
         return f"ProviderRegistry(eager={eager_names}, lazy={lazy_names})"
 
-    def register(self, adapter: Any) -> None:
+    def register(self, adapter: ProviderAdapter) -> None:
         """Register an adapter instance. Validates protocol conformance."""
         self._validate_adapter(adapter)
         provider_name = str(adapter.name).strip().lower()
@@ -55,7 +55,7 @@ class ProviderRegistry:
             extra={"provider": provider_name, "adapter_type": type(adapter).__name__},
         )
 
-    def register_lazy(self, name: str, factory: Any, *, skip_if_exists: bool = False) -> None:
+    def register_lazy(self, name: str, factory: Callable[[], ProviderAdapter], *, skip_if_exists: bool = False) -> None:
         """Register a lazy-loaded adapter via callable factory.
 
         When ``skip_if_exists`` is True, silently skip registration if the
@@ -86,7 +86,7 @@ class ProviderRegistry:
             extra={"provider": normalized_name},
         )
 
-    def get(self, name: str) -> Any:
+    def get(self, name: str) -> ProviderAdapter:
         """Retrieve adapter by provider name."""
         normalized_name = name.strip().lower()
         with self._lock:
@@ -136,7 +136,7 @@ class ProviderRegistry:
         return iter(sorted(names))
 
     @staticmethod
-    def _validate_adapter(adapter: Any) -> None:
+    def _validate_adapter(adapter: ProviderAdapter | object) -> None:
         """Check that adapter has required protocol methods."""
         name = getattr(adapter, "name", None)
         if not isinstance(name, str) or not name.strip():
