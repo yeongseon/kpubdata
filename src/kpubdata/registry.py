@@ -7,11 +7,11 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from threading import RLock
-from typing import Any
 
 from kpubdata.core.models import DatasetRef
+from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.exceptions import CapabilityContractError, ProviderNotRegisteredError
 
 logger = logging.getLogger("kpubdata.registry")
@@ -31,8 +31,8 @@ class ProviderRegistry:
 
     def __init__(self) -> None:
         """비어 있는 eager/lazy 어댑터 레지스트리를 초기화한다."""
-        self._adapters: dict[str, Any] = {}
-        self._lazy: dict[str, Any] = {}
+        self._adapters: dict[str, ProviderAdapter] = {}
+        self._lazy: dict[str, Callable[[], ProviderAdapter]] = {}
         self._lock = RLock()
 
     def __repr__(self) -> str:
@@ -42,7 +42,7 @@ class ProviderRegistry:
             lazy_names = sorted(self._lazy.keys())
         return f"ProviderRegistry(eager={eager_names}, lazy={lazy_names})"
 
-    def register(self, adapter: Any, *, validate_capabilities: bool = True) -> None:
+    def register(self, adapter: ProviderAdapter, *, validate_capabilities: bool = True) -> None:
         """어댑터 인스턴스를 등록한다. 프로토콜 준수 여부를 검증한다.
 
         ``validate_capabilities=True``(기본값)이면 등록 시점에 ``list_datasets()``를
@@ -74,7 +74,9 @@ class ProviderRegistry:
             extra={"provider": provider_name, "adapter_type": type(adapter).__name__},
         )
 
-    def register_lazy(self, name: str, factory: Any, *, skip_if_exists: bool = False) -> None:
+    def register_lazy(
+        self, name: str, factory: Callable[[], ProviderAdapter], *, skip_if_exists: bool = False
+    ) -> None:
         """호출 가능한 팩토리를 통해 지연 로딩 어댑터를 등록한다.
 
         ``skip_if_exists``가 True이면 Provider 이름이 이미 등록된 경우(eager 또는 lazy)
@@ -104,7 +106,7 @@ class ProviderRegistry:
             extra={"provider": normalized_name},
         )
 
-    def get(self, name: str) -> Any:
+    def get(self, name: str) -> ProviderAdapter:
         """Provider 이름으로 어댑터를 가져온다."""
         normalized_name = name.strip().lower()
         with self._lock:
@@ -155,7 +157,7 @@ class ProviderRegistry:
         return iter(sorted(names))
 
     @staticmethod
-    def _validate_adapter(adapter: Any) -> None:
+    def _validate_adapter(adapter: ProviderAdapter) -> None:
         """어댑터가 필요한 프로토콜 메서드를 갖는지 확인한다."""
         name = getattr(adapter, "name", None)
         if not isinstance(name, str) or not name.strip():
@@ -177,7 +179,7 @@ class ProviderRegistry:
             raise TypeError(f"Adapter '{name}' has non-callable required methods: {non_callable}")
 
     @staticmethod
-    def _validate_capability_contract(adapter: Any) -> None:
+    def _validate_capability_contract(adapter: ProviderAdapter) -> None:
         """어댑터의 catalogue가 정직한 capability 선언을 하는지 fail-fast로 검증한다.
 
         ``list_datasets()`` 호출 자체가 실패하면 catalogue 로딩이 깨진 상태이므로

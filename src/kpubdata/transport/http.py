@@ -16,16 +16,13 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import httpx
 from typing_extensions import override
 
 from kpubdata.exceptions import TransportError, TransportTimeoutError
 from kpubdata.transport.cache import ResponseCache, make_cache_key
-
-if TYPE_CHECKING:
-    import ssl
 
 logger = logging.getLogger("kpubdata.transport")
 _SENSITIVE_PARAM_KEYS = {
