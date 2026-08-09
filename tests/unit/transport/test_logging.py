@@ -15,6 +15,7 @@ import httpx
 import pytest
 
 import kpubdata.transport.http as http_module
+from kpubdata.exceptions import TransportError
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
 
@@ -249,3 +250,96 @@ def test_request_logs_include_dataset_context(caplog: pytest.LogCaptureFixture) 
         record = next(record for record in caplog.records if record.getMessage() == message)
         assert record.__dict__["dataset_id"] == "datago.village_fcst"
         assert record.__dict__["provider"] == "datago"
+
+
+# test mask url redacts sensitive query params 테스트가 검증하는 시나리오를 설명한다.
+def test_mask_url_redacts_sensitive_query_params() -> None:
+    """
+    test mask url redacts sensitive query params 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    mask_url = cast(Callable[[str], str], http_module._mask_url)
+
+    masked = mask_url(
+        "https://api.example.test/data?serviceKey=secret&SERVICE_KEY=other&query=station"
+    )
+    assert masked == (
+        "https://api.example.test/data?serviceKey=[REDACTED]&SERVICE_KEY=[REDACTED]&query=station"
+    )
+    assert mask_url("https://api.example.test/data?query=station") == (
+        "https://api.example.test/data?query=station"
+    )
+    assert mask_url("https://api.example.test/data") == "https://api.example.test/data"
+    assert mask_url("https://[invalid") == "[invalid url]"
+
+
+# test exception message masks sensitive query params 테스트가 검증하는 시나리오를 설명한다.
+def test_exception_message_masks_sensitive_query_params() -> None:
+    """
+    test exception message masks sensitive query params 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=0))
+    secret_url = "https://api.example.test/data?serviceKey=super-secret&query=station"
+    response = httpx.Response(status_code=403, request=httpx.Request("GET", secret_url))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        pytest.raises(TransportError) as excinfo,
+    ):
+        _ = transport.request("GET", secret_url)
+
+    message = str(excinfo.value)
+    assert "super-secret" not in message
+    assert "serviceKey=[REDACTED]" in message
+    assert "query=station" in message
+
+
+# test request logs mask sensitive url 테스트가 검증하는 시나리오를 설명한다.
+def test_request_logs_mask_sensitive_url(caplog: pytest.LogCaptureFixture) -> None:
+    """
+    test request logs mask sensitive url 시나리오를 검증한다.
+
+    매개변수:
+        caplog (pytest.LogCaptureFixture): 호출자가 제공하는 입력 값이다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=0))
+    secret_url = "https://api.example.test/data?serviceKey=super-secret&query=station"
+    response = _response_with_content(b'{"ok": true}', "application/json")
+    caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
+
+    with patch("kpubdata.transport.http.httpx.Client.request", return_value=response):
+        _ = transport.request("GET", secret_url)
+
+    start_records = [
+        record for record in caplog.records if record.getMessage() == "HTTP request start"
+    ]
+    assert len(start_records) == 1
+    logged_url = cast(str, cast(Any, start_records[0]).url)
+    assert "super-secret" not in logged_url
+    assert logged_url == "https://api.example.test/data?serviceKey=[REDACTED]&query=station"

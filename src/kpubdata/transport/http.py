@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import cast
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import httpx
 from typing_extensions import override
@@ -205,13 +206,16 @@ class HttpTransport:
         # 메서드/URL/헤더 조합이 안전할 때만 캐시 키를 만들고 GET 응답을 재사용한다.
         cache_key = self._make_cache_key(method=method, url=url, params=params, headers=headers)
         request_context = _request_context(dataset_id=dataset_id, provider=provider)
+        # 로그/예외에는 API 키가 query parameter로 포함될 수 있는 원본 URL 대신
+        # 민감 파라미터를 가린 URL만 사용한다.
+        log_url = _mask_url(url)
         if cache_key is not None and self._cache is not None:
             cached_body = self._cache.get(cache_key)
             if cached_body is not None:
                 logger.debug(
                     "transport cache hit",
                     extra={
-                        "url": url,
+                        "url": log_url,
                         "cache_key": cache_key,
                         **request_context,
                     },
@@ -229,7 +233,7 @@ class HttpTransport:
                     "HTTP request start",
                     extra={
                         "method": method,
-                        "url": url,
+                        "url": log_url,
                         "attempt": attempt,
                         "max_retries": self._config.max_retries,
                         **request_context,
@@ -241,7 +245,7 @@ class HttpTransport:
                         "HTTP request params",
                         extra={
                             "method": method,
-                            "url": url,
+                            "url": log_url,
                             "params": _sanitize_params(params),
                             **request_context,
                         },
@@ -261,7 +265,7 @@ class HttpTransport:
                     "HTTP request success",
                     extra={
                         "method": method,
-                        "url": url,
+                        "url": log_url,
                         "status_code": response.status_code,
                         "attempt": attempt,
                         **request_context,
@@ -289,7 +293,7 @@ class HttpTransport:
                     logger.debug(
                         "transport cache miss; stored",
                         extra={
-                            "url": url,
+                            "url": log_url,
                             "cache_key": cache_key,
                             **request_context,
                         },
@@ -301,7 +305,7 @@ class HttpTransport:
                     "HTTP request timeout",
                     extra={
                         "method": method,
-                        "url": url,
+                        "url": log_url,
                         "attempt": attempt,
                         "exception_type": type(exc).__name__,
                         **request_context,
@@ -309,7 +313,7 @@ class HttpTransport:
                 )
                 if attempt >= total_attempts:
                     raise TransportTimeoutError(
-                        f"Request timed out after {attempt} attempts: {method} {url}"
+                        f"Request timed out after {attempt} attempts: {method} {log_url}"
                     ) from exc
 
             except httpx.HTTPStatusError as exc:
@@ -318,7 +322,7 @@ class HttpTransport:
                     "HTTP status error",
                     extra={
                         "method": method,
-                        "url": url,
+                        "url": log_url,
                         "attempt": attempt,
                         "status_code": status_code,
                         **request_context,
@@ -326,7 +330,7 @@ class HttpTransport:
                 )
                 if not _is_retryable_status(status_code) or attempt >= total_attempts:
                     raise TransportError(
-                        f"HTTP status error {status_code} for {method} {url}"
+                        f"HTTP status error {status_code} for {method} {log_url}"
                     ) from exc
 
                 retry_after = cast(str | None, exc.response.headers.get("Retry-After"))
@@ -338,7 +342,7 @@ class HttpTransport:
                     "HTTP request error",
                     extra={
                         "method": method,
-                        "url": url,
+                        "url": log_url,
                         "attempt": attempt,
                         "exception_type": type(exc).__name__,
                         **request_context,
@@ -346,7 +350,7 @@ class HttpTransport:
                 )
                 if attempt >= total_attempts:
                     raise TransportError(
-                        f"Request failed after {attempt} attempts: {method} {url}"
+                        f"Request failed after {attempt} attempts: {method} {log_url}"
                     ) from exc
 
             delay: float
@@ -359,7 +363,7 @@ class HttpTransport:
                 "Retrying HTTP request",
                 extra={
                     "method": method,
-                    "url": url,
+                    "url": log_url,
                     "attempt": attempt,
                     "delay_seconds": delay,
                     **request_context,
@@ -431,6 +435,32 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
         else:
             sanitized[key] = str(value)
     return sanitized
+
+
+def _mask_url(url: str) -> str:
+    """민감한 query parameter 값을 가린 로그/예외용 URL 문자열을 만든다.
+
+    API 키 등이 query parameter로 전달되는 Provider(datago 등)의 경우,
+    URL 자체를 로그나 예외 메시지에 그대로 포함하면 키가 노출된다.
+    민감한 키가 없으면 원본 URL을 그대로 돌려주고, 있을 때만 마스킹된 URL을
+    재구성한다. 파싱할 수 없는 URL은 키 노출을 막기 위해 ``"[invalid url]"``로
+    대체한다.
+    """
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return "[invalid url]"
+    if not parts.query:
+        return url
+
+    query_items = parse_qsl(parts.query, keep_blank_values=True)
+    masked_items = [
+        (key, "[REDACTED]" if key.casefold() in _SENSITIVE_PARAM_KEYS else value)
+        for key, value in query_items
+    ]
+    if masked_items == query_items:
+        return url
+    return urlunsplit(parts._replace(query=urlencode(masked_items, safe="[]")))
 
 
 def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:
