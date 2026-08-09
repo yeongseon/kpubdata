@@ -15,7 +15,7 @@ import httpx
 import pytest
 
 import kpubdata.transport.http as http_module
-from kpubdata.exceptions import TransportError
+from kpubdata.exceptions import TransportError, TransportTimeoutError
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
 
@@ -343,3 +343,118 @@ def test_request_logs_mask_sensitive_url(caplog: pytest.LogCaptureFixture) -> No
     logged_url = cast(str, cast(Any, start_records[0]).url)
     assert "super-secret" not in logged_url
     assert logged_url == "https://api.example.test/data?serviceKey=[REDACTED]&query=station"
+
+
+# test status error chain suppressed when url masked 테스트가 검증하는 시나리오를 설명한다.
+def test_status_error_chain_suppressed_when_url_masked() -> None:
+    """
+    test status error chain suppressed when url masked 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        마스킹이 적용된 URL에서 HTTPStatusError가 발생하면 __cause__/__context__를
+        남기지 않아 원본 httpx 예외에 든 민감 URL이 traceback에 노출되지 않는다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=0))
+    secret_url = "https://api.example.test/data?serviceKey=super-secret&query=station"
+    response = httpx.Response(status_code=403, request=httpx.Request("GET", secret_url))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        pytest.raises(TransportError) as excinfo,
+    ):
+        _ = transport.request("GET", secret_url)
+
+    assert excinfo.value.__cause__ is None
+    assert excinfo.value.__suppress_context__ is True
+
+
+# test timeout chain suppressed when url masked 테스트가 검증하는 시나리오를 설명한다.
+def test_timeout_chain_suppressed_when_url_masked() -> None:
+    """
+    test timeout chain suppressed when url masked 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        마스킹이 적용된 URL에서 TimeoutException이 발생하면 TransportTimeoutError가
+        원본 예외를 __cause__에 남기지 않는다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=0))
+    secret_url = "https://api.example.test/data?serviceKey=super-secret&query=station"
+    timeout_exc = httpx.TimeoutException("timed out", request=httpx.Request("GET", secret_url))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.request", side_effect=timeout_exc),
+        pytest.raises(TransportTimeoutError) as excinfo,
+    ):
+        _ = transport.request("GET", secret_url)
+
+    assert excinfo.value.__cause__ is None
+    assert excinfo.value.__suppress_context__ is True
+
+
+# test request error chain suppressed when url masked 테스트가 검증하는 시나리오를 설명한다.
+def test_request_error_chain_suppressed_when_url_masked() -> None:
+    """
+    test request error chain suppressed when url masked 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        마스킹이 적용된 URL에서 RequestError가 발생하면 TransportError가
+        원본 예외를 __cause__에 남기지 않는다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=0))
+    secret_url = "https://api.example.test/data?serviceKey=super-secret&query=station"
+    request_exc = httpx.ConnectError("connect failed", request=httpx.Request("GET", secret_url))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.request", side_effect=request_exc),
+        pytest.raises(TransportError) as excinfo,
+    ):
+        _ = transport.request("GET", secret_url)
+
+    assert excinfo.value.__cause__ is None
+    assert excinfo.value.__suppress_context__ is True
+
+
+# test exception chain preserved when url not masked 테스트가 검증하는 시나리오를 설명한다.
+def test_exception_chain_preserved_when_url_not_masked() -> None:
+    """
+    test exception chain preserved when url not masked 시나리오를 검증한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        마스킹이 적용되지 않은 URL에서는 디버깅 편의를 위해 원본 httpx 예외를
+        __cause__에 그대로 유지한다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=0))
+    plain_url = "https://api.example.test/data?query=station"
+    response = httpx.Response(status_code=403, request=httpx.Request("GET", plain_url))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        pytest.raises(TransportError) as excinfo,
+    ):
+        _ = transport.request("GET", plain_url)
+
+    assert isinstance(excinfo.value.__cause__, httpx.HTTPStatusError)

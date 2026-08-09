@@ -209,6 +209,10 @@ class HttpTransport:
         # 로그/예외에는 API 키가 query parameter로 포함될 수 있는 원본 URL 대신
         # 민감 파라미터를 가린 URL만 사용한다.
         log_url = _mask_url(url)
+        # 마스킹이 실제로 적용된 경우 원본 httpx 예외를 __cause__에 남기면
+        # 예외 체인(traceback/에러 트래커)을 통해 민감 URL이 새어나갈 수 있으므로
+        # 예외 체이닝을 끊는다. 마스킹이 없는 경우 디버깅 편의를 위해 체인을 유지한다.
+        url_masked = log_url != url
         if cache_key is not None and self._cache is not None:
             cached_body = self._cache.get(cache_key)
             if cached_body is not None:
@@ -314,7 +318,7 @@ class HttpTransport:
                 if attempt >= total_attempts:
                     raise TransportTimeoutError(
                         f"Request timed out after {attempt} attempts: {method} {log_url}"
-                    ) from exc
+                    ) from (None if url_masked else exc)
 
             except httpx.HTTPStatusError as exc:
                 status_code = exc.response.status_code
@@ -331,7 +335,7 @@ class HttpTransport:
                 if not _is_retryable_status(status_code) or attempt >= total_attempts:
                     raise TransportError(
                         f"HTTP status error {status_code} for {method} {log_url}"
-                    ) from exc
+                    ) from (None if url_masked else exc)
 
                 retry_after = cast(str | None, exc.response.headers.get("Retry-After"))
                 if retry_after is not None:
@@ -351,7 +355,7 @@ class HttpTransport:
                 if attempt >= total_attempts:
                     raise TransportError(
                         f"Request failed after {attempt} attempts: {method} {log_url}"
-                    ) from exc
+                    ) from (None if url_masked else exc)
 
             delay: float
             if retry_delay is not None:
