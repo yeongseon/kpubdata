@@ -6,10 +6,13 @@
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
 from unittest.mock import MagicMock
 
 from kpubdata.client import Client
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
+from kpubdata.providers.manifest import BUILTIN_PROVIDERS
 
 
 class _Adapter:
@@ -287,6 +290,24 @@ def test_builtin_dataset_binding_works() -> None:
 
     assert ds.id == "datago.village_fcst"
     assert ds.provider == "datago"
+
+
+def test_sgis_boundary_dataset_binding_works_without_network() -> None:
+    client = Client()
+
+    ds = client.dataset("sgis.boundary.sido")
+
+    assert ds.id == "sgis.boundary.sido"
+    assert ds.provider == "sgis"
+
+
+def test_supported_data_supported_providers_are_builtin() -> None:
+    supported_data = Path(__file__).parents[2] / "SUPPORTED_DATA.md"
+    text = supported_data.read_text(encoding="utf-8")
+    documented = set(re.findall(r"\| 지원 \| [^|]+ \| [^|]+ \| [^|]+ \(`([^`]+)`\)", text))
+    builtin = {provider for provider, _, _ in BUILTIN_PROVIDERS}
+
+    assert documented <= builtin
 
 
 # test user adapter overrides builtin 테스트가 검증하는 시나리오를 설명한다.
