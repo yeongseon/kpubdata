@@ -15,12 +15,20 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any
+
+from typing_extensions import NotRequired, TypedDict, Unpack
 
 from kpubdata.exceptions import ConfigError
 
 _ENV_KEY_PATTERN = re.compile(r"^KPUBDATA_([A-Z0-9_]+)_API_KEY$")
 logger = logging.getLogger("kpubdata.config")
+
+
+class _ConfigOverrides(TypedDict):
+    provider_keys: NotRequired[dict[object, object]]
+    timeout: NotRequired[float]
+    max_retries: NotRequired[int]
+    extra: NotRequired[dict[str, object]]
 
 
 @dataclass
@@ -74,7 +82,7 @@ class KPubDataConfig:
         raise ConfigError(f"Missing provider API key for '{provider}'")
 
     @classmethod
-    def from_env(cls, **overrides: Any) -> KPubDataConfig:
+    def from_env(cls, **overrides: Unpack[_ConfigOverrides]) -> KPubDataConfig:
         """환경 변수로부터 설정을 구성한다.
 
         KPUBDATA_*_API_KEY 패턴을 스캔한다.
@@ -100,7 +108,12 @@ class KPubDataConfig:
         merged_provider_keys = scanned_keys.copy()
         merged_provider_keys.update(provider_overrides)
 
-        return cls(provider_keys=merged_provider_keys, **overrides)
+        return cls(
+            provider_keys=merged_provider_keys,
+            timeout=overrides.get("timeout", 30.0),
+            max_retries=overrides.get("max_retries", 3),
+            extra=overrides.get("extra", {}),
+        )
 
 
 def _normalize_provider_name(provider: str) -> str:
