@@ -121,10 +121,10 @@ def test_response_cache_missing_key_returns_none(tmp_path: Path) -> None:
     assert cache.get("missing") is None
 
 
-# test make cache key redacts secret values 테스트가 검증하는 시나리오를 설명한다.
-def test_make_cache_key_redacts_secret_values() -> None:
+# test make cache key isolates secret values 테스트가 검증하는 시나리오를 설명한다.
+def test_make_cache_key_isolates_secret_values() -> None:
     """
-    test make cache key redacts secret values 시나리오를 검증한다.
+    test make cache key isolates secret values 시나리오를 검증한다.
 
     반환값:
         None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
@@ -154,7 +154,7 @@ def test_make_cache_key_redacts_secret_values() -> None:
         {"Accept": "application/json", "Authorization": "Bearer bbb"},
     )
 
-    assert key_one == key_two
+    assert key_one != key_two
     assert key_one != key_three
 
 
@@ -185,13 +185,13 @@ def test_response_cache_filesystem_errors_are_swallowed(tmp_path: Path) -> None:
     cache.clear_expired()
 
 
-# test http transport get cache hit logs and skips network 테스트가 검증하는 시나리오를 설명한다.
-def test_http_transport_get_cache_hit_logs_and_skips_network(
+# test http transport get isolates cache by credential 테스트가 검증하는 시나리오를 설명한다.
+def test_http_transport_get_isolates_cache_by_credential(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """
-    test http transport get cache hit logs and skips network 시나리오를 검증한다.
+    test http transport get isolates cache by credential 시나리오를 검증한다.
 
     매개변수:
         tmp_path (Path): 호출자가 제공하는 입력 값이다.
@@ -208,11 +208,13 @@ def test_http_transport_get_cache_hit_logs_and_skips_network(
     """
     cache = ResponseCache(base_dir=tmp_path)
     transport = HttpTransport(TransportConfig(max_retries=0), cache=cache, cache_ttl_seconds=60)
-    response = _response(content=b'{"cached": false}')
+    first_response = _response(content=b'{"credential": "first"}')
+    second_response = _response(content=b'{"credential": "second"}')
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
 
     with patch(
-        "kpubdata.transport.http.httpx.Client.request", return_value=response
+        "kpubdata.transport.http.httpx.Client.request",
+        side_effect=[first_response, second_response],
     ) as request_mock:
         first = transport.request(
             "GET",
@@ -229,18 +231,17 @@ def test_http_transport_get_cache_hit_logs_and_skips_network(
             provider="datago",
         )
 
-    assert first.content == second.content == b'{"cached": false}'
-    assert request_mock.call_count == 1
+    assert first.content == b'{"credential": "first"}'
+    assert second.content == b'{"credential": "second"}'
+    assert request_mock.call_count == 2
 
-    miss_record = next(
+    miss_records = [
         record for record in caplog.records if record.getMessage() == "transport cache miss; stored"
-    )
-    hit_record = next(
-        record for record in caplog.records if record.getMessage() == "transport cache hit"
-    )
-    assert miss_record.__dict__["dataset_id"] == "datago.tour_kor_area"
-    assert hit_record.__dict__["provider"] == "datago"
-    assert miss_record.__dict__["cache_key"] == hit_record.__dict__["cache_key"]
+    ]
+    assert len(miss_records) == 2
+    assert miss_records[0].__dict__["dataset_id"] == "datago.tour_kor_area"
+    assert miss_records[1].__dict__["provider"] == "datago"
+    assert miss_records[0].__dict__["cache_key"] != miss_records[1].__dict__["cache_key"]
 
 
 # test http transport post is never cached 테스트가 검증하는 시나리오를 설명한다.

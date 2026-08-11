@@ -23,7 +23,6 @@ class _CachePayload(TypedDict, total=False):
     body_b64: str
 
 
-_REDACTED_VALUE = "[REDACTED]"
 _SENSITIVE_CACHE_KEY_NAMES = {
     "servicekey",
     "service_key",
@@ -192,9 +191,9 @@ def _normalize_mapping(values: Mapping[str, object] | None) -> list[tuple[str, s
 
     normalized_items: list[tuple[str, str]] = []
     for key, value in values.items():
-        normalized_value = (
-            _REDACTED_VALUE if key.casefold() in _SENSITIVE_CACHE_KEY_NAMES else str(value)
-        )
+        normalized_value = str(value)
+        if key.casefold() in _SENSITIVE_CACHE_KEY_NAMES:
+            normalized_value = hashlib.sha256(normalized_value.encode("utf-8")).hexdigest()
         normalized_items.append((key.casefold(), normalized_value))
     normalized_items.sort()
     return normalized_items
