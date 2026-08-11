@@ -29,6 +29,8 @@ _TOKEN_OVERLAP_CEIL = 0.95
 # 작성되는 방식과 일치한다.
 _TOKEN_RE = re.compile(r"\w+", re.UNICODE)
 
+_SearchIndexSignature = tuple[tuple[str, str, str, str, str | None, tuple[str, ...]], ...]
+
 
 def _normalize(text: str) -> str:
     """검색 비교를 위해 문자열을 NFC 정규화하고 공백 제거 후 소문자화한다."""
@@ -161,6 +163,10 @@ class Catalog:
         """제공자 레지스트리에 연결된 카탈로그를 초기화한다."""
 
         self._registry = registry
+        self._search_index_cache: dict[
+            str | None,
+            tuple[_SearchIndexSignature, builtins.list[_IndexedItem]],
+        ] = {}
 
     def list(self, *, provider: str | None = None) -> builtins.list[DatasetRef]:
         """탐색 가능한 데이터셋을 반환하며, 필요하면 Provider로 필터링한다.
@@ -210,7 +216,7 @@ class Catalog:
             extra={"text": text, "provider_filter": provider, "threshold": threshold},
         )
         candidates = self.list(provider=provider)
-        index = _build_index(candidates)
+        index = self._search_index(provider, candidates)
 
         needle_normalized = _normalize(text)
         needle_tokens = frozenset(_TOKEN_RE.findall(needle_normalized))
@@ -235,6 +241,32 @@ class Catalog:
             },
         )
         return results
+
+    def _search_index(
+        self,
+        provider: str | None,
+        candidates: builtins.list[DatasetRef],
+    ) -> builtins.list[_IndexedItem]:
+        """Provider scope and indexed fields이 같으면 검색 인덱스를 재사용한다."""
+
+        signature: _SearchIndexSignature = tuple(
+            (
+                dataset.id,
+                dataset.provider,
+                dataset.dataset_key,
+                dataset.name,
+                dataset.description,
+                dataset.tags,
+            )
+            for dataset in candidates
+        )
+        cached = self._search_index_cache.get(provider)
+        if cached is not None and cached[0] == signature:
+            return cached[1]
+
+        index = _build_index(candidates)
+        self._search_index_cache[provider] = (signature, index)
+        return index
 
     def resolve(self, dataset_id: str) -> tuple[ProviderAdapter, DatasetRef]:
         """``provider.dataset_key``를 어댑터와 데이터셋 참조로 해석한다.

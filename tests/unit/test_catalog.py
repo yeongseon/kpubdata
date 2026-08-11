@@ -964,6 +964,27 @@ class TestCatalogIndexedScorer:
         result = catalog.search("한국은행", provider="weather")
         assert result == []
 
+    def test_repeated_provider_search_reuses_index(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Repeated searches in the same provider scope reuse the indexed payload."""
+        import kpubdata.catalog as catalog_module
+
+        catalog = self._build_catalog()
+        build_count = 0
+        original_build_index = catalog_module._build_index
+
+        def counting_build_index(
+            datasets: list[DatasetRef],
+        ) -> list[catalog_module._IndexedItem]:
+            nonlocal build_count
+            build_count += 1
+            return original_build_index(datasets)
+
+        monkeypatch.setattr(catalog_module, "_build_index", counting_build_index)
+
+        assert catalog.search("weather", provider="weather")
+        assert catalog.search("marine", provider="weather")
+        assert build_count == 1
+
     def test_empty_query_returns_all_candidates(self) -> None:
         """An empty query yields score 1.0 for every dataset (existing contract)."""
         catalog = self._build_catalog()
