@@ -149,7 +149,7 @@ def test_request_retries_on_request_error_then_succeeds() -> None:
     transport = HttpTransport(TransportConfig(max_retries=1, retry_backoff_factor=0.5))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request") as request_mock,
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,
     ):
         request_mock.side_effect = [_request_error(), _response(200)]
@@ -178,7 +178,7 @@ def test_request_error_exhaustion_raises_transport_error() -> None:
     transport = HttpTransport(TransportConfig(max_retries=2, retry_backoff_factor=0.25))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request", side_effect=_request_error()),
+        patch("kpubdata.transport.http.httpx.Client.send", side_effect=_request_error()),
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,
         pytest.raises(TransportError, match="Request failed after 3 attempts"),
     ):

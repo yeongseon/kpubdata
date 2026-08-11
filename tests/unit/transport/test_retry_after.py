@@ -53,7 +53,7 @@ def test_429_with_retry_after_seconds_uses_header_delay() -> None:
     transport = HttpTransport(TransportConfig(max_retries=1, retry_backoff_factor=0.5))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request") as request_mock,
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,
     ):
         request_mock.side_effect = [_response(429, retry_after="2"), _response(200)]
@@ -122,7 +122,7 @@ def test_429_with_retry_after_http_date_uses_computed_delay(
     transport = HttpTransport(TransportConfig(max_retries=1, retry_backoff_factor=0.5))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request") as request_mock,
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,
     ):
         request_mock.side_effect = [_response(429, retry_after=retry_after_header), _response(200)]
@@ -151,7 +151,7 @@ def test_429_with_invalid_retry_after_falls_back_to_exponential_backoff() -> Non
     transport = HttpTransport(TransportConfig(max_retries=1, retry_backoff_factor=0.75))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request") as request_mock,
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,
     ):
         request_mock.side_effect = [_response(429, retry_after="abc"), _response(200)]
@@ -179,7 +179,7 @@ def test_429_without_retry_after_uses_exponential_backoff() -> None:
     transport = HttpTransport(TransportConfig(max_retries=1, retry_backoff_factor=0.25))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request") as request_mock,
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,
     ):
         request_mock.side_effect = [_response(429), _response(200)]
@@ -207,7 +207,7 @@ def test_503_with_retry_after_respects_header_delay() -> None:
     transport = HttpTransport(TransportConfig(max_retries=1, retry_backoff_factor=0.5))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request") as request_mock,
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,
     ):
         request_mock.side_effect = [_response(503, retry_after="3"), _response(200)]
@@ -236,7 +236,7 @@ def test_non_retryable_status_does_not_retry_even_with_retry_after() -> None:
 
     with (
         patch(
-            "kpubdata.transport.http.httpx.Client.request",
+            "kpubdata.transport.http.httpx.Client.send",
             return_value=_response(400, retry_after="9"),
         ) as request_mock,
         patch("kpubdata.transport.http.time.sleep") as sleep_mock,

@@ -63,7 +63,7 @@ def test_request_params_log_redacts_service_key(caplog: pytest.LogCaptureFixture
     response = _response_with_content(b'{"ok": true}', "application/json")
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
 
-    with patch("kpubdata.transport.http.httpx.Client.request", return_value=response):
+    with patch("kpubdata.transport.http.httpx.Client.send", return_value=response):
         _ = transport.request(
             "GET",
             "https://example.test/resource",
@@ -98,7 +98,7 @@ def test_response_preview_logged_and_truncated(caplog: pytest.LogCaptureFixture)
     response = _response_with_content(long_text.encode("utf-8"), "text/plain; charset=utf-8")
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
 
-    with patch("kpubdata.transport.http.httpx.Client.request", return_value=response):
+    with patch("kpubdata.transport.http.httpx.Client.send", return_value=response):
         _ = transport.request("GET", "https://example.test/resource")
 
     preview_records = [
@@ -208,7 +208,7 @@ def test_debug_gating_skips_sanitization_and_preview_helpers() -> None:
             "kpubdata.transport.http._response_preview",
             side_effect=AssertionError("_response_preview should not be called"),
         ),
-        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
     ):
         _ = transport.request("GET", "https://example.test/resource", params={"serviceKey": "x"})
 
@@ -234,7 +234,7 @@ def test_request_logs_include_dataset_context(caplog: pytest.LogCaptureFixture) 
     response = _response_with_content(b'{"ok": true}', "application/json")
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
 
-    with patch("kpubdata.transport.http.httpx.Client.request", return_value=response):
+    with patch("kpubdata.transport.http.httpx.Client.send", return_value=response):
         _ = transport.request(
             "GET",
             "https://example.test/resource",
@@ -300,7 +300,7 @@ def test_exception_message_masks_sensitive_query_params() -> None:
     response = httpx.Response(status_code=403, request=httpx.Request("GET", secret_url))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
         pytest.raises(TransportError) as excinfo,
     ):
         _ = transport.request("GET", secret_url)
@@ -333,7 +333,7 @@ def test_request_logs_mask_sensitive_url(caplog: pytest.LogCaptureFixture) -> No
     response = _response_with_content(b'{"ok": true}', "application/json")
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
 
-    with patch("kpubdata.transport.http.httpx.Client.request", return_value=response):
+    with patch("kpubdata.transport.http.httpx.Client.send", return_value=response):
         _ = transport.request("GET", secret_url)
 
     start_records = [
@@ -365,7 +365,7 @@ def test_status_error_chain_suppressed_when_url_masked() -> None:
     response = httpx.Response(status_code=403, request=httpx.Request("GET", secret_url))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
         pytest.raises(TransportError) as excinfo,
     ):
         _ = transport.request("GET", secret_url)
@@ -394,7 +394,7 @@ def test_timeout_chain_suppressed_when_url_masked() -> None:
     timeout_exc = httpx.TimeoutException("timed out", request=httpx.Request("GET", secret_url))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request", side_effect=timeout_exc),
+        patch("kpubdata.transport.http.httpx.Client.send", side_effect=timeout_exc),
         pytest.raises(TransportTimeoutError) as excinfo,
     ):
         _ = transport.request("GET", secret_url)
@@ -423,7 +423,7 @@ def test_request_error_chain_suppressed_when_url_masked() -> None:
     request_exc = httpx.ConnectError("connect failed", request=httpx.Request("GET", secret_url))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request", side_effect=request_exc),
+        patch("kpubdata.transport.http.httpx.Client.send", side_effect=request_exc),
         pytest.raises(TransportError) as excinfo,
     ):
         _ = transport.request("GET", secret_url)
@@ -452,7 +452,7 @@ def test_exception_chain_preserved_when_url_not_masked() -> None:
     response = httpx.Response(status_code=403, request=httpx.Request("GET", plain_url))
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
         pytest.raises(TransportError) as excinfo,
     ):
         _ = transport.request("GET", plain_url)
