@@ -229,8 +229,7 @@ class DataGoAdapter:
           * ``_service_key_param`` (str): service key 파라미터 이름을 재정의한다.
           * ``_format_param`` (str): 응답 형식 파라미터 이름을 재정의한다.
 
-        ``_base_url``이 ``*.data.go.kr`` 호스트를 가리키지 않으면 경고를 기록한다.
-        호출은 계속 진행되며, 이는 완화된 점검이다.
+        ``_base_url``은 ``*.data.go.kr`` 호스트만 허용한다.
         """
 
         logger.debug(
@@ -272,14 +271,18 @@ class DataGoAdapter:
 
             host = urlparse(base_url_override).hostname or ""
             if not host.endswith(".data.go.kr") and host != "data.go.kr":
-                logger.warning(
-                    "datago.generic called with non-data.go.kr host",
+                logger.debug(
+                    "Datago.generic rejected non-data.go.kr host",
                     extra={
                         "dataset_id": dataset.id,
                         "operation": operation,
-                        "base_url": base_url_override,
                         "host": host,
                     },
+                )
+                raise InvalidRequestError(
+                    "datago.generic '_base_url' host must be data.go.kr or a data.go.kr subdomain",
+                    provider="datago",
+                    dataset_id=dataset.id,
                 )
 
             url = f"{base_url_override.rstrip('/')}/{operation}"

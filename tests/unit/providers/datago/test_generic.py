@@ -447,13 +447,10 @@ class TestDataGoGenericDataset:
                 },
             )
 
-    # test non data go kr host logs warning 테스트가 검증하는 시나리오를 설명한다.
-    def test_non_data_go_kr_host_logs_warning(self, caplog: pytest.LogCaptureFixture) -> None:
+    # test non data go kr host raises 테스트가 검증하는 시나리오를 설명한다.
+    def test_non_data_go_kr_host_raises(self) -> None:
         """
-        test non data go kr host logs warning 시나리오를 검증한다.
-
-        매개변수:
-            caplog (pytest.LogCaptureFixture): 호출자가 제공하는 입력 값이다.
+        test non data go kr host raises 시나리오를 검증한다.
 
         반환값:
             None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
@@ -464,19 +461,17 @@ class TestDataGoGenericDataset:
         예시:
             테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
         """
-        import logging
-
-        adapter, _ = _build_adapter([FakeResponse(_success_envelope())])
+        adapter, transport = _build_adapter([FakeResponse(_success_envelope())])
         dataset = adapter.get_dataset("generic")
 
-        with caplog.at_level(logging.WARNING, logger="kpubdata.provider.datago"):
+        with pytest.raises(InvalidRequestError, match="host"):
             adapter.call_raw(
                 dataset,
                 "getX",
                 {"_base_url": "http://example.com/foo"},
             )
 
-        assert any("non-data.go.kr host" in record.message for record in caplog.records)
+        assert transport.calls == []
 
     # test data go kr host no warning 테스트가 검증하는 시나리오를 설명한다.
     def test_data_go_kr_host_no_warning(self, caplog: pytest.LogCaptureFixture) -> None:
