@@ -18,6 +18,7 @@ def with_retry(
     max_retries: int = 3,
     backoff_factor: float = 0.5,
     retryable_exceptions: tuple[type[BaseException], ...] = (),
+    sleep: Callable[[float], None] | None = None,
 ) -> T:
     """지수 백오프 재시도와 함께 ``fn``을 실행한다.
 
@@ -59,7 +60,8 @@ def with_retry(
                     "exception_type": type(exc).__name__,
                 },
             )
-            time.sleep(delay)
+            retry_sleep = sleep or time.sleep
+            retry_sleep(delay)
 
     msg = "unreachable retry state"
     raise RuntimeError(msg)

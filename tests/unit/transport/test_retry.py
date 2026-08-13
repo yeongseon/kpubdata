@@ -72,6 +72,27 @@ class TestWithRetry:
         assert result == "ok"
         assert calls["count"] == 3
 
+    def test_retry_uses_injected_sleep(self) -> None:
+        calls = {"count": 0}
+        delays: list[float] = []
+
+        def flaky() -> str:
+            calls["count"] += 1
+            if calls["count"] == 1:
+                raise ValueError("transient")
+            return "ok"
+
+        result = with_retry(
+            flaky,
+            max_retries=1,
+            backoff_factor=0.25,
+            retryable_exceptions=(ValueError,),
+            sleep=delays.append,
+        )
+
+        assert result == "ok"
+        assert delays == [0.25]
+
     # test exhausted retries 테스트가 검증하는 시나리오를 설명한다.
     def test_exhausted_retries(self) -> None:
         """
