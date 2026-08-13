@@ -51,6 +51,7 @@ class TransportConfig:
     ssl_context: ssl.SSLContext | None = None
     cache: ResponseCache | None = None
     cache_ttl_seconds: int = 86400
+    retry_sleep: Callable[[float], None] | None = None
 
 
 @dataclass(frozen=True)
@@ -96,6 +97,7 @@ class HttpTransport:
                 headers=_merge_headers(config.headers, requirements.headers),
                 cache=config.cache,
                 cache_ttl_seconds=config.cache_ttl_seconds,
+                retry_sleep=config.retry_sleep,
             ),
             requirements=requirements,
         )
@@ -373,7 +375,8 @@ class HttpTransport:
                     **request_context,
                 },
             )
-            time.sleep(delay)
+            retry_sleep = self._config.retry_sleep or time.sleep
+            retry_sleep(delay)
 
         msg = "unreachable transport retry state"
         raise RuntimeError(msg)

@@ -161,6 +161,22 @@ def test_request_retries_on_request_error_then_succeeds() -> None:
     sleep_mock.assert_called_once_with(0.5)
 
 
+def test_request_uses_configured_retry_sleep() -> None:
+    delays: list[float] = []
+    transport = HttpTransport(
+        TransportConfig(max_retries=1, retry_backoff_factor=0.5, retry_sleep=delays.append)
+    )
+
+    with patch("kpubdata.transport.http.httpx.Client.request") as request_mock:
+        request_mock.side_effect = [_request_error(), _response(200)]
+
+        response = transport.request("GET", "https://example.test")
+
+    assert response.status_code == 200
+    assert request_mock.call_count == 2
+    assert delays == [0.5]
+
+
 # test request error exhaustion raises transport error 테스트가 검증하는 시나리오를 설명한다.
 def test_request_error_exhaustion_raises_transport_error() -> None:
     """
