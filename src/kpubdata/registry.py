@@ -115,25 +115,25 @@ class ProviderRegistry:
                 return adapter
 
             factory = self._lazy.pop(normalized_name, None)
+            if factory is None:
+                logger.debug("Provider lookup failed", extra={"provider": normalized_name})
+                raise ProviderNotRegisteredError(f"Provider '{name}' is not registered")
 
-        if factory is None:
-            logger.debug("Provider lookup failed", extra={"provider": normalized_name})
-            raise ProviderNotRegisteredError(f"Provider '{name}' is not registered")
-
-        logger.debug(
-            "Materializing lazy provider adapter",
-            extra={"provider": normalized_name},
-        )
-        lazy_adapter = factory()
-        self._validate_adapter(lazy_adapter)
-        self._validate_capability_contract(lazy_adapter)
-        adapter_name = str(lazy_adapter.name).strip().lower()
-        if adapter_name != normalized_name:
-            raise TypeError(
-                f"Lazy adapter name mismatch: expected '{normalized_name}', got '{adapter_name}'"
+            logger.debug(
+                "Materializing lazy provider adapter",
+                extra={"provider": normalized_name},
             )
+            lazy_adapter = factory()
+            self._validate_adapter(lazy_adapter)
+            self._validate_capability_contract(lazy_adapter)
+            adapter_name = str(lazy_adapter.name).strip().lower()
+            if adapter_name != normalized_name:
+                msg = (
+                    f"Lazy adapter name mismatch: expected '{normalized_name}', "
+                    f"got '{adapter_name}'"
+                )
+                raise TypeError(msg)
 
-        with self._lock:
             self._adapters[normalized_name] = lazy_adapter
         logger.debug(
             "Materialized lazy provider adapter",

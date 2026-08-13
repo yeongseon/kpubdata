@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from threading import Event, Thread
+
 import pytest
 
 from kpubdata.exceptions import ProviderNotRegisteredError
@@ -256,6 +258,50 @@ class TestProviderRegistry:
         assert "lazy" in reg
         adapter = reg.get("lazy")
         assert adapter.name == "lazy"
+
+    def test_concurrent_lazy_get_waits_for_materialization(self) -> None:
+        reg = ProviderRegistry()
+        factory_started = Event()
+        release_factory = Event()
+        second_started = Event()
+        factory_calls: list[int] = []
+        adapters: list[object] = []
+        lookup_errors: list[ProviderNotRegisteredError] = []
+
+        def factory() -> FakeAdapter:
+            factory_calls.append(1)
+            factory_started.set()
+            release_factory.wait(timeout=5)
+            return FakeAdapter("lazy")
+
+        def first_lookup() -> None:
+            adapters.append(reg.get("lazy"))
+
+        def second_lookup() -> None:
+            second_started.set()
+            try:
+                adapters.append(reg.get("lazy"))
+            except ProviderNotRegisteredError as exc:
+                lookup_errors.append(exc)
+
+        reg.register_lazy("lazy", factory)
+        first_thread = Thread(target=first_lookup)
+        second_thread = Thread(target=second_lookup)
+
+        first_thread.start()
+        assert factory_started.wait(timeout=5)
+        second_thread.start()
+        assert second_started.wait(timeout=5)
+        release_factory.set()
+        first_thread.join(timeout=5)
+        second_thread.join(timeout=5)
+
+        assert not first_thread.is_alive()
+        assert not second_thread.is_alive()
+        assert lookup_errors == []
+        assert factory_calls == [1]
+        assert len(adapters) == 2
+        assert adapters[0] is adapters[1]
 
     # test validate rejects bad adapter 테스트가 검증하는 시나리오를 설명한다.
     def test_validate_rejects_bad_adapter(self) -> None:
