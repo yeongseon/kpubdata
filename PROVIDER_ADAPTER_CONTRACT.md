@@ -16,7 +16,7 @@ Every adapter must be responsible for:
 - native-to-canonical result translation
 - provider-specific error translation
 - raw-call support
-- honest capability declaration
+- honest operation and query-support declaration
 
 ## 3. 어댑터란 무엇인가? (초보자용 설명)
 
@@ -110,8 +110,8 @@ API가 주는 에러 코드를 보고 `AuthError`, `RateLimitError` 등 KPubData
 - `tests/fixtures/`에 실제 API 응답 샘플을 저장합니다.
 - 유닛 테스트(`tests/unit/`)에서 이 샘플을 잘 파싱하는지 검증합니다.
 
-### 9단계: Capabilities(기능) 선언
-이 어댑터가 페이징(`PAGEABLE`)을 지원하는지, 검색(`FILTERABLE`)이 되는지 정직하게 써줍니다.
+### 9단계: Operations와 QuerySupport 선언
+이 어댑터가 어떤 정규 작업(`Operation.LIST`, `Operation.RAW` 등)을 지원하는지 `DatasetRef.operations`에 정직하게 선언합니다. 페이징, 검색, 정렬, 기간 조건 같은 질의 기능은 `QuerySupport`에 구조화해서 기록합니다.
 
 ```mermaid
 flowchart TD
@@ -123,7 +123,7 @@ flowchart TD
     S5 --> S6[6단계: call_raw 비상구 구현]
     S6 --> S7[7단계: 기관별 에러 처리]
     S7 --> S8[8단계: 피스처 및 테스트 작성]
-    S8 --> S9[9단계: 기능 Capabilities 선언]
+    S8 --> S9[9단계: Operations와 QuerySupport 선언]
 ```
 
 ## 5. 기존 어댑터 분석: `datago`
@@ -131,9 +131,9 @@ flowchart TD
 가장 모범적인 사례인 `datago` 어댑터를 참고하세요.
 
 - **`src/kpubdata/providers/datago/adapter.py`**:
-  - `_validate_envelope`: 응답이 깨졌는지, 에러가 들어있는지 공통으로 체크합니다.
+  - `_validate_envelope`: 표준 data.go.kr 응답이 깨졌는지, 에러가 들어있는지 공통으로 체크합니다.
   - `_normalize_items`: XML과 JSON에서 아이템 목록을 뽑아내는 복잡한 로직을 처리합니다.
-  - `_raise_for_result_code`: 기상청 등의 에러 코드(`01`, `02` 등)를 이해하기 쉬운 이름으로 바꿉니다.
+  - `_raise_for_result_code`: 기상청 등의 에러 코드(`01`, `02` 등)를 이해하기 쉬운 예외로 바꿉니다.
 
 **이 파일을 복사해서 새로운 어댑터를 만들기 시작하는 것을 추천합니다!**
 
@@ -175,9 +175,10 @@ classDiagram
 - **우선순위**: `list_all()`은 `next_cursor`가 존재할 경우 이를 우선적으로 사용하며, 없을 경우 `next_page`를 사용합니다.
 - **권장 방식**: 가급적 `total_count` 기반의 정밀한 계산 방식을 선호합니다. 하지만 전체 개수 정보를 알 수 없는 경우 `len(items) == page_size` 휴리스틱을 사용하는 것도 허용됩니다.
 
-## 5. Capability rules
+## 5. Operation and query-support rules
 
-- declare only what the adapter truly supports
+- declare only operations the adapter truly supports in `DatasetRef.operations`
+- describe pagination, filter, sort, time-range, and page-size support in `DatasetRef.query_support`
 - if an operation is unavailable, raise `UnsupportedCapabilityError`
 - do not silently emulate unsupported semantics unless documented
 
@@ -211,7 +212,7 @@ Do not destroy provider-native fields. Prefer one of these approaches:
 Every adapter must include:
 
 - unit tests for mapping/parsing
-- contract tests for declared capabilities
+- contract tests for declared operations and query-support behavior
 - fixture-based tests for representative success/failure responses
 
 ```mermaid
@@ -240,7 +241,7 @@ Otherwise, keep the complexity local to the adapter.
 5. implement `call_raw`
 6. map provider errors
 7. add fixtures and tests
-8. document capabilities and caveats
+8. document operations, query support, and caveats
 
 ---
 
