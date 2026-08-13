@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Mapping, Sequence
-from typing import NoReturn, cast
+from typing import cast
 from urllib.parse import urlparse
 
 import httpx
@@ -22,11 +22,10 @@ from kpubdata.exceptions import (
     InvalidRequestError,
     ParseError,
     ProviderResponseError,
-    RateLimitError,
-    ServiceUnavailableError,
     TransportError,
 )
 from kpubdata.providers._common import build_schema_from_metadata, coerce_int, load_catalogue
+from kpubdata.providers.datago.envelope import DataGoEnvelopeParser
 from kpubdata.transport.decode import decode_json, decode_xml, detect_content_type
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
@@ -37,19 +36,6 @@ _DATAGO_403_HINT = (
     "(활용신청) for your key. Visit the dataset's page on https://www.data.go.kr and "
     "click '활용신청'. Approval is usually automatic and becomes active within a few minutes."
 )
-
-
-def _is_success_code(code: str) -> bool:
-    """성공을 나타내는 모든 data.go.kr resultCode에 대해 True를 반환한다.
-
-    서로 다른 엔드포인트 계열은 "오류 없음" 코드를 다른 자릿수로 사용한다:
-    "00"(대부분의 API)와 "000"(apis.data.go.kr/1613000 하위 RTMS 계열)이다.
-    둘 다, 그리고 0 값을 나타내는 모든 숫자 변형은 성공으로 처리해야 한다.
-    """
-    try:
-        return int(code) == 0
-    except ValueError:
-        return False
 
 
 class DataGoAdapter:
@@ -80,6 +66,7 @@ class DataGoAdapter:
         self._datasets_by_key: dict[str, DatasetRef] = {
             dataset.dataset_key: dataset for dataset in self._datasets
         }
+        self._envelope_parser = DataGoEnvelopeParser()
 
     @property
     def name(self) -> str:
@@ -175,9 +162,9 @@ class DataGoAdapter:
 
         payload = self._request_and_decode(url, params, dataset.id)
         if is_odcloud:
-            body, items = self._parse_odcloud_response(payload, dataset)
+            body, items = self._envelope_parser.parse_odcloud(payload, dataset)
         else:
-            body, items = self._validate_envelope(payload, dataset)
+            body, items = self._envelope_parser.parse(payload, dataset)
 
         total_count = coerce_int(body.get("totalCount"), 0)
         if (total_count and page * page_size < total_count) or (
@@ -322,7 +309,7 @@ class DataGoAdapter:
 
             payload = self._request_and_decode(url, request_params, dataset.id)
             if validate_envelope:
-                _ = self._validate_envelope(payload, dataset)
+                _ = self._envelope_parser.parse(payload, dataset)
             return payload
 
         url = self._build_request_url(dataset, operation)
@@ -337,7 +324,7 @@ class DataGoAdapter:
         if self._is_odcloud(dataset):
             return payload
 
-        _ = self._validate_envelope(payload, dataset)
+        _ = self._envelope_parser.parse(payload, dataset)
         return payload
 
     @staticmethod
@@ -456,219 +443,6 @@ class DataGoAdapter:
         """TransportError의 원인이 HTTP 403 응답인지 확인한다."""
         cause = exc.__cause__
         return isinstance(cause, httpx.HTTPStatusError) and cause.response.status_code == 403
-
-    def _validate_envelope(
-        self, payload: dict[str, object], dataset: DatasetRef | None = None
-    ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """데이터셋 유형에 맞는 엔벌로프 검증 함수를 선택해 body/items를 추출한다."""
-        dataset_id = dataset.id if dataset is not None else ""
-        envelope_style = dataset.raw_metadata.get("envelope_style") if dataset is not None else None
-
-        if envelope_style == "its_flat":
-            return self._validate_its_flat_envelope(payload, dataset_id)
-
-        response_obj = payload.get("response")
-        if not isinstance(response_obj, dict):
-            logger.debug(
-                "Datago envelope missing response/body",
-                extra={"dataset_id": dataset_id},
-            )
-            raise ProviderResponseError(
-                "Malformed response envelope: missing response",
-                provider="datago",
-                dataset_id=dataset_id or None,
-            )
-
-        response_dict = cast(dict[str, object], response_obj)
-
-        if envelope_style == "gyeonggi_msg":
-            return self._validate_gyeonggi_msg_envelope(response_dict, dataset_id)
-        return self._validate_standard_envelope(response_dict, dataset_id)
-
-    def _validate_its_flat_envelope(
-        self, payload: dict[str, object], dataset_id: str
-    ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """ITS 평면 응답에서 resultCode와 items 목록을 검증한다."""
-        result_code = self._coerce_result_code(payload.get("resultCode"), dataset_id)
-        result_msg_raw = payload.get("resultMsg")
-        result_msg = (
-            result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
-        )
-        logger.debug(
-            "data.go.kr result",
-            extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
-        )
-        if not _is_success_code(result_code):
-            self._raise_for_result_code(result_code, result_msg, dataset_id)
-
-        items = self._normalize_items(payload.get("items"))
-        return payload, items
-
-    def _parse_odcloud_response(
-        self, payload: dict[str, object], dataset: DatasetRef
-    ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """odcloud 응답의 data 배열을 레코드 목록으로 정리한다."""
-        data_obj = payload.get("data")
-        if data_obj is None:
-            return payload, []
-
-        if not isinstance(data_obj, list):
-            raise ProviderResponseError(
-                "Malformed odcloud response: data must be an array",
-                provider="datago",
-                dataset_id=dataset.id,
-            )
-
-        normalized_items = cast(list[object], data_obj)
-        items = [
-            cast(dict[str, object], item) for item in normalized_items if isinstance(item, dict)
-        ]
-        return payload, items
-
-    def _validate_standard_envelope(
-        self, response_dict: dict[str, object], dataset_id: str
-    ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """표준 data.go.kr response.header/body 구조를 검증한다."""
-        header_obj = response_dict.get("header")
-        if not isinstance(header_obj, dict):
-            raise ProviderResponseError(
-                "Malformed response envelope: missing header",
-                provider="datago",
-                dataset_id=dataset_id or None,
-            )
-
-        header_dict = cast(dict[str, object], header_obj)
-        result_code = header_dict.get("resultCode")
-        if not isinstance(result_code, str):
-            raise ProviderResponseError(
-                "Malformed response envelope: missing resultCode",
-                provider="datago",
-                dataset_id=dataset_id or None,
-            )
-
-        result_msg_raw = header_dict.get("resultMsg")
-        result_msg = (
-            result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
-        )
-        logger.debug(
-            "data.go.kr result",
-            extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
-        )
-        if not _is_success_code(result_code):
-            self._raise_for_result_code(result_code, result_msg, dataset_id)
-
-        body_obj = response_dict.get("body")
-        body_dict: dict[str, object] = (
-            cast(dict[str, object], body_obj) if isinstance(body_obj, dict) else {}
-        )
-        items = self._normalize_items(body_dict.get("items"))
-        return body_dict, items
-
-    def _validate_gyeonggi_msg_envelope(
-        self, response_dict: dict[str, object], dataset_id: str
-    ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """경기형 msgHeader/msgBody 응답 구조를 검증한다."""
-        header_obj = response_dict.get("msgHeader")
-        if not isinstance(header_obj, dict):
-            raise ProviderResponseError(
-                "Malformed response envelope: missing msgHeader",
-                provider="datago",
-                dataset_id=dataset_id or None,
-            )
-
-        header_dict = cast(dict[str, object], header_obj)
-        result_code = self._coerce_result_code(header_dict.get("resultCode"), dataset_id)
-        result_msg_raw = header_dict.get("resultMessage")
-        result_msg = (
-            result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
-        )
-        logger.debug(
-            "data.go.kr result",
-            extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
-        )
-        if not _is_success_code(result_code):
-            self._raise_for_result_code(result_code, result_msg, dataset_id)
-
-        body_obj = response_dict.get("msgBody")
-        body_dict: dict[str, object] = (
-            cast(dict[str, object], body_obj) if isinstance(body_obj, dict) else {}
-        )
-        items_wrapper = self._extract_gyeonggi_msg_items_wrapper(body_dict)
-        items = self._normalize_items(items_wrapper)
-        return body_dict, items
-
-    def _coerce_result_code(self, result_code: object, dataset_id: str) -> str:
-        """문자열이나 정수 resultCode를 문자열로 정규화한다."""
-        if isinstance(result_code, str):
-            return result_code
-        if isinstance(result_code, int):
-            return str(result_code)
-        raise ProviderResponseError(
-            "Malformed response envelope: missing resultCode",
-            provider="datago",
-            dataset_id=dataset_id or None,
-        )
-
-    def _extract_gyeonggi_msg_items_wrapper(self, body_dict: dict[str, object]) -> object:
-        """msgBody에서 실제 목록 래퍼로 보이는 값을 골라낸다."""
-        list_values: list[object] = [
-            value for value in body_dict.values() if isinstance(value, list)
-        ]
-        if len(list_values) == 1:
-            return list_values[0]
-        return body_dict
-
-    def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
-        """data.go.kr 결과 코드를 정규 예외로 변환해 발생시킨다."""
-        extra = {"dataset_id": dataset_id, "result_code": code, "result_msg": msg}
-        if code in {"30", "31", "20", "32"}:
-            logger.debug("Datago API envelope error", extra=extra)
-            raise AuthError(msg, provider="datago", provider_code=code)
-        if code == "22":
-            logger.debug("Datago API envelope error", extra=extra)
-            raise RateLimitError(msg, provider="datago", provider_code=code, retryable=False)
-        if code == "10":
-            logger.debug("Datago API envelope error", extra=extra)
-            raise InvalidRequestError(msg, provider="datago", provider_code=code)
-        if code == "12":
-            logger.debug("Datago API envelope error", extra=extra)
-            raise DatasetNotFoundError(
-                msg,
-                provider="datago",
-                provider_code=code,
-                dataset_id=dataset_id,
-            )
-        if code in {"01", "02"}:
-            logger.debug("Datago API envelope error", extra=extra)
-            raise ServiceUnavailableError(msg, provider="datago", provider_code=code)
-        logger.debug("Datago API envelope error", extra=extra)
-        raise ProviderResponseError(msg, provider="datago", provider_code=code)
-
-    def _normalize_items(self, items_wrapper: object) -> list[dict[str, object]]:
-        """items 또는 item 래퍼를 레코드 딕셔너리 목록으로 정규화한다."""
-        if items_wrapper is None:
-            return []
-
-        if isinstance(items_wrapper, dict):
-            item_value = cast(dict[str, object], items_wrapper).get("item")
-            if isinstance(item_value, list):
-                normalized_items = cast(list[object], item_value)
-                return [
-                    cast(dict[str, object], item)
-                    for item in normalized_items
-                    if isinstance(item, dict)
-                ]
-            if isinstance(item_value, dict):
-                return [cast(dict[str, object], item_value)]
-            return []
-
-        if isinstance(items_wrapper, list):
-            normalized_items = cast(list[object], items_wrapper)
-            return [
-                cast(dict[str, object], item) for item in normalized_items if isinstance(item, dict)
-            ]
-
-        return []
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:
