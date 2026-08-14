@@ -79,6 +79,14 @@ http://openapi.seoul.go.kr:8088/{KEY}/json/SearchParkInfoService/{START_INDEX}/{
 ```
 
 - 필수 경로 파라미터 없음
+#### 6) 실시간 도시데이터 인구현황
+
+```text
+http://openapi.seoul.go.kr:8088/{KEY}/json/citydata_ppltn/{START_INDEX}/{END_INDEX}/{area}
+```
+
+- envelope 키: `SeoulRtd.citydata_ppltn` (top-level `RESULT`와 같은 레벨)
+- 필수 경로 파라미터: `area`
 
 ## 지원 데이터셋
 
@@ -113,6 +121,13 @@ http://openapi.seoul.go.kr:8088/{KEY}/json/SearchParkInfoService/{START_INDEX}/{
 - 서비스명: `SearchParkInfoService`
 - 필수 경로 파라미터: 없음
 - 설명: 서울시 공원 위치, 면적, 시설 정보
+### 6. `citydata`
+
+- 서비스명: `citydata_ppltn`
+- envelope 키: `SeoulRtd.citydata_ppltn`
+- 필수 경로 파라미터: `area`
+- 예시 값: `"광화문·덕수궁"`
+- 설명: 서울 주요 장소의 실시간 인구현황 도시데이터
 
 ## 에러 코드 매핑
 
@@ -212,6 +227,15 @@ result = ds.list(page_size=10)
 
 for item in result.items:
     print(item["P_PARK"], item["P_ADDR"])
+### 실시간 도시데이터 인구현황 `list()`
+
+```python
+ds = client.dataset("seoul.citydata")
+
+result = ds.list(area="광화문·덕수궁", page_size=1)
+
+for item in result.items:
+    print(item["AREA_NM"], item["AREA_CONGEST_LVL"])
 ```
 
 ## 참고
@@ -219,6 +243,7 @@ for item in result.items:
 - `list()`는 한 번에 한 페이지만 반환하며, 다음 페이지가 있으면 `RecordBatch.next_page`가 채워집니다.
 - 서울 오픈 API의 서비스명과 경로 파라미터 이름은 Provider 고유 의미론이므로 그대로 유지합니다.
 - 일부 서울 오픈 API는 응답 envelope 키가 서비스명과 다릅니다 (예: `bikeList` → `rentBikeStatus`). KPubData는 catalogue의 `envelope_key` 메타데이터로 이를 처리합니다.
+- 일부 실시간 도시데이터 API는 `RESULT`와 데이터 배열이 같은 최상위 객체에 있습니다. KPubData는 catalogue의 `top_level_result` 메타데이터로 이를 처리합니다.
 - 실API 검증 완료: `subway_realtime_arrival`, `bike_rent_month`, `bike_realtime`, `bike_station_master` (2026-05-05)
 - 테스트 검증 완료: `park_info`, `park_usage`
 
