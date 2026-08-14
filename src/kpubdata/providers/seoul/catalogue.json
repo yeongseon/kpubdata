@@ -79,5 +79,20 @@
     "operations": ["list", "raw"],
     "query_support": {"pagination": "index", "max_page_size": 1000},
     "required_path_params": []
+  },
+  {
+    "dataset_key": "citydata",
+    "name": "서울시 실시간 도시데이터 (Realtime City Data)",
+    "base_url": "http://openapi.seoul.go.kr:8088",
+    "default_operation": "citydata_ppltn",
+    "envelope_key": "SeoulRtd.citydata_ppltn",
+    "top_level_result": true,
+    "representation": "api_json",
+    "description": "Realtime population and city conditions for one Seoul hotspot area",
+    "tags": ["realtime", "population", "citydata", "s-dot"],
+    "source_url": "https://data.seoul.go.kr/dataList/OA-21285/A/1/datasetView.do",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "index", "max_page_size": 1},
+    "required_path_params": ["area"]
   }
 ]

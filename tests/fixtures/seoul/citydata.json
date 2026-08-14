@@ -1,0 +1,16 @@
+{
+  "SeoulRtd.citydata_ppltn": [
+    {
+      "AREA_NM": "광화문·덕수궁",
+      "AREA_CONGEST_LVL": "보통",
+      "AREA_PPLTN_MIN": "12000",
+      "AREA_PPLTN_MAX": "14000",
+      "PPLTN_TIME": "2026-05-14 09:30",
+      "AREA_CONGEST_MSG": "비교적 원활합니다"
+    }
+  ],
+  "RESULT": {
+    "RESULT.CODE": "INFO-000",
+    "RESULT.MESSAGE": "정상 처리되었습니다"
+  }
+}
