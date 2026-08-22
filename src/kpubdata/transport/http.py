@@ -73,6 +73,7 @@ class HttpTransport:
         requirements: TransportRequirements | None = None,
         cache: ResponseCache | None = None,
         cache_ttl_seconds: int = 86400,
+        sleep: Callable[[float], None] | None = None,
     ) -> None:
         """선택적 명시 설정으로 전송 계층을 초기화한다."""
         self._config: TransportConfig = config or TransportConfig()
@@ -81,6 +82,9 @@ class HttpTransport:
         self._cache_ttl_seconds: int = (
             self._config.cache_ttl_seconds if cache_ttl_seconds == 86400 else cache_ttl_seconds
         )
+        # 재시도 대기 함수(#270): 기본은 호출 시점의 time.sleep(모듈 패치 가능),
+        # 테스트·async 임베딩은 명시적으로 주입한다.
+        self._sleep: Callable[[float], None] = sleep or (lambda delay: time.sleep(delay))
         self._client: httpx.Client | None = None
 
     @classmethod
@@ -390,7 +394,7 @@ class HttpTransport:
                     **request_context,
                 },
             )
-            time.sleep(delay)
+            self._sleep(delay)
 
         msg = "unreachable transport retry state"
         raise RuntimeError(msg)

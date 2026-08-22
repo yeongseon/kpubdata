@@ -155,3 +155,84 @@ class TestWithRetry:
         """
         with pytest.raises(ValueError, match="max_retries"):
             with_retry(lambda: None, max_retries=-1, retryable_exceptions=())
+
+
+class TestPluggableSleepAndAsync:
+    """재시도 대기 주입·async 버전 (#270)."""
+
+    def test_injected_sleep_receives_backoff_delays_without_blocking(self) -> None:
+        """가짜 sleep이 지수 백오프 지연을 기록한다 — 실제 대기 없음."""
+        from kpubdata.transport.retry import with_retry
+
+        delays: list[float] = []
+        attempts: list[int] = []
+
+        def flaky() -> str:
+            attempts.append(1)
+            if len(attempts) < 3:
+                raise RuntimeError("transient")
+            return "ok"
+
+        result = with_retry(
+            flaky,
+            max_retries=3,
+            backoff_factor=0.25,
+            retryable_exceptions=(RuntimeError,),
+            sleep=delays.append,
+        )
+
+        assert result == "ok"
+        assert delays == [0.25, 0.5]
+
+    def test_with_retry_async_uses_asyncio_sleep(self) -> None:
+        """async 버전은 이벤트 루프를 차단하지 않는 asyncio.sleep으로 재시도한다."""
+        import asyncio
+
+        from kpubdata.transport.retry import with_retry_async
+
+        attempts: list[int] = []
+
+        async def flaky() -> str:
+            attempts.append(1)
+            if len(attempts) < 2:
+                raise RuntimeError("transient")
+            return "ok"
+
+        result = asyncio.run(
+            with_retry_async(
+                flaky,
+                max_retries=2,
+                backoff_factor=0.0,
+                retryable_exceptions=(RuntimeError,),
+            )
+        )
+
+        assert result == "ok"
+        assert len(attempts) == 2
+
+    def test_transport_retry_uses_injected_sleep(self, monkeypatch) -> None:
+        """HttpTransport 재시도 대기도 주입 가능하다 — 실제 sleep 없이 검증."""
+        import httpx
+
+        from kpubdata.transport.http import HttpTransport, TransportConfig
+
+        delays: list[float] = []
+        responses = [
+            httpx.Response(
+                503, text="busy", request=httpx.Request("GET", "https://example.test/r")
+            ),
+            httpx.Response(200, text="ok", request=httpx.Request("GET", "https://example.test/r")),
+        ]
+        monkeypatch.setattr(
+            "kpubdata.transport.http.httpx.Client.send",
+            lambda _self, _request, **_k: responses.pop(0),
+        )
+        transport = HttpTransport(
+            TransportConfig(max_retries=2, retry_backoff_factor=0.5),
+            sleep=delays.append,
+        )
+
+        response = transport.request("GET", "https://example.test/r")
+
+        assert response.status_code == 200
+        assert delays == [0.5]
