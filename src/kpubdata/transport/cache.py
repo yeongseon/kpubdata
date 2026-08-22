@@ -186,18 +186,32 @@ def _default_cache_dir() -> Path:
 
 
 def _normalize_mapping(values: Mapping[str, object] | None) -> list[tuple[str, str]]:
-    """민감한 값을 가린 뒤 매핑을 정렬 가능한 키-값 목록으로 바꾼다."""
+    """민감한 값을 자격별 지문으로 바꾼 뒤 매핑을 정렬 가능한 키-값 목록으로 만든다.
+
+    민감 값(credential)은 원문 대신 값 자체의 sha256 지문을 쓴다(#263) — 캐시
+    키 어디에도 원문이 남지 않으면서, 다른 credential끼리는 다른 캐시 엔트리를
+    갖게 격리된다. 예전처럼 상수로 가리면 서로 다른 키가 같은 캐시 키를 공유해
+    이전 사용자의 응답이 반환되는 오염이 생긴다.
+    """
     if values is None:
         return []
 
     normalized_items: list[tuple[str, str]] = []
     for key, value in values.items():
-        normalized_value = (
-            _REDACTED_VALUE if key.casefold() in _SENSITIVE_CACHE_KEY_NAMES else str(value)
-        )
+        text = str(value)
+        if key.casefold() in _SENSITIVE_CACHE_KEY_NAMES:
+            normalized_value = _credential_fingerprint(text)
+        else:
+            normalized_value = text
         normalized_items.append((key.casefold(), normalized_value))
     normalized_items.sort()
     return normalized_items
+
+
+def _credential_fingerprint(value: str) -> str:
+    """credential 원문 대신 캐시 키에 쓸 단방향 지문을 반환한다 (#263)."""
+    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()
+    return f"{_REDACTED_VALUE}:sha256:{digest[:16]}"
 
 
 def _is_expired(payload: _CachePayload) -> bool:

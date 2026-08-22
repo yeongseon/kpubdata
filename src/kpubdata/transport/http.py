@@ -468,12 +468,16 @@ def _mask_url(url: str) -> str:
 
 
 def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:
-    """캐시 키 계산에 안전한 헤더만 추려 반환한다."""
+    """캐시 키 계산에 쓸 헤더를 추려 반환한다.
+
+    민감 헤더(Authorization 등)도 포함한다(#263) — ``make_cache_key``가 값을
+    원문 대신 sha256 지문으로 정규화하므로 키 어디에도 원문이 남지 않으면서
+    credential별로 캐시가 격리된다. 제외하면 다른 Bearer token이 같은 캐시
+    엔트리를 공유하는 오염이 생긴다.
+    """
     if headers is None:
         return {}
-    return {
-        key: value for key, value in headers.items() if key.casefold() not in _SENSITIVE_PARAM_KEYS
-    }
+    return dict(headers)
 
 
 def _contains_sensitive_headers(headers: dict[str, str] | None) -> bool:

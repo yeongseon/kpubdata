@@ -122,7 +122,7 @@ def test_response_cache_missing_key_returns_none(tmp_path: Path) -> None:
 
 
 # test make cache key redacts secret values 테스트가 검증하는 시나리오를 설명한다.
-def test_make_cache_key_redacts_secret_values() -> None:
+def test_make_cache_key_isolates_credentials() -> None:
     """
     test make cache key redacts secret values 시나리오를 검증한다.
 
@@ -154,8 +154,10 @@ def test_make_cache_key_redacts_secret_values() -> None:
         {"Accept": "application/json", "Authorization": "Bearer bbb"},
     )
 
-    assert key_one == key_two
+    # #263: credential이 다르면 같은 endpoint라도 반드시 다른 캐시 키다.
+    assert key_one != key_two
     assert key_one != key_three
+    assert key_two != key_three
 
 
 # test response cache filesystem errors are swallowed 테스트가 검증하는 시나리오를 설명한다.
@@ -228,19 +230,33 @@ def test_http_transport_get_cache_hit_logs_and_skips_network(
             dataset_id="datago.tour_kor_area",
             provider="datago",
         )
+        third = transport.request(
+            "GET",
+            "https://example.test/resource",
+            params={"serviceKey": "secret", "page": "1"},
+            dataset_id="datago.tour_kor_area",
+            provider="datago",
+        )
 
-    assert first.content == second.content == b'{"cached": false}'
-    assert request_mock.call_count == 1
+    # #263: credential을 바꾸면 같은 endpoint여도 이전 응답을 재사용하지 않는다
+    # (2회 네트워크 호출), 원래 credential로 돌아오면 자기 캐시에 hit한다.
+    assert first.content == second.content == third.content == b'{"cached": false}'
+    assert request_mock.call_count == 2
 
-    miss_record = next(
+    miss_records = [
         record for record in caplog.records if record.getMessage() == "transport cache miss; stored"
-    )
-    hit_record = next(
+    ]
+    hit_records = [
         record for record in caplog.records if record.getMessage() == "transport cache hit"
-    )
-    assert miss_record.__dict__["dataset_id"] == "datago.tour_kor_area"
-    assert hit_record.__dict__["provider"] == "datago"
-    assert miss_record.__dict__["cache_key"] == hit_record.__dict__["cache_key"]
+    ]
+    assert len(miss_records) == 2
+    assert len(hit_records) == 1
+    assert hit_records[0].__dict__["provider"] == "datago"
+    # 두 miss는 서로 다른 캐시 키(credential 격리), hit은 첫 요청(secret) 키와 동일.
+    first_key = miss_records[0].__dict__["cache_key"]
+    second_key = miss_records[1].__dict__["cache_key"]
+    assert first_key != second_key
+    assert hit_records[0].__dict__["cache_key"] == first_key
 
 
 # test http transport post is never cached 테스트가 검증하는 시나리오를 설명한다.
