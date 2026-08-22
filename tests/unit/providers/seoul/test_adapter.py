@@ -498,6 +498,8 @@ def test_query_records_parses_park_usage_response() -> None:
 
     assert len(batch.items) == 1
     assert batch.items[0]["P_PARK"] == "샘플 공원"
+
+
 def test_query_records_builds_citydata_url_with_area_path() -> None:
     adapter, transport = _build_adapter([FakeResponse(_load_fixture("citydata.json"))])
     dataset = adapter.get_dataset("citydata")
