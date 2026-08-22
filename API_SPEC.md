@@ -50,16 +50,17 @@ client = Client.from_env()
 client.datasets.list()
 client.datasets.list(provider="datago")
 client.datasets.search("예보")
-client.datasets.search("forecast", provider="weather")
+client.datasets.search("forecast", provider="datago")
 client.datasets.search("weathr", threshold=0.5)  # fuzzy match
-client.dataset("molit.apartment_trades")
+client.dataset("datago.apt_trade")
 ```
 
 ### Search behavior
 
 `search(text, *, provider=None, threshold=0.5)` scores each dataset against
-*text* using substring and fuzzy matching across **name**, **description**,
-**tags**, and **id**.  Results are returned in descending relevance order.
+*text* using substring, token-overlap, and fuzzy matching across **name**,
+**description**, **tags**, **id**, **dataset_key**, and **provider**. Results are
+returned in descending relevance order.
 
 - **Exact substring** match in any field → score 1.0 (always included).
 - **Fuzzy match** via `difflib.SequenceMatcher` → included if score ≥ *threshold*.
@@ -77,7 +78,7 @@ Each `DatasetRef` returned by discovery exposes:
 ### List/query
 
 ```python
-dataset = client.dataset("molit.apartment_trades")
+dataset = client.dataset("datago.apt_trade")
 result = dataset.list(lawd_code="11680", deal_ym="202503")
 ```
 
@@ -87,7 +88,7 @@ the returned `RecordBatch.next_page` is set.
 ### List all pages
 
 ```python
-dataset = client.dataset("molit.apartment_trades")
+dataset = client.dataset("datago.apt_trade")
 for batch in dataset.list_all(lawd_code="11680", deal_ym="202503"):
     for item in batch.items:
         print(item)
@@ -206,13 +207,13 @@ Avoid turning the public API into:
 Preferred:
 
 ```python
-client.dataset("seoul.subway.arrivals").list(station_name="강남")
+client.dataset("seoul.subway_realtime_arrival").list(station_name="강남")
 ```
 
 Acceptable advanced usage:
 
 ```python
-client.dataset("seoul.subway.arrivals").call_raw(operation="list", stationNm="강남")
+client.dataset("seoul.subway_realtime_arrival").call_raw(operation="list", stationNm="강남")
 ```
 
 Discouraged as the main public entry point:

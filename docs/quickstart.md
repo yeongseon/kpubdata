@@ -107,7 +107,7 @@ python first_query.py
 
 ### "API 키가 설정되지 않았습니다"
 ```
-kpubdata.exceptions.AuthError: Provider key not configured for 'bok'
+kpubdata.exceptions.ConfigError: Missing provider API key for 'bok'
 ```
 → 4단계의 환경 변수 설정을 다시 확인하세요. 터미널을 새로 열었다면 export 명령을 다시 실행해야 합니다.
 

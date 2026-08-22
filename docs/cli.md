@@ -68,7 +68,7 @@ kpubdata datasets show bok.base_rate --format json
 - `name`
 - `provider`
 - `operations`
-- `capability`
+- `capabilities`
 - `raw_metadata_keys`
 
 ## fetch
