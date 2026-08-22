@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import Mapping, Sequence
 from typing import cast
 from urllib.parse import urlparse
@@ -36,6 +37,32 @@ _DATAGO_403_HINT = (
     "(활용신청) for your key. Visit the dataset's page on https://www.data.go.kr and "
     "click '활용신청'. Approval is usually automatic and becomes active within a few minutes."
 )
+
+
+_DATAGO_ALLOWED_HOST_SUFFIXES = (".data.go.kr",)
+_DATAGO_ALLOWED_EXACT_HOSTS = {"data.go.kr"}
+_EXTRA_HOSTS_ENV = "KPUBDATA_DATAGO_EXTRA_HOSTS"
+
+
+def _is_allowed_datago_host(host: str) -> bool:
+    """data.go.kr 공식 도메인(또는 환경변수로 확장한 호스트)만 허용한다 (#261).
+
+    확장은 ``KPUBDATA_DATAGO_EXTRA_HOSTS``(콤마 구분)로만 가능하다 — 임의
+    내부 호스트로의 SSRF·API 키 전송을 기본 차단하기 위한 fail-closed 게이트다.
+    """
+    host = host.strip().lower()
+    if not host:
+        return False
+    if host in _DATAGO_ALLOWED_EXACT_HOSTS:
+        return True
+    if any(host.endswith(suffix) for suffix in _DATAGO_ALLOWED_HOST_SUFFIXES):
+        return True
+    extra = os.environ.get(_EXTRA_HOSTS_ENV, "")
+    for entry in extra.split(","):
+        allowed = entry.strip().lower()
+        if allowed and host == allowed:
+            return True
+    return False
 
 
 class DataGoAdapter:
@@ -258,15 +285,22 @@ class DataGoAdapter:
             format_param_override = params.get("_format_param")
 
             host = urlparse(base_url_override).hostname or ""
-            if not host.endswith(".data.go.kr") and host != "data.go.kr":
+            if not _is_allowed_datago_host(host):
+                # 비표준 호스트는 fail-closed로 차단한다(#261) — 호스트만 로그에
+                # 남기고 URL 원문은 남기지 않는다(query에 serviceKey가 있을 수 있음).
                 logger.warning(
-                    "datago.generic called with non-data.go.kr host",
+                    "datago.generic blocked non-allowlisted host",
                     extra={
                         "dataset_id": dataset.id,
                         "operation": operation,
-                        "base_url": base_url_override,
                         "host": host,
                     },
+                )
+                raise InvalidRequestError(
+                    "datago.generic only allows data.go.kr hosts"
+                    " (extend via KPUBDATA_DATAGO_EXTRA_HOSTS)",
+                    provider="datago",
+                    dataset_id=dataset.id,
                 )
 
             url = f"{base_url_override.rstrip('/')}/{operation}"
