@@ -17,6 +17,7 @@ from kpubdata.core.representation import Representation
 from kpubdata.exceptions import ConfigError, ParseError, ProviderResponseError
 from kpubdata.providers._common import build_dataset_ref, coerce_int, require_string_field
 from kpubdata.providers.datago.adapter import DataGoAdapter
+from kpubdata.providers.datago.envelope import DataGoEnvelopeParser
 from kpubdata.transport.http import HttpTransport
 
 
@@ -470,10 +471,10 @@ def test_validate_envelope_raises_when_response_missing() -> None:
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
-    adapter = DataGoAdapter(catalogue=[])
+    parser = DataGoEnvelopeParser()
 
     with pytest.raises(ProviderResponseError, match="missing response"):
-        _ = adapter._validate_envelope({})
+        _ = parser.parse({})
 
 
 # test validate envelope raises when header missing 테스트가 검증하는 시나리오를 설명한다.
@@ -490,10 +491,10 @@ def test_validate_envelope_raises_when_header_missing() -> None:
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
-    adapter = DataGoAdapter(catalogue=[])
+    parser = DataGoEnvelopeParser()
 
     with pytest.raises(ProviderResponseError, match="missing header"):
-        _ = adapter._validate_envelope({"response": {"body": {}}})
+        _ = parser.parse({"response": {"body": {}}})
 
 
 # test validate envelope raises when result code not string 테스트가 검증하는 시나리오를 설명한다.
@@ -510,10 +511,10 @@ def test_validate_envelope_raises_when_result_code_not_string() -> None:
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
-    adapter = DataGoAdapter(catalogue=[])
+    parser = DataGoEnvelopeParser()
 
     with pytest.raises(ProviderResponseError, match="missing resultCode"):
-        _ = adapter._validate_envelope({"response": {"header": {"resultCode": 0}, "body": {}}})
+        _ = parser.parse({"response": {"header": {"resultCode": 0}, "body": {}}})
 
 
 # test raise for result code unknown code raises provider response error 테스트가 검증하는 시나리오를 설명한다.
@@ -530,10 +531,10 @@ def test_raise_for_result_code_unknown_code_raises_provider_response_error() -> 
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
-    adapter = DataGoAdapter(catalogue=[])
+    parser = DataGoEnvelopeParser()
 
     with pytest.raises(ProviderResponseError):
-        adapter._raise_for_result_code("99", "unknown code", "datago.test")
+        parser._raise_for_result_code("99", "unknown code", "datago.test")
 
 
 # test normalize items accepts direct list wrapper 테스트가 검증하는 시나리오를 설명한다.
@@ -550,9 +551,9 @@ def test_normalize_items_accepts_direct_list_wrapper() -> None:
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
-    adapter = DataGoAdapter(catalogue=[])
+    parser = DataGoEnvelopeParser()
 
-    normalized = adapter._normalize_items([{"id": 1}, "x", {"id": 2}])
+    normalized = parser.normalize_items([{"id": 1}, "x", {"id": 2}])
 
     assert normalized == [{"id": 1}, {"id": 2}]
 
@@ -571,8 +572,8 @@ def test_normalize_items_returns_empty_for_unsupported_wrapper() -> None:
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
-    adapter = DataGoAdapter(catalogue=[])
-    assert adapter._normalize_items("not-a-list-or-dict") == []
+    parser = DataGoEnvelopeParser()
+    assert parser.normalize_items("not-a-list-or-dict") == []
 
 
 # test coerce int returns default for non numeric string 테스트가 검증하는 시나리오를 설명한다.
