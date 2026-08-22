@@ -15,7 +15,6 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any
 
 from kpubdata.exceptions import ConfigError
 
@@ -74,11 +73,18 @@ class KPubDataConfig:
         raise ConfigError(f"Missing provider API key for '{provider}'")
 
     @classmethod
-    def from_env(cls, **overrides: Any) -> KPubDataConfig:
+    def from_env(
+        cls,
+        provider_keys: dict[str, str] | None = None,
+        *,
+        timeout: float | None = None,
+        max_retries: int | None = None,
+        extra: dict[str, object] | None = None,
+    ) -> KPubDataConfig:
         """환경 변수로부터 설정을 구성한다.
 
-        KPUBDATA_*_API_KEY 패턴을 스캔한다.
-        override 값은 kwargs로 전달할 수 있다.
+        KPUBDATA_*_API_KEY 패턴을 스캔한다. override는 명시적 파라미터로만
+        전달한다(#276) — ``**kwargs: Any``는 타입 안전성을 우회하므로 폐기했다.
         """
         scanned_keys: dict[str, str] = {}
         for env_name, env_value in os.environ.items():
@@ -90,17 +96,21 @@ class KPubDataConfig:
             provider_name = match.group(1).lower()
             scanned_keys[provider_name] = env_value
 
-        provider_overrides_raw = overrides.pop("provider_keys", None)
         provider_overrides: dict[str, str] = {}
-        if isinstance(provider_overrides_raw, dict):
-            for key, value in provider_overrides_raw.items():
-                if isinstance(key, str) and isinstance(value, str) and value:
-                    provider_overrides[_normalize_provider_name(key)] = value
+        for key, value in (provider_keys or {}).items():
+            # 타입은 dict[str, str]이지만, 언타입 호출자 방어로 런타임 검증 유지.
+            if isinstance(key, str) and isinstance(value, str) and value:
+                provider_overrides[_normalize_provider_name(key)] = value
 
         merged_provider_keys = scanned_keys.copy()
         merged_provider_keys.update(provider_overrides)
 
-        return cls(provider_keys=merged_provider_keys, **overrides)
+        return cls(
+            provider_keys=merged_provider_keys,
+            timeout=30.0 if timeout is None else timeout,
+            max_retries=3 if max_retries is None else max_retries,
+            extra={} if extra is None else extra,
+        )
 
 
 def _normalize_provider_name(provider: str) -> str:

@@ -79,12 +79,30 @@ class Client:
         )
 
     @classmethod
-    def from_env(cls, **overrides: object) -> Client:
-        """환경 변수와 명시적 override 값으로 클라이언트를 생성한다."""
+    def from_env(
+        cls,
+        provider_keys: dict[str, str] | None = None,
+        *,
+        timeout: float | None = None,
+        max_retries: int | None = None,
+        extra: dict[str, object] | None = None,
+        cache: bool | ResponseCache | None = None,
+        cache_ttl_seconds: int | None = None,
+    ) -> Client:
+        """환경 변수와 명시적 override 값으로 클라이언트를 생성한다 (#276).
 
-        cache_override = overrides.pop("cache", _UNSET)
-        ttl_override = overrides.pop("cache_ttl_seconds", _UNSET)
-        config = KPubDataConfig.from_env(**overrides)
+        override는 명시적 파라미터로만 받는다 — ``**kwargs: object``는 타입
+        안전성을 우회한다. ``cache=None``은 "지정 없음"(환경 변수 규칙 적용)을
+        뜻하고 ``False``는 명시적 비활성화다.
+        """
+        cache_override: object = _UNSET if cache is None else cache
+        ttl_override: object = _UNSET if cache_ttl_seconds is None else cache_ttl_seconds
+        config = KPubDataConfig.from_env(
+            provider_keys=provider_keys,
+            timeout=timeout,
+            max_retries=max_retries,
+            extra=extra,
+        )
         cache_ttl_seconds = _resolve_cache_ttl(ttl_override)
         return cls(
             provider_keys=config.provider_keys,
