@@ -448,35 +448,39 @@ class TestDataGoGenericDataset:
             )
 
     # test non data go kr host logs warning 테스트가 검증하는 시나리오를 설명한다.
-    def test_non_data_go_kr_host_logs_warning(self, caplog: pytest.LogCaptureFixture) -> None:
-        """
-        test non data go kr host logs warning 시나리오를 검증한다.
-
-        매개변수:
-            caplog (pytest.LogCaptureFixture): 호출자가 제공하는 입력 값이다.
-
-        반환값:
-            None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-        예외:
-            구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-
-        예시:
-            테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
-        """
+    def test_non_allowlisted_host_is_blocked(self, caplog: pytest.LogCaptureFixture) -> None:
+        """비허용 호스트는 호출되지 않고 InvalidRequestError로 차단된다(#261)."""
         import logging
+
+        from kpubdata.exceptions import InvalidRequestError
 
         adapter, _ = _build_adapter([FakeResponse(_success_envelope())])
         dataset = adapter.get_dataset("generic")
 
-        with caplog.at_level(logging.WARNING, logger="kpubdata.provider.datago"):
+        with (
+            caplog.at_level(logging.WARNING, logger="kpubdata.provider.datago"),
+            pytest.raises(InvalidRequestError, match="data.go.kr hosts"),
+        ):
             adapter.call_raw(
                 dataset,
                 "getX",
                 {"_base_url": "http://example.com/foo"},
             )
 
-        assert any("non-data.go.kr host" in record.message for record in caplog.records)
+        # URL 원문은 로그에 남지 않고(host만) — serviceKey query 누출 방지(#260).
+        assert any("blocked non-allowlisted host" in record.message for record in caplog.records)
+        for record in caplog.records:
+            assert "http://example.com/foo" not in record.getMessage()
+
+    def test_extra_hosts_env_extends_allowlist(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """KPUBDATA_DATAGO_EXTRA_HOSTS로 확장한 호스트는 허용된다(#261)."""
+        adapter, transport = _build_adapter([FakeResponse(_success_envelope())])
+        dataset = adapter.get_dataset("generic")
+        monkeypatch.setenv("KPUBDATA_DATAGO_EXTRA_HOSTS", "proxy.internal.example")
+
+        adapter.call_raw(dataset, "getX", {"_base_url": "http://proxy.internal.example/api"})
+
+        assert transport.calls[0]["url"].startswith("http://proxy.internal.example/api/")
 
     # test data go kr host no warning 테스트가 검증하는 시나리오를 설명한다.
     def test_data_go_kr_host_no_warning(self, caplog: pytest.LogCaptureFixture) -> None:
