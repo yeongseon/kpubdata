@@ -27,7 +27,8 @@ classDiagram
         +tuple tags
         +str source_url
         +Representation representation
-        +frozenset[Capability] capabilities
+        +frozenset[Operation] operations
+        +QuerySupport query_support
     }
     class Query {
         +dict filters
@@ -119,7 +120,7 @@ ref = DatasetRef(
     provider="datago",
     dataset_key="village_fcst",
     name="동네예보",
-    representation=Representation.OPENAPI,
+    representation=Representation.API_JSON,
     description="Korea Meteorological Administration short-range forecast",
     tags=("weather", "forecast"),
     source_url="https://www.data.go.kr",
@@ -169,62 +170,82 @@ for item in batch.items:
                               +-- [ FieldConstraints ] (제약 조건)
 ```
 
-## 6. Core types (Original)
+## 6. Core types
 
-### 3.1 Capability
+### 6.1 Operation and QuerySupport
 
 ```python
 from enum import Enum
 
-class Capability(str, Enum):
+class Operation(str, Enum):
     LIST = "list"
     GET = "get"
     SCHEMA = "schema"
     RAW = "raw"
-    PAGEABLE = "pageable"
-    FILTERABLE = "filterable"
-    SORTABLE = "sortable"
-    TIME_RANGE = "time_range"
     DOWNLOAD = "download"
-    REALTIME = "realtime"
+
+class PaginationMode(str, Enum):
+    OFFSET = "offset"
+    INDEX = "index"
+    CURSOR = "cursor"
+    NONE = "none"
+
+@dataclass(slots=True, frozen=True)
+class QuerySupport:
+    pagination: PaginationMode = PaginationMode.NONE
+    filterable_fields: frozenset[str] = frozenset()
+    sortable_fields: frozenset[str] = frozenset()
+    time_range: bool = False
+    max_page_size: int | None = None
 ```
 
-### 3.2 Representation
+`Operation` describes the canonical actions a dataset supports. Query-shape features that used to be modeled as capability enum values are now structured in `QuerySupport`.
+
+### 6.2 Representation
 
 ```python
 from enum import Enum
 
 class Representation(str, Enum):
-    OPENAPI = "openapi"
-    FILE = "file"
+    API_JSON = "api_json"
+    API_XML = "api_xml"
+    FILE_CSV = "file_csv"
+    FILE_EXCEL = "file_excel"
     SHEET = "sheet"
-    DOWNLOAD = "download"
     OTHER = "other"
 ```
 
 ```mermaid
 graph TD
-    subgraph Capabilities [Dataset Capabilities]
+    subgraph Operations [Dataset Operations]
         LIST[LIST: Browse multiple records]
         GET[GET: Fetch single record by ID]
         SCHEMA[SCHEMA: Metadata about fields]
         RAW[RAW: Provider escape hatch]
-        PAGEABLE[PAGEABLE: Supports pagination]
-        FILTERABLE[FILTERABLE: Supports filtering]
+        DOWNLOAD[DOWNLOAD: Download source artifact]
+    end
+
+    subgraph QuerySupport [Query Support]
+        PAGINATION[pagination: offset/index/cursor/none]
+        FILTERABLE[filterable_fields]
+        SORTABLE[sortable_fields]
+        TIME_RANGE[time_range]
     end
 
     subgraph Reps [Representations]
-        OPENAPI[OPENAPI: REST/HTTP API]
-        FILE[FILE: JSON/XML/CSV file]
+        API_JSON[API_JSON: JSON HTTP API]
+        API_XML[API_XML: XML HTTP API]
+        FILE_CSV[FILE_CSV: CSV file]
+        FILE_EXCEL[FILE_EXCEL: Excel file]
         SHEET[SHEET: Google/Excel sheet]
     end
 ```
 
-### 3.3 DatasetRef
+### 6.3 DatasetRef
 
 ```python
 from dataclasses import dataclass, field
-from typing import Any
+from types import MappingProxyType
 
 @dataclass(slots=True, frozen=True)
 class DatasetRef:
@@ -233,22 +254,26 @@ class DatasetRef:
     dataset_key: str
     name: str
     representation: Representation
+    operations: frozenset[Operation] = frozenset()
+    query_support: QuerySupport | None = None
+    raw_metadata: MappingProxyType[str, object] = field(default_factory=_empty_proxy)
     description: str | None = None
     tags: tuple[str, ...] = ()
     source_url: str | None = None
-    capabilities: frozenset[Capability] = frozenset()
-    raw_metadata: dict[str, Any] = field(default_factory=dict)
 ```
 
 Notes:
 
 - `id` is the stable bound identifier, e.g. `molit.apartment_trades`
 - `representation` matters because the same logical dataset may be offered in more than one form
+- `operations` is the honest set of supported canonical actions
+- `query_support` describes pagination, filtering, sorting, time-range, and max page-size metadata when known
 - `description` is a human-readable summary of what the dataset provides
 - `tags` are categorization keywords for discovery (e.g. `("weather", "forecast")`)
 - `source_url` links to the original API documentation or data portal page
+- `raw_metadata` is immutable provider-native discovery metadata for debugging and adapter internals
 
-### 3.4 Query
+### 6.4 Query
 
 ```python
 from dataclasses import dataclass, field
@@ -292,7 +317,7 @@ Canonical Query validates common input constraints. Provider-specific rules rema
 
 This separation ensures that invalid canonical inputs are rejected early (before provider invocation) while preserving provider flexibility for domain-specific constraints.
 
-### 3.5 RecordBatch
+### 6.5 RecordBatch
 
 ```python
 from dataclasses import dataclass, field
@@ -309,10 +334,11 @@ class RecordBatch:
     meta: dict[str, Any] = field(default_factory=dict)
 ```
 
-### 3.6 SchemaDescriptor
+### 6.6 SchemaDescriptor
 
 ```python
 from dataclasses import dataclass, field
+from types import MappingProxyType
 
 @dataclass(slots=True)
 class FieldConstraints:
@@ -331,13 +357,13 @@ class FieldDescriptor:
     description: str | None = None
     nullable: bool | None = None
     constraints: FieldConstraints | None = None
-    raw: dict[str, object] = field(default_factory=dict)
+    raw: MappingProxyType[str, object] = field(default_factory=_empty_object_proxy)
 
 @dataclass(slots=True)
 class SchemaDescriptor:
     dataset: DatasetRef
     fields: list[FieldDescriptor]
-    raw: dict[str, object] = field(default_factory=dict)
+    raw: MappingProxyType[str, object] = field(default_factory=_empty_object_proxy)
 ```
 
 ## 4. Error model
@@ -347,12 +373,16 @@ class PublicDataError(Exception): ...
 class ConfigError(PublicDataError): ...
 class AuthError(PublicDataError): ...
 class TransportError(PublicDataError): ...
-class TimeoutError(TransportError): ...
+class TransportTimeoutError(TransportError): ...
+class RateLimitError(TransportError): ...
+class ServiceUnavailableError(TransportError): ...
 class ParseError(PublicDataError): ...
 class InvalidRequestError(PublicDataError): ...
 class ProviderResponseError(PublicDataError): ...
 class UnsupportedCapabilityError(PublicDataError): ...
 class DatasetNotFoundError(PublicDataError): ...
+class ProviderNotRegisteredError(PublicDataError): ...
+class CapabilityContractError(PublicDataError): ...
 ```
 
 ## 5. Bound Dataset object
