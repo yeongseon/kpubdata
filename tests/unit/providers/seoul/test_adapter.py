@@ -498,4 +498,26 @@ def test_query_records_parses_park_usage_response() -> None:
 
     assert len(batch.items) == 1
     assert batch.items[0]["P_PARK"] == "샘플 공원"
+
+
+def test_query_records_builds_citydata_url_with_area_path() -> None:
+    adapter, transport = _build_adapter([FakeResponse(_load_fixture("citydata.json"))])
+    dataset = adapter.get_dataset("citydata")
+
+    _ = adapter.query_records(dataset, Query(filters={"area": "광화문·덕수궁"}, page_size=1))
+
+    assert transport.calls[0]["url"] == (
+        "http://openapi.seoul.go.kr:8088/test-seoul-key/json/citydata_ppltn/1/1/"
+        "%EA%B4%91%ED%99%94%EB%AC%B8%C2%B7%EB%8D%95%EC%88%98%EA%B6%81"
+    )
+
+
+def test_query_records_parses_citydata_top_level_response() -> None:
+    adapter, _ = _build_adapter([FakeResponse(_load_fixture("citydata.json"))])
+    dataset = adapter.get_dataset("citydata")
+
+    batch = adapter.query_records(dataset, Query(filters={"area": "광화문·덕수궁"}, page_size=1))
+
+    assert len(batch.items) == 1
+    assert batch.items[0]["AREA_NM"] == "광화문·덕수궁"
     assert batch.total_count == 1

@@ -572,3 +572,32 @@ class TestSeoulParkUsageContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("SearchParkInfoService", {"page_no": 1, "page_size": 5})
+
+
+class TestSeoulCitydataContract(ProviderAdapterContract):
+    @pytest.fixture()
+    def adapter(self) -> ProviderAdapter:
+        return _build_adapter(["citydata.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "citydata"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: ProviderAdapter) -> DatasetRef:
+        return adapter.get_dataset("citydata")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"area": "광화문·덕수궁"}, page_size=1)
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return (
+            "citydata_ppltn",
+            {"area": "광화문·덕수궁", "page_no": 1, "page_size": 1},
+        )

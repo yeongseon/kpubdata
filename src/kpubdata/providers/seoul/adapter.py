@@ -7,24 +7,21 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import NoReturn, cast
+from typing import cast
 from urllib.parse import quote
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.exceptions import (
-    AuthError,
     DatasetNotFoundError,
     InvalidRequestError,
     ParseError,
     ProviderResponseError,
 )
 from kpubdata.providers._common import build_schema_from_metadata, coerce_int, load_catalogue
+from kpubdata.providers.seoul.envelope import validate_envelope
 from kpubdata.transport.decode import decode_json
 from kpubdata.transport.http import HttpTransport, TransportConfig
-
-_SUCCESS_CODE = "INFO-000"
-_EMPTY_CODE = "INFO-200"
 
 
 class SeoulAdapter:
@@ -102,8 +99,8 @@ class SeoulAdapter:
 
         payload = self._request_and_decode(url, dataset.id)
         service_name = self._service_name(dataset, operation=None)
-        body, items = self._validate_envelope(payload, service_name, dataset.id)
-        total_count = coerce_int(body.get("list_total_count"), 0)
+        body, items = validate_envelope(payload, service_name, dataset)
+        total_count = coerce_int(body.get("list_total_count"), len(items))
         next_page = page_no + 1 if total_count > 0 and end_index < total_count else None
 
         return RecordBatch(
@@ -139,9 +136,7 @@ class SeoulAdapter:
             path_params=path_params,
         )
         payload = self._request_and_decode(url, dataset.id)
-        _ = self._validate_envelope(
-            payload, self._service_name(dataset, operation=operation), dataset.id
-        )
+        _ = validate_envelope(payload, self._service_name(dataset, operation=operation), dataset)
         return payload
 
     def _validate_pagination(self, page_no: int, page_size: int, dataset_id: str) -> None:
@@ -195,28 +190,6 @@ class SeoulAdapter:
             return operation
         return self._require_dataset_metadata(dataset, "default_operation")
 
-    def _envelope_key(
-        self,
-        payload: dict[str, object],
-        service_name: str,
-        dataset_id: str,
-    ) -> str:
-        """서울 API 응답에 사용할 envelope 키를 해석한다.
-
-        일부 서울 API는 서비스 이름과 다른 envelope 키를 사용한다
-        (예: bikeList -> rentBikeStatus). 카탈로그 항목에 ``envelope_key``
-        메타데이터 필드가 있으면 이를 먼저 시도하고,
-        하위 호환성을 위해 실패 시 *service_name*으로 되돌아간다.
-        """
-        # 명시적인 envelope_key override가 있는지 확인하기 위해 데이터셋을 조회한다.
-        ds = self._datasets_by_key.get(dataset_id.removeprefix("seoul."))
-        if ds is not None:
-            override = ds.raw_metadata.get("envelope_key")
-            if isinstance(override, str) and override and override in payload:
-                return override
-        # 기본값: 서비스 이름 자체를 사용한다.
-        return service_name
-
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
         """request and decode과 관련된 값을 계산하거나 조회한다."""
         response = self._transport.request("GET", url, dataset_id=dataset_id, provider="seoul")
@@ -231,78 +204,6 @@ class SeoulAdapter:
             return cast(dict[str, object], decoded)
         raise ParseError(
             "Decoded payload is not an object", provider="seoul", dataset_id=dataset_id
-        )
-
-    def _validate_envelope(
-        self,
-        payload: dict[str, object],
-        service_name: str,
-        dataset_id: str,
-    ) -> tuple[dict[str, object], list[dict[str, object]]]:
-        """envelope의 형식을 검증하고 필요한 값을 추출한다."""
-        # 최상위 오류 응답(envelope wrapper 없음)을 감지한다.
-        # 일부 서울 API는 {"status": 500, "code": "ERROR-...", "message": "..."}를 반환한다.
-        if "code" in payload and "message" in payload and service_name not in payload:
-            code_raw = payload.get("code")
-            message_raw = payload.get("message")
-            code = code_raw if isinstance(code_raw, str) else "ERROR-UNKNOWN"
-            message = message_raw if isinstance(message_raw, str) else "Provider returned error"
-            self._raise_for_result_code(code, message, dataset_id)
-
-        envelope_key = self._envelope_key(payload, service_name, dataset_id)
-        body_obj = payload.get(envelope_key)
-        if not isinstance(body_obj, dict):
-            raise ProviderResponseError(
-                f"Malformed response envelope: missing {envelope_key}",
-                provider="seoul",
-                dataset_id=dataset_id,
-            )
-
-        body = cast(dict[str, object], body_obj)
-        result_obj = body.get("RESULT")
-        if not isinstance(result_obj, dict):
-            raise ProviderResponseError(
-                "Malformed response envelope: missing RESULT",
-                provider="seoul",
-                dataset_id=dataset_id,
-            )
-
-        result = cast(dict[str, object], result_obj)
-        code_raw = result.get("CODE")
-        message_raw = result.get("MESSAGE")
-        code = code_raw if isinstance(code_raw, str) else "ERROR-UNKNOWN"
-        message = message_raw if isinstance(message_raw, str) else "Provider returned error"
-
-        if code == _SUCCESS_CODE:
-            return body, self._normalize_rows(body.get("row"))
-        if code == _EMPTY_CODE:
-            return body, []
-
-        self._raise_for_result_code(code, message, dataset_id)
-
-    def _raise_for_result_code(self, code: str, message: str, dataset_id: str) -> NoReturn:
-        """raise for 결과 코드과 관련된 값을 계산하거나 조회한다."""
-        if code in {"INFO-100", "INFO-300"}:
-            raise AuthError(message, provider="seoul", provider_code=code, dataset_id=dataset_id)
-        if code in {"INFO-400", "ERROR-300", "ERROR-301", "ERROR-310", "ERROR-336"}:
-            raise InvalidRequestError(
-                message,
-                provider="seoul",
-                provider_code=code,
-                dataset_id=dataset_id,
-            )
-        if code in {"INFO-500", "ERROR-500", "ERROR-600", "ERROR-601"}:
-            raise ProviderResponseError(
-                message,
-                provider="seoul",
-                provider_code=code,
-                dataset_id=dataset_id,
-            )
-        raise ProviderResponseError(
-            message,
-            provider="seoul",
-            provider_code=code,
-            dataset_id=dataset_id,
         )
 
     def _require_path_params(
@@ -350,17 +251,6 @@ class SeoulAdapter:
             provider="seoul",
             dataset_id=dataset.id,
         )
-
-    def _normalize_rows(self, rows: object) -> list[dict[str, object]]:
-        """rows을 정규화해 반환한다."""
-        if rows is None:
-            return []
-        if isinstance(rows, list):
-            row_items = cast(list[object], rows)
-            return [cast(dict[str, object], item) for item in row_items if isinstance(item, dict)]
-        if isinstance(rows, dict):
-            return [cast(dict[str, object], rows)]
-        return []
 
     @staticmethod
     def _int_param(params: Mapping[str, object], key: str, default: int) -> int:
