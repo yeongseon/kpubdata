@@ -213,9 +213,7 @@ def test_http_transport_get_cache_hit_logs_and_skips_network(
     response = _response(content=b'{"cached": false}')
     caplog.set_level(logging.DEBUG, logger="kpubdata.transport")
 
-    with patch(
-        "kpubdata.transport.http.httpx.Client.request", return_value=response
-    ) as request_mock:
+    with patch("kpubdata.transport.http.httpx.Client.send", return_value=response) as request_mock:
         first = transport.request(
             "GET",
             "https://example.test/resource",
@@ -280,9 +278,7 @@ def test_http_transport_post_is_never_cached(tmp_path: Path) -> None:
     transport = HttpTransport(TransportConfig(max_retries=0), cache=cache, cache_ttl_seconds=60)
     response = _response(method="POST", content=b'{"created": true}')
 
-    with patch(
-        "kpubdata.transport.http.httpx.Client.request", return_value=response
-    ) as request_mock:
+    with patch("kpubdata.transport.http.httpx.Client.send", return_value=response) as request_mock:
         _ = transport.request("POST", "https://example.test/resource", content=b"{}")
         _ = transport.request("POST", "https://example.test/resource", content=b"{}")
 
@@ -312,7 +308,7 @@ def test_http_transport_non_2xx_is_never_cached(tmp_path: Path) -> None:
     response = _response(status_code=404)
 
     with (
-        patch("kpubdata.transport.http.httpx.Client.request", return_value=response),
+        patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
         pytest.raises(TransportError),
     ):
         _ = transport.request("GET", "https://example.test/resource")

@@ -38,6 +38,7 @@ class Scenario(TypedDict, total=False):
     body: str | bytes
     content_type: str
     delay: float
+    omit_content_length: bool
 
 
 class MockThreadingHTTPServer(http.server.ThreadingHTTPServer):
@@ -151,7 +152,8 @@ class MockHandler(http.server.BaseHTTPRequestHandler):
 
         self.send_response(status)
         self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(len(payload)))
+        if not scenario.get("omit_content_length", False):
+            self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
 
         try:
@@ -414,6 +416,32 @@ def test_no_retry_on_404(mock_server: MockServer, transport_config: TransportCon
 
     with HttpTransport(transport_config) as transport, pytest.raises(TransportError):
         _ = transport.request("GET", f"{mock_server.base_url}/not-found")
+
+    assert mock_server.hit_count == 1
+
+
+def test_content_length_over_limit_raises_transport_error(mock_server: MockServer) -> None:
+    mock_server.scenarios.append({"status": 200, "body": "0123456789"})
+    config = TransportConfig(max_retries=0, max_response_bytes=5)
+
+    with (
+        HttpTransport(config) as transport,
+        pytest.raises(TransportError, match="max_response_bytes"),
+    ):
+        _ = transport.request("GET", f"{mock_server.base_url}/too-large")
+
+    assert mock_server.hit_count == 1
+
+
+def test_streamed_body_over_limit_raises_transport_error(mock_server: MockServer) -> None:
+    mock_server.scenarios.append({"status": 200, "body": "0123456789", "omit_content_length": True})
+    config = TransportConfig(max_retries=0, max_response_bytes=5)
+
+    with (
+        HttpTransport(config) as transport,
+        pytest.raises(TransportError, match="max_response_bytes"),
+    ):
+        _ = transport.request("GET", f"{mock_server.base_url}/stream-too-large")
 
     assert mock_server.hit_count == 1
 

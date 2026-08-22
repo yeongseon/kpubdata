@@ -37,6 +37,7 @@ _SENSITIVE_PARAM_KEYS = {
     "password",
     "key",
 }
+_DEFAULT_MAX_RESPONSE_BYTES = 50 * 1024 * 1024
 
 
 @dataclass
@@ -51,6 +52,7 @@ class TransportConfig:
     ssl_context: ssl.SSLContext | None = None
     cache: ResponseCache | None = None
     cache_ttl_seconds: int = 86400
+    max_response_bytes: int | None = _DEFAULT_MAX_RESPONSE_BYTES
 
 
 @dataclass(frozen=True)
@@ -96,6 +98,7 @@ class HttpTransport:
                 headers=_merge_headers(config.headers, requirements.headers),
                 cache=config.cache,
                 cache_ttl_seconds=config.cache_ttl_seconds,
+                max_response_bytes=config.max_response_bytes,
             ),
             requirements=requirements,
         )
@@ -201,6 +204,9 @@ class HttpTransport:
         if self._config.retry_backoff_factor < 0:
             msg = "retry_backoff_factor must be >= 0"
             raise ValueError(msg)
+        if self._config.max_response_bytes is not None and self._config.max_response_bytes < 1:
+            msg = "max_response_bytes must be >= 1 or None"
+            raise ValueError(msg)
 
         total_attempts = self._config.max_retries + 1
         # 메서드/URL/헤더 조합이 안전할 때만 캐시 키를 만들고 GET 응답을 재사용한다.
@@ -255,7 +261,7 @@ class HttpTransport:
                         },
                     )
 
-                response = self.client.request(
+                request = self.client.build_request(
                     method=method,
                     url=url,
                     params=params,
@@ -263,7 +269,18 @@ class HttpTransport:
                     content=content,
                     json=json_body,
                 )
-                _ = response.raise_for_status()
+                response = self.client.send(request, stream=True)
+                try:
+                    _ = response.raise_for_status()
+                    response = _read_limited_response(
+                        response,
+                        max_response_bytes=self._config.max_response_bytes,
+                        method=method,
+                        url=log_url,
+                    )
+                except Exception:
+                    response.close()
+                    raise
 
                 logger.debug(
                     "HTTP request success",
@@ -399,6 +416,49 @@ class HttpTransport:
 def _is_retryable_status(status_code: int) -> bool:
     """HTTP 상태 코드가 재시도 대상인지 반환한다."""
     return status_code == 429 or 500 <= status_code <= 599
+
+
+def _read_limited_response(
+    response: httpx.Response,
+    *,
+    max_response_bytes: int | None,
+    method: str,
+    url: str,
+) -> httpx.Response:
+    """응답 본문을 크기 제한 안에서 읽은 뒤 content-loaded Response로 반환한다."""
+    if max_response_bytes is not None:
+        content_length = response.headers.get("Content-Length")
+        if content_length is not None and _content_length_exceeds(
+            content_length, max_response_bytes
+        ):
+            raise TransportError(
+                f"Response body exceeded max_response_bytes={max_response_bytes}: {method} {url}"
+            )
+
+    body = bytearray()
+    for chunk in response.iter_bytes():
+        body.extend(chunk)
+        if max_response_bytes is not None and len(body) > max_response_bytes:
+            raise TransportError(
+                f"Response body exceeded max_response_bytes={max_response_bytes}: {method} {url}"
+            )
+
+    return httpx.Response(
+        status_code=response.status_code,
+        headers=response.headers,
+        content=bytes(body),
+        request=response.request,
+        extensions=response.extensions,
+        history=response.history,
+    )
+
+
+def _content_length_exceeds(content_length: str, max_response_bytes: int) -> bool:
+    """유효한 Content-Length가 제한보다 큰지 반환한다."""
+    try:
+        return int(content_length) > max_response_bytes
+    except ValueError:
+        return False
 
 
 def _request_context(*, dataset_id: str | None, provider: str | None) -> dict[str, str]:
