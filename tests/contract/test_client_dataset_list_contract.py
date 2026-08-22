@@ -54,7 +54,7 @@ class TestClientDatasetListContract:
     3. keyword parameter가 adapter 계층까지 전달되는지
     """
 
-    @patch("httpx.Client.request")
+    @patch("httpx.Client.send")
     def test_list_returns_record_batch(self, mock_request: Mock) -> None:
         """
         dataset.list()가 RecordBatch 객체를 반환하는지 검증한다.
@@ -68,7 +68,7 @@ class TestClientDatasetListContract:
         assert isinstance(batch, RecordBatch)
         assert batch.dataset is not None
 
-    @patch("httpx.Client.request")
+    @patch("httpx.Client.send")
     def test_list_items_attribute_exists(self, mock_request: Mock) -> None:
         """
         Client.dataset(key).list(**params).items 속성이 존재하는지 검증한다.
@@ -82,7 +82,7 @@ class TestClientDatasetListContract:
         assert hasattr(batch, "items")
         assert batch.items is not None
 
-    @patch("httpx.Client.request")
+    @patch("httpx.Client.send")
     def test_list_items_is_iterable(self, mock_request: Mock) -> None:
         """
         items 속성이 반복 가능한지 검증한다.
@@ -99,7 +99,7 @@ class TestClientDatasetListContract:
 
         assert item_count > 0
 
-    @patch("httpx.Client.request")
+    @patch("httpx.Client.send")
     def test_list_items_are_dicts(self, mock_request: Mock) -> None:
         """
         items의 각 항목이 dict 형태인지 검증한다.
@@ -113,7 +113,7 @@ class TestClientDatasetListContract:
         for item in batch.items:
             assert isinstance(item, dict), f"Expected dict, got {type(item)}"
 
-    @patch("httpx.Client.request")
+    @patch("httpx.Client.send")
     def test_list_items_with_filter_parameters(self, mock_request: Mock) -> None:
         """
         keyword filter parameter가 transport 계층까지 전달되는지 검증한다.
@@ -138,9 +138,10 @@ class TestClientDatasetListContract:
         call_args = mock_request.call_args
         assert call_args is not None
 
-        # httpx.request의 params 인자를 추출
-        params = call_args.kwargs.get("params")
-        assert params is not None, "HTTP 요청에 params가 전달되지 않음"
+        # 스트리밍 send 경로(#271)에서는 params가 빌드된 Request URL에 병합된다.
+        request_obj = call_args.args[0] if call_args.args else None
+        assert request_obj is not None, "HTTP 요청이 전달되지 않음"
+        params = dict(request_obj.url.params)
 
         # DataGo adapter는 canonical 'page'를 'pageNo'로 변환
         assert "pageNo" in params, "pageNo 파라미터가 요청에 없음"
@@ -150,7 +151,7 @@ class TestClientDatasetListContract:
         assert "numOfRows" in params, "numOfRows 파라미터가 요청에 없음"
         assert params["numOfRows"] == "10", "numOfRows 값이 10이어야 함"
 
-    @patch("httpx.Client.request")
+    @patch("httpx.Client.send")
     def test_list_items_with_empty_result(self, mock_request: Mock) -> None:
         """
         빈 결과에서도 items 계약이 지켜지는지 검증한다.
@@ -165,7 +166,7 @@ class TestClientDatasetListContract:
         assert isinstance(batch.items, list)
         assert len(batch.items) == 0
 
-    @patch("httpx.Client.request")
+    @patch("httpx.Client.send")
     def test_list_items_representative_dataset_contract(self, mock_request: Mock) -> None:
         """
         대표 dataset에서 items 속성이 일관되게 동작하는지 검증한다.
