@@ -107,14 +107,20 @@ class ProviderRegistry:
         )
 
     def get(self, name: str) -> ProviderAdapter:
-        """Provider 이름으로 어댑터를 가져온다."""
+        """Provider 이름으로 어댑터를 가져온다.
+
+        lazy 항목은 락 안에서 ``pop``하지 않고 ``get``으로 확인만 한다(#262) —
+        pop 후 락 밖 재료화 동안 다른 스레드가 조회하면 아직 ``_adapters``에
+        없어 오발생하는 race와, factory 실패 시 항목이 영구 소실되는 문제를
+        함께 막는다. 동시 재료화는 멱등하다(첫 승자가 정본).
+        """
         normalized_name = name.strip().lower()
         with self._lock:
             adapter = self._adapters.get(normalized_name)
             if adapter is not None:
                 return adapter
 
-            factory = self._lazy.pop(normalized_name, None)
+            factory = self._lazy.get(normalized_name)
 
         if factory is None:
             logger.debug("Provider lookup failed", extra={"provider": normalized_name})
@@ -134,15 +140,18 @@ class ProviderRegistry:
             )
 
         with self._lock:
-            self._adapters[normalized_name] = lazy_adapter
+            winner = self._adapters.setdefault(normalized_name, lazy_adapter)
+            if winner is lazy_adapter:
+                self._lazy.pop(normalized_name, None)
         logger.debug(
             "Materialized lazy provider adapter",
             extra={
                 "provider": normalized_name,
-                "adapter_type": type(lazy_adapter).__name__,
+                "adapter_type": type(winner).__name__,
             },
         )
-        return lazy_adapter
+        # 동시 재료화 시 첫 승자 인스턴스를 모든 스레드가 공유한다(#262).
+        return winner
 
     def __contains__(self, name: str) -> bool:
         """어댑터가 eager 또는 lazy로 등록되어 있으면 True를 반환한다."""

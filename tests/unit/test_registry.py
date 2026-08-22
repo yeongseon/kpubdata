@@ -406,3 +406,72 @@ class TestCapabilityContractValidation:
             reg.register(second)
         # capability 검증이 이름 충돌 검사 뒤에 일어났다면 list_datasets는 호출되지 않아야 한다.
         assert call_count["n"] == 0
+
+
+class TestLazyConcurrency:
+    """lazy 재료화의 동시성·내구성 (#262)."""
+
+    def test_concurrent_get_materializes_once_and_all_succeed(self) -> None:
+        """동시 get() 전원이 같은 인스턴스를 받는다 — 재료화 경합 중 오발생 없음."""
+        import threading
+
+        registry = ProviderRegistry()
+        calls = []
+        lock = threading.Lock()
+
+        def factory():
+            with lock:
+                calls.append(1)
+            # 재료화 비용을 흉내낸다 — 다른 스레드가 이 사이에 get()한다.
+            import time
+
+            time.sleep(0.01)
+            return FakeAdapter("lazy-race")
+
+        registry.register_lazy("lazy-race", factory)
+
+        results: list[object] = []
+        errors: list[BaseException] = []
+
+        def worker():
+            try:
+                results.append(registry.get("lazy-race"))
+            except BaseException as exc:  # noqa: BLE001 - 테스트 수집용
+                errors.append(exc)
+
+        barrier = threading.Barrier(8)
+
+        def racer():
+            barrier.wait()
+            worker()
+
+        threads = [threading.Thread(target=racer) for _ in range(8)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        assert errors == []
+        assert len(results) == 8
+        assert all(result is results[0] for result in results)
+        # 두 번째 get은 이미 재료화된 eager 항목을 반환한다.
+        assert registry.get("lazy-race") is results[0]
+
+    def test_failed_factory_keeps_lazy_entry_retryable(self) -> None:
+        """factory 실패로 항목이 소실되지 않는다 — 재시도 가능(#262 내구성)."""
+        registry = ProviderRegistry()
+        attempts = []
+
+        def flaky_factory():
+            attempts.append(1)
+            if len(attempts) == 1:
+                raise RuntimeError("transient factory failure")
+            return FakeAdapter("flaky")
+
+        registry.register_lazy("flaky", flaky_factory)
+
+        with pytest.raises(RuntimeError):
+            _ = registry.get("flaky")
+
+        recovered = registry.get("flaky")
+        assert recovered.name == "flaky"
