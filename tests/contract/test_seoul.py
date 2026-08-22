@@ -546,3 +546,29 @@ class TestSeoulParkInfoContract(ProviderAdapterContract):
             구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
         """
         return ("GetParkInfo", {"page_no": 1, "page_size": 5})
+
+
+class TestSeoulParkUsageContract(ProviderAdapterContract):
+    @pytest.fixture()
+    def adapter(self) -> ProviderAdapter:
+        return _build_adapter(["park_usage.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "park_usage"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: ProviderAdapter) -> DatasetRef:
+        return adapter.get_dataset("park_usage")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query()
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("SearchParkInfoService", {"page_no": 1, "page_size": 5})

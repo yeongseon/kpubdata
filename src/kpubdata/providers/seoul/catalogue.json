@@ -66,6 +66,18 @@
     "operations": ["list", "raw"],
     "query_support": {"pagination": "index", "max_page_size": 1000},
     "required_path_params": []
+  },
+  {
+    "dataset_key": "park_usage",
+    "name": "서울시 공원 정보 (Park Usage Info)",
+    "base_url": "http://openapi.seoul.go.kr:8088",
+    "default_operation": "SearchParkInfoService",
+    "representation": "api_json",
+    "description": "Seoul public park location, area, and facility information",
+    "tags": ["park", "public", "facility"],
+    "source_url": "https://data.seoul.go.kr/",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "index", "max_page_size": 1000},
+    "required_path_params": []
   }
 ]
-

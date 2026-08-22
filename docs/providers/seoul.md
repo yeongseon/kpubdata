@@ -72,6 +72,14 @@ http://openapi.seoul.go.kr:8088/{KEY}/json/tbCycleStationInfo/{START_INDEX}/{END
 - envelope 키: `stationInfo` (서비스명 `tbCycleStationInfo`와 다름)
 - 필수 경로 파라미터 없음
 
+#### 5) 서울시 공원 정보
+
+```text
+http://openapi.seoul.go.kr:8088/{KEY}/json/SearchParkInfoService/{START_INDEX}/{END_INDEX}
+```
+
+- 필수 경로 파라미터 없음
+
 ## 지원 데이터셋
 
 ### 1. `subway_realtime_arrival`
@@ -99,6 +107,12 @@ http://openapi.seoul.go.kr:8088/{KEY}/json/tbCycleStationInfo/{START_INDEX}/{END
 - envelope 키: `stationInfo`
 - 필수 경로 파라미터: 없음
 - 설명: 따릉이 대여소 마스터 정보 (위치, 거치대 수 등)
+
+### 5. `park_usage`
+
+- 서비스명: `SearchParkInfoService`
+- 필수 경로 파라미터: 없음
+- 설명: 서울시 공원 위치, 면적, 시설 정보
 
 ## 에러 코드 매핑
 
@@ -189,12 +203,24 @@ for item in result.items:
     print(item["RENT_ID_NM"], item["STA_ADD1"])
 ```
 
+### 서울시 공원 정보 `list()`
+
+```python
+ds = client.dataset("seoul.park_usage")
+
+result = ds.list(page_size=10)
+
+for item in result.items:
+    print(item["P_PARK"], item["P_ADDR"])
+```
+
 ## 참고
 
 - `list()`는 한 번에 한 페이지만 반환하며, 다음 페이지가 있으면 `RecordBatch.next_page`가 채워집니다.
 - 서울 오픈 API의 서비스명과 경로 파라미터 이름은 Provider 고유 의미론이므로 그대로 유지합니다.
 - 일부 서울 오픈 API는 응답 envelope 키가 서비스명과 다릅니다 (예: `bikeList` → `rentBikeStatus`). KPubData는 catalogue의 `envelope_key` 메타데이터로 이를 처리합니다.
 - 실API 검증 완료: `subway_realtime_arrival`, `bike_rent_month`, `bike_realtime`, `bike_station_master` (2026-05-05)
+- 테스트 검증 완료: `park_info`, `park_usage`
 
 
 > 데이터셋 게시(Publishing) 및 HuggingFace/Kaggle 업로드는 [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder)에서 관리합니다.

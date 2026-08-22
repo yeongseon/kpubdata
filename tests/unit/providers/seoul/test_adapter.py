@@ -477,3 +477,25 @@ def test_query_records_parses_park_info_response() -> None:
     assert len(batch.items) == 1
     assert batch.items[0]["PARKING_NAME"] == "샘플 공영주차장"
     assert batch.total_count == 1
+
+
+def test_query_records_builds_park_usage_url() -> None:
+    adapter, transport = _build_adapter([FakeResponse(_load_fixture("park_usage.json"))])
+    dataset = adapter.get_dataset("park_usage")
+
+    _ = adapter.query_records(dataset, Query(page_size=10))
+
+    assert transport.calls[0]["url"] == (
+        "http://openapi.seoul.go.kr:8088/test-seoul-key/json/SearchParkInfoService/1/10"
+    )
+
+
+def test_query_records_parses_park_usage_response() -> None:
+    adapter, _ = _build_adapter([FakeResponse(_load_fixture("park_usage.json"))])
+    dataset = adapter.get_dataset("park_usage")
+
+    batch = adapter.query_records(dataset, Query(page=1, page_size=10))
+
+    assert len(batch.items) == 1
+    assert batch.items[0]["P_PARK"] == "샘플 공원"
+    assert batch.total_count == 1
