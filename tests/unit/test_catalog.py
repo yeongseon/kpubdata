@@ -1177,3 +1177,115 @@ class TestIndexedScorerHelpers:
         score = _score_indexed(query, _tokenize(query), item)
         assert score == pytest.approx(_TOKEN_OVERLAP_CEIL)
         assert score < 1.0
+
+
+class TestSearchIndexCache:
+    """catalog.search의 인덱스 재사용 (#279)."""
+
+    def test_repeated_searches_reuse_built_index(self, monkeypatch) -> None:
+        """동일 카탈로그 구성에서는 _build_index가 한 번만 실행된다."""
+        import kpubdata.catalog as catalog_module
+
+        calls: list[int] = []
+        original = catalog_module._build_index
+
+        def counting_build(datasets):
+            calls.append(1)
+            return original(datasets)
+
+        monkeypatch.setattr(catalog_module, "_build_index", counting_build)
+
+        catalog = None
+        if catalog is None:
+            from kpubdata.registry import ProviderRegistry
+
+            class _StubAdapter:
+                def __init__(self) -> None:
+                    self.datasets = [
+                        _make_ref("cached", "alpha", "캐시 검증용"),
+                        _make_ref("cached", "beta", "두번째 항목"),
+                    ]
+
+                @property
+                def name(self) -> str:
+                    return "stub"
+
+                def list_datasets(self):
+                    return self.datasets
+
+                def search_datasets(self, *args, **kwargs):  # pragma: no cover
+                    return self.datasets
+
+                def get_dataset(self, *args, **kwargs):  # pragma: no cover
+                    raise KeyError(args)
+
+                def query_records(self, *args, **kwargs):  # pragma: no cover
+                    raise NotImplementedError
+
+                def get_schema(self, *args, **kwargs):  # pragma: no cover
+                    return None
+
+                def call_raw(self, *args, **kwargs):  # pragma: no cover
+                    raise NotImplementedError
+
+            registry = ProviderRegistry()
+            registry.register(_StubAdapter(), validate_capabilities=False)
+            catalog = catalog_module.Catalog(registry)
+
+        first = catalog.search("캐시")
+        second = catalog.search("캐시")
+        third = catalog.search("두번째")
+
+        assert first and second and third
+        assert len(calls) == 1
+
+    def test_registry_change_rebuilds_index(self, monkeypatch) -> None:
+        """카탈로그 구성이 바뀌면 인덱스가 재구성된다(캐시 무효화)."""
+        import kpubdata.catalog as catalog_module
+
+        calls: list[int] = []
+        original = catalog_module._build_index
+
+        def counting_build(datasets):
+            calls.append(1)
+            return original(datasets)
+
+        monkeypatch.setattr(catalog_module, "_build_index", counting_build)
+
+        from kpubdata.registry import ProviderRegistry
+
+        class _StubAdapter:
+            def __init__(self, suffix: str) -> None:
+                self._suffix = suffix
+
+            @property
+            def name(self) -> str:
+                return f"stub{self._suffix}"
+
+            def list_datasets(self):
+                return [_make_ref(f"set{self._suffix}", "one", f"항목 {self._suffix}")]
+
+            def search_datasets(self, *args, **kwargs):  # pragma: no cover
+                return self.list_datasets()
+
+            def get_dataset(self, *args, **kwargs):  # pragma: no cover
+                raise KeyError(args)
+
+            def query_records(self, *args, **kwargs):  # pragma: no cover
+                raise NotImplementedError
+
+            def get_schema(self, *args, **kwargs):  # pragma: no cover
+                return None
+
+            def call_raw(self, *args, **kwargs):  # pragma: no cover
+                raise NotImplementedError
+
+        registry = ProviderRegistry()
+        registry.register(_StubAdapter("a"), validate_capabilities=False)
+        catalog = catalog_module.Catalog(registry)
+        assert catalog.search("항목")
+
+        registry.register(_StubAdapter("b"), validate_capabilities=False)
+        assert catalog.search("항목")
+
+        assert len(calls) == 2

@@ -161,6 +161,26 @@ class Catalog:
         """제공자 레지스트리에 연결된 카탈로그를 초기화한다."""
 
         self._registry = registry
+        # 검색 인덱스 단일 항목 캐시(#279): key는 (provider, dataset id 튜플)이며
+        # 카탈로그 구성이 바뀌면 key가 달라져 자동으로 재구성된다.
+        self._index_cache_key: tuple[str | None, tuple[str, ...]] | None = None
+        self._index_cache: builtins.list[_IndexedItem] = []
+
+    def _cached_index(
+        self, provider: str | None, candidates: builtins.list[DatasetRef]
+    ) -> builtins.list[_IndexedItem]:
+        """검색 인덱스를 재사용한다 (#279).
+
+        후보 id 목록이 같으면 이전 호출에서 만든 인덱스(NFC 정규화·토큰화 포함)를
+        그대로 쓴다 — 카탈로그는 프로세스 내에서 catalogue.json 기반으로 결정적이므로
+        id 집합이 인덱스 내용을 식별하기에 충분하다. registry/provider 구성이 바뀌면
+        key가 달라져 즉시 재구성된다.
+        """
+        key = (provider, tuple(dataset.id for dataset in candidates))
+        if key != self._index_cache_key:
+            self._index_cache = _build_index(candidates)
+            self._index_cache_key = key
+        return self._index_cache
 
     def list(self, *, provider: str | None = None) -> builtins.list[DatasetRef]:
         """탐색 가능한 데이터셋을 반환하며, 필요하면 Provider로 필터링한다.
@@ -210,7 +230,7 @@ class Catalog:
             extra={"text": text, "provider_filter": provider, "threshold": threshold},
         )
         candidates = self.list(provider=provider)
-        index = _build_index(candidates)
+        index = self._cached_index(provider, candidates)
 
         needle_normalized = _normalize(text)
         needle_tokens = frozenset(_TOKEN_RE.findall(needle_normalized))
