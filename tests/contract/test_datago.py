@@ -928,3 +928,59 @@ def test_mid_sea_fcst_dataset_contract_query_and_raw() -> None:
     assert len(batch.items) == 1
     assert all(isinstance(item, dict) for item in batch.items)
     assert raw is not None
+
+
+class TestDataGoBondPriceContract(ProviderAdapterContract):
+    """채권시세정보 계약 (#163)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_bond_price.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "bond_price"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("bond_price")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"basDt": "20260102"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getBondPriceInfo", {"basDt": "20260102", "page": 1, "page_size": 5})
+
+
+class TestDataGoSportsFacilityContract(ProviderAdapterContract):
+    """전국체육시설 정보 계약 (#166)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_sports_facility.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "sports_facility"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("sports_facility")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"sidoNm": "경기도"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("TODZ_API_SFMS_FACI", {"sidoNm": "경기도", "page": 1, "page_size": 5})

@@ -1,0 +1,39 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "faciNm": "부천종합운동장",
+            "faciDvsnNm": "공공체육시설",
+            "indutyNm": "종합운동장",
+            "faciTyNm": "체육관",
+            "sidoNm": "경기도",
+            "sggNm": "부천시",
+            "rnAdres": "경기도 부천시 원미구 길주로 300",
+            "zipNo": "14647",
+            "ownerOrgNm": "부천시시설관리공단"
+          },
+          {
+            "faciNm": "미포수영장",
+            "faciDvsnNm": "공공체육시설",
+            "indutyNm": "수영장",
+            "faciTyNm": "수영장",
+            "sidoNm": "부산광역시",
+            "sggNm": "해운대구",
+            "rnAdres": "부산광역시 해운대구 미포로 25",
+            "zipNo": "48095",
+            "ownerOrgNm": "부산광역시시설관리공단"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
