@@ -192,6 +192,7 @@ class HttpTransport:
         json_body: object = None,
         dataset_id: str | None = None,
         provider: str | None = None,
+        secret_values: tuple[str, ...] = (),
     ) -> httpx.Response:
         """재시도 로직과 함께 HTTP 요청을 실행한다.
 
@@ -218,7 +219,9 @@ class HttpTransport:
         request_context = _request_context(dataset_id=dataset_id, provider=provider)
         # 로그/예외에는 API 키가 query parameter로 포함될 수 있는 원본 URL 대신
         # 민감 파라미터를 가린 URL만 사용한다.
-        log_url = _mask_url(url)
+        # 경로 세그먼트에 실제 값으로 키를 싣는 Provider(seoul 등)를 위해
+        # 어댑터가 secret 값을 넘겨줄 수 있다(#354) — 값 기반 치환이라 휴리스틱이 없다.
+        log_url = _mask_url(url, secret_values=secret_values)
         # 마스킹이 실제로 적용된 경우 원본 httpx 예외를 __cause__에 남기면
         # 예외 체인(traceback/에러 트래커)을 통해 민감 URL이 새어나갈 수 있으므로
         # 예외 체이닝을 끊는다. 마스킹이 없는 경우 디버깅 편의를 위해 체인을 유지한다.
@@ -505,21 +508,32 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
     return sanitized
 
 
-def _mask_url(url: str) -> str:
-    """민감한 query parameter 값을 가린 로그/예외용 URL 문자열을 만든다.
+def _mask_url(url: str, *, secret_values: tuple[str, ...] = ()) -> str:
+    """민감한 값을 가린 로그/예외용 URL 문자열을 만든다.
 
     API 키 등이 query parameter로 전달되는 Provider(datago 등)의 경우,
     URL 자체를 로그나 예외 메시지에 그대로 포함하면 키가 노출된다.
     민감한 키가 없으면 원본 URL을 그대로 돌려주고, 있을 때만 마스킹된 URL을
     재구성한다. 파싱할 수 없는 URL은 키 노출을 막기 위해 ``"[invalid url]"``로
     대체한다.
+
+    ``secret_values``에는 경로 세그먼트에 실제 값으로 싣는 Provider(seoul 등)의
+    키 원문을 넘긴다(#354) — 경로 세그먼트 중 값이 정확히 일치하는 것만
+    ``[REDACTED]``로 치환한다(값 기반이라 서비스명·페이지 인덱스를 오인하지
+    않는다). query 마스킹과 달리 비밀 값 자체를 아는 호출자만 사용할 수 있다.
     """
     try:
         parts = urlsplit(url)
     except ValueError:
         return "[invalid url]"
+    if secret_values and parts.path:
+        segments = parts.path.split("/")
+        masked_segments = [
+            "[REDACTED]" if segment in secret_values else segment for segment in segments
+        ]
+        parts = parts._replace(path="/".join(masked_segments))
     if not parts.query:
-        return url
+        return urlunsplit(parts) if secret_values else url
 
     query_items = parse_qsl(parts.query, keep_blank_values=True)
     masked_items = [

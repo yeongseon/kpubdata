@@ -15,6 +15,7 @@ import httpx
 import pytest
 
 import kpubdata.transport.http as http_module
+from kpubdata.core.models import Query
 from kpubdata.exceptions import TransportError, TransportTimeoutError
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
@@ -458,3 +459,74 @@ def test_exception_chain_preserved_when_url_not_masked() -> None:
         _ = transport.request("GET", plain_url)
 
     assert isinstance(excinfo.value.__cause__, httpx.HTTPStatusError)
+
+
+class TestPathSegmentSecretMasking:
+    """URL 경로에 실제 값으로 실리는 키의 마스킹 (#354)."""
+
+    def test_path_segment_matching_secret_is_redacted(self) -> None:
+        """seoul 형상 URL의 경로 키 세그먼트가 [REDACTED]로 치환된다."""
+        from kpubdata.transport.http import _mask_url
+
+        url = "http://openapi.seoul.go.kr:8088/SECRET-KEY-123/json/SearchParkInfoService/1/10"
+        masked = _mask_url(url, secret_values=("SECRET-KEY-123",))
+
+        assert "SECRET-KEY-123" not in masked
+        assert "[REDACTED]" in masked
+        # 서비스명·인덱스는 값이 다르므로 오인 치환되지 않는다.
+        assert "SearchParkInfoService" in masked
+        assert masked.endswith("/1/10")
+
+    def test_transport_logs_never_contain_path_key(self, caplog) -> None:
+        """transport 로그(success/debug)에 경로 키 원문이 남지 않는다."""
+        transport = HttpTransport(TransportConfig(max_retries=0))
+        response = httpx.Response(
+            200,
+            text='{"ok": true}',
+            request=httpx.Request("GET", "http://openapi.seoul.go.kr:8088/REAL-KEY-9/json/x/1/5"),
+        )
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
+            caplog.at_level(logging.DEBUG, logger="kpubdata.transport"),
+        ):
+            transport.request(
+                "GET",
+                "http://openapi.seoul.go.kr:8088/REAL-KEY-9/json/x/1/5",
+                secret_values=("REAL-KEY-9",),
+            )
+
+        for record in caplog.records:
+            assert "REAL-KEY-9" not in record.getMessage()
+
+    def test_seoul_adapter_passes_its_key_as_secret_value(self, monkeypatch) -> None:
+        """seoul adapter가 transport 호출에 실제 키를 secret_values로 넘긴다."""
+        import json as json_module
+
+        from kpubdata.config import KPubDataConfig
+        from kpubdata.providers.seoul.adapter import SeoulAdapter
+
+        captured: dict[str, object] = {}
+
+        def fake_request(method, url, **kwargs):
+            captured.update(kwargs)
+            return httpx.Response(
+                200,
+                text=json_module.dumps(
+                    {
+                        "SearchParkInfoService": {
+                            "list_total_count": 1,
+                            "RESULT": {"CODE": "INFO-000"},
+                            "row": [{}],
+                        }
+                    }
+                ),
+                request=httpx.Request("GET", url),
+            )
+
+        adapter = SeoulAdapter(config=KPubDataConfig(provider_keys={"seoul": "SEOUL-SECRET-42"}))
+        monkeypatch.setattr(adapter._transport, "request", fake_request)
+
+        dataset = adapter.get_dataset("park_usage")
+        _ = adapter.query_records(dataset, Query(page_size=5))
+
+        assert captured.get("secret_values") == ("SEOUL-SECRET-42",)
