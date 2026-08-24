@@ -984,3 +984,115 @@ class TestDataGoSportsFacilityContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("TODZ_API_SFMS_FACI", {"sidoNm": "경기도", "page": 1, "page_size": 5})
+
+
+class TestDataGoWorknetWantedContract(ProviderAdapterContract):
+    """워크넷 채용정보 계약 (#161)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_worknet_wanted.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "worknet_wanted"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("worknet_wanted")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"sido": "서울"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getWantedList", {"sido": "서울", "page": 1, "page_size": 5})
+
+
+class TestDataGoBizStatusContract(ProviderAdapterContract):
+    """사업자등록 상태조회 계약 (#91)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_biz_status.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "biz_status"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("biz_status")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"b_no": "1234567890"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getStanBizRegInfo", {"b_no": "1234567890", "page": 1, "page_size": 5})
+
+
+class TestDataGoCultureFacilityContract(ProviderAdapterContract):
+    """문화시설조회 계약 (#167)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_culture_facility.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "culture_facility"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("culture_facility")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"faciCl": "공연장"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("cultureartspaces/performingplace", {"page": 1, "page_size": 5})
+
+
+class TestDataGoDisasterMessageContract(ProviderAdapterContract):
+    """긴급재난문자 계약 (#162)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_disaster_message.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "disaster_message"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("disaster_message")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"RCPTN_RGN_NM": "서울"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("zp_202300001_list", {"page": 1, "page_size": 5})
