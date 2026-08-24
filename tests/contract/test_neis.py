@@ -73,3 +73,31 @@ class TestNeisMealDietContract(ProviderAdapterContract):
             "mealServiceDietInfo",
             {"ATPT_OFCDC_SC_CODE": "B10", "SD_SCHUL_CODE": "7021108", "pIndex": 1, "pSize": 5},
         )
+
+
+class TestNeisSchoolInfoContract(ProviderAdapterContract):
+    """학교기본정보 계약 (#218)."""
+
+    @pytest.fixture()
+    def adapter(self) -> ProviderAdapter:
+        return _build_adapter(["school_info.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "school_info"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: ProviderAdapter) -> DatasetRef:
+        return adapter.get_dataset("school_info")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"ATPT_OFCDC_SC_CODE": "B10"}, page_size=10)
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("schoolInfo", {"ATPT_OFCDC_SC_CODE": "B10", "pIndex": 1, "pSize": 5})

@@ -6,20 +6,136 @@
     "default_operation": "mealServiceDietInfo",
     "representation": "api_json",
     "description": "Per-school daily meal menu with origin info, calories, and nutrition",
-    "tags": ["education", "school", "meal", "neis"],
+    "tags": [
+      "education",
+      "school",
+      "meal",
+      "neis"
+    ],
     "source_url": "https://www.data.go.kr/data/15139198/openapi.do",
-    "operations": ["list", "raw"],
-    "query_support": {"pagination": "offset", "max_page_size": 100},
-    "required_query_filters": ["ATPT_OFCDC_SC_CODE", "SD_SCHUL_CODE"],
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 100
+    },
+    "required_query_filters": [
+      "ATPT_OFCDC_SC_CODE",
+      "SD_SCHUL_CODE"
+    ],
     "fields": [
-      {"name": "ATPT_OFCDC_SC_CODE", "title": "시도교육청코드", "type": "string"},
-      {"name": "SD_SCHUL_CODE", "title": "표준학교코드", "type": "string"},
-      {"name": "MLSV_YMD", "title": "급식일자(YYYYMMDD)", "type": "string"},
-      {"name": "MMEAL_SC_NM", "title": "식사코드명(조식/중식/석식)", "type": "string"},
-      {"name": "DDISH_NM", "title": "요리명", "type": "string"},
-      {"name": "ORPLC_INFO", "title": "원산지정보", "type": "string"},
-      {"name": "CAL_INFO", "title": "칼로리정보", "type": "string"},
-      {"name": "NTR_INFO", "title": "영양정보", "type": "string"}
+      {
+        "name": "ATPT_OFCDC_SC_CODE",
+        "title": "시도교육청코드",
+        "type": "string"
+      },
+      {
+        "name": "SD_SCHUL_CODE",
+        "title": "표준학교코드",
+        "type": "string"
+      },
+      {
+        "name": "MLSV_YMD",
+        "title": "급식일자(YYYYMMDD)",
+        "type": "string"
+      },
+      {
+        "name": "MMEAL_SC_NM",
+        "title": "식사코드명(조식/중식/석식)",
+        "type": "string"
+      },
+      {
+        "name": "DDISH_NM",
+        "title": "요리명",
+        "type": "string"
+      },
+      {
+        "name": "ORPLC_INFO",
+        "title": "원산지정보",
+        "type": "string"
+      },
+      {
+        "name": "CAL_INFO",
+        "title": "칼로리정보",
+        "type": "string"
+      },
+      {
+        "name": "NTR_INFO",
+        "title": "영양정보",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "dataset_key": "school_info",
+    "name": "교육부 학교알리미 학교기본정보 (NEIS School Info)",
+    "base_url": "https://open.neis.go.kr/hub",
+    "default_operation": "schoolInfo",
+    "representation": "api_json",
+    "description": "School master data (name, address, type, founding date, staff/student counts)",
+    "tags": [
+      "education",
+      "school",
+      "neis"
+    ],
+    "source_url": "https://open.neis.go.kr/portal/data/servicePage.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 100
+    },
+    "required_query_filters": [],
+    "fields": [
+      {
+        "name": "ATPT_OFCDC_SC_CODE",
+        "title": "시도교육청코드",
+        "type": "string"
+      },
+      {
+        "name": "ATPT_OFCDC_SC_NM",
+        "title": "시도교육청명",
+        "type": "string"
+      },
+      {
+        "name": "SD_SCHUL_CODE",
+        "title": "표준학교코드",
+        "type": "string"
+      },
+      {
+        "name": "SCHUL_NM",
+        "title": "학교명",
+        "type": "string"
+      },
+      {
+        "name": "ENG_SCHUL_NM",
+        "title": "영문학교명",
+        "type": "string"
+      },
+      {
+        "name": "SCHUL_KND_SC_NM",
+        "title": "학교종류",
+        "type": "string"
+      },
+      {
+        "name": "ORG_RDNMA",
+        "title": "도로명주소",
+        "type": "string"
+      },
+      {
+        "name": "ORG_TELNO",
+        "title": "전화번호",
+        "type": "string"
+      },
+      {
+        "name": "HMPG_ADRES",
+        "title": "홈페이지주소",
+        "type": "string"
+      }
     ]
   }
 ]
