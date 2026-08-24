@@ -1,0 +1,41 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "basDt": "20260102",
+            "isinCd": "KR103502BC54",
+            "itmsNm": "국고채권 3년",
+            "mrktCtg": "국채전문유통시장",
+            "clpr": "10,120.00",
+            "mkp": "10,100.00",
+            "hipr": "10,130.00",
+            "lopr": "10,090.00",
+            "trqu": "15,000",
+            "yply": "2.950"
+          },
+          {
+            "basDt": "20260102",
+            "isinCd": "KR7005960004",
+            "itmsNm": "지역난방공사 34-1",
+            "mrktCtg": "일반채권시장",
+            "clpr": "9,850.00",
+            "mkp": "9,840.00",
+            "hipr": "9,870.00",
+            "lopr": "9,830.00",
+            "trqu": "3,200",
+            "yply": "3.120"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

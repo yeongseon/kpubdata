@@ -1712,3 +1712,52 @@ def test_fixture_mid_sea_fcst_call_raw_returns_full_envelope() -> None:
     assert isinstance(response, dict)
     assert "header" in response
     assert "body" in response
+
+
+# test fixture bond price parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_bond_price_parses() -> None:
+    """채권시세정보 fixture가 표준 엔벨로프로 정규화된다 (#163)."""
+    adapter, dataset = _build_real_estate_adapter("success_bond_price.json", "bond_price")
+
+    batch = adapter.query_records(dataset, Query(filters={"basDt": "20260102"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["itmsNm"] == "국고채권 3년"
+    assert "clpr" in batch.items[0]
+    assert "yply" in batch.items[0]
+    assert batch.total_count == 2
+
+
+# test fixture bond price call raw returns full envelope 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_bond_price_call_raw_returns_full_envelope() -> None:
+    """call_raw가 채권시세 전체 엔벨로프를 그대로 반환한다 (#163)."""
+    adapter, dataset = _build_real_estate_adapter("success_bond_price.json", "bond_price")
+    expected = load_json_fixture("success_bond_price.json")
+
+    payload = adapter.call_raw(dataset, "getBondPriceInfo", {"basDt": "20260102"})
+
+    assert payload == expected
+
+
+# test fixture sports facility parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_sports_facility_parses() -> None:
+    """전국체육시설 fixture가 표준 엔벨로프로 정규화된다 (#166)."""
+    adapter, dataset = _build_real_estate_adapter("success_sports_facility.json", "sports_facility")
+
+    batch = adapter.query_records(dataset, Query(filters={"sidoNm": "경기도"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["faciNm"] == "부천종합운동장"
+    assert "indutyNm" in batch.items[0]
+    assert batch.total_count == 2
+
+
+# test fixture sports facility call raw returns full envelope 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_sports_facility_call_raw_returns_full_envelope() -> None:
+    """call_raw가 체육시설 전체 엔벨로프를 그대로 반환한다 (#166)."""
+    adapter, dataset = _build_real_estate_adapter("success_sports_facility.json", "sports_facility")
+    expected = load_json_fixture("success_sports_facility.json")
+
+    payload = adapter.call_raw(dataset, "TODZ_API_SFMS_FACI", {"sidoNm": "경기도"})
+
+    assert payload == expected

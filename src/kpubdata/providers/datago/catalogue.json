@@ -1036,5 +1036,53 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "bond_price",
+    "name": "금융위원회 채권시세정보 (Bond Price)",
+    "base_url": "http://apis.data.go.kr/1160100/service/GetBondSecuritiesInfoService",
+    "default_operation": "getBondPriceInfo",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "Korea Exchange bond market prices (government/general/small-lot bonds)",
+    "tags": [
+      "finance",
+      "bond",
+      "fsc"
+    ],
+    "source_url": "https://www.data.go.kr/data/15094784/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "sports_facility",
+    "name": "전국체육시설 정보 (National Sports Facility)",
+    "base_url": "http://apis.data.go.kr/B551014/SRVC_API_SFMS_FACI",
+    "default_operation": "TODZ_API_SFMS_FACI",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "KSPO-managed national sports facility registry (name, type, address, owner)",
+    "tags": [
+      "sports",
+      "facility",
+      "kspo"
+    ],
+    "source_url": "https://www.data.go.kr/data/15113986/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]
