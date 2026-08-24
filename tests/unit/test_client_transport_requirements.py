@@ -322,7 +322,7 @@ def test_builtin_provider_without_transport_requirements_uses_shared_transport(
     """
     _AdapterWithoutRequirements.instances.clear()
     monkeypatch.setattr(
-        "kpubdata.client._BUILTIN_PROVIDERS", (("dummy", "dummy.module", "DummyAdapter"),)
+        "kpubdata.bootstrap.BUILTIN_PROVIDERS", (("dummy", "dummy.module", "DummyAdapter"),)
     )
 
     with (
@@ -360,7 +360,7 @@ def test_builtin_provider_with_transport_requirements_builds_custom_transport(
     """
     _AdapterWithRequirements.instances.clear()
     monkeypatch.setattr(
-        "kpubdata.client._BUILTIN_PROVIDERS", (("dummy", "dummy.module", "DummyAdapter"),)
+        "kpubdata.bootstrap.BUILTIN_PROVIDERS", (("dummy", "dummy.module", "DummyAdapter"),)
     )
 
     with patch(
@@ -407,7 +407,7 @@ def test_custom_transport_inherits_cache_settings(
     """
     _AdapterWithRequirements.instances.clear()
     monkeypatch.setattr(
-        "kpubdata.client._BUILTIN_PROVIDERS", (("dummy", "dummy.module", "DummyAdapter"),)
+        "kpubdata.bootstrap.BUILTIN_PROVIDERS", (("dummy", "dummy.module", "DummyAdapter"),)
     )
     cache = ResponseCache(base_dir=tmp_path)
 
