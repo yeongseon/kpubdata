@@ -1,0 +1,25 @@
+[
+  {
+    "dataset_key": "meal_diet",
+    "name": "교육부 나이스 급식식단정보 (NEIS School Meal Diet)",
+    "base_url": "https://open.neis.go.kr/hub",
+    "default_operation": "mealServiceDietInfo",
+    "representation": "api_json",
+    "description": "Per-school daily meal menu with origin info, calories, and nutrition",
+    "tags": ["education", "school", "meal", "neis"],
+    "source_url": "https://www.data.go.kr/data/15139198/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "offset", "max_page_size": 100},
+    "required_query_filters": ["ATPT_OFCDC_SC_CODE", "SD_SCHUL_CODE"],
+    "fields": [
+      {"name": "ATPT_OFCDC_SC_CODE", "title": "시도교육청코드", "type": "string"},
+      {"name": "SD_SCHUL_CODE", "title": "표준학교코드", "type": "string"},
+      {"name": "MLSV_YMD", "title": "급식일자(YYYYMMDD)", "type": "string"},
+      {"name": "MMEAL_SC_NM", "title": "식사코드명(조식/중식/석식)", "type": "string"},
+      {"name": "DDISH_NM", "title": "요리명", "type": "string"},
+      {"name": "ORPLC_INFO", "title": "원산지정보", "type": "string"},
+      {"name": "CAL_INFO", "title": "칼로리정보", "type": "string"},
+      {"name": "NTR_INFO", "title": "영양정보", "type": "string"}
+    ]
+  }
+]
