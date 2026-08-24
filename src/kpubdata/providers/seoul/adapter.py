@@ -192,7 +192,15 @@ class SeoulAdapter:
 
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
         """request and decode과 관련된 값을 계산하거나 조회한다."""
-        response = self._transport.request("GET", url, dataset_id=dataset_id, provider="seoul")
+        # seoul은 API 키를 URL 경로 세그먼트로 싣는다(#354) — transport가 로그/예외
+        # URL에서 해당 값을 가릴 수 있게 실제 키 원문을 넘긴다.
+        response = self._transport.request(
+            "GET",
+            url,
+            dataset_id=dataset_id,
+            provider="seoul",
+            secret_values=(self._config.require_provider_key("seoul"),),
+        )
 
         try:
             decoded: object = decode_json(response.content)
