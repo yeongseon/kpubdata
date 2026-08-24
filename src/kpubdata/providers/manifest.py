@@ -23,4 +23,5 @@ BUILTIN_PROVIDERS: tuple[tuple[str, str, str], ...] = (
     ("krx", "kpubdata.providers.krx", "KrxAdapter"),
     ("sgis", "kpubdata.providers.sgis", "SgisAdapter"),
     ("neis", "kpubdata.providers.neis", "NeisAdapter"),
+    ("fds", "kpubdata.providers.fds", "FdsAdapter"),
 )
