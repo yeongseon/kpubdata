@@ -1124,3 +1124,62 @@ class TestDataGoEnvNoiseNetworkContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("getNoiseMeasureList", {"page": 1, "page_size": 5})
+
+
+class TestDataGoAirkoreaStationRealtimeContract(ProviderAdapterContract):
+    """에어코리아 측정소별 실시간 측정정보 계약 (#224)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_airkorea_station_realtime.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "airkorea_station_realtime"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("airkorea_station_realtime")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"stationName": "강남구"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return (
+            "getMsrstnAcctoRltmMesureDnsty",
+            {"stationName": "강남구", "page": 1, "page_size": 5},
+        )
+
+
+class TestDataGoAirkoreaForecastContract(ProviderAdapterContract):
+    """에어코리아 대기질 예보통보 계약 (#224)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_airkorea_forecast.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "airkorea_forecast"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("airkorea_forecast")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"informCode": "PM10"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getMinuDustFrcstDspth", {"informCode": "PM10", "page": 1, "page_size": 5})

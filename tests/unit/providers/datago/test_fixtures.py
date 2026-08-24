@@ -1844,3 +1844,32 @@ def test_fixture_env_noise_network_parses() -> None:
     assert len(batch.items) == 2
     assert batch.items[0]["dayAvgLeq"] == "63.2"
     assert batch.total_count == 2
+
+
+# test fixture airkorea station realtime parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_airkorea_station_realtime_parses() -> None:
+    """에어코리아 측정소별 실시간 fixture가 표준 엔벨로프로 정규화된다 (#224)."""
+    adapter, dataset = _build_real_estate_adapter(
+        "success_airkorea_station_realtime.json", "airkorea_station_realtime"
+    )
+
+    batch = adapter.query_records(dataset, Query(filters={"stationName": "강남구"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["pm10Value"] == "42"
+    assert batch.items[0]["khaiValue"] == "72"
+    assert batch.total_count == 2
+
+
+# test fixture airkorea forecast parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_airkorea_forecast_parses() -> None:
+    """에어코리아 예보통보 fixture가 표준 엔벨로프로 정규화된다 (#224)."""
+    adapter, dataset = _build_real_estate_adapter(
+        "success_airkorea_forecast.json", "airkorea_forecast"
+    )
+
+    batch = adapter.query_records(dataset, Query(filters={"informCode": "PM10"}))
+
+    assert len(batch.items) == 2
+    assert "informGrade" in batch.items[0]
+    assert batch.total_count == 2
