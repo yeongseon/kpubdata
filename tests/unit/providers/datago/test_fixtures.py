@@ -1830,3 +1830,17 @@ def test_fixture_disaster_message_parses() -> None:
     assert len(batch.items) == 2
     assert "지진" in str(batch.items[0]["MSG_CN"])
     assert batch.total_count == 2
+
+
+# test fixture env noise network parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_env_noise_network_parses() -> None:
+    """환경소음 측정망 fixture가 표준 엔벨로프로 정규화된다 (#168)."""
+    adapter, dataset = _build_real_estate_adapter(
+        "success_env_noise_network.json", "env_noise_network"
+    )
+
+    batch = adapter.query_records(dataset, Query(filters={"city": "서울"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["dayAvgLeq"] == "63.2"
+    assert batch.total_count == 2

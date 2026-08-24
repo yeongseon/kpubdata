@@ -1096,3 +1096,31 @@ class TestDataGoDisasterMessageContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("zp_202300001_list", {"page": 1, "page_size": 5})
+
+
+class TestDataGoEnvNoiseNetworkContract(ProviderAdapterContract):
+    """환경소음 측정망 정보 계약 (#168)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_env_noise_network.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "env_noise_network"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("env_noise_network")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"city": "서울"})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getNoiseMeasureList", {"page": 1, "page_size": 5})
