@@ -1084,5 +1084,77 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "worknet_wanted",
+    "name": "워크넷 채용정보 (Worknet Job Recruitment)",
+    "base_url": "http://apis.data.go.kr/1470000/WantedApi",
+    "default_operation": "getWantedList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "Korea Worknet job recruitment listings with keyword/region/salary filters",
+    "tags": [
+      "employment",
+      "recruitment",
+      "worknet"
+    ],
+    "source_url": "https://www.data.go.kr/data/3038225/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "biz_status",
+    "name": "사업자등록 상태조회 (Business Registration Status)",
+    "base_url": "http://apis.data.go.kr/1740000/StanBizRegInfo",
+    "default_operation": "getStanBizRegInfo",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "NTS business registration status (active/closed/suspended) lookup by b_no",
+    "tags": [
+      "tax",
+      "business",
+      "nts"
+    ],
+    "source_url": "https://www.data.go.kr",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
+  },
+  {
+    "dataset_key": "culture_facility",
+    "name": "한국문화정보원 문화시설조회 (Cultural Facilities)",
+    "base_url": "https://apis.data.go.kr/B553457/nopenapi/rest",
+    "default_operation": "cultureartspaces/performingplace",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "Cultural facility directory (performance halls, museums, galleries, libraries)",
+    "tags": [
+      "culture",
+      "facility",
+      "arts"
+    ],
+    "source_url": "https://www.data.go.kr/data/15138930/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]

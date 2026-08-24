@@ -1,0 +1,37 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "seq": "101",
+            "faciNm": "세종문화회관",
+            "faciCl": "공연장",
+            "addr": "서울특별시 종로구 세종대로 175",
+            "tel": "02-399-1114",
+            "operTime": "09:00-22:00",
+            "la": "37.5725",
+            "lo": "126.9760"
+          },
+          {
+            "seq": "102",
+            "faciNm": "국립중앙박물관",
+            "faciCl": "박물관",
+            "addr": "서울특별시 용산구 서빙고로 137",
+            "tel": "02-2077-9000",
+            "operTime": "10:00-18:00",
+            "la": "37.5241",
+            "lo": "126.9800"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

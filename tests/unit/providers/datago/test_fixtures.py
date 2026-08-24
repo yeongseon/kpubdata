@@ -1761,3 +1761,58 @@ def test_fixture_sports_facility_call_raw_returns_full_envelope() -> None:
     payload = adapter.call_raw(dataset, "TODZ_API_SFMS_FACI", {"sidoNm": "경기도"})
 
     assert payload == expected
+
+
+# test fixture worknet wanted parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_worknet_wanted_parses() -> None:
+    """워크넷 채용정보 fixture가 표준 엔벨로프로 정규화된다 (#161)."""
+    adapter, dataset = _build_real_estate_adapter("success_worknet_wanted.json", "worknet_wanted")
+
+    batch = adapter.query_records(dataset, Query(filters={"sido": "서울"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["company"] == "주식회사샘플"
+    assert "maxSal" in batch.items[0]
+    assert batch.total_count == 2
+
+
+# test fixture biz status parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_biz_status_parses() -> None:
+    """사업자등록 상태조회 fixture가 표준 엔벨로프로 정규화된다 (#91)."""
+    adapter, dataset = _build_real_estate_adapter("success_biz_status.json", "biz_status")
+
+    batch = adapter.query_records(dataset, Query(filters={"b_no": "1234567890"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["b_stt_cd"] == "계속사업자"
+    assert batch.total_count == 2
+
+
+# test fixture culture facility parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_culture_facility_parses() -> None:
+    """문화시설조회 fixture가 표준 엔벨로프로 정규화된다 (#167)."""
+    adapter, dataset = _build_real_estate_adapter(
+        "success_culture_facility.json", "culture_facility"
+    )
+
+    batch = adapter.query_records(dataset, Query(filters={"faciCl": "공연장"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["faciNm"] == "세종문화회관"
+    assert "la" in batch.items[0]
+    assert batch.total_count == 2
+
+
+# test fixture dataset call raw returns full envelope 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_new_datasets_call_raw_return_full_envelope() -> None:
+    """신규 3종 dataset의 call_raw가 전체 엔벨로프를 반환한다 (#161/#91/#167)."""
+    cases = [
+        ("success_worknet_wanted.json", "worknet_wanted", "getWantedList"),
+        ("success_biz_status.json", "biz_status", "getStanBizRegInfo"),
+        ("success_culture_facility.json", "culture_facility", "cultureartspaces/performingplace"),
+    ]
+    for fixture, key, operation in cases:
+        adapter, dataset = _build_real_estate_adapter(fixture, key)
+        expected = load_json_fixture(fixture)
+        payload = adapter.call_raw(dataset, operation, {})
+        assert payload == expected
