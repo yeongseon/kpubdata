@@ -1,0 +1,49 @@
+{
+  "mealServiceDietInfo": [
+    [
+      {
+        "head": [
+          {"list_total_count": 2},
+          {"RESULT": {"CODE": "INFO-000", "MESSAGE": "정상 처리되었습니다."}}
+        ]
+      }
+    ],
+    [
+      {
+        "head": [
+          {"list_total_count": 2},
+          {"pSize": 100},
+          {"pIndex": 1}
+        ],
+        "row": [
+          {
+            "ROW_NUM": "1",
+            "ATPT_OFCDC_SC_CODE": "B10",
+            "ATPT_OFCDC_SC_NM": "서울특별시교육청",
+            "SD_SCHUL_CODE": "7021108",
+            "SD_SCHUL_NM": "서울고등학교",
+            "MLSV_YMD": "20260401",
+            "MMEAL_SC_NM": "중식",
+            "DDISH_NM": "현미밥*70<br/>근대된장국*4.5<br/>돈육김치볶음*4<br/>오이생채*2.4<br/>배추김치*1",
+            "ORPLC_INFO": "쌀:국내산, 돼지고기:국내산",
+            "CAL_INFO": "812.4 Kcal",
+            "NTR_INFO": "탄수화물:118.3g, 단백질:28.5g, 지방:21.2g"
+          },
+          {
+            "ROW_NUM": "2",
+            "ATPT_OFCDC_SC_CODE": "B10",
+            "ATPT_OFCDC_SC_NM": "서울특별시교육청",
+            "SD_SCHUL_CODE": "7021108",
+            "SD_SCHUL_NM": "서울고등학교",
+            "MLSV_YMD": "20260401",
+            "MMEAL_SC_NM": "석식",
+            "DDISH_NM": "잡채밥*5<br/>어묵국*3<br/>마늘쫑볶음*2",
+            "ORPLC_INFO": "쌀:국내산",
+            "CAL_INFO": "690.1 Kcal",
+            "NTR_INFO": "탄수화물:98.1g, 단백질:22.0g, 지방:16.8g"
+          }
+        ]
+      }
+    ]
+  ]
+}
