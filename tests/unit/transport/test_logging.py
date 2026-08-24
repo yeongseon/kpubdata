@@ -266,19 +266,68 @@ def test_mask_url_redacts_sensitive_query_params() -> None:
     예시:
         테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
     """
-    mask_url = cast(Callable[[str], str], http_module._mask_url)
+    mask_url = cast(Callable[[str, tuple[str, ...]], str], http_module._mask_url)
 
     masked = mask_url(
-        "https://api.example.test/data?serviceKey=secret&SERVICE_KEY=other&query=station"
+        "https://api.example.test/data?serviceKey=secret&SERVICE_KEY=other&query=station",
+        sensitive_values=(),
     )
     assert masked == (
         "https://api.example.test/data?serviceKey=[REDACTED]&SERVICE_KEY=[REDACTED]&query=station"
     )
-    assert mask_url("https://api.example.test/data?query=station") == (
+    assert mask_url(
+        "https://api.example.test/data?query=station",
+        sensitive_values=()
+    ) == (
         "https://api.example.test/data?query=station"
     )
-    assert mask_url("https://api.example.test/data") == "https://api.example.test/data"
-    assert mask_url("https://[invalid") == "[invalid url]"
+    assert mask_url(
+        "https://api.example.test/data",
+        sensitive_values=()
+    ) == "https://api.example.test/data"
+    assert mask_url(
+        "https://[invalid",
+        sensitive_values=()
+    ) == "[invalid url]"
+
+
+# test mask url redacts sensitive path segments 테스트가 검증하는 시나리오를 설명한다(#354).
+def test_mask_url_redacts_sensitive_path_segments() -> None:
+    """
+    test mask url redacts sensitive path segments 시나리오를 검증한다(#354).
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예외:
+        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
+
+    예시:
+        Seoul API 키가 URL 경로에 포함된 경우 마스킹되는지 확인한다.
+    """
+    mask_url = cast(Callable[[str, tuple[str, ...]], str], http_module._mask_url)
+
+    # Seoul API 형태: http://openapi.seoul.go.kr:8088/{KEY}/json/{service}/...
+    api_key = "SECRET-KEY-123"
+    masked = mask_url(
+        f"http://openapi.seoul.go.kr:8088/{api_key}/json/SearchParkInfoService/1/10",
+        sensitive_values=(api_key,),
+    )
+    assert masked == "http://openapi.seoul.go.kr:8088/[REDACTED]/json/SearchParkInfoService/1/10"
+    
+    # 민감하지 않은 값은 마스킹되지 않음
+    not_masked = mask_url(
+        "http://openapi.seoul.go.kr:8088/public/json/SearchParkInfoService/1/10",
+        sensitive_values=(api_key,),
+    )
+    assert not_masked == "http://openapi.seoul.go.kr:8088/public/json/SearchParkInfoService/1/10"
+    
+    # 경로와 쿼리 모두 마스킹 가능
+    mixed_masked = mask_url(
+        f"http://api.example.test/{api_key}/data?serviceKey=other-secret",
+        sensitive_values=(api_key,),
+    )
+    assert mixed_masked == "http://api.example.test/[REDACTED]/data?serviceKey=[REDACTED]"
 
 
 # test exception message masks sensitive query params 테스트가 검증하는 시나리오를 설명한다.

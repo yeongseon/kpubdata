@@ -192,6 +192,7 @@ class HttpTransport:
         json_body: object = None,
         dataset_id: str | None = None,
         provider: str | None = None,
+        sensitive_values: tuple[str, ...] = (),
     ) -> httpx.Response:
         """재시도 로직과 함께 HTTP 요청을 실행한다.
 
@@ -216,9 +217,9 @@ class HttpTransport:
         # 메서드/URL/헤더 조합이 안전할 때만 캐시 키를 만들고 GET 응답을 재사용한다.
         cache_key = self._make_cache_key(method=method, url=url, params=params, headers=headers)
         request_context = _request_context(dataset_id=dataset_id, provider=provider)
-        # 로그/예외에는 API 키가 query parameter로 포함될 수 있는 원본 URL 대신
-        # 민감 파라미터를 가린 URL만 사용한다.
-        log_url = _mask_url(url)
+        # 로그/예외에는 API 키가 query parameter나 경로 세그먼트로 포함될 수 있는 원본 URL 대신
+        # 민감 파라미터를 가린 URL만 사용한다(#354).
+        log_url = _mask_url(url, sensitive_values=sensitive_values)
         # 마스킹이 실제로 적용된 경우 원본 httpx 예외를 __cause__에 남기면
         # 예외 체인(traceback/에러 트래커)을 통해 민감 URL이 새어나갈 수 있으므로
         # 예외 체이닝을 끊는다. 마스킹이 없는 경우 디버깅 편의를 위해 체인을 유지한다.
@@ -505,10 +506,10 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
     return sanitized
 
 
-def _mask_url(url: str) -> str:
-    """민감한 query parameter 값을 가린 로그/예외용 URL 문자열을 만든다.
+def _mask_url(url: str, *, sensitive_values: tuple[str, ...] = ()) -> str:
+    """민감한 query parameter 값과 경로 세그먼트 값을 가린 로그/예외용 URL 문자열을 만든다(#354).
 
-    API 키 등이 query parameter로 전달되는 Provider(datago 등)의 경우,
+    API 키 등이 query parameter나 경로 세그먼트로 전달되는 Provider(datago, seoul 등)의 경우,
     URL 자체를 로그나 예외 메시지에 그대로 포함하면 키가 노출된다.
     민감한 키가 없으면 원본 URL을 그대로 돌려주고, 있을 때만 마스킹된 URL을
     재구성한다. 파싱할 수 없는 URL은 키 노출을 막기 위해 ``"[invalid url]"``로
@@ -518,17 +519,35 @@ def _mask_url(url: str) -> str:
         parts = urlsplit(url)
     except ValueError:
         return "[invalid url]"
-    if not parts.query:
-        return url
 
-    query_items = parse_qsl(parts.query, keep_blank_values=True)
-    masked_items = [
-        (key, "[REDACTED]" if key.casefold() in _SENSITIVE_PARAM_KEYS else value)
-        for key, value in query_items
-    ]
-    if masked_items == query_items:
-        return url
-    return urlunsplit(parts._replace(query=urlencode(masked_items, safe="[]")))
+    original_url = url
+    masked = False
+
+    # 경로 세그먼트 마스킹(#354)
+    if sensitive_values and parts.path:
+        path_parts = parts.path.split("/")
+        masked_path_parts = [
+            "[REDACTED]" if part in sensitive_values else part
+            for part in path_parts
+        ]
+        if masked_path_parts != path_parts:
+            parts = parts._replace(path="/".join(masked_path_parts))
+            masked = True
+
+    # Query parameter 마스킹
+    if parts.query:
+        query_items = parse_qsl(parts.query, keep_blank_values=True)
+        masked_items = [
+            (key, "[REDACTED]" if key.casefold() in _SENSITIVE_PARAM_KEYS else value)
+            for key, value in query_items
+        ]
+        if masked_items != query_items:
+            parts = parts._replace(query=urlencode(masked_items, safe="[]"))
+            masked = True
+
+    if masked:
+        return urlunsplit(parts)
+    return original_url
 
 
 def _cache_headers_subset(headers: dict[str, str] | None) -> dict[str, str]:

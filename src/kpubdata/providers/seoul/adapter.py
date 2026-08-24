@@ -192,7 +192,10 @@ class SeoulAdapter:
 
     def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
         """request and decode과 관련된 값을 계산하거나 조회한다."""
-        response = self._transport.request("GET", url, dataset_id=dataset_id, provider="seoul")
+        api_key = self._require_api_key()
+        response = self._transport.request(
+            "GET", url, dataset_id=dataset_id, provider="seoul", sensitive_values=(api_key,)
+        )
 
         try:
             decoded: object = decode_json(response.content)
