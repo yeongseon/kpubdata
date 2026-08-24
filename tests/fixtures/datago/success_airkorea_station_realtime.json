@@ -1,0 +1,41 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "dataTime": "2026-04-01 09:00",
+            "stationName": "강남구",
+            "pm10Value": "42",
+            "pm25Value": "21",
+            "o3Value": "0.032",
+            "no2Value": "0.018",
+            "coValue": "0.5",
+            "so2Value": "0.004",
+            "khaiValue": "72",
+            "khaiGrade": "보통"
+          },
+          {
+            "dataTime": "2026-04-01 08:00",
+            "stationName": "강남구",
+            "pm10Value": "45",
+            "pm25Value": "23",
+            "o3Value": "0.030",
+            "no2Value": "0.020",
+            "coValue": "0.6",
+            "so2Value": "0.005",
+            "khaiValue": "75",
+            "khaiGrade": "보통"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

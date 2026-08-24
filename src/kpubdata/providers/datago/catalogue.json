@@ -1204,5 +1204,122 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "airkorea_station_realtime",
+    "name": "에어코리아 측정소별 실시간 측정정보 (AirKorea Station Realtime)",
+    "base_url": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
+    "default_operation": "getMsrstnAcctoRltmMesureDnsty",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "returnType",
+    "description": "Realtime air quality (PM10/PM2.5/O3/NO2/CO/SO2) per measuring station",
+    "tags": [
+      "environment",
+      "air-quality",
+      "airkorea",
+      "keco"
+    ],
+    "source_url": "https://www.data.go.kr/data/15073861/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "required_query_filters": [
+      "stationName"
+    ],
+    "fields": [
+      {
+        "name": "dataTime",
+        "title": "측정일시",
+        "type": "string"
+      },
+      {
+        "name": "stationName",
+        "title": "측정소명",
+        "type": "string"
+      },
+      {
+        "name": "pm10Value",
+        "title": "미세먼지(PM10) 농도",
+        "type": "string"
+      },
+      {
+        "name": "pm25Value",
+        "title": "초미세먼지(PM2.5) 농도",
+        "type": "string"
+      },
+      {
+        "name": "o3Value",
+        "title": "오존(O3) 농도",
+        "type": "string"
+      },
+      {
+        "name": "khaiValue",
+        "title": "통합대기환경지수(CAI)",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "dataset_key": "airkorea_forecast",
+    "name": "에어코리아 대기질 예보통보 (AirKorea Forecast)",
+    "base_url": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
+    "default_operation": "getMinuDustFrcstDspth",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "returnType",
+    "description": "Daily air quality forecast dispatch (PM10/PM25/O3) with regional grades",
+    "tags": [
+      "environment",
+      "air-quality",
+      "forecast",
+      "airkorea"
+    ],
+    "source_url": "https://www.data.go.kr/data/15073861/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {
+        "name": "dataTime",
+        "title": "통보시간",
+        "type": "string"
+      },
+      {
+        "name": "informCode",
+        "title": "통보코드(PM10/PM25/O3)",
+        "type": "string"
+      },
+      {
+        "name": "informOverall",
+        "title": "예보개황",
+        "type": "string"
+      },
+      {
+        "name": "informGrade",
+        "title": "지역별 예보등급",
+        "type": "string"
+      },
+      {
+        "name": "informCause",
+        "title": "발생원인",
+        "type": "string"
+      },
+      {
+        "name": "actionKnack",
+        "title": "행동요령",
+        "type": "string"
+      }
+    ]
   }
 ]
