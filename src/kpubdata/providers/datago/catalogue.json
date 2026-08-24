@@ -1180,5 +1180,29 @@
       "pagination": "offset",
       "max_page_size": 1000
     }
+  },
+  {
+    "dataset_key": "env_noise_network",
+    "name": "한국환경공단 환경소음 측정망 정보 (Environmental Noise Network)",
+    "base_url": "http://apis.data.go.kr/B552964/getNoiseMeasure",
+    "default_operation": "getNoiseMeasureList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "Quarterly environmental noise measurements (LEQ) by city and measuring point",
+    "tags": [
+      "environment",
+      "noise",
+      "keco"
+    ],
+    "source_url": "https://www.data.go.kr/data/15065396/fileData.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    }
   }
 ]

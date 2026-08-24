@@ -1,0 +1,39 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "mesureNo": "1",
+            "mesureNm": "도시대기",
+            "city": "서울",
+            "mesurePt": "강남구 논현동",
+            "region": "일반주거지역",
+            "mesureYear": "2024",
+            "quarter": "1분기",
+            "dayAvgLeq": "63.2",
+            "nightAvgLeq": "55.8"
+          },
+          {
+            "mesureNo": "2",
+            "mesureNm": "도시대기",
+            "city": "부산",
+            "mesurePt": "해운대구 반송동",
+            "region": "주거지역",
+            "mesureYear": "2024",
+            "quarter": "1분기",
+            "dayAvgLeq": "61.5",
+            "nightAvgLeq": "53.9"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
