@@ -4,24 +4,21 @@ from __future__ import annotations
 
 import logging
 import os
-from collections.abc import Callable
 from typing import cast
 
 from typing_extensions import override
 
+from kpubdata.bootstrap import register_builtin_providers
 from kpubdata.catalog import Catalog
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.dataset import Dataset
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.exceptions import ConfigError
-from kpubdata.providers.manifest import BUILTIN_PROVIDERS
 from kpubdata.registry import ProviderRegistry
 from kpubdata.transport.cache import ResponseCache
-from kpubdata.transport.http import HttpTransport, TransportConfig, TransportRequirements
+from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.client")
-
-_BUILTIN_PROVIDERS = BUILTIN_PROVIDERS
 
 
 class Client:
@@ -186,60 +183,14 @@ class Client:
         return tuple(providers)
 
     def _register_builtin_providers(self) -> None:
-        """내장 Provider 목록을 지연 로딩 팩토리로 레지스트리에 등록한다."""
-        config = self._config
-        transport = self._transport
-        transport_config = self._transport_config
-        provider_transports = self._provider_transports
-
-        for provider_name, module_path, class_name in _BUILTIN_PROVIDERS:
-            # 내장 Provider는 import 비용을 줄이기 위해 실제 사용 시점까지 지연 등록한다.
-
-            def _make_factory(
-                mod: str,
-                cls: str,
-                cfg: KPubDataConfig,
-                tpt: HttpTransport,
-                base_transport_config: TransportConfig,
-                owned_transports: list[HttpTransport],
-            ) -> Callable[[], ProviderAdapter]:
-                """Provider 모듈을 늦게 import하는 어댑터 생성 함수를 만든다."""
-
-                def _factory() -> ProviderAdapter:
-                    """Provider 클래스를 로드하고 필요하면 전용 HttpTransport를 붙여
-                    인스턴스를 만든다."""
-                    import importlib
-
-                    module = importlib.import_module(mod)
-                    adapter_cls = cast(Callable[..., ProviderAdapter], getattr(module, cls))
-                    adapter = adapter_cls(config=cfg, transport=tpt)
-                    requirements = _get_transport_requirements(adapter)
-                    # 전송 요구사항이 없으면 공용 HttpTransport를 그대로 재사용한다.
-                    if requirements is None:
-                        return adapter
-
-                    # Provider별 SSL/헤더 요구사항이 있으면 별도 HttpTransport를 만들어 붙인다.
-                    custom_transport = HttpTransport.with_requirements(
-                        base_transport_config,
-                        requirements,
-                    )
-                    owned_transports.append(custom_transport)
-                    return adapter_cls(config=cfg, transport=custom_transport)
-
-                return _factory
-
-            self._registry.register_lazy(
-                provider_name,
-                _make_factory(
-                    module_path,
-                    class_name,
-                    config,
-                    transport,
-                    transport_config,
-                    provider_transports,
-                ),
-                skip_if_exists=True,
-            )
+        """내장 Provider를 bootstrap 계층으로 등록한다 (#230)."""
+        register_builtin_providers(
+            self._registry,
+            config=self._config,
+            transport=self._transport,
+            transport_config=self._transport_config,
+            owned_transports=self._provider_transports,
+        )
 
     @override
     def __repr__(self) -> str:
@@ -252,14 +203,6 @@ __all__ = ["Client"]
 
 
 _UNSET = object()
-
-
-def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequirements | None:
-    """어댑터가 선언한 전송 요구사항을 읽어 반환한다."""
-    requirements = getattr(adapter, "transport_requirements", None)
-    if requirements is None:
-        return None
-    return cast(TransportRequirements | None, requirements)
 
 
 def _requires_api_key(adapter: ProviderAdapter) -> bool:
