@@ -1,0 +1,59 @@
+{
+  "schoolInfo": [
+    [
+      {
+        "head": [
+          {
+            "list_total_count": 2
+          },
+          {
+            "RESULT": {
+              "CODE": "INFO-000",
+              "MESSAGE": "정상 처리되었습니다."
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "head": [
+          {
+            "list_total_count": 2
+          },
+          {
+            "pSize": 100
+          },
+          {
+            "pIndex": 1
+          }
+        ],
+        "row": [
+          {
+            "ATPT_OFCDC_SC_CODE": "B10",
+            "ATPT_OFCDC_SC_NM": "서울특별시교육청",
+            "SD_SCHUL_CODE": "7010119",
+            "SCHUL_NM": "서울중학교",
+            "ENG_SCHUL_NM": "Seoul Middle School",
+            "SCHUL_KND_SC_NM": "중학교",
+            "ORG_RDNMA": "서울특별시 중구 만리재로 175",
+            "ORG_TELNO": "02-1234-5678",
+            "HMPG_ADRES": "http://seoulms.sen.go.kr"
+          },
+          {
+            "ATPT_OFCDC_SC_CODE": "B10",
+            "ATPT_OFCDC_SC_NM": "서울특별시교육청",
+            "SD_SCHUL_CODE": "7010085",
+            "SCHUL_NM": "서울고등학교",
+            "ENG_SCHUL_NM": "Seoul High School",
+            "SCHUL_KIND_SC_NM": "고등학교",
+            "SCHUL_KND_SC_NM": "고등학교",
+            "ORG_RDNMA": "서울특별시 서초구 효령로 197",
+            "ORG_TELNO": "02-2345-6789",
+            "HMPG_ADRES": "http://seoulhs.sen.go.kr"
+          }
+        ]
+      }
+    ]
+  ]
+}
