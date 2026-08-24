@@ -1,0 +1,20 @@
+{
+  "body": [
+    {
+      "PRDLST_REPORT_NO": "2026010001",
+      "PRMS_DT": "20260105",
+      "PRDLST_NM": "샘플우유 1L",
+      "BAR_CD": "8801234567890",
+      "POG_DAYCNT": "14",
+      "BSSH_NM": "주식회사 샘플유업"
+    },
+    {
+      "PRDLST_REPORT_NO": "2026010002",
+      "PRMS_DT": "20260110",
+      "PRDLST_NM": "샘플두부 300g",
+      "BAR_CD": "8801234567891",
+      "POG_DAYCNT": "10",
+      "BSSH_NM": "샘플식품"
+    }
+  ]
+}
