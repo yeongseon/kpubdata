@@ -1,0 +1,65 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE"
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "applicationNumber": "1020210012345",
+            "applicationDate": "2021-03-15",
+            "publicationNumber": "1020210067890",
+            "publicationDate": "2021-08-20",
+            "registrationNumber": "1020250012345",
+            "registrationDate": "2025-01-10",
+            "inventionTitle": "인공지능 기반 데이터 분석 시스템 및 방법",
+            "applicantName": "주식회사 테크코리아",
+            "inventorName": "김개발, 이코딩, 백엔드",
+            "abstract": "본 발명은 인공지능 기술을 활용하여 대량의 데이터를 효율적으로 분석하고 패턴을 추출하는 시스템 및 방법에 관한 것으로, 딥러닝 알고리즘을 사용하여 데이터의 특성을 자동으로 학습하고 예측 모델을 생성하여 데이터 분석의 정확도를 향상시킨다.",
+            "ipcCode": "G06N 3/00",
+            "applicationStatus": "등록",
+            "priorityClaim": "US 62/912345",
+            "priorityDate": "2020-10-01"
+          },
+          {
+            "applicationNumber": "1020210012346",
+            "applicationDate": "2021-04-10",
+            "publicationNumber": "1020210078901",
+            "publicationDate": "2021-09-25",
+            "registrationNumber": "",
+            "registrationDate": "",
+            "inventionTitle": "클라우드 기반 협업 플랫폼 시스템",
+            "applicantName": "클라우드솔루션 주식회사",
+            "inventorName": "최클라우드",
+            "abstract": "본 발명은 클라우드 환경에서 여러 사용자가 실시간으로 협업할 수 있는 플랫폼 시스템으로, 실시간 동기화 기술과 보안 기술을 결합하여 데이터의 일관성과 보안성을 동시에 확보한다.",
+            "ipcCode": "G06F 15/16",
+            "applicationStatus": "심사중",
+            "priorityClaim": "",
+            "priorityDate": ""
+          },
+          {
+            "applicationNumber": "1020210012347",
+            "applicationDate": "2021-05-05",
+            "publicationNumber": "1020210089012",
+            "publicationDate": "2021-10-30",
+            "registrationNumber": "1020260023456",
+            "registrationDate": "2026-02-15",
+            "inventionTitle": "IoT 기반 스마트 홈 관리 시스템",
+            "applicantName": "스마트홈 주식회사",
+            "inventorName": "정스마트, 백인터넷",
+            "abstract": "본 발명은 사물인터넷 기술을 활용하여 가정 내의 다양한 기기들을 통합 관리하는 시스템으로, 음성 인식, 센서 데이터 분석, 자동화 제어 기능을 통해 사용자의 편의성과 에너지 효율을 높인다.",
+            "ipcCode": "H04L 12/00",
+            "applicationStatus": "등록",
+            "priorityClaim": "JP 2020-123456",
+            "priorityDate": "2020-08-15"
+          }
+        ]
+      },
+      "numOfRows": 3,
+      "pageNo": 1,
+      "totalCount": 3
+    }
+  }
+}

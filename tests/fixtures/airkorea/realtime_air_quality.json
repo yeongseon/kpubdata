@@ -1,0 +1,91 @@
+{
+  "CtprvnRltmMesureDnsty": {
+    "list_total_count": 5,
+    "RESULT": {
+      "CODE": "INFO-000",
+      "MESSAGE": "정상 처리되었습니다"
+    },
+    "row": [
+      {
+        "dataTime": "2024-08-24 15:00",
+        "mangName": "서울",
+        "stationName": "중구",
+        "pm10Value": 45,
+        "pm25Value": 23,
+        "o3Value": 0.015,
+        "no2Value": 0.012,
+        "coValue": 0.5,
+        "so2Value": 0.003,
+        "pm10Grade": "1",
+        "pm25Grade": "1",
+        "o3Grade": "1",
+        "no2Grade": "1",
+        "khaiGrade": "1"
+      },
+      {
+        "dataTime": "2024-08-24 15:00",
+        "mangName": "서울",
+        "stationName": "강남구",
+        "pm10Value": 52,
+        "pm25Value": 28,
+        "o3Value": 0.018,
+        "no2Value": 0.014,
+        "coValue": 0.6,
+        "so2Value": 0.004,
+        "pm10Grade": "1",
+        "pm25Grade": "1",
+        "o3Grade": "1",
+        "no2Grade": "1",
+        "khaiGrade": "1"
+      },
+      {
+        "dataTime": "2024-08-24 15:00",
+        "mangName": "서울",
+        "stationName": "강동구",
+        "pm10Value": 38,
+        "pm25Value": 19,
+        "o3Value": 0.012,
+        "no2Value": 0.010,
+        "coValue": 0.4,
+        "so2Value": 0.002,
+        "pm10Grade": "1",
+        "pm25Grade": "1",
+        "o3Grade": "1",
+        "no2Grade": "1",
+        "khaiGrade": "1"
+      },
+      {
+        "dataTime": "2024-08-24 15:00",
+        "mangName": "서울",
+        "stationName": "강북구",
+        "pm10Value": 41,
+        "pm25Value": 21,
+        "o3Value": 0.014,
+        "no2Value": 0.011,
+        "coValue": 0.5,
+        "so2Value": 0.003,
+        "pm10Grade": "1",
+        "pm25Grade": "1",
+        "o3Grade": "1",
+        "no2Grade": "1",
+        "khaiGrade": "1"
+      },
+      {
+        "dataTime": "2024-08-24 15:00",
+        "mangName": "서울",
+        "stationName": "강서구",
+        "pm10Value": 48,
+        "pm25Value": 25,
+        "o3Value": 0.016,
+        "no2Value": 0.013,
+        "coValue": 0.5,
+        "so2Value": 0.003,
+        "pm10Grade": "1",
+        "pm25Grade": "1",
+        "o3Grade": "1",
+        "no2Grade": "1",
+        "khaiGrade": "1"
+      }
+    ]
+  }
+}
