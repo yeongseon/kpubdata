@@ -1,0 +1,32 @@
+{
+  "total": 3,
+  "item": [
+    {
+      "word": "한국어",
+      "definition": "한민족의 언어. 대한민국과 조선민주주의인민공화국의 공용어이다.",
+      "partOfSpeech": "명사",
+      "pronunciation": "한구거",
+      "homophone": "없음",
+      "origin": "本土語",
+      "example": "한국어를 배우는 것이 재미있다."
+    },
+    {
+      "word": "가을",
+      "definition": "봄, 여름, 가을, 겨울의 넷째 계절. 9월부터 11월까지의 시기.",
+      "partOfSpeech": "명사",
+      "pronunciation": "가을",
+      "homophone": "개울",
+      "origin": "固有語",
+      "example": "가을 하늘이 정말 맑다."
+    },
+    {
+      "word": "사랑",
+      "definition": "남을 소중히 여겨 아끼는 마음. 또는 그런 관계.",
+      "partOfSpeech": "명사",
+      "pronunciation": "사랑",
+      "homophone": "사량",
+      "origin": "固有語",
+      "example": "부모님의 사랑은 끝이 없다."
+    }
+  ]
+}

@@ -2,4 +2,6 @@
 
 from __future__ import annotations
 
-__all__: list[str] = []
+from kpubdata.providers.korean import KoreanAdapter
+
+__all__: list[str] = ["KoreanAdapter"]
