@@ -1263,3 +1263,59 @@ class TestDataGoAsosHourlyContract(ProviderAdapterContract):
                 "page_size": 5,
             },
         )
+
+
+class TestDataGoHiraHospitalContract(ProviderAdapterContract):
+    """HIRA 병원목록 계약 (#219)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_hira_hospital_list.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "hira_hospital_list"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("hira_hospital_list")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"Q0": "1", "Q1": "서울", "ORD": "NAME", "pageNo": 1, "numOfRows": 10})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getHsptlMdcncListInfoInqire", {"Q0": "1", "Q1": "서울", "ORD": "NAME"})
+
+
+class TestDataGoHiraPharmacyContract(ProviderAdapterContract):
+    """HIRA 약국목록 계약 (#219)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_hira_pharmacy_list.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "hira_pharmacy_list"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("hira_pharmacy_list")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"Q0": "1", "Q1": "서울", "ORD": "NAME", "pageNo": 1, "numOfRows": 10})
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getParmacyListInfoInqire", {"Q0": "1", "Q1": "서울", "ORD": "NAME"})
