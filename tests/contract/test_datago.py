@@ -1183,3 +1183,83 @@ class TestDataGoAirkoreaForecastContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("getMinuDustFrcstDspth", {"informCode": "PM10", "page": 1, "page_size": 5})
+
+
+class TestDataGoAsosDailyContract(ProviderAdapterContract):
+    """종관기상관측 일자료 계약 (#217)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_asos_daily.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "asos_daily"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("asos_daily")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(
+            filters={"stnIds": "108", "startDt": "20260331", "endDt": "20260401"},
+            page_size=10,
+        )
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return (
+            "getWthrDataList",
+            {
+                "stnIds": "108",
+                "startDt": "20260331",
+                "endDt": "20260401",
+                "page": 1,
+                "page_size": 5,
+            },
+        )
+
+
+class TestDataGoAsosHourlyContract(ProviderAdapterContract):
+    """종관기상관측 시간자료 계약 (#217)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_asos_hourly.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "asos_hourly"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("asos_hourly")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(
+            filters={"stnIds": "108", "startDt": "20260401", "endDt": "20260401"},
+            page_size=10,
+        )
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return (
+            "getWthrDataList",
+            {
+                "stnIds": "108",
+                "startDt": "20260401",
+                "endDt": "20260401",
+                "page": 1,
+                "page_size": 5,
+            },
+        )

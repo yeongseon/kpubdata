@@ -1873,3 +1873,52 @@ def test_fixture_airkorea_forecast_parses() -> None:
     assert len(batch.items) == 2
     assert "informGrade" in batch.items[0]
     assert batch.total_count == 2
+
+
+# test fixture asos daily parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_asos_daily_parses() -> None:
+    """종관기상관측 일자료 fixture가 표준 엔벨로프로 정규화된다 (#217)."""
+    adapter, dataset = _build_real_estate_adapter("success_asos_daily.json", "asos_daily")
+
+    batch = adapter.query_records(
+        dataset,
+        Query(filters={"stnIds": "108", "startDt": "20260331", "endDt": "20260401"}),
+    )
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["stnNm"] == "서울"
+    assert batch.items[0]["avgTa"] == "11.2"
+    assert "sumRn" in batch.items[0]
+    assert batch.total_count == 2
+
+
+# test fixture asos hourly parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_asos_hourly_parses() -> None:
+    """종관기상관측 시간자료 fixture가 표준 엔벨로프로 정규화된다 (#217)."""
+    adapter, dataset = _build_real_estate_adapter("success_asos_hourly.json", "asos_hourly")
+
+    batch = adapter.query_records(
+        dataset,
+        Query(filters={"stnIds": "108", "startDt": "20260401", "endDt": "20260401"}),
+    )
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["tm"] == "2026-04-01 09:00"
+    assert batch.total_count == 2
+
+
+# test fixture asos call raw returns full envelope 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_asos_call_raw_returns_full_envelope() -> None:
+    """ASOS dataset의 call_raw가 전체 엔벨로프를 반환한다 (#217)."""
+    for key, fixture in (
+        ("asos_daily", "success_asos_daily.json"),
+        ("asos_hourly", "success_asos_hourly.json"),
+    ):
+        adapter, dataset = _build_real_estate_adapter(fixture, key)
+        expected = load_json_fixture(fixture)
+        payload = adapter.call_raw(
+            dataset,
+            "getWthrDataList",
+            {"stnIds": "108", "startDt": "20260331", "endDt": "20260401"},
+        )
+        assert payload == expected
