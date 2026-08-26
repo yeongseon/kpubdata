@@ -1,0 +1,37 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "rnum": "1",
+            "ykiho": "PDH4tLR3fJVytH2hcavPcC==",
+            "yadmNm": "샘플약국",
+            "addr": "서울특별시 강남구 테헤란로 123",
+            "telno": "02-555-0102",
+            "sidoCdNm": "서울",
+            "sgguCdNm": "강남구",
+            "hpid": "A1234567"
+          },
+          {
+            "rnum": "2",
+            "ykiho": "PmM4tLR3fJVytH2hcavPcD==",
+            "yadmNm": "온새미로약국",
+            "addr": "대전광역시 유성구 대학로 99",
+            "telno": "042-555-0303",
+            "sidoCdNm": "대전",
+            "sgguCdNm": "유성구",
+            "hpid": "B7654321"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}

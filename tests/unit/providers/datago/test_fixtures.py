@@ -1922,3 +1922,32 @@ def test_fixture_asos_call_raw_returns_full_envelope() -> None:
             {"stnIds": "108", "startDt": "20260331", "endDt": "20260401"},
         )
         assert payload == expected
+
+
+# test fixture hira hospital list parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_hira_hospital_list_parses() -> None:
+    """HIRA 병원목록 fixture가 표준 엔벨로프로 정규화된다 (#219)."""
+    adapter, dataset = _build_real_estate_adapter(
+        "success_hira_hospital_list.json", "hira_hospital_list"
+    )
+
+    batch = adapter.query_records(dataset, Query(filters={"sidoCdNm": "서울"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["yadmNm"] == "샘플대학교병원"
+    assert batch.items[0]["clCdNm"] == "상급종합"
+    assert batch.total_count == 2
+
+
+# test fixture hira pharmacy list parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_hira_pharmacy_list_parses() -> None:
+    """HIRA 약국목록 fixture가 표준 엔벨로프로 정규화된다 (#219)."""
+    adapter, dataset = _build_real_estate_adapter(
+        "success_hira_pharmacy_list.json", "hira_pharmacy_list"
+    )
+
+    batch = adapter.query_records(dataset, Query(filters={"sidoCdNm": "서울"}))
+
+    assert len(batch.items) == 2
+    assert batch.items[0]["yadmNm"] == "샘플약국"
+    assert batch.total_count == 2

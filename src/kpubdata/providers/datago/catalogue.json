@@ -1471,5 +1471,132 @@
         "type": "string"
       }
     ]
+  },
+  {
+    "dataset_key": "hira_hospital_list",
+    "name": "건강보험심사평가원 병원목록정보 (HIRA Hospital List)",
+    "base_url": "http://apis.data.go.kr/B552658/getHsptlMdcncInfoInqire",
+    "default_operation": "getHsptlMdcncListInfoInqire",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "HIRA hospital directory (name, address, phone, class) by region",
+    "tags": [
+      "health",
+      "hospital",
+      "hira"
+    ],
+    "source_url": "https://www.data.go.kr/data/15001698/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {
+        "name": "ykiho",
+        "title": "암호화요양기호",
+        "type": "string"
+      },
+      {
+        "name": "yadmNm",
+        "title": "병원명",
+        "type": "string"
+      },
+      {
+        "name": "clCdNm",
+        "title": "종별코드명(상급종합/종합/병원/의원)",
+        "type": "string"
+      },
+      {
+        "name": "addr",
+        "title": "주소",
+        "type": "string"
+      },
+      {
+        "name": "telno",
+        "title": "전화번호",
+        "type": "string"
+      },
+      {
+        "name": "sidoCdNm",
+        "title": "시도명",
+        "type": "string"
+      },
+      {
+        "name": "sgguCdNm",
+        "title": "시군구명",
+        "type": "string"
+      },
+      {
+        "name": "estbDtm",
+        "title": "설립일자",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "dataset_key": "hira_pharmacy_list",
+    "name": "건강보험심사평가원 약국목록정보 (HIRA Pharmacy List)",
+    "base_url": "http://apis.data.go.kr/B552658/getParmacyInfoInqire",
+    "default_operation": "getParmacyListInfoInqire",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "HIRA pharmacy directory (name, address, phone, hours) by region",
+    "tags": [
+      "health",
+      "pharmacy",
+      "hira"
+    ],
+    "source_url": "https://www.data.go.kr/data/15001697/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {
+        "name": "ykiho",
+        "title": "암호화요양기호",
+        "type": "string"
+      },
+      {
+        "name": "yadmNm",
+        "title": "약국명",
+        "type": "string"
+      },
+      {
+        "name": "addr",
+        "title": "주소",
+        "type": "string"
+      },
+      {
+        "name": "telno",
+        "title": "전화번호",
+        "type": "string"
+      },
+      {
+        "name": "sidoCdNm",
+        "title": "시도명",
+        "type": "string"
+      },
+      {
+        "name": "sgguCdNm",
+        "title": "시군구명",
+        "type": "string"
+      },
+      {
+        "name": "hpid",
+        "title": "약국기호",
+        "type": "string"
+      }
+    ]
   }
 ]
