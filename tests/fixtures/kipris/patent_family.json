@@ -1,0 +1,31 @@
+{
+  "response": {
+    "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+    "body": {
+      "items": {
+        "item": [
+          {
+            "docdbFamilyID": "35462403",
+            "applicationCountryCode": "KR",
+            "applicationDate": "20050916",
+            "applicationNumber": "1020050082226",
+            "publicationCountryCode": "KR",
+            "publicationDate": "20070321",
+            "publicationNumber": "100724977"
+          },
+          {
+            "docdbFamilyID": "35462403",
+            "applicationCountryCode": "CN",
+            "applicationDate": "20051010",
+            "applicationNumber": "200510103162",
+            "publicationCountryCode": "CN",
+            "publicationDate": "20060322",
+            "publicationNumber": "1749772"
+          }
+        ]
+      },
+      "numOfRows": 100,
+      "pageNo": 1
+    }
+  }
+}

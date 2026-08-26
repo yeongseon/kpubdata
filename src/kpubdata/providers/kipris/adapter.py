@@ -1,0 +1,219 @@
+"""특허청(KIPI) 특허패밀리정보 open API 어댑터 (#223).
+
+kipo-api.kipi.or.kr의 patFamInfoSearchService는 data.go.kr 등록 REST 타입으로,
+공공데이터포털 serviceKey를 쓴다. 응답 형상::
+
+    {"response": {"header": {...}, "body": {"items": {"item": [...]}, ...}}}
+
+- ``_type=json``이면 표준 엔베프로프와 유사하나 totalCount 필드가 없다
+  (``numOfRows``/``pageNo``만 제공) — 페이지 계산은 항목 수 기반 폴백을 쓴다.
+- 필수 파라미터: ``applicationNumber``(국내 출원번호)
+"""
+
+from __future__ import annotations
+
+import logging
+from collections.abc import Mapping, Sequence
+from urllib.parse import urlencode
+
+from kpubdata.config import KPubDataConfig
+from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
+from kpubdata.exceptions import (
+    DatasetNotFoundError,
+    InvalidRequestError,
+    ProviderResponseError,
+)
+from kpubdata.providers._common import build_schema_from_metadata, load_catalogue
+from kpubdata.transport.decode import decode_json
+from kpubdata.transport.http import HttpTransport, TransportConfig
+
+logger = logging.getLogger("kpubdata.provider.kipris")
+
+_MAX_PAGE_SIZE = 100
+_CATALOGUE_PACKAGE = "kpubdata.providers.kipris"
+
+
+class KiprisAdapter:
+    """특허청 특허패밀리정보 검색 어댑터."""
+
+    requires_api_key: bool = True
+
+    def __init__(
+        self,
+        *,
+        config: KPubDataConfig | None = None,
+        transport: HttpTransport | None = None,
+        catalogue: Sequence[DatasetRef] | None = None,
+    ) -> None:
+        self._config: KPubDataConfig = config or KPubDataConfig()
+        transport_config = TransportConfig(
+            timeout=self._config.timeout,
+            max_retries=self._config.max_retries,
+        )
+        self._transport: HttpTransport = transport or HttpTransport(transport_config)
+        datasets = tuple(catalogue) if catalogue is not None else self._load_default_catalogue()
+        self._datasets: tuple[DatasetRef, ...] = datasets
+        self._datasets_by_key: dict[str, DatasetRef] = {
+            dataset.dataset_key: dataset for dataset in self._datasets
+        }
+
+    @property
+    def name(self) -> str:
+        return "kipris"
+
+    def list_datasets(self) -> list[DatasetRef]:
+        return list(self._datasets)
+
+    def search_datasets(self, text: str) -> list[DatasetRef]:
+        needle = text.casefold()
+        return [
+            dataset
+            for dataset in self._datasets
+            if needle in dataset.id.casefold() or needle in dataset.name.casefold()
+        ]
+
+    def get_dataset(self, dataset_key: str) -> DatasetRef:
+        dataset = self._datasets_by_key.get(dataset_key)
+        if dataset is not None:
+            return dataset
+        logger.debug("kipris dataset not found", extra={"dataset_key": dataset_key})
+        raise DatasetNotFoundError(
+            f"Dataset not found: kipris.{dataset_key}",
+            provider="kipris",
+            dataset_id=f"kipris.{dataset_key}",
+        )
+
+    def query_records(self, dataset: DatasetRef, query: Query) -> RecordBatch:
+        page = query.page or 1
+        page_size = min(query.page_size or _MAX_PAGE_SIZE, _MAX_PAGE_SIZE)
+
+        required = self._required_filters(dataset)
+        missing = [name for name in required if not str(query.filters.get(name, "")).strip()]
+        if missing:
+            raise InvalidRequestError(
+                f"kipris {dataset.dataset_key} queries require filter(s): {', '.join(missing)}",
+                provider="kipris",
+                dataset_id=dataset.id,
+            )
+
+        params: dict[str, str] = {
+            "serviceKey": self._require_api_key(),
+            "_type": "json",
+            "applicationNumber": str(query.filters["applicationNumber"]),
+        }
+
+        url = self._build_url(dataset, params)
+        payload = self._request_and_decode(url, dataset.id)
+        items = self._parse_kipris_envelope(payload, dataset.id)
+
+        # totalCount가 없어 full-page 폴백으로 다음 페이지를 판정한다.
+        next_page: int | None = None
+        if len(items) == page_size:
+            next_page = page + 1
+
+        return RecordBatch(
+            items=items,
+            dataset=dataset,
+            total_count=len(items) if items else None,
+            next_page=next_page,
+            raw=payload,
+        )
+
+    def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
+        return build_schema_from_metadata(dataset)
+
+    def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
+        logger.debug(
+            "kipris call_raw",
+            extra={"dataset_id": dataset.id, "operation": operation, "param_keys": sorted(params)},
+        )
+        service = operation or str(dataset.raw_metadata.get("default_operation", ""))
+        if not service:
+            raise InvalidRequestError(
+                "kipris call_raw requires a non-empty operation",
+                provider="kipris",
+                dataset_id=dataset.id,
+            )
+        request_params: dict[str, str] = {
+            "serviceKey": self._require_api_key(),
+            "_type": "json",
+        }
+        for key, value in params.items():
+            if str(value).strip():
+                request_params[str(key)] = str(value)
+        url = self._build_url(dataset, request_params, service=service)
+        payload = self._request_and_decode(url, dataset.id)
+        _ = self._parse_kipris_envelope(payload, dataset.id)
+        return payload
+
+    def _require_api_key(self) -> str:
+        return self._config.require_provider_key("kipris")
+
+    def _required_filters(self, dataset: DatasetRef) -> tuple[str, ...]:
+        raw = dataset.raw_metadata.get("required_query_filters", [])
+        if isinstance(raw, (list, tuple)):
+            return tuple(str(item) for item in raw)
+        return ()
+
+    def _build_url(
+        self,
+        dataset: DatasetRef,
+        params: Mapping[str, str],
+        *,
+        service: str | None = None,
+    ) -> str:
+        base_url = str(dataset.raw_metadata.get("base_url", ""))
+        service_path = service or str(dataset.raw_metadata.get("default_operation", ""))
+        return f"{base_url.rstrip('/')}/{service_path}?{urlencode(params, safe='')}"
+
+    def _request_and_decode(self, url: str, dataset_id: str) -> dict[str, object]:
+        response = self._transport.request(
+            "GET",
+            url,
+            dataset_id=dataset_id,
+            provider="kipris",
+        )
+        decoded: object = decode_json(response.content)
+        if not isinstance(decoded, dict):
+            raise ProviderResponseError(
+                "kipris response is not a JSON object",
+                provider="kipris",
+                dataset_id=dataset_id,
+            )
+        return decoded
+
+    def _parse_kipris_envelope(
+        self, payload: Mapping[str, object], dataset_id: str
+    ) -> list[dict[str, object]]:
+        """KIPI 엔벨로프(response/body/items/item)에서 item 리스트를 추출한다."""
+        response = payload.get("response")
+        if not isinstance(response, dict):
+            raise ProviderResponseError(
+                "kipris response has no 'response' section",
+                provider="kipris",
+                dataset_id=dataset_id,
+            )
+        body = response.get("body")
+        if not isinstance(body, dict):
+            raise ProviderResponseError(
+                "kipris response has no 'body' section",
+                provider="kipris",
+                dataset_id=dataset_id,
+            )
+        items_raw = body.get("items")
+        if items_raw is None:
+            return []
+        # 단일 item도 객체로 내려올 수 있다 — 리스트로 정규화한다.
+        if isinstance(items_raw, dict):
+            items_raw = items_raw.get("item")
+        if isinstance(items_raw, dict):
+            items_raw = [items_raw]
+        if not isinstance(items_raw, list):
+            return []
+        return [item for item in items_raw if isinstance(item, dict)]
+
+    def _load_default_catalogue(self) -> tuple[DatasetRef, ...]:
+        return tuple(load_catalogue(_CATALOGUE_PACKAGE, "kipris"))
+
+
+__all__ = ["KiprisAdapter"]
