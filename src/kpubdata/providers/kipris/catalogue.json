@@ -1,0 +1,26 @@
+[
+  {
+    "dataset_key": "patent_family",
+    "name": "특허패밀리정보 검색 (Patent Family Search)",
+    "base_url": "http://kipo-api.kipi.or.kr/openapi/service/patFamInfoSearchService",
+    "default_operation": "getAppNoPatFamInfoSearch",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "_type",
+    "description": "DOCDB patent family members for a Korean application number",
+    "tags": ["patent", "kipris", "kipi", "family"],
+    "source_url": "https://www.data.go.kr/data/15002126/openapi.do",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "offset", "max_page_size": 100},
+    "required_query_filters": ["applicationNumber"],
+    "fields": [
+      {"name": "docdbFamilyID", "title": "DOCDB 패밀리 ID", "type": "string"},
+      {"name": "applicationCountryCode", "title": "DOCDB 출원국가코드", "type": "string"},
+      {"name": "applicationDate", "title": "DOCDB 출원일자", "type": "string"},
+      {"name": "applicationNumber", "title": "DOCDB 출원번호", "type": "string"},
+      {"name": "publicationCountryCode", "title": "DOCDB 공보국가코드", "type": "string"},
+      {"name": "publicationDate", "title": "DOCDB 공보일자", "type": "string"},
+      {"name": "publicationNumber", "title": "DOCDB 공보번호", "type": "string"}
+    ]
+  }
+]
