@@ -1598,5 +1598,57 @@
         "type": "string"
       }
     ]
+  },
+  {
+    "dataset_key": "nhis_population",
+    "name": "국민건강보험 시도별 연령별 성별 적용인구 (NHIS Population)",
+    "base_url": "http://apis.data.go.kr/B552424/HealthInsurancePopulationService",
+    "default_operation": "getPopulationList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "resultType",
+    "description": "NHIS year-end insured population by region (17 sido), sex, and 5-year age band",
+    "tags": [
+      "health",
+      "nhis",
+      "population",
+      "statistics"
+    ],
+    "source_url": "https://www.data.go.kr/data/3034271/fileData.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "fields": [
+      {
+        "name": "stdrYm",
+        "title": "기준년월",
+        "type": "string"
+      },
+      {
+        "name": "sidoNm",
+        "title": "시도명",
+        "type": "string"
+      },
+      {
+        "name": "sexDstnCd",
+        "title": "성별구분(1남/2여)",
+        "type": "string"
+      },
+      {
+        "name": "agrdeCd",
+        "title": "연령대(5세 구간)",
+        "type": "string"
+      },
+      {
+        "name": "aplyPpltnCo",
+        "title": "적용인구수",
+        "type": "string"
+      }
+    ]
   }
 ]

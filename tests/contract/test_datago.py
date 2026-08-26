@@ -1319,3 +1319,31 @@ class TestDataGoHiraPharmacyContract(ProviderAdapterContract):
     @pytest.fixture()
     def raw_operation(self) -> tuple[str, dict[str, object]]:
         return ("getParmacyListInfoInqire", {"Q0": "1", "Q1": "서울", "ORD": "NAME"})
+
+
+class TestDataGoNhisPopulationContract(ProviderAdapterContract):
+    """NHIS 시도별 적용인구 계약 (#220)."""
+
+    @pytest.fixture()
+    def adapter(self) -> DataGoAdapter:
+        return _build_adapter(["success_nhis_population.json"] * 5)
+
+    @pytest.fixture()
+    def valid_dataset_key(self) -> str:
+        return "nhis_population"
+
+    @pytest.fixture()
+    def invalid_dataset_key(self) -> str:
+        return "nonexistent_dataset_key_xyz"
+
+    @pytest.fixture()
+    def sample_dataset(self, adapter: DataGoAdapter) -> DatasetRef:
+        return adapter.get_dataset("nhis_population")
+
+    @pytest.fixture()
+    def sample_query(self) -> Query:
+        return Query(filters={"sidoNm": "서울"}, page_size=10)
+
+    @pytest.fixture()
+    def raw_operation(self) -> tuple[str, dict[str, object]]:
+        return ("getPopulationList", {"sidoNm": "서울", "page": 1, "page_size": 5})

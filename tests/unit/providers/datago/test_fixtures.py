@@ -1951,3 +1951,15 @@ def test_fixture_hira_pharmacy_list_parses() -> None:
     assert len(batch.items) == 2
     assert batch.items[0]["yadmNm"] == "샘플약국"
     assert batch.total_count == 2
+
+
+# test fixture nhis population parses 테스트가 검증하는 시나리오를 설명한다.
+def test_fixture_nhis_population_parses() -> None:
+    """NHIS 적용인구 fixture가 표준 엔벨로프로 정규화된다 (#220)."""
+    adapter, dataset = _build_real_estate_adapter("success_nhis_population.json", "nhis_population")
+
+    batch = adapter.query_records(dataset, Query(filters={"sidoNm": "서울"}))
+
+    assert len(batch.items) == 3
+    assert batch.items[0]["aplyPpltnCo"] == "358412"
+    assert batch.total_count == 3
