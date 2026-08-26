@@ -1321,5 +1321,155 @@
         "type": "string"
       }
     ]
+  },
+  {
+    "dataset_key": "asos_daily",
+    "name": "기상청 종관기상관측 일자료 (ASOS Daily)",
+    "base_url": "http://apis.data.go.kr/1360000/AsosDalyInfoService",
+    "default_operation": "getWthrDataList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "KMA ASOS daily surface observations (temperature, precipitation, wind, pressure, humidity)",
+    "tags": [
+      "weather",
+      "kma",
+      "asos",
+      "observation"
+    ],
+    "source_url": "https://www.data.go.kr/data/15059093/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "required_query_filters": [
+      "stnIds",
+      "startDt",
+      "endDt"
+    ],
+    "fields": [
+      {
+        "name": "stnId",
+        "title": "지점번호",
+        "type": "string"
+      },
+      {
+        "name": "stnNm",
+        "title": "지점명",
+        "type": "string"
+      },
+      {
+        "name": "tm",
+        "title": "일시(YYYY-MM-DD)",
+        "type": "string"
+      },
+      {
+        "name": "avgTa",
+        "title": "평균기온(°C)",
+        "type": "string"
+      },
+      {
+        "name": "minTa",
+        "title": "최저기온(°C)",
+        "type": "string"
+      },
+      {
+        "name": "maxTa",
+        "title": "최고기온(°C)",
+        "type": "string"
+      },
+      {
+        "name": "sumRn",
+        "title": "일강수량(mm)",
+        "type": "string"
+      },
+      {
+        "name": "avgWs",
+        "title": "평균풍속(m/s)",
+        "type": "string"
+      },
+      {
+        "name": "avgRhm",
+        "title": "평균상대습도(%)",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "dataset_key": "asos_hourly",
+    "name": "기상청 종관기상관측 시간자료 (ASOS Hourly)",
+    "base_url": "http://apis.data.go.kr/1360000/AsosHourlyInfoService",
+    "default_operation": "getWthrDataList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "dataType",
+    "description": "KMA ASOS hourly surface observations (1-year max range per query)",
+    "tags": [
+      "weather",
+      "kma",
+      "asos",
+      "observation",
+      "hourly"
+    ],
+    "source_url": "https://www.data.go.kr/data/15057110/openapi.do",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "required_query_filters": [
+      "stnIds",
+      "startDt",
+      "endDt"
+    ],
+    "fields": [
+      {
+        "name": "stnId",
+        "title": "지점번호",
+        "type": "string"
+      },
+      {
+        "name": "stnNm",
+        "title": "지점명",
+        "type": "string"
+      },
+      {
+        "name": "tm",
+        "title": "일시(YYYY-MM-DD HH:MM)",
+        "type": "string"
+      },
+      {
+        "name": "ta",
+        "title": "기온(°C)",
+        "type": "string"
+      },
+      {
+        "name": "rn",
+        "title": "강수량(mm)",
+        "type": "string"
+      },
+      {
+        "name": "ws",
+        "title": "풍속(m/s)",
+        "type": "string"
+      },
+      {
+        "name": "hm",
+        "title": "습도(%)",
+        "type": "string"
+      },
+      {
+        "name": "pa",
+        "title": "현지기압(hPa)",
+        "type": "string"
+      }
+    ]
   }
 ]

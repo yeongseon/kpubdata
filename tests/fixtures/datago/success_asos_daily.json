@@ -1,0 +1,41 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "stnId": "108",
+            "stnNm": "서울",
+            "tm": "2026-03-31",
+            "avgTa": "11.2",
+            "minTa": "5.8",
+            "maxTa": "17.1",
+            "sumRn": "0.0",
+            "avgWs": "2.1",
+            "avgRhm": "52.3",
+            "avgPs": "1014.2"
+          },
+          {
+            "stnId": "108",
+            "stnNm": "서울",
+            "tm": "2026-04-01",
+            "avgTa": "12.8",
+            "minTa": "7.4",
+            "maxTa": "18.9",
+            "sumRn": "1.2",
+            "avgWs": "2.8",
+            "avgRhm": "58.1",
+            "avgPs": "1011.7"
+          }
+        ]
+      },
+      "numOfRows": 2,
+      "pageNo": 1,
+      "totalCount": 2
+    }
+  }
+}
