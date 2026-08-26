@@ -1,0 +1,47 @@
+{
+  "channel": {
+    "title": "표준국어대사전",
+    "link": "https://stdict.korean.go.kr",
+    "total": "2",
+    "start": "1",
+    "num": "10",
+    "item": [
+      {
+        "target_code": "123456001",
+        "word": "나무",
+        "link": "https://stdict.korean.go.kr/..." ,
+        "pronunciation": "[나무]",
+        "sense": [
+          {
+            "sense_order": "1",
+            "definition": "줄기와 가지가 목질로 되어 있고, 잎이 나며, 오래 살아 크게 자라는 식물.",
+            "pos": "명사",
+            "origin": "나모<몽유봉원(1449)>에서 변함.",
+            "cat": "식물"
+          },
+          {
+            "sense_order": "2",
+            "definition": "(속되게) 사람의 몸뚱이.",
+            "pos": "명사",
+            "origin": "",
+            "cat": ""
+          }
+        ]
+      },
+      {
+        "target_code": "123456002",
+        "word": "나무꾼",
+        "pronunciation": "[나무꾼]",
+        "sense": [
+          {
+            "sense_order": "1",
+            "definition": "나무를 베어서 장사하는 사람.",
+            "pos": "명사",
+            "origin": "",
+            "cat": ""
+          }
+        ]
+      }
+    ]
+  }
+}

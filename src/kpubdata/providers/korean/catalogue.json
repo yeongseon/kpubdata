@@ -1,0 +1,23 @@
+[
+  {
+    "dataset_key": "dict_search",
+    "name": "표준국어대사전 검색 (Standard Korean Dictionary Search)",
+    "base_url": "https://stdict.korean.go.kr/api",
+    "default_operation": "search.do",
+    "representation": "api_json",
+    "description": "Standard Korean Dictionary word search with definitions, word class, and origin",
+    "tags": ["korean", "dictionary", "language", "nikl"],
+    "source_url": "https://stdict.korean.go.kr/openapi/openApiInfo.do",
+    "operations": ["list", "raw"],
+    "query_support": {"pagination": "offset", "max_page_size": 100},
+    "required_query_filters": ["q"],
+    "fields": [
+      {"name": "target_code", "title": "표준국어대사전 어휘 코드", "type": "string"},
+      {"name": "word", "title": "표제어", "type": "string"},
+      {"name": "definition", "title": "뜻풀이", "type": "string"},
+      {"name": "pos", "title": "품사", "type": "string"},
+      {"name": "origin", "title": "어원", "type": "string"},
+      {"name": "cat", "title": "범주", "type": "string"}
+    ]
+  }
+]
