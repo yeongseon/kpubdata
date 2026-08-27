@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Mapping, Sequence
+from typing import cast
 from urllib.parse import quote
 
 from kpubdata.config import KPubDataConfig
@@ -92,7 +93,8 @@ class FdsAdapter:
 
         url = self._build_request_url(dataset, start_idx, end_idx, filters=query.filters)
         payload = self._request_and_decode(url, dataset.id)
-        items, total_count = self._parse_fds_envelope(payload, dataset.id)
+        service = str(dataset.raw_metadata.get("default_operation", ""))
+        items, total_count = self._parse_fds_envelope(payload, dataset.id, service)
 
         next_page: int | None = None
         if total_count and end_idx < total_count or not total_count and len(items) == page_size:
@@ -128,7 +130,7 @@ class FdsAdapter:
         }
         url = self._build_request_url(dataset, start_idx, end_idx, service=service, filters=filters)
         payload = self._request_and_decode(url, dataset.id)
-        _ = self._parse_fds_envelope(payload, dataset.id)
+        _ = self._parse_fds_envelope(payload, dataset.id, service)
         return payload
 
     def _require_api_key(self) -> str:
@@ -175,33 +177,60 @@ class FdsAdapter:
         return decoded
 
     def _parse_fds_envelope(
-        self, payload: Mapping[str, object], dataset_id: str
+        self, payload: Mapping[str, object], dataset_id: str, service: str | None = None
     ) -> tuple[list[dict[str, object]], int]:
         """FDS 응답에서 (items, total_count)를 추출한다.
 
-        FDS는 목록 최상위 키(예: \`body\`) 아래 리스트를 내려주고, 오류는
-        \`code\`/\`message\`로 알린다(\`"000"\` 정상, \`INFO-100\` 인증 오류).
+        실측 확인 형상(2026-08-26, 유효하지 않은 키로 호출): 최상위 키가 서비스명
+        (예: ``I1200``)이고 그 아래 ``RESULT.CODE``/``RESULT.MSG``와 목록이 온다.
+        ``"000"`` 정상, ``INFO-100`` 인증 오류. 성공 형상의 목록 키는 공개 문서상
+        ``body``/``row`` 후보가 있어 둘 다 시도한다(실 키 확보 전 안전 폴백).
         """
-        code = payload.get("code")
-        if isinstance(code, str) and code != "000":
-            message = str(payload.get("message", ""))
-            if code == "INFO-100":
-                raise AuthError(
-                    f"FDS authentication failed: {message}",
-                    provider="fds",
-                    dataset_id=dataset_id,
-                )
+        section: Mapping[str, object] | None = None
+        if service and isinstance(payload.get(service), dict):
+            section = cast(Mapping[str, object], payload[service])
+        elif len(payload) == 1:
+            only = next(iter(payload.values()))
+            if isinstance(only, dict):
+                section = cast(Mapping[str, object], only)
+        if section is None:
             raise ProviderResponseError(
-                f"FDS API error {code}: {message}",
+                "FDS response has no service section",
                 provider="fds",
                 dataset_id=dataset_id,
             )
 
-        body = payload.get("body")
+        result = section.get("RESULT")
+        if isinstance(result, dict):
+            code = str(result.get("CODE", ""))
+            message = str(result.get("MSG", ""))
+            if code not in ("", "000"):
+                if code == "INFO-100":
+                    raise AuthError(
+                        f"FDS authentication failed: {message}",
+                        provider="fds",
+                        dataset_id=dataset_id,
+                    )
+                raise ProviderResponseError(
+                    f"FDS API error {code}: {message}",
+                    provider="fds",
+                    dataset_id=dataset_id,
+                )
+
+        total_count = 0
+        total_raw = section.get("total_count")
+        if isinstance(total_raw, str) and total_raw.isdigit():
+            total_count = int(total_raw)
+        elif isinstance(total_raw, int):
+            total_count = total_raw
+
         items: list[dict[str, object]] = []
-        if isinstance(body, list):
-            items.extend(item for item in body if isinstance(item, dict))
-        return items, 0
+        for list_key in ("body", "row", "items"):
+            rows = section.get(list_key)
+            if isinstance(rows, list):
+                items.extend(item for item in rows if isinstance(item, dict))
+                break
+        return items, total_count
 
     @staticmethod
     def _int_param(params: Mapping[str, object], name: str, default: int) -> int:

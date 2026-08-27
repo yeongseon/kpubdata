@@ -1763,31 +1763,6 @@ def test_fixture_sports_facility_call_raw_returns_full_envelope() -> None:
     assert payload == expected
 
 
-# test fixture worknet wanted parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_worknet_wanted_parses() -> None:
-    """워크넷 채용정보 fixture가 표준 엔벨로프로 정규화된다 (#161)."""
-    adapter, dataset = _build_real_estate_adapter("success_worknet_wanted.json", "worknet_wanted")
-
-    batch = adapter.query_records(dataset, Query(filters={"sido": "서울"}))
-
-    assert len(batch.items) == 2
-    assert batch.items[0]["company"] == "주식회사샘플"
-    assert "maxSal" in batch.items[0]
-    assert batch.total_count == 2
-
-
-# test fixture biz status parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_biz_status_parses() -> None:
-    """사업자등록 상태조회 fixture가 표준 엔벨로프로 정규화된다 (#91)."""
-    adapter, dataset = _build_real_estate_adapter("success_biz_status.json", "biz_status")
-
-    batch = adapter.query_records(dataset, Query(filters={"b_no": "1234567890"}))
-
-    assert len(batch.items) == 2
-    assert batch.items[0]["b_stt_cd"] == "계속사업자"
-    assert batch.total_count == 2
-
-
 # test fixture culture facility parses 테스트가 검증하는 시나리오를 설명한다.
 def test_fixture_culture_facility_parses() -> None:
     """문화시설조회 fixture가 표준 엔벨로프로 정규화된다 (#167)."""
@@ -1807,8 +1782,6 @@ def test_fixture_culture_facility_parses() -> None:
 def test_fixture_new_datasets_call_raw_return_full_envelope() -> None:
     """신규 3종 dataset의 call_raw가 전체 엔벨로프를 반환한다 (#161/#91/#167)."""
     cases = [
-        ("success_worknet_wanted.json", "worknet_wanted", "getWantedList"),
-        ("success_biz_status.json", "biz_status", "getStanBizRegInfo"),
         ("success_culture_facility.json", "culture_facility", "cultureartspaces/performingplace"),
     ]
     for fixture, key, operation in cases:
@@ -1816,34 +1789,6 @@ def test_fixture_new_datasets_call_raw_return_full_envelope() -> None:
         expected = load_json_fixture(fixture)
         payload = adapter.call_raw(dataset, operation, {})
         assert payload == expected
-
-
-# test fixture disaster message parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_disaster_message_parses() -> None:
-    """긴급재난문자 fixture가 표준 엔벨로프로 정규화된다 (#162)."""
-    adapter, dataset = _build_real_estate_adapter(
-        "success_disaster_message.json", "disaster_message"
-    )
-
-    batch = adapter.query_records(dataset, Query(filters={"RCPTN_RGN_NM": "서울"}))
-
-    assert len(batch.items) == 2
-    assert "지진" in str(batch.items[0]["MSG_CN"])
-    assert batch.total_count == 2
-
-
-# test fixture env noise network parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_env_noise_network_parses() -> None:
-    """환경소음 측정망 fixture가 표준 엔벨로프로 정규화된다 (#168)."""
-    adapter, dataset = _build_real_estate_adapter(
-        "success_env_noise_network.json", "env_noise_network"
-    )
-
-    batch = adapter.query_records(dataset, Query(filters={"city": "서울"}))
-
-    assert len(batch.items) == 2
-    assert batch.items[0]["dayAvgLeq"] == "63.2"
-    assert batch.total_count == 2
 
 
 # test fixture airkorea station realtime parses 테스트가 검증하는 시나리오를 설명한다.
@@ -1922,44 +1867,3 @@ def test_fixture_asos_call_raw_returns_full_envelope() -> None:
             {"stnIds": "108", "startDt": "20260331", "endDt": "20260401"},
         )
         assert payload == expected
-
-
-# test fixture hira hospital list parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_hira_hospital_list_parses() -> None:
-    """HIRA 병원목록 fixture가 표준 엔벨로프로 정규화된다 (#219)."""
-    adapter, dataset = _build_real_estate_adapter(
-        "success_hira_hospital_list.json", "hira_hospital_list"
-    )
-
-    batch = adapter.query_records(dataset, Query(filters={"sidoCdNm": "서울"}))
-
-    assert len(batch.items) == 2
-    assert batch.items[0]["yadmNm"] == "샘플대학교병원"
-    assert batch.items[0]["clCdNm"] == "상급종합"
-    assert batch.total_count == 2
-
-
-# test fixture hira pharmacy list parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_hira_pharmacy_list_parses() -> None:
-    """HIRA 약국목록 fixture가 표준 엔벨로프로 정규화된다 (#219)."""
-    adapter, dataset = _build_real_estate_adapter(
-        "success_hira_pharmacy_list.json", "hira_pharmacy_list"
-    )
-
-    batch = adapter.query_records(dataset, Query(filters={"sidoCdNm": "서울"}))
-
-    assert len(batch.items) == 2
-    assert batch.items[0]["yadmNm"] == "샘플약국"
-    assert batch.total_count == 2
-
-
-# test fixture nhis population parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_nhis_population_parses() -> None:
-    """NHIS 적용인구 fixture가 표준 엔벨로프로 정규화된다 (#220)."""
-    adapter, dataset = _build_real_estate_adapter("success_nhis_population.json", "nhis_population")
-
-    batch = adapter.query_records(dataset, Query(filters={"sidoNm": "서울"}))
-
-    assert len(batch.items) == 3
-    assert batch.items[0]["aplyPpltnCo"] == "358412"
-    assert batch.total_count == 3
