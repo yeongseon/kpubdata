@@ -60,8 +60,9 @@ def test_query_records_next_page_from_full_page() -> None:
 
     batch = adapter.query_records(dataset, Query(page=1, page_size=1))
 
-    assert len(batch.items) == 2  # FDS는 start/end 범위와 무관하게 body를 그대로 돌려준다
-    assert batch.next_page is None  # total_count 미제공(0)이고 항목이 범위 이하면 종료
+    # 실측 형상은 total_count를 제공한다(2) — page_size 1이면 다음 페이지가 있다.
+    assert batch.total_count == 2
+    assert batch.next_page == 2
 
 
 def test_query_records_auth_error_maps_to_auth_error() -> None:
@@ -82,4 +83,4 @@ def test_call_raw_returns_full_payload() -> None:
 
     payload = adapter.call_raw(dataset, "I1200", {"start_idx": 1, "end_idx": 5})
 
-    assert "body" in cast(dict, payload)
+    assert "I1200" in cast(dict, payload)  # 실측 형상: 서비스명이 최상위 키
