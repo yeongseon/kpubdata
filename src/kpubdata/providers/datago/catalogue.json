@@ -69,6 +69,18 @@
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
+    },
+    "request_parameters": [
+      {
+        "name": "sidoName",
+        "required": true,
+        "description": "조회할 시·도 (getCtprvnRltmMesureDnsty 필수)",
+        "example": "서울"
+      }
+    ],
+    "application": {
+      "required": true,
+      "url": "https://www.data.go.kr/data/15073861/openapi.do"
     }
   },
   {

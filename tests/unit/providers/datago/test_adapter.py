@@ -1188,6 +1188,40 @@ class TestDataGoAdapterCatalogueOperations:
             assert dataset.query_support.pagination is PaginationMode.OFFSET
             assert dataset.query_support.max_page_size == 1000
 
+    def test_air_quality_declares_required_request_parameter(self) -> None:
+        """air_quality는 최소 sidoName 요청 파라미터를 metadata로 드러낸다.
+
+        getCtprvnRltmMesureDnsty는 sidoName이 없으면 상위 API가
+        NO_MANDATORY_REQUEST_PARAMETERS_ERROR를 돌려준다 — UI가 이를 사전에
+        안내할 수 있도록 raw_metadata.request_parameters에 표현한다.
+        """
+        adapter = DataGoAdapter()
+
+        dataset = adapter.get_dataset("air_quality")
+        params = dataset.raw_metadata.get("request_parameters")
+        assert isinstance(params, list)
+        by_name = {p["name"]: p for p in params if isinstance(p, dict)}
+        assert "sidoName" in by_name
+        assert by_name["sidoName"]["required"] is True
+        assert by_name["sidoName"]["example"] == "서울"
+        # 시크릿 파라미터를 여기 넣지 않는다.
+        assert "serviceKey" not in by_name
+
+    def test_air_quality_declares_application_requirement(self) -> None:
+        """air_quality는 활용신청이 API Key 발급과 별개일 수 있음을 metadata로 드러낸다.
+
+        공공데이터포털은 API Key 발급과 특정 Dataset 활용신청이 별개일 수 있다 —
+        Studio가 이를 안내할 수 있도록 raw_metadata.application에 공식 상세/활용신청
+        URL을 표현한다. Studio는 이 상태를 "완료/승인됨"으로 추측하지 않는다.
+        """
+        adapter = DataGoAdapter()
+
+        dataset = adapter.get_dataset("air_quality")
+        application = dataset.raw_metadata.get("application")
+        assert isinstance(application, dict)
+        assert application["required"] is True
+        assert application["url"] == "https://www.data.go.kr/data/15073861/openapi.do"
+
 
 class TestDataGoAdapterXml:
     """
