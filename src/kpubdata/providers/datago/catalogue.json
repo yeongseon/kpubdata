@@ -1,8 +1,9 @@
 [
   {
     "dataset_key": "village_fcst",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15084084/openapi.do"},
     "name": "동네예보 조회서비스 (Village Forecast)",
-    "base_url": "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0",
+    "base_url": "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0",
     "default_operation": "getVilageFcst",
     "representation": "api_json",
     "service_key_param": "serviceKey",
@@ -25,8 +26,9 @@
   },
   {
     "dataset_key": "ultra_srt_ncst",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15084084/openapi.do"},
     "name": "초단기실황 조회서비스 (Ultra Short-term Nowcast)",
-    "base_url": "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0",
+    "base_url": "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0",
     "default_operation": "getUltraSrtNcst",
     "representation": "api_json",
     "service_key_param": "serviceKey",
@@ -42,6 +44,12 @@
       "list",
       "raw"
     ],
+    "request_parameters": [
+      {"name": "base_date", "required": true, "description": "발표일자(YYYYMMDD)"},
+      {"name": "base_time", "required": true, "description": "발표시각(HHmm)"},
+      {"name": "nx", "required": true, "description": "예보지점 X 좌표"},
+      {"name": "ny", "required": true, "description": "예보지점 Y 좌표"}
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -50,7 +58,7 @@
   {
     "dataset_key": "air_quality",
     "name": "대기오염정보 조회서비스 (Air Quality)",
-    "base_url": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
+    "base_url": "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
     "default_operation": "getCtprvnRltmMesureDnsty",
     "representation": "api_json",
     "service_key_param": "serviceKey",
@@ -85,6 +93,7 @@
   },
   {
     "dataset_key": "bus_arrival",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15080346/openapi.do"},
     "name": "경기도 버스도착정보 조회서비스 (Bus Arrival)",
     "base_url": "http://apis.data.go.kr/6410000/busarrivalservice/v2",
     "default_operation": "getBusArrivalListv2",
@@ -110,6 +119,7 @@
   },
   {
     "dataset_key": "hospital_info",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15001698/openapi.do"},
     "name": "병원정보서비스 (Hospital Information)",
     "base_url": "http://apis.data.go.kr/B551182/hospInfoServicev2",
     "default_operation": "getHospBasisList",
@@ -134,6 +144,7 @@
   },
   {
     "dataset_key": "dur_usjnt_taboo",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 병용금기 품목정보 (DUR Co-use Taboo)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getUsjntTabooInfoList03",
@@ -159,6 +170,7 @@
   },
   {
     "dataset_key": "dur_older_adult_caution",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 노인주의 정보조회 (DUR Older Adult Caution)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getOdsnAtentInfoList03",
@@ -185,6 +197,7 @@
   },
   {
     "dataset_key": "dur_product_info",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR품목정보 조회 (DUR Product Info)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getDurPrdlstInfoList03",
@@ -211,6 +224,7 @@
   },
   {
     "dataset_key": "dur_age_taboo",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 특정연령대금기 정보조회 (DUR Age Taboo)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getSpcifyAgrdeTabooInfoList03",
@@ -237,6 +251,7 @@
   },
   {
     "dataset_key": "dur_dosage_caution",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 용량주의 정보조회 (DUR Dosage Caution)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getCpctyAtentInfoList03",
@@ -263,6 +278,7 @@
   },
   {
     "dataset_key": "dur_medication_period_caution",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 투여기간주의 정보조회 (DUR Medication Period Caution)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getMdctnPdAtentInfoList03",
@@ -289,6 +305,7 @@
   },
   {
     "dataset_key": "dur_efficacy_duplication",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 효능군중복 정보조회 (DUR Efficacy Duplication)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getEfcyDplctInfoList03",
@@ -315,6 +332,7 @@
   },
   {
     "dataset_key": "dur_er_tablet_split_caution",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 서방정분할주의 정보조회 (DUR ER Tablet Split Caution)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getSeobangjeongPartitnAtentInfoList03",
@@ -341,6 +359,7 @@
   },
   {
     "dataset_key": "dur_pregnancy_taboo",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059486/openapi.do"},
     "name": "의약품 안전사용서비스 DUR 임부금기 정보조회 (DUR Pregnancy Taboo)",
     "base_url": "http://apis.data.go.kr/1471000/DURPrdlstInfoService03",
     "default_operation": "getPwnmTabooInfoList03",
@@ -655,6 +674,7 @@
   },
   {
     "dataset_key": "g2b_contract",
+    "application": {"required": true, "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15129427"},
     "name": "나라장터 조달계약정보 (G2B Procurement Contract)",
     "base_url": "https://apis.data.go.kr/1230000/ao/CntrctInfoService",
     "default_operation": "getCntrctInfoListThng",
@@ -696,6 +716,7 @@
   },
   {
     "dataset_key": "g2b_catalog",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15129471/openapi.do"},
     "name": "나라장터 종합쇼핑몰 품목정보 (G2B Shopping Mall Product Catalog)",
     "base_url": "https://apis.data.go.kr/1230000/at/ShoppingMallPrdctInfoService",
     "default_operation": "getShoppingMallPrdctInfoList",
@@ -714,6 +735,7 @@
   },
   {
     "dataset_key": "tour_kor_area",
+    "application": {"required": true, "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15101578"},
     "name": "한국관광공사 지역기반 관광정보 (TourAPI Area-Based List)",
     "base_url": "http://apis.data.go.kr/B551011/KorService2",
     "default_operation": "areaBasedList2",
@@ -738,6 +760,7 @@
   },
   {
     "dataset_key": "tour_kor_location",
+    "application": {"required": true, "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15101578"},
     "name": "한국관광공사 위치기반 관광정보 (TourAPI Location-Based List)",
     "base_url": "http://apis.data.go.kr/B551011/KorService2",
     "default_operation": "locationBasedList2",
@@ -762,6 +785,7 @@
   },
   {
     "dataset_key": "tour_kor_keyword",
+    "application": {"required": true, "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15101578"},
     "name": "한국관광공사 키워드 검색 (TourAPI Keyword Search)",
     "base_url": "http://apis.data.go.kr/B551011/KorService2",
     "default_operation": "searchKeyword2",
@@ -786,6 +810,7 @@
   },
   {
     "dataset_key": "tour_kor_festival",
+    "application": {"required": true, "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15101578"},
     "name": "한국관광공사 행사정보 (TourAPI Festival Search)",
     "base_url": "http://apis.data.go.kr/B551011/KorService2",
     "default_operation": "searchFestival2",
@@ -858,6 +883,7 @@
   },
   {
     "dataset_key": "subway_passengers",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15143845/openapi.do"},
     "name": "지하철역별 승하차 인원 (Subway Station Passengers)",
     "base_url": "https://apis.data.go.kr/B553766/psgr",
     "default_operation": "getStnPsgr",
@@ -924,6 +950,7 @@
   },
   {
     "dataset_key": "agri_price",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15156073/openapi.do"},
     "name": "친환경농산물 가격정보 (Eco-Friendly Agricultural Product Price)",
     "base_url": "https://apis.data.go.kr/B552845/ecoFriendly",
     "default_operation": "price",
@@ -949,6 +976,7 @@
   },
   {
     "dataset_key": "mid_fcst",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059468/openapi.do"},
     "name": "중기전망조회 (Mid-term Outlook)",
     "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
     "default_operation": "getMidFcst",
@@ -967,6 +995,10 @@
       "list",
       "raw"
     ],
+    "request_parameters": [
+      {"name": "stnId", "required": true, "description": "중기전망 지점코드"},
+      {"name": "tmFc", "required": true, "description": "발표시각"}
+    ],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -974,6 +1006,7 @@
   },
   {
     "dataset_key": "mid_land_fcst",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059468/openapi.do"},
     "name": "중기육상예보조회 (Mid-term Land Forecast)",
     "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
     "default_operation": "getMidLandFcst",
@@ -999,6 +1032,7 @@
   },
   {
     "dataset_key": "mid_ta",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059468/openapi.do"},
     "name": "중기기온조회 (Mid-term Temperature)",
     "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
     "default_operation": "getMidTa",
@@ -1025,6 +1059,7 @@
   },
   {
     "dataset_key": "mid_sea_fcst",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059468/openapi.do"},
     "name": "중기해상예보조회 (Mid-term Sea Forecast)",
     "base_url": "https://apis.data.go.kr/1360000/MidFcstInfoService",
     "default_operation": "getMidSeaFcst",
@@ -1051,6 +1086,7 @@
   },
   {
     "dataset_key": "bond_price",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15094784/openapi.do"},
     "name": "금융위원회 채권시세정보 (Bond Price)",
     "base_url": "http://apis.data.go.kr/1160100/service/GetBondSecuritiesInfoService",
     "default_operation": "getBondPriceInfo",
@@ -1075,6 +1111,7 @@
   },
   {
     "dataset_key": "sports_facility",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15113986/openapi.do"},
     "name": "전국체육시설 정보 (National Sports Facility)",
     "base_url": "http://apis.data.go.kr/B551014/SRVC_API_SFMS_FACI",
     "default_operation": "TODZ_API_SFMS_FACI",
@@ -1099,6 +1136,7 @@
   },
   {
     "dataset_key": "culture_facility",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15138930/openapi.do"},
     "name": "한국문화정보원 문화시설조회 (Cultural Facilities)",
     "base_url": "https://apis.data.go.kr/B553457/nopenapi/rest",
     "default_operation": "cultureartspaces/performingplace",
@@ -1124,7 +1162,7 @@
   {
     "dataset_key": "airkorea_station_realtime",
     "name": "에어코리아 측정소별 실시간 측정정보 (AirKorea Station Realtime)",
-    "base_url": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
+    "base_url": "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
     "default_operation": "getMsrstnAcctoRltmMesureDnsty",
     "representation": "api_json",
     "service_key_param": "serviceKey",
@@ -1137,6 +1175,7 @@
       "keco"
     ],
     "source_url": "https://www.data.go.kr/data/15073861/openapi.do",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15073861/openapi.do"},
     "operations": [
       "list",
       "raw"
@@ -1147,6 +1186,10 @@
     },
     "required_query_filters": [
       "stationName"
+    ],
+    "request_parameters": [
+      {"name": "stationName", "required": true, "description": "측정소 이름", "example": "종로구"},
+      {"name": "dataTerm", "required": true, "description": "요청 데이터기간 (DAILY, MONTH, 3MONTH)", "example": "DAILY"}
     ],
     "fields": [
       {
@@ -1184,7 +1227,7 @@
   {
     "dataset_key": "airkorea_forecast",
     "name": "에어코리아 대기질 예보통보 (AirKorea Forecast)",
-    "base_url": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
+    "base_url": "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc",
     "default_operation": "getMinuDustFrcstDspth",
     "representation": "api_json",
     "service_key_param": "serviceKey",
@@ -1197,10 +1240,12 @@
       "airkorea"
     ],
     "source_url": "https://www.data.go.kr/data/15073861/openapi.do",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15073861/openapi.do"},
     "operations": [
       "list",
       "raw"
     ],
+    "request_parameters": [],
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
@@ -1240,6 +1285,7 @@
   },
   {
     "dataset_key": "asos_daily",
+    "fixed_query_params": {"dataCd": "ASOS", "dateCd": "DAY"},
     "name": "기상청 종관기상관측 일자료 (ASOS Daily)",
     "base_url": "http://apis.data.go.kr/1360000/AsosDalyInfoService",
     "default_operation": "getWthrDataList",
@@ -1254,6 +1300,7 @@
       "observation"
     ],
     "source_url": "https://www.data.go.kr/data/15059093/openapi.do",
+    "application": {"required": true, "url": "https://www.data.go.kr/data/15059093/openapi.do"},
     "operations": [
       "list",
       "raw"
@@ -1262,6 +1309,11 @@
       "pagination": "offset",
       "max_page_size": 1000
     },
+    "request_parameters": [
+      {"name": "startDt", "required": true, "description": "조회 시작일(YYYYMMDD)"},
+      {"name": "endDt", "required": true, "description": "조회 종료일(YYYYMMDD)"},
+      {"name": "stnIds", "required": true, "description": "ASOS 지점번호"}
+    ],
     "required_query_filters": [
       "stnIds",
       "startDt",
@@ -1317,6 +1369,7 @@
   },
   {
     "dataset_key": "asos_hourly",
+    "fixed_query_params": {"dataCd": "ASOS", "dateCd": "HR"},
     "name": "기상청 종관기상관측 시간자료 (ASOS Hourly)",
     "base_url": "http://apis.data.go.kr/1360000/AsosHourlyInfoService",
     "default_operation": "getWthrDataList",
@@ -1331,7 +1384,8 @@
       "observation",
       "hourly"
     ],
-    "source_url": "https://www.data.go.kr/data/15057110/openapi.do",
+    "source_url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15057210",
+    "application": {"required": true, "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15057210"},
     "operations": [
       "list",
       "raw"
@@ -1340,6 +1394,13 @@
       "pagination": "offset",
       "max_page_size": 1000
     },
+    "request_parameters": [
+      {"name": "startDt", "required": true, "description": "조회 시작일(YYYYMMDD)"},
+      {"name": "startHh", "required": true, "description": "조회 시작시각(HH)"},
+      {"name": "endDt", "required": true, "description": "조회 종료일(YYYYMMDD)"},
+      {"name": "endHh", "required": true, "description": "조회 종료시각(HH)"},
+      {"name": "stnIds", "required": true, "description": "ASOS 지점번호"}
+    ],
     "required_query_filters": [
       "stnIds",
       "startDt",

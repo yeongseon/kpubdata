@@ -1056,6 +1056,40 @@ class TestDataGoAdapterQueryRecords:
         assert params["numOfRows"] == "100"
         assert params["x"] == "ok"
 
+    @pytest.mark.parametrize(
+        ("dataset_key", "expected_date_cd"),
+        [("asos_daily", "DAY"), ("asos_hourly", "HR")],
+    )
+    def test_query_records_applies_unoverrideable_fixed_query_params(
+        self, dataset_key: str, expected_date_cd: str
+    ) -> None:
+        """ASOS operation-fixed 상수는 호출자 filter로 덮어쓸 수 없다."""
+        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=100, page_no=1)
+        adapter, _, transport = _build_adapter_with_transport([FakeResponse(payload)])
+        dataset = adapter.get_dataset(dataset_key)
+
+        _ = adapter.query_records(
+            dataset,
+            Query(filters={"dataCd": "wrong", "dateCd": "wrong", "stnIds": "108"}),
+        )
+
+        params = transport.calls[0]["params"]
+        assert isinstance(params, dict)
+        assert params["dataCd"] == "ASOS"
+        assert params["dateCd"] == expected_date_cd
+
+    def test_query_records_does_not_add_fixed_query_params_to_other_dataset(self) -> None:
+        """ASOS 전용 상수는 다른 DataGo dataset 요청에 추가되지 않는다."""
+        payload = _success_payload(items=[{"id": 1}], total_count=1, num_of_rows=100, page_no=1)
+        adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
+
+        _ = adapter.query_records(dataset, Query())
+
+        params = transport.calls[0]["params"]
+        assert isinstance(params, dict)
+        assert "dataCd" not in params
+        assert "dateCd" not in params
+
 
 class TestDataGoAdapterCallRaw:
     """
@@ -1207,6 +1241,24 @@ class TestDataGoAdapterCatalogueOperations:
         # 시크릿 파라미터를 여기 넣지 않는다.
         assert "serviceKey" not in by_name
 
+    def test_airkorea_station_realtime_declares_official_required_parameters(self) -> None:
+        """2026-06-30 공식 기술문서의 필수 user query만 보존한다."""
+        adapter = DataGoAdapter()
+
+        dataset = adapter.get_dataset("airkorea_station_realtime")
+        params = dataset.raw_metadata.get("request_parameters")
+        assert isinstance(params, list)
+        by_name = {param["name"]: param for param in params if isinstance(param, dict)}
+        assert by_name["stationName"]["required"] is True
+        assert by_name["dataTerm"] == {
+            "name": "dataTerm",
+            "required": True,
+            "description": "요청 데이터기간 (DAILY, MONTH, 3MONTH)",
+            "example": "DAILY",
+        }
+        assert "ver" not in by_name
+        assert "returnType" not in by_name
+
     def test_air_quality_declares_application_requirement(self) -> None:
         """air_quality는 활용신청이 API Key 발급과 별개일 수 있음을 metadata로 드러낸다.
 
@@ -1221,6 +1273,42 @@ class TestDataGoAdapterCatalogueOperations:
         assert isinstance(application, dict)
         assert application["required"] is True
         assert application["url"] == "https://www.data.go.kr/data/15073861/openapi.do"
+
+    def test_high_confidence_catalogue_metadata_is_preserved(self) -> None:
+        """공식 교차검증으로 확정한 endpoint·입력·활용신청 metadata를 보존한다."""
+        adapter = DataGoAdapter()
+
+        for key in ("village_fcst", "ultra_srt_ncst"):
+            assert adapter.get_dataset(key).raw_metadata["base_url"] == (
+                "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0"
+            )
+        for key in ("air_quality", "airkorea_station_realtime", "airkorea_forecast"):
+            assert adapter.get_dataset(key).raw_metadata["base_url"] == (
+                "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc"
+            )
+
+        required_names = {
+            "ultra_srt_ncst": ["base_date", "base_time", "nx", "ny"],
+            "mid_fcst": ["stnId", "tmFc"],
+            "asos_daily": ["startDt", "endDt", "stnIds"],
+            "asos_hourly": ["startDt", "startHh", "endDt", "endHh", "stnIds"],
+        }
+        for key, names in required_names.items():
+            params = adapter.get_dataset(key).raw_metadata["request_parameters"]
+            assert isinstance(params, list)
+            assert [param["name"] for param in params] == names
+            assert all(param["required"] is True for param in params)
+
+        assert adapter.get_dataset("airkorea_forecast").raw_metadata["request_parameters"] == []
+        hourly = adapter.get_dataset("asos_hourly")
+        assert hourly.source_url == (
+            "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15057210"
+        )
+        application = hourly.raw_metadata["application"]
+        assert application == {
+            "required": True,
+            "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15057210",
+        }
 
 
 class TestDataGoAdapterXml:
