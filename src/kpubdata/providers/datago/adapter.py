@@ -162,6 +162,8 @@ class DataGoAdapter:
 
         url = self._build_request_url(dataset)
         params = self._build_base_params(dataset)
+        fixed_query_params = self._get_fixed_query_params(dataset)
+        params.update(fixed_query_params)
         page_param = "pageNo"
         page_size_param = "numOfRows"
         if is_odcloud:
@@ -370,6 +372,21 @@ class DataGoAdapter:
     def _is_odcloud(dataset: DatasetRef) -> bool:
         """데이터셋이 odcloud 계열 응답 형식을 쓰는지 반환한다."""
         return dataset.raw_metadata.get("provider_family") == "odcloud"
+
+    @staticmethod
+    def _get_fixed_query_params(dataset: DatasetRef) -> dict[str, str]:
+        """카탈로그의 operation-fixed 비밀 아닌 query 상수를 반환한다."""
+        raw_params = dataset.raw_metadata.get("fixed_query_params")
+        if not isinstance(raw_params, Mapping):
+            return {}
+
+        forbidden_keys = {"apikey", "authorization", "servicekey"}
+        fixed_params: dict[str, str] = {}
+        for key, value in raw_params.items():
+            if not isinstance(key, str) or not key or key.casefold() in forbidden_keys:
+                continue
+            fixed_params[key] = str(value)
+        return fixed_params
 
     def _require_api_key(self) -> str:
         """data.go.kr 호출에 사용할 API 키를 설정에서 읽는다."""
