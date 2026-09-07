@@ -1,0 +1,41 @@
+name: Geo Check (data.go.kr reachability from hosted runner)
+
+# 목적: GitHub hosted runner(Azure 해외 IP)에서 data.go.kr 게이트웨이 네트워크 경로가
+# 열려 있는지 확인한다. API 키가 없어도 게이트웨이 응답(에러 본문 포함)이 오면
+# IP 차단은 없는 것으로 판정한다. 키 등록 후 실증은 이슈 #383 참고.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  geo-check:
+    name: data.go.kr reachability (no key)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Show outbound IP
+        run: |
+          echo "outbound_ip=$(curl -s --max-time 10 https://api.ipify.org)" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Probe data.go.kr gateway (no serviceKey)
+        run: |
+          set -euo pipefail
+          url="https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=%EC%84%9C%EC%9A%B8&returnType=json"
+          code=$(curl -s -o /tmp/body.txt -w '%{http_code}' --max-time 20 "$url" || echo "CURL_FAIL")
+          echo "http_status=$code" | tee -a "$GITHUB_STEP_SUMMARY"
+          # 응답 본문 앞부분(에러 코드/메시지) — 키 없으면 SERVICE_KEY 계열 에러가 정상
+          head -c 500 /tmp/body.txt | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$code" = "CURL_FAIL" ] || [ "$code" = "000" ]; then
+            echo "::error::network path to apis.data.go.kr FAILED (possible geo-block)"; exit 1
+          fi
+          echo "::notice::gateway responded — IP-level block not detected (application-level auth error is expected without a key)"
+
+      - name: Probe KOSIS gateway (no key)
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /tmp/kosis.txt -w '%{http_code}' --max-time 20 "https://kosis.kr/openapi/OW8I94IT29/A/json/0/1" || echo "CURL_FAIL")
+          echo "kosis_status=$code" | tee -a "$GITHUB_STEP_SUMMARY"
+          head -c 200 /tmp/kosis.txt | tee -a "$GITHUB_STEP_SUMMARY" || true
