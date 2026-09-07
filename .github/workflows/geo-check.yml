@@ -6,6 +6,9 @@ name: Geo Check (data.go.kr reachability from hosted runner)
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/geo-check.yml"
 
 permissions:
   contents: read
