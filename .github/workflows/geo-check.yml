@@ -1,8 +1,7 @@
-name: Geo Check (data.go.kr reachability from hosted runner)
-
-# 목적: GitHub hosted runner(Azure 해외 IP)에서 data.go.kr 게이트웨이 네트워크 경로가
-# 열려 있는지 확인한다. API 키가 없어도 게이트웨이 응답(에러 본문 포함)이 오면
-# IP 차단은 없는 것으로 판정한다. 키 등록 후 실증은 이슈 #383 참고.
+# 목적: GitHub hosted runner(Azure 해외 IP)에서 한국 공공 API 게이트웨이의 네트워크 도달성을
+# 검증한다. API 키가 없어도 게이트웨이가 HTTP 응답(에러 본문 포함)을 반환하면 IP 차단은
+# 없는 것으로 판정한다(애플리케이션 계열 인증 에러는 정상). 실증 기록: 이슈 #383
+name: Geo Check (Korean public API reachability from hosted runner)
 
 on:
   workflow_dispatch:
@@ -15,30 +14,40 @@ permissions:
 
 jobs:
   geo-check:
-    name: data.go.kr reachability (no key)
+    name: Reachability probe (no key, 3 retries per endpoint)
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Show outbound IP
         run: |
-          echo "outbound_ip=$(curl -s --max-time 10 https://api.ipify.org)" | tee -a "$GITHUB_STEP_SUMMARY"
+          ip=$(curl -s --max-time 10 https://api.ipify.org || curl -s --max-time 10 https://ifconfig.me || echo unknown)
+          echo "outbound_ip=$ip" | tee -a "$GITHUB_STEP_SUMMARY"
 
-      - name: Probe data.go.kr gateway (no serviceKey)
+      - name: Probe endpoints
         run: |
-          set -euo pipefail
-          url="https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=%EC%84%9C%EC%9A%B8&returnType=json"
-          code=$(curl -s -o /tmp/body.txt -w '%{http_code}' --max-time 20 "$url" || echo "CURL_FAIL")
-          echo "http_status=$code" | tee -a "$GITHUB_STEP_SUMMARY"
-          # 응답 본문 앞부분(에러 코드/메시지) — 키 없으면 SERVICE_KEY 계열 에러가 정상
-          head -c 500 /tmp/body.txt | tee -a "$GITHUB_STEP_SUMMARY"
-          if [ "$code" = "CURL_FAIL" ] || [ "$code" = "000" ]; then
-            echo "::error::network path to apis.data.go.kr FAILED (possible geo-block)"; exit 1
+          set -uo pipefail
+          probe() {
+            local name="$1" url="$2" attempt code err
+            for attempt in 1 2 3; do
+              err=$(mktemp)
+              code=$(curl -sS -o /tmp/probe_body.txt -w '%{http_code}' --max-time 15 "$url" 2>"$err" || true)
+              if [ -n "$code" ] && [ "$code" != "000" ]; then
+                echo "$name|attempt=$attempt|http=$code|$(head -c 120 /tmp/probe_body.txt | tr '\n' ' ')" | tee -a "$GITHUB_STEP_SUMMARY"
+                return 0
+              fi
+              echo "$name|attempt=$attempt|FAIL|curl: $(tail -c 160 "$err" | tr '\n' ' ')" | tee -a "$GITHUB_STEP_SUMMARY"
+              sleep 5
+            done
+            return 1
+          }
+          verdict=ok
+          probe "data.go.kr(apis,https)" "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=%EC%84%9C%EC%9A%B8&returnType=json" || verdict=blocked
+          probe "data.go.kr(apis,http)" "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=%EC%84%9C%EC%9A%B8&returnType=json" || true
+          probe "kosis.kr" "https://kosis.kr/openapi/OW8I94IT29/A/json/0/1" || verdict=blocked
+          probe "sgis(kostat)" "https://sgisapi.kostat.go.kr/OpenAPI3/auth/authentication.json" || true
+          probe "data.seoul.go.kr" "https://data.seoul.go.kr/" || true
+          if [ "$verdict" = "blocked" ]; then
+            echo "::error::data.go.kr or kosis unreachable from hosted runner (see summary) — Phase 5 needs self-hosted KR runner"
+            exit 1
           fi
-          echo "::notice::gateway responded — IP-level block not detected (application-level auth error is expected without a key)"
-
-      - name: Probe KOSIS gateway (no key)
-        run: |
-          set -euo pipefail
-          code=$(curl -s -o /tmp/kosis.txt -w '%{http_code}' --max-time 20 "https://kosis.kr/openapi/OW8I94IT29/A/json/0/1" || echo "CURL_FAIL")
-          echo "kosis_status=$code" | tee -a "$GITHUB_STEP_SUMMARY"
-          head -c 200 /tmp/kosis.txt | tee -a "$GITHUB_STEP_SUMMARY" || true
+          echo "::notice::core gateways reachable from hosted runner"
