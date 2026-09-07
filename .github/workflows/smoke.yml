@@ -1,0 +1,64 @@
+# 데이터셋 실API 스모크 (일 1회, 국내 self-hosted 러너)
+#
+# 왜 국내 러너인가: data.go.kr 등 한국 공공 API는 해외 IP의 인증 호출을 드롭한다
+# (호스티드 러너에서 전량 타임아웃, 국내에서 통과 — 실증: #383).
+# 러너 라벨 `kr` 은 국내 VM/devbox의 self-hosted runner(kr-runner-01)를 가리킨다.
+# Phase 2의 `LIVE=1 make verify` 체계가 완성되면 이 워크플로우는 그 위로 재편성된다 (#382).
+name: Smoke (live)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *" # 10:00 KST — 국내 API 새벽 점검 시간대 회피
+  push:
+    paths:
+      - ".github/workflows/smoke.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-live
+  cancel-in-progress: false
+
+jobs:
+  datago-live:
+    name: datago 실API 스모크
+    runs-on: [self-hosted, kr]
+    timeout-minutes: 20
+    env:
+      KPUBDATA_DATAGO_API_KEY: ${{ secrets.KPUBDATA_DATAGO_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run datago live integration tests
+        run: |
+          uv run pytest -m integration tests/integration/test_datago_live.py \
+            -rf --durations=10 --junitxml=smoke-datago.xml
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-datago
+          path: smoke-datago.xml
+          retention-days: 14
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f smoke-datago.xml ]; then
+            python3 - <<'EOF'
+          import xml.etree.ElementTree as ET
+          root = ET.parse("smoke-datago.xml").getroot()
+          total = int(root.attrib.get("tests", 0))
+          failed = int(root.attrib.get("failures", 0)) + int(root.attrib.get("errors", 0))
+          skipped = int(root.attrib.get("skipped", 0))
+          passed = total - failed - skipped
+          print(f"datago live: {passed} passed, {failed} failed, {skipped} skipped (total {total})")
+          print(f"smoke={'FAIL' if failed else 'PASS'}")
+          EOF
+          fi
