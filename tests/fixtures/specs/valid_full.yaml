@@ -1,0 +1,61 @@
+id: test.full
+provider: test
+title: 전체 섹션 spec
+description: 모든 스키마 섹션을 담은 검증용 표본
+source:
+  url: https://example.test/docs
+  doc_version: v1.2
+  verified_at: "2026-09-01"
+endpoint:
+  base_url: https://example.test/api
+  operation: search
+  method: GET
+  format_param:
+    name: _type
+    values:
+      json: json
+      xml: xml
+auth:
+  type: query_param
+  param_name: serviceKey
+  provider_key: datago
+params:
+  - name: LAWD_CD
+    alias: region_code
+    type: string
+    required: true
+    description: 지역코드
+    example: "11110"
+response:
+  format: xml
+  envelope: datago_standard
+  items_path: response.body.items.item
+  total_count_path: response.body.totalCount
+  error:
+    style: header_result_code
+    code_path: response.header.resultCode
+    ok_values: ["00", "000", 0]
+pagination:
+  type: page_no_rows
+  page_param: pageNo
+  size_param: numOfRows
+  max_size: 1000
+fields:
+  - name: deal_amount
+    source_name: 거래금액
+    type: integer
+    unit: 만원
+    transform: strip_comma
+examples:
+  - name: gangnam
+    description: 강남 조회
+    params:
+      region_code: "11110"
+    page: 1
+    page_size: 10
+    format: xml
+  - name: default
+    params: {}
+status: active
+last_verified: "2026-09-01"
+custom_future_field: 보존되어야 하는 미선언 키

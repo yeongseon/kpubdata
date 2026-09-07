@@ -1,0 +1,5 @@
+id: test.missing
+provider: test
+title: 필수 누락
+auth:
+  type: none

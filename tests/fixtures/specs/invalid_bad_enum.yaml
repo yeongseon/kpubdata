@@ -1,0 +1,16 @@
+id: test.bad_enum
+provider: test
+title: 잘못된 enum
+endpoint:
+  base_url: https://example.test/api
+  operation: list
+auth:
+  type: bearer_token
+response:
+  format: yaml
+  envelope: datago_standard
+  error:
+    style: header_result_code
+pagination:
+  type: infinite_scroll
+status: maybe

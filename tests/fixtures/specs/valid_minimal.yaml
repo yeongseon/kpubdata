@@ -1,0 +1,20 @@
+id: test.minimal
+provider: test
+title: 최소 spec
+endpoint:
+  base_url: https://example.test/api
+  operation: list
+  method: GET
+auth:
+  type: none
+response:
+  format: json
+  envelope: datago_standard
+  items_path: response.body.items.item
+  error:
+    style: header_result_code
+    code_path: response.header.resultCode
+    ok_values: ["00"]
+pagination:
+  type: none
+status: active
