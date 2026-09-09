@@ -82,4 +82,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pip install --quiet httpx
-          python3 scripts/report_drift.py --dry-run || true  # 첫 안정화까지 dry-run
+          python3 scripts/report_drift.py
