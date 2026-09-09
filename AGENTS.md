@@ -117,6 +117,8 @@ make verify   # spec 데이터셋: 스키마→fixture→replay→예제 4단계
 - 기상청 날짜 파라미터(`base_date`)는 최근 발표만 응답 — 오래되면 `make record`로 예제와 fixture를 함께 갱신
 - data.go.kr 계열 envelope 변형 4종(standard/gyeonggi/its_flat/odcloud) — `envelope_style` 참조
 - 커스텀 어댑터 대상(krx 등)은 이 절차가 아니라 아래 어댑터 작업 규칙을 따른다 (`docs/internal/custom-adapters.md`)
+- **Dev 변형 서비스명(RTMSDataSvc*Dev 등)은 다수 폐기** — 기존 비Dev 서비스가 정상인 경우가 많으니 먼저 확인 (이미 지원이면 중복 요청)
+- spec 작성 전 반드시 프로브(실호출 1회)로 활성화·폐기를 확인한다 — 문서상 서비스가 폐기됐거나(예: 약국 Ermct 구버전, MinuDust 계열) 키 미등록(예: MsrstnInfoInqireSvc)일 수 있다
 
 ## 어댑터 작업 규칙
 
