@@ -11,7 +11,7 @@
   "serviceKey": "[REDACTED]",
   "stationName": "강남구"
  },
- "recorded_at": "2026-09-09T07:36:36+00:00",
- "recorded_by": "ci",
- "response_sha256": "1611c1036fe147eeab1afbd25b7ea006d46e0ad45c73f0667ae96683ae78e401"
+ "recorded_at": "2026-09-09T09:01:47+00:00",
+ "recorded_by": "batch-agent",
+ "response_sha256": "cbe4447384338248c0c4e433a47859817fdd0fcabd6066894da1a278bdb1ca7c"
 }

@@ -34,7 +34,10 @@ def generate(examples_dir: Path = EXAMPLES_DIR) -> str:
     scripts = sorted(
         path
         for path in examples_dir.rglob("*.py")
-        if path.name != "__init__.py" and path.parent != examples_dir
+        if path.name != "__init__.py"
+        and path.parent != examples_dir
+        # 배치 자동 생성 예제는 문서에서 제외(수록 규모·큐레이션 이유)
+        and not path.read_text(encoding="utf-8").startswith("# auto-generated: docs-exclude")
     )
     if not scripts:
         return _HEADER + "\n(예제 스크립트가 없다.)\n"

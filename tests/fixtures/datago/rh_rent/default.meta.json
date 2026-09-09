@@ -1,0 +1,15 @@
+{
+ "dataset_id": "datago.rh_rent",
+ "endpoint": "http://apis.data.go.kr/1613000/RTMSDataSvcRHRent/getRTMSDataSvcRHRent",
+ "example": "default",
+ "format": "json",
+ "params": {
+  "numOfRows": "10",
+  "pageNo": "1",
+  "resultType": "json",
+  "serviceKey": "[REDACTED]"
+ },
+ "recorded_at": "2026-09-09T09:02:28+00:00",
+ "recorded_by": "batch-agent",
+ "response_sha256": "d8fbdcda9328654289ad27ac21bdc0078fcda23ae7bc41b6f50987d091503b49"
+}

@@ -11,7 +11,7 @@
   "serviceKey": "[REDACTED]",
   "stationName": "백령도"
  },
- "recorded_at": "2026-09-09T07:36:36+00:00",
- "recorded_by": "ci",
- "response_sha256": "dccda19a8b75aa8768d11929cc64aa7ce3fb175768f0708cab49a4e565ead419"
+ "recorded_at": "2026-09-09T09:01:47+00:00",
+ "recorded_by": "batch-agent",
+ "response_sha256": "fdab7243a450ac33958c2157c5b285bda1a380770e41ffd9e121c3931a76a1fb"
 }

@@ -1,0 +1,55 @@
+{
+ "response": {
+  "body": {
+   "items": [
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM25"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM25"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM10"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM10"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM10"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "O3"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "O3"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM25"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM25"
+    },
+    {
+     "dataTime": "2026-09-09",
+     "informCode": "PM10"
+    }
+   ],
+   "numOfRows": 10,
+   "pageNo": 1,
+   "totalCount": 860
+  },
+  "header": {
+   "resultCode": "00",
+   "resultMsg": "NORMAL_CODE"
+  }
+ }
+}

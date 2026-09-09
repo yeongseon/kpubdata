@@ -4,6 +4,26 @@
    "coFlag": null,
    "coGrade": "1",
    "coValue": "0.3",
+   "dataTime": "2026-09-09 17:00",
+   "khaiGrade": "2",
+   "khaiValue": "64",
+   "no2Flag": null,
+   "no2Grade": "1",
+   "no2Value": "0.001",
+   "o3Flag": null,
+   "o3Grade": "2",
+   "o3Value": "0.046",
+   "pm10Flag": null,
+   "pm10Grade": "1",
+   "pm10Value": "24",
+   "so2Flag": null,
+   "so2Grade": "1",
+   "so2Value": "0.002"
+  },
+  {
+   "coFlag": null,
+   "coGrade": "1",
+   "coValue": "0.3",
    "dataTime": "2026-09-09 16:00",
    "khaiGrade": "2",
    "khaiValue": "59",
@@ -179,27 +199,7 @@
    "so2Flag": null,
    "so2Grade": "1",
    "so2Value": "0.002"
-  },
-  {
-   "coFlag": null,
-   "coGrade": "1",
-   "coValue": "0.4",
-   "dataTime": "2026-09-09 07:00",
-   "khaiGrade": "1",
-   "khaiValue": "42",
-   "no2Flag": null,
-   "no2Grade": "1",
-   "no2Value": "0.002",
-   "o3Flag": null,
-   "o3Grade": "1",
-   "o3Value": "0.024",
-   "pm10Flag": null,
-   "pm10Grade": "1",
-   "pm10Value": "22",
-   "so2Flag": null,
-   "so2Grade": "1",
-   "so2Value": "0.002"
   }
  ],
- "total_count": 23
+ "total_count": 22
 }

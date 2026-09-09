@@ -1,0 +1,777 @@
+{
+ "ok": [
+  "localdata.bakery",
+  "localdata.general_restaurant",
+  "localdata.rest_cafe"
+ ],
+ "failed": [
+  [
+   "localdata.affiliated_medical_institution",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.air_pollution_prevention_facility",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/air_pollution_prevention_facilities/info"
+  ],
+  [
+   "localdata.amusement_facility",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/amusement_facilities/info"
+  ],
+  [
+   "localdata.animal_breeding",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_breedings/info"
+  ],
+  [
+   "localdata.animal_care_service",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_care_services/info"
+  ],
+  [
+   "localdata.animal_crematorium",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_crematoriums/info"
+  ],
+  [
+   "localdata.animal_exhibition",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_exhibitions/info"
+  ],
+  [
+   "localdata.animal_funeral",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_funerals/info"
+  ],
+  [
+   "localdata.animal_hospital",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.animal_import",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.animal_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_saleses/info"
+  ],
+  [
+   "localdata.animal_training",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_training/info"
+  ],
+  [
+   "localdata.animal_transport",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/animal_transports/info"
+  ],
+  [
+   "localdata.barber_shop",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.beauty_salon",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.billiard_hall",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.boxing_gym",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/boxing_gyms/info"
+  ],
+  [
+   "localdata.breeding_stock",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/breeding_stocks/info"
+  ],
+  [
+   "localdata.building_sanitation_management",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/building_sanitation_managements/info"
+  ],
+  [
+   "localdata.caregiver_training_institution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/caregiver_training_institutions/info"
+  ],
+  [
+   "localdata.city_gas",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/city_gas/info"
+  ],
+  [
+   "localdata.civil_defense_water_supply",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/civil_defense_water_supply/info"
+  ],
+  [
+   "localdata.clinic",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.companion_animal_related_business",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/companion_animal_related_businesses/info"
+  ],
+  [
+   "localdata.composite_game_provider",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/composite_game_providers/info"
+  ],
+  [
+   "localdata.comprehensive_amusement_facility",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.comprehensive_resort_business",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/comprehensive_resort_businesses/info"
+  ],
+  [
+   "localdata.comprehensive_sports_facility",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.comprehensive_travel",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/comprehensive_travels/info"
+  ],
+  [
+   "localdata.container_packaging_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/container_packaging_manufacturings/info"
+  ],
+  [
+   "localdata.contract_foodservice",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/contract_foodservices/info"
+  ],
+  [
+   "localdata.culture_industry_company",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/culture_industry_companies/info"
+  ],
+  [
+   "localdata.dance_academy",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.dance_hall",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.dental_lab",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.disinfection_business",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/disinfection_businesses/info"
+  ],
+  [
+   "localdata.distribution_specialized_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/distribution_specialized_sales/info"
+  ],
+  [
+   "localdata.domestic_international_travel",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/domestic_international_travels/info"
+  ],
+  [
+   "localdata.domestic_travel",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/domestic_travels/info"
+  ],
+  [
+   "localdata.door_to_door_sales",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.ecommerce",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/ecommerce/info"
+  ],
+  [
+   "localdata.edible_ice_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/edible_ice_saleses/info"
+  ],
+  [
+   "localdata.electrical_construction",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/electrical_construction/info"
+  ],
+  [
+   "localdata.electrical_safety_management_agency",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/electrical_safety_management_agencies/info"
+  ],
+  [
+   "localdata.electricity_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/electricity_sales/info"
+  ],
+  [
+   "localdata.electronic_distribution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/electronic_distribution/info"
+  ],
+  [
+   "localdata.elevator_maintenance",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/elevator_maintenances/info"
+  ],
+  [
+   "localdata.elevator_manufacturing_import",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/elevator_manufacturing_imports/info"
+  ],
+  [
+   "localdata.emergency_patient_transport",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/emergency_patient_transports/info"
+  ],
+  [
+   "localdata.energy_saving_company",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/energy_saving_companies/info"
+  ],
+  [
+   "localdata.entertainment_bar",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.environmental_consulting",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/environmental_consulting/info"
+  ],
+  [
+   "localdata.environmental_impact_assessment",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/environmental_impact_assessment/info"
+  ],
+  [
+   "localdata.environmental_measurement_agency",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/environmental_measurement_agencies/info"
+  ],
+  [
+   "localdata.feed_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/feed_manufacturings/info"
+  ],
+  [
+   "localdata.fitness_center",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.food_additive_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/food_additive_manufacturing/info"
+  ],
+  [
+   "localdata.food_cold_storage",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/food_cold_storage/info"
+  ],
+  [
+   "localdata.food_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/food_manufacturing/info"
+  ],
+  [
+   "localdata.food_repackaging",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/food_repackaging/info"
+  ],
+  [
+   "localdata.food_transportation",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/food_transportation/info"
+  ],
+  [
+   "localdata.food_vending_machine",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.foreign_tourist_city_homestay",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/foreign_tourist_city_homestays/info"
+  ],
+  [
+   "localdata.foreign_tourist_city_homestay_lodging",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/foreign_tourist_city_homestay_lodgings/info"
+  ],
+  [
+   "localdata.foreigner_exclusive_entertainment_restaurant",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/foreigner_exclusive_entertainment_restaurants/info"
+  ],
+  [
+   "localdata.free_job_placement",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/free_job_placements/info"
+  ],
+  [
+   "localdata.funeral_director_training_institution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/funeral_director_training_institutions/info"
+  ],
+  [
+   "localdata.funeral_service",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/funeral_service/info"
+  ],
+  [
+   "localdata.game_distribution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/game_distributions/info"
+  ],
+  [
+   "localdata.game_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/game_manufacturings/info"
+  ],
+  [
+   "localdata.game_provider",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/game_providers/info"
+  ],
+  [
+   "localdata.gas_appliance_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/gas_appliance_manufacturings/info"
+  ],
+  [
+   "localdata.general_amusement_facility",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.general_lodging",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/general_lodgings/info"
+  ],
+  [
+   "localdata.golf_course",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.golf_practice_range",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.groundwater_construction",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.groundwater_impact_assessment",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/groundwater_impact_assessments/info"
+  ],
+  [
+   "localdata.groundwater_purification",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/groundwater_purification/info"
+  ],
+  [
+   "localdata.group_cafeteria",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/group_cafeterias/info"
+  ],
+  [
+   "localdata.hanok_experience",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/hanok_experiences/info"
+  ],
+  [
+   "localdata.hanok_experience_lodging",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/hanok_experience_lodgings/info"
+  ],
+  [
+   "localdata.hatchery",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.health_functional_food_distributor",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/health_functional_food_distributors/info"
+  ],
+  [
+   "localdata.health_functional_food_retail",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/health_functional_food_retail/info"
+  ],
+  [
+   "localdata.health_functional_food_specialty",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/health_functional_food_specialties/info"
+  ],
+  [
+   "localdata.high_pressure_gas",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.horse_riding",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.hospital",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.ice_rink",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.imported_food_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/imported_food_sales/info"
+  ],
+  [
+   "localdata.imported_livestock_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/imported_livestock_sales/info"
+  ],
+  [
+   "localdata.instant_food_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/instant_food_manufacturing/info"
+  ],
+  [
+   "localdata.international_conference_facility",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/international_conference_facilities/info"
+  ],
+  [
+   "localdata.international_conference_planning",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/international_conference_planning/info"
+  ],
+  [
+   "localdata.international_freight_forwarding",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/international_freight_forwarding/info"
+  ],
+  [
+   "localdata.internet_computer_game_facility",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/internet_computer_game_facilities/info"
+  ],
+  [
+   "localdata.karaoke",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.large_store",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/large_stores/info"
+  ],
+  [
+   "localdata.laundry",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.livestock_artificial_insemination_center",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/livestock_artificial_insemination_centers/info"
+  ],
+  [
+   "localdata.livestock_farming",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/livestock_farmings/info"
+  ],
+  [
+   "localdata.livestock_processing",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.livestock_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/livestock_sales/info"
+  ],
+  [
+   "localdata.livestock_storage",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.livestock_transportation",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/livestock_transportation/info"
+  ],
+  [
+   "localdata.log_production",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.logistics_warehouse",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.lpg_charging",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/lpg_chargings/info"
+  ],
+  [
+   "localdata.lpg_collective_supply",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/lpg_collective_supplies/info"
+  ],
+  [
+   "localdata.lpg_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/lpg_saleses/info"
+  ],
+  [
+   "localdata.mail_order_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/mail_order_sales/info"
+  ],
+  [
+   "localdata.marine_environment_management",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/marine_environment_managements/info"
+  ],
+  [
+   "localdata.martial_arts_gym",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/martial_arts_gyms/info"
+  ],
+  [
+   "localdata.medical_device_repair",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/medical_device_repairs/info"
+  ],
+  [
+   "localdata.medical_device_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/medical_device_sales/info"
+  ],
+  [
+   "localdata.medical_foundation",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/medical_foundations/info"
+  ],
+  [
+   "localdata.medical_linen_processing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/medical_linen_processing/info"
+  ],
+  [
+   "localdata.medical_waste_treatment",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/medical_waste_treatments/info"
+  ],
+  [
+   "localdata.meter_repair",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/meter_repairs/info"
+  ],
+  [
+   "localdata.milk_collection",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.motor_racing_course",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/motor_racing_courses/info"
+  ],
+  [
+   "localdata.movie_distribution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/movie_distributions/info"
+  ],
+  [
+   "localdata.movie_import",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/movie_imports/info"
+  ],
+  [
+   "localdata.movie_production",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/movie_productions/info"
+  ],
+  [
+   "localdata.movie_screening",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/movie_screenings/info"
+  ],
+  [
+   "localdata.movie_theater",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.multilevel_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/multilevel_sales/info"
+  ],
+  [
+   "localdata.music_video_distribution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/music_video_distributions/info"
+  ],
+  [
+   "localdata.music_video_production",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/music_video_productions/info"
+  ],
+  [
+   "localdata.night_soil_collection_transportation",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/night_soil_collection_transportation/info"
+  ],
+  [
+   "localdata.noise_vibration_prevention_facility",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/noise_vibration_prevention_facilities/info"
+  ],
+  [
+   "localdata.onggi_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/onggi_manufacturings/info"
+  ],
+  [
+   "localdata.online_music_service",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.optical_shop",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.other_food_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/other_food_sales/info"
+  ],
+  [
+   "localdata.outdoor_advertising",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/outdoor_advertising/info"
+  ],
+  [
+   "localdata.paid_job_placement",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/paid_job_placements/info"
+  ],
+  [
+   "localdata.performance_hall",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.pet_grooming",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.petroleum_import_export",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/petroleum_import_exports/info"
+  ],
+  [
+   "localdata.petroleum_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/petroleum_sales/info"
+  ],
+  [
+   "localdata.pharmacy",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.popular_culture_arts_planning",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/popular_culture_arts_planning/info"
+  ],
+  [
+   "localdata.postpartum_care",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.prepaid_installment_trade",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/prepaid_installment_trades/info"
+  ],
+  [
+   "localdata.printing_house",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/printing_houses/info"
+  ],
+  [
+   "localdata.public_bath",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.publisher",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.quasi_medical_business",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/quasi_medical_businesses/info"
+  ],
+  [
+   "localdata.record_distribution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/record_distributions/info"
+  ],
+  [
+   "localdata.record_production",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/record_productions/info"
+  ],
+  [
+   "localdata.residential_accommodation",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/residential_accommodations/info"
+  ],
+  [
+   "localdata.rural_guesthouse",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/rural_guesthouses/info"
+  ],
+  [
+   "localdata.safe_over_the_counter_drug_store",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/safe_over_the_counter_drug_stores/info"
+  ],
+  [
+   "localdata.sanitary_product_manufacturing",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/sanitary_product_manufacturings/info"
+  ],
+  [
+   "localdata.sanitation_treatment",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/sanitation_treatments/info"
+  ],
+  [
+   "localdata.sawmill",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.singing_bar",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.ski_resort",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.slaughterhouse",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.small_hotel",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/small_hotels/info"
+  ],
+  [
+   "localdata.soil_remediation",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/soil_remediation/info"
+  ],
+  [
+   "localdata.specialized_resort_business",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/specialized_resort_businesses/info"
+  ],
+  [
+   "localdata.swimming_pool",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.timber_import_distribution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/timber_import_distributions/info"
+  ],
+  [
+   "localdata.tobacco_import_sales",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tobacco_import_saleses/info"
+  ],
+  [
+   "localdata.tobacco_retail",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tobacco_retails/info"
+  ],
+  [
+   "localdata.tobacco_wholesale",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tobacco_wholesales/info"
+  ],
+  [
+   "localdata.tourism_business",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.tourism_convenience_facility",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tourism_convenience_facilities/info"
+  ],
+  [
+   "localdata.tourism_duty_free",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tourism_duty_frees/info"
+  ],
+  [
+   "localdata.tourist_accommodation",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.tourist_entertainment_restaurant",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.tourist_excursion_boat",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tourist_excursion_boats/info"
+  ],
+  [
+   "localdata.tourist_pension",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.tourist_performance_hall",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.tourist_restaurant",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.tourist_theater_entertainment",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tourist_theater_entertainments/info"
+  ],
+  [
+   "localdata.tourist_track",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/tourist_tracks/info"
+  ],
+  [
+   "localdata.video_distribution",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/video_distributions/info"
+  ],
+  [
+   "localdata.video_production",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/video_productions/info"
+  ],
+  [
+   "localdata.video_small_theater",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/video_small_theaters/info"
+  ],
+  [
+   "localdata.video_viewing_room",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.video_viewing_service",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/video_viewing_services/info"
+  ],
+  [
+   "localdata.waste_collection_transportation",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/waste_collection_transportation/info"
+  ],
+  [
+   "localdata.waste_recycling",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/waste_recycling/info"
+  ],
+  [
+   "localdata.waste_treatment",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/waste_treatment/info"
+  ],
+  [
+   "localdata.water_pollution_prevention_facility",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1741000/water_pollution_prevention_facilities/info"
+  ],
+  [
+   "localdata.water_tank_cleaning",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.yacht_marina",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "localdata.youth_game_provider",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ]
+ ]
+}
