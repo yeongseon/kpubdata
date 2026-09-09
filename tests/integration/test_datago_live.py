@@ -28,6 +28,15 @@ def _yesterday_kst_ymd() -> str:
     return (datetime.now(ZoneInfo("Asia/Seoul")) - timedelta(days=1)).strftime("%Y%m%d")
 
 
+def _latest_mid_fcst_kst() -> str:
+    """KST 기준 최근 중기예보 06시 발표시각을 반환한다."""
+    now = datetime.now(ZoneInfo("Asia/Seoul"))
+    publication_date = now.date()
+    if now.hour < 6:
+        publication_date -= timedelta(days=1)
+    return publication_date.strftime("%Y%m%d") + "0600"
+
+
 # test datago village fcst 테스트가 검증하는 시나리오를 설명한다.
 @pytest.mark.integration
 def test_datago_village_fcst(require_datago_key: None, live_client: Client) -> None:
@@ -80,6 +89,19 @@ def test_datago_ultra_srt_ncst(require_datago_key: None, live_client: Client) ->
     ds = live_client.dataset("datago.ultra_srt_ncst")
 
     result = ds.list(base_date=_yesterday_kst_ymd(), base_time="2300", nx="55", ny="127")
+
+    assert isinstance(result, RecordBatch)
+    assert len(result.items) > 0
+    assert isinstance(result.items[0], dict)
+
+
+@pytest.mark.integration
+def test_datago_mid_fcst(require_datago_key: None, live_client: Client) -> None:
+    """최근 KST 06시 발표시각으로 중기전망 API를 호출한다."""
+    _ = require_datago_key
+    ds = live_client.dataset("datago.mid_fcst")
+
+    result = ds.list(stnId="109", tmFc=_latest_mid_fcst_kst(), page_size=1)
 
     assert isinstance(result, RecordBatch)
     assert len(result.items) > 0
