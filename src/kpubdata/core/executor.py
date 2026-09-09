@@ -22,7 +22,7 @@ import httpx
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
-from kpubdata.core.models import DatasetRef, Query, RecordBatch
+from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.representation import Representation
 from kpubdata.core.spec import SpecDefinition
 from kpubdata.exceptions import (
@@ -508,7 +508,7 @@ class SpecDatasetAdapter:
             raise DatasetNotFoundError(msg, provider=self._provider, dataset_id=dataset.id)
         return self._executor.query(spec, dataset, query)
 
-    def get_schema(self, dataset: DatasetRef) -> None:
+    def get_schema(self, dataset: DatasetRef) -> SchemaDescriptor | None:
         """아직 스키마 메타데이터를 지원하지 않는다(정직한 선언)."""
         return None
 

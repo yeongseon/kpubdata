@@ -8,11 +8,15 @@ Provider를 어떻게 등록할지는 이 모듈이 결정한다. 공개 API는 
 from __future__ import annotations
 
 import importlib
+import logging
 from collections.abc import Callable
 from typing import cast
 
 from kpubdata.config import KPubDataConfig
+from kpubdata.core.bridge import CompositeProviderAdapter
+from kpubdata.core.executor import SpecDatasetAdapter, SpecExecutor
 from kpubdata.core.protocol import ProviderAdapter
+from kpubdata.core.spec import SpecDefinition, discover_specs
 from kpubdata.providers.manifest import BUILTIN_PROVIDERS
 from kpubdata.registry import ProviderRegistry
 from kpubdata.transport.http import (
@@ -44,6 +48,7 @@ def register_builtin_providers(
         registry.register_lazy(
             provider_name,
             _make_builtin_factory(
+                provider_name,
                 module_path,
                 class_name,
                 config,
@@ -56,6 +61,7 @@ def register_builtin_providers(
 
 
 def _make_builtin_factory(
+    provider_name: str,
     mod: str,
     cls: str,
     cfg: KPubDataConfig,
@@ -69,20 +75,44 @@ def _make_builtin_factory(
         module = importlib.import_module(mod)
         adapter_cls = cast(Callable[..., ProviderAdapter], getattr(module, cls))
         adapter = adapter_cls(config=cfg, transport=tpt)
+        final_transport = tpt
         requirements = _get_transport_requirements(adapter)
-        # 전송 요구사항이 없으면 공용 HttpTransport를 그대로 재사용한다.
-        if requirements is None:
-            return adapter
-
         # Provider별 SSL/헤더 요구사항이 있으면 별도 HttpTransport를 만들어 붙인다.
-        custom_transport = HttpTransport.with_requirements(
-            base_transport_config,
-            requirements,
-        )
-        owned_transports.append(custom_transport)
-        return adapter_cls(config=cfg, transport=custom_transport)
+        if requirements is not None:
+            final_transport = HttpTransport.with_requirements(
+                base_transport_config,
+                requirements,
+            )
+            owned_transports.append(final_transport)
+            adapter = adapter_cls(config=cfg, transport=final_transport)
+        # spec이 있는 Provider는 카탈로그 어댑터와 병합해 spec 우선으로 노출한다(#378).
+        return _wrap_with_specs(provider_name, adapter, final_transport, cfg)
 
     return _factory
+
+
+def _wrap_with_specs(
+    provider_name: str,
+    adapter: ProviderAdapter,
+    transport: HttpTransport,
+    config: KPubDataConfig,
+) -> ProviderAdapter:
+    """Provider용 spec이 있으면 composite 브릿지로 감싸고, 없으면 원본을 반환한다."""
+    specs = _specs_for_provider(provider_name)
+    if not specs:
+        return adapter
+    executor = SpecExecutor(transport, config)
+    spec_adapter = SpecDatasetAdapter(provider_name, list(specs), executor)
+    logger.info(
+        "Wrapping builtin adapter with dataset specs",
+        extra={"provider": provider_name, "spec_count": len(specs)},
+    )
+    return CompositeProviderAdapter(adapter, spec_adapter)
+
+
+def _specs_for_provider(provider_name: str) -> tuple[SpecDefinition, ...]:
+    """번들 spec 중 해당 Provider 것만 모은다."""
+    return tuple(spec for spec in discover_specs() if spec.provider == provider_name)
 
 
 def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequirements | None:
@@ -92,5 +122,7 @@ def _get_transport_requirements(adapter: ProviderAdapter) -> TransportRequiremen
         return None
     return cast(TransportRequirements | None, requirements)
 
+
+logger = logging.getLogger("kpubdata.bootstrap")
 
 __all__ = ["register_builtin_providers"]

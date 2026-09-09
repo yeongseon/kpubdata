@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from importlib import resources
 from pathlib import Path
 
 import yaml
@@ -517,11 +516,13 @@ def load_spec_file(path: Path) -> SpecDefinition:
 def _default_specs_dir() -> Path:
     """패키지에 번들된 specs 디렉터리 경로를 반환한다.
 
-    파일시스템 기반 배포(site-packages·dev 체크아웃·wheel 설치)를 가정한다.
+    이 모듈 파일(src/kpubdata/core/spec.py)의 위치에서 상대 경로로 해석한다.
+    importlib.resources를 쓰지 않는 이유: (1) 전역 import 목킹을 하는 기존
+    테스트(test_client_transport_requirements)와 충돌하지 않고, (2) 파일시스템
+    기반 배포(dev 체크아웃·site-packages·wheel)에서 동일하게 동작한다.
     zipimport로 직접 로드되는 특수 환경은 지원하지 않는다(정직한 제약).
     """
-    base = resources.files("kpubdata")
-    return Path(str(base)) / "specs"
+    return Path(__file__).resolve().parent.parent / "specs"
 
 
 def _iter_yaml_files(root: Path) -> list[Path]:
