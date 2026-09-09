@@ -11,13 +11,10 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
-from unittest.mock import patch
-
 import httpx
 import pytest
 
 from kpubdata import Client
-from kpubdata.transport.http import HttpTransport
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / "scripts"
@@ -67,7 +64,6 @@ class FakeLiveTransport:
         from kpubdata.core.spec import find_spec
 
         self.calls.append({"url": url, "params": dict(params or {})})
-        spec = find_spec((dataset_id or "").replace(".", "_") if dataset_id else "")
         # village_fcst의 xml 예제는 XML 응답을 흉내낸다.
         fmt = (
             (params or {}).get("dataType")
@@ -173,10 +169,6 @@ def test_verify_passes_on_fresh_record(tmp_path: Path, monkeypatch: pytest.Monke
 
 def test_verify_fails_when_fixture_missing(monkeypatch: pytest.MonkeyPatch) -> None:
     """fixture가 없으면 실패하고 record 안내를 출력한다."""
-    result = (
-        verify_mod.run_verify.__wrapped__ if hasattr(verify_mod.run_verify, "__wrapped__") else None
-    )
-    # 단일 데이터셋 검증 함수 직접 호출
     monkeypatch.setattr(verify_mod, "FIXTURES_ROOT", Path("/nonexistent"))
     steps = verify_mod._verify_fixtures(_spec("datago.apt_trade"))
     assert not all(step.passed for step in steps)
