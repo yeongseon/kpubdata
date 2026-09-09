@@ -33,6 +33,7 @@ classifiers = [
 ]
 dependencies = [
   "httpx>=0.27,<1",
+  "pyyaml>=6,<7",
   "typing-extensions>=4.10; python_version < '3.11'",
 ]
 
@@ -95,3 +96,9 @@ mypy_path = ["src"]
 addopts = "-ra -m 'not integration'"
 markers = ["integration: real API integration tests (require API keys)"]
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "jsonschema>=4.23,<5",
+    "types-pyyaml>=6.0.12.20260906",
+]

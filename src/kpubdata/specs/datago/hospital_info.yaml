@@ -1,0 +1,60 @@
+# 골든 예제: 단순한 필터링 없이 페이지네이션만 사용하는 일반적인 데이터셋
+# 카테고리: 단순 예제
+# 참고: 이 spec은 필수 파라미터가 없는 가장 기본적인 데이터셋입니다.
+
+id: datago.hospital_info
+provider: datago
+title: 병원정보서비스
+description: 전국 병원의 기본 정보를 조회합니다. 페이지네이션을 통해 대량의 데이터를 단계적으로 조회할 수 있습니다.
+
+source:
+  url: https://www.data.go.kr
+  verified_at: "2026-04-21"
+
+endpoint:
+  base_url: http://apis.data.go.kr/B551182/hospInfoServicev2
+  operation: getHospBasisList
+  method: GET
+  format_param:
+    name: _type
+    values:
+      json: json
+      xml: xml
+
+auth:
+  type: query_param
+  param_name: serviceKey
+  provider_key: datago
+
+params: []
+
+response:
+  format: json
+  envelope: datago_standard
+  items_path: response.body.items.item
+  total_count_path: response.body.totalCount
+  error:
+    style: header_result_code
+    code_path: response.header.resultCode
+    ok_values: ["00", "000", 0]
+
+pagination:
+  type: page_no_rows
+  page_param: pageNo
+  size_param: numOfRows
+  max_size: 1000
+
+fields: []
+
+examples:
+  - name: default
+    description: 기본값으로 첫 페이지 조회
+    page: 1
+    page_size: 10
+  - name: with_pagination
+    description: 페이지네이션 사용 예제 (100개 행)
+    page: 1
+    page_size: 100
+
+status: active
+last_verified: "2026-04-21"

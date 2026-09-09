@@ -1,0 +1,16 @@
+id: 점이_없는_id
+provider: test
+title: 잘못된 id
+endpoint:
+  base_url: https://example.test/api
+  operation: list
+auth:
+  type: none
+response:
+  format: json
+  envelope: datago_standard
+  error:
+    style: header_result_code
+pagination:
+  type: none
+status: active
