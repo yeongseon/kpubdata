@@ -1062,9 +1062,52 @@ def test_fixture_g2b_catalog_parses() -> None:
 
     assert len(batch.items) == 2
     assert "prdctIdntNo" in batch.items[0]
-    assert "prdctNm" in batch.items[0]
-    assert "crtfcTyNm" in batch.items[0]
-    assert batch.total_count == 2
+    assert "prdctClsfcNoNm" in batch.items[0]
+    assert "cntrctCorpNm" in batch.items[0]
+    assert batch.total_count == 7607
+
+
+# test datago g2b catalog default filters 테스트가 검증하는 시나리오를 설명한다.
+def test_datago_g2b_catalog_default_filters_fill_required_param() -> None:
+    """
+    test datago g2b catalog default filters 시나리오를 검증한다.
+
+    조달청 ShoppingMallPrdctInfoService는 inqryDiv를 필수 파라미터로 요구한다.
+    카탈로그 default_filters가 해당 기본값을 채우고, 사용자 필터가 우선하는지 확인한다.
+
+    반환값:
+        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+
+    예시:
+        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
+    """
+    transport = FixtureTransport(fixture_names=["success_g2b_catalog.json"])
+    config = KPubDataConfig(provider_keys={"datago": "test-key"})
+    adapter = DataGoAdapter(
+        config=config,
+        transport=cast(HttpTransport, cast(object, transport)),
+    )
+    dataset = adapter.get_dataset("g2b_catalog")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert len(batch.items) == 2
+    first_call = cast(dict[str, object], transport.calls[0])
+    first_params = cast(dict[str, object], first_call["params"])
+    assert first_params["inqryDiv"] == "1"
+
+    # 사용자 필터가 카탈로그 기본값을 우선한다.
+    second_transport = FixtureTransport(fixture_names=["success_g2b_catalog.json"])
+    second_adapter = DataGoAdapter(
+        config=config,
+        transport=cast(HttpTransport, cast(object, second_transport)),
+    )
+    _ = second_adapter.query_records(
+        second_adapter.get_dataset("g2b_catalog"), Query(filters={"inqryDiv": "2"})
+    )
+    second_call = cast(dict[str, object], second_transport.calls[0])
+    second_params = cast(dict[str, object], second_call["params"])
+    assert second_params["inqryDiv"] == "2"
 
 
 # test fixture dur age taboo parses 테스트가 검증하는 시나리오를 설명한다.

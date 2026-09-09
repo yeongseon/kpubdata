@@ -2,42 +2,84 @@
   "response": {
     "header": {
       "resultCode": "00",
-      "resultMsg": "NORMAL SERVICE."
+      "resultMsg": "정상"
     },
     "body": {
-      "items": {
-        "item": [
-          {
-            "prdctIdntNo": "24567890",
-            "prdctNm": "친환경 인증 복사용지",
-            "dtlPrdctNm": "재생펄프 80% 이상 A4 복사용지",
-            "prdctClsfcNm": "사무용지류",
-            "cntrctUntpc": "25000",
-            "bsnmNm": "그린페이퍼(주)",
-            "brno": "1234567890",
-            "bsnmAddr": "경기도 안산시 상록구",
-            "dlvrTmlmtDayCnt": "7",
-            "crtfcTyNm": "환경표지인증",
-            "entrprsSeCdNm": "중소기업"
-          },
-          {
-            "prdctIdntNo": "24567891",
-            "prdctNm": "고효율 LED 형광등 대체품",
-            "dtlPrdctNm": "T8 LED 직관형 18W",
-            "prdctClsfcNm": "조명기기류",
-            "cntrctUntpc": "15000",
-            "bsnmNm": "에코조명(주)",
-            "brno": "9876543210",
-            "bsnmAddr": "충청남도 천안시 서북구",
-            "dlvrTmlmtDayCnt": "5",
-            "crtfcTyNm": "녹색제품인증",
-            "entrprsSeCdNm": "사회적기업"
-          }
-        ]
-      },
-      "numOfRows": 10,
+      "items": [
+        {
+          "prdctImgUrl": "https://shop.g2b.go.kr/static/CataAttach/XezCatalog/XZMOK/item_image/2022/02/09/c1ff97da-17a4-462b-ae57-668f4b4c85ce.jpg",
+          "cntrctCorpNm": "주식회사퍼팩트",
+          "entrprsDivNm": "중소기업",
+          "cntrctMthdNm": "제3자단가계약",
+          "exclncPrcrmntPrdctYn": "N",
+          "masYn": "Y",
+          "smetprCmptProdctYn": "Y",
+          "cntrctPrceAmt": "61720",
+          "prdctUnit": "본",
+          "prdctMakrNm": "주식회사퍼팩트",
+          "prdctDlvrPlceNm": "수요기관 지정장소",
+          "prdctDlvryCndtnNm": "납품장소 하차도",
+          "prdctSplyRgnNm": "전지역",
+          "dlvrTmlmtDaynum": "30",
+          "prdctLrgclsfcCd": "00571",
+          "prdctLrgclsfcNm": "토목/건축/자재",
+          "prdctMidclsfcCd": "00593",
+          "prdctMidclsfcNm": "플라스틱관",
+          "prdctClsfcNo": "40142185",
+          "prdctClsfcNoNm": "경질폴리염화비닐관",
+          "dtilPrdctClsfcNo": "4014218502",
+          "dtilPrdctClsfcNoNm": "압력용경질폴리염화비닐관",
+          "prdctIdntNo": "24487565",
+          "prdctSpecNm": "압력용경질폴리염화비닐관, 퍼팩트, P-HIVP65-PN20, Φ65mm×6m, HIVP/단층, 편수칼라관, SDR11/PN20",
+          "shopngCntrctNo": "002350402_114",
+          "shopngCntrctSno": "14",
+          "cntrctDate": "20260908",
+          "cntrctBgnDate": "20260908",
+          "cntrctEndDate": "20261130",
+          "cntrctDeptNm": "건설환경구매과",
+          "prodctCertList": "KS, G-PASS기업, 소기업, G-PASS기업(B등급)",
+          "rgstDt": "20260908",
+          "cntrctCorpBizno": "5128110295"
+        },
+        {
+          "prdctImgUrl": "https://shop.g2b.go.kr/static/CataAttach/XezCatalog/XZMOK/item_image/2019/08/28/06495c29-ed40-4b00-9163-0d3fc1f87309.jpg",
+          "cntrctCorpNm": "동영오에이퍼니처 주식회사",
+          "entrprsDivNm": "중소기업",
+          "cntrctMthdNm": "제3자단가계약",
+          "exclncPrcrmntPrdctYn": "N",
+          "masYn": "Y",
+          "smetprCmptProdctYn": "Y",
+          "cntrctPrceAmt": "317000",
+          "prdctUnit": "개",
+          "prdctMakrNm": "동영오에이퍼니처(주)",
+          "prdctDlvrPlceNm": "수요기관 지정장소",
+          "prdctDlvryCndtnNm": "현장설치도",
+          "prdctSplyRgnNm": "전지역(제주 및 도서산간지역 운임비 별도)",
+          "dlvrTmlmtDaynum": "30",
+          "prdctLrgclsfcCd": "00450",
+          "prdctLrgclsfcNm": "사무/교육/가구",
+          "prdctMidclsfcCd": "00454",
+          "prdctMidclsfcNm": "사무용가구",
+          "prdctClsfcNo": "56101530",
+          "prdctClsfcNoNm": "캐비닛",
+          "dtilPrdctClsfcNo": "5610153001",
+          "dtilPrdctClsfcNoNm": "캐비닛",
+          "prdctIdntNo": "23389514",
+          "prdctSpecNm": "캐비닛, 동영오에이퍼니처, DYFBC-M349, 800×400×1880mm",
+          "shopngCntrctNo": "382430041_105",
+          "shopngCntrctSno": "87",
+          "cntrctDate": "20260908",
+          "cntrctBgnDate": "20260908",
+          "cntrctEndDate": "20261231",
+          "cntrctDeptNm": "자재구매과",
+          "prodctCertList": "소기업",
+          "rgstDt": "20260908",
+          "cntrctCorpBizno": "6158126946"
+        }
+      ],
+      "numOfRows": 2,
       "pageNo": 1,
-      "totalCount": 2
+      "totalCount": 7607
     }
   }
 }
