@@ -1,0 +1,57 @@
+name: 데이터셋 추가 요청
+description: spec 기반으로 추가할 공공데이터셋을 요청한다
+labels: [dataset-request]
+body:
+  - type: input
+    id: portal_url
+    attributes:
+      label: data.go.kr 데이터셋 URL
+      description: 활용가이드를 확인할 수 있는 공공데이터포털 페이지 URL
+    validations:
+      required: true
+  - type: input
+    id: dataset_id
+    attributes:
+      label: 제안 데이터셋 id
+      description: "{provider}.{dataset_key} 형식 (예: datago.air_quality)"
+      placeholder: datago.air_quality
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options:
+        - datago
+        - localdata
+        - semas
+        - lofin
+        - seoul
+        - neis
+        - kipris
+        - korean
+        - fds
+        - bok
+        - kosis
+        - law
+        - sgis
+        - krx
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - p0 (지금 필요)
+        - p1 (가까운 미래)
+        - p2 (여유 있을 때)
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: 필요한 이유
+      description: 어떤 분석/서비스에 쓰이는지 간단히
+    validations:
+      required: true
