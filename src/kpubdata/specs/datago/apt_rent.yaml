@@ -22,7 +22,17 @@ auth:
   param_name: serviceKey
   provider_key: datago
 
-params: []
+params:
+  - name: LAWD_CD
+    type: string
+    required: true
+    description: "지역코드 (5자리)"
+    example: "11110"
+  - name: DEAL_YMD
+    type: date_yyyymm
+    required: true
+    description: "거래연월 (YYYYMM)"
+    example: "202401"
 
 response:
   format: json
@@ -43,9 +53,11 @@ pagination:
 fields: []
 
 examples:
-  - name: default
-    description: 필터 없음 첫 페이지
-    params: {}
+  - name: seoul_gangnam
+    description: 서울 강남구 2024-01
+    params:
+      LAWD_CD: "11110"
+      DEAL_YMD: "202401"
     page: 1
     page_size: 10
 

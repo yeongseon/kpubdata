@@ -1,0 +1,16 @@
+{
+ "dataset_id": "datago.air_quality",
+ "endpoint": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty",
+ "example": "seoul",
+ "format": "json",
+ "params": {
+  "numOfRows": "10",
+  "pageNo": "1",
+  "returnType": "json",
+  "serviceKey": "[REDACTED]",
+  "sidoName": "서울"
+ },
+ "recorded_at": "2026-09-09T10:09:47+00:00",
+ "recorded_by": "ci",
+ "response_sha256": "412705700d3106073c532b0e6a0669e1b7c9e36649c3fa75dfb347ec2e7267bc"
+}
