@@ -23,6 +23,7 @@
 | ``datago/hospital_info.py`` | 단순 | 필수 필터 없음, 총건수 확인 |
 | ``datago/apt_trade.py`` | 페이지네이션 | 필수 필터 + 필드 구조 검증 |
 | ``datago/village_fcst.py`` | XML 응답 | 카테고리 구조 + 예보 항목 검증 |
+| ``datago/air_station.py`` | 네이스트 배열 items | 선택 필드(pm25) 처리 + 측정 구조 검증 |
 
 ## 문서 생성
 
