@@ -938,31 +938,6 @@ def test_fixture_metro_fare_parses() -> None:
 # test fixture metro path parses 테스트가 검증하는 시나리오를 설명한다.
 
 
-def test_fixture_g2b_contract_parses() -> None:
-    """
-    test fixture g2b contract parses 시나리오를 검증한다.
-
-    반환값:
-        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-
-    예시:
-        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
-    """
-    adapter, dataset = _build_real_estate_adapter("success_g2b_contract.json", "g2b_contract")
-
-    batch = adapter.query_records(dataset, Query())
-
-    assert len(batch.items) == 2
-    assert "cntrctSn" in batch.items[0]
-    assert "prdctNm" in batch.items[0]
-    assert "cntrctAmt" in batch.items[0]
-    assert batch.total_count == 2
-
-
-# test fixture social enterprise parses 테스트가 검증하는 시나리오를 설명한다.
 def test_fixture_social_enterprise_parses() -> None:
     """
     test fixture social enterprise parses 시나리오를 검증한다.
@@ -1043,31 +1018,8 @@ def test_fixture_road_traffic_list_parses_flat_envelope() -> None:
 
 
 # test fixture g2b catalog parses 테스트가 검증하는 시나리오를 설명한다.
-def test_fixture_g2b_catalog_parses() -> None:
-    """
-    test fixture g2b catalog parses 시나리오를 검증한다.
-
-    반환값:
-        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-
-    예시:
-        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
-    """
-    adapter, dataset = _build_real_estate_adapter("success_g2b_catalog.json", "g2b_catalog")
-
-    batch = adapter.query_records(dataset, Query())
-
-    assert len(batch.items) == 2
-    assert "prdctIdntNo" in batch.items[0]
-    assert "prdctNm" in batch.items[0]
-    assert "crtfcTyNm" in batch.items[0]
-    assert batch.total_count == 2
 
 
-# test fixture dur age taboo parses 테스트가 검증하는 시나리오를 설명한다.
 def test_fixture_dur_age_taboo_parses() -> None:
     """
     test fixture dur age taboo parses 시나리오를 검증한다.

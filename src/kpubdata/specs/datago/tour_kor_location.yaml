@@ -1,0 +1,84 @@
+# 한국관광공사 KorService2 — 2026-09 드리프트 수리(#414~#419): MobileOS/MobileApp 필수화·listYN 폐지
+id: datago.tour_kor_location
+provider: datago
+title: 한국관광공사 위치기반 관광정보
+description: 한국관광공사 TourAPI 2.0. 2026-09 기준 MobileOS·MobileApp이 필수이고 listYN은 폐지되었다.
+
+source:
+  url: https://www.data.go.kr/data/15101578/openapi.do
+  verified_at: "2026-09-10"
+
+endpoint:
+  base_url: http://apis.data.go.kr/B551011/KorService2
+  operation: locationBasedList2
+  method: GET
+  format_param:
+    name: _type
+    values:
+      json: json
+      xml: xml
+
+auth:
+  type: query_param
+  param_name: serviceKey
+  provider_key: datago
+
+params:
+  - name: MobileOS
+    type: string
+    required: true
+    description: "OS 구분 (ETC 고정)"
+    example: "ETC"
+  - name: MobileApp
+    type: string
+    required: true
+    description: "응용프로그램명"
+    example: "kpubdata"
+  - name: mapX
+    type: string
+    required: true
+    description: "경도"
+    example: "127.0292"
+  - name: mapY
+    type: string
+    required: true
+    description: "위도"
+    example: "37.4979"
+  - name: radius
+    type: string
+    required: true
+    description: "반경(미터)"
+    example: "1000"
+
+response:
+  format: json
+  envelope: datago_standard
+  items_path: response.body.items.item
+  total_count_path: response.body.totalCount
+  error:
+    style: header_result_code
+    code_path: response.header.resultCode
+    ok_values: ["00", "000", "0000", 0]
+
+pagination:
+  type: page_no_rows
+  page_param: pageNo
+  size_param: numOfRows
+  max_size: 1000
+
+fields: []
+
+examples:
+  - name: gangnam_1km
+    description: 강남역 반경 1km
+    params:
+      MobileOS: "ETC"
+      MobileApp: "kpubdata"
+      mapX: "127.0292"
+      mapY: "37.4979"
+      radius: "1000"
+    page: 1
+    page_size: 10
+
+status: active
+last_verified: "2026-09-10"

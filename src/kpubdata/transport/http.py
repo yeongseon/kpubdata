@@ -259,7 +259,15 @@ class HttpTransport:
                     request=httpx.Request(method.upper(), url, params=params, headers=headers),
                 )
 
-        for attempt in range(1, total_attempts + 1):
+        # 일부 한국 공공 API(예: 한국관광공사 KorService2)는 Content-Encoding: gzip을
+        # 선언하고 gzip이 아닌 본문을 보내는 결함이 있다. 디코딩 실패 시 1회만
+        # Accept-Encoding: identity로 재시도한다(#414).
+        effective_headers = headers
+        identity_retry_used = False
+
+        attempt = 0
+        while attempt < total_attempts:
+            attempt += 1
             retry_delay: float | None = None
             try:
                 logger.debug(
@@ -288,7 +296,7 @@ class HttpTransport:
                     method=method,
                     url=url,
                     params=params,
-                    headers=headers,
+                    headers=effective_headers,
                     content=content,
                     json=json_body,
                 )
@@ -359,6 +367,23 @@ class HttpTransport:
                     raise TransportTimeoutError(
                         f"Request timed out after {attempt} attempts: {method} {log_url}"
                     ) from (None if url_masked else exc)
+
+            except httpx.DecodingError as exc:
+                if not identity_retry_used:
+                    # identity 재시도는 재시도 횟수를 소모하지 않는 즉시 1회 재시도다.
+                    identity_retry_used = True
+                    merged = dict(effective_headers or {})
+                    merged["Accept-Encoding"] = "identity"
+                    effective_headers = merged
+                    attempt -= 1
+                    logger.info(
+                        "Response decoding failed; retrying with Accept-Encoding identity",
+                        extra={"method": method, "url": log_url, **request_context},
+                    )
+                    continue
+                raise TransportError(
+                    f"Response decoding failed after identity retry: {method} {log_url}"
+                ) from (None if url_masked else exc)
 
             except httpx.HTTPStatusError as exc:
                 status_code = exc.response.status_code

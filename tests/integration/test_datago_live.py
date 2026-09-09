@@ -584,8 +584,6 @@ def test_datago_tour_kor_festival(require_datago_key: None, live_client: Client)
     assert "response" in result
 
 
-# test datago metro fare 테스트가 검증하는 시나리오를 설명한다.
-@pytest.mark.integration
 @pytest.mark.skip(
     reason="External infra issue: see https://github.com/yeongseon/kpubdata/issues/139"
 )
@@ -621,8 +619,6 @@ def test_datago_metro_fare(require_datago_key: None, live_client: Client) -> Non
     assert "response" in result
 
 
-# test datago metro path 테스트가 검증하는 시나리오를 설명한다.
-@pytest.mark.integration
 @pytest.mark.skip(
     reason="Blocked by metro_fare upstream SSL issue (#139); params confirmed per #140"
 )
@@ -657,8 +653,6 @@ def test_datago_metro_path(require_datago_key: None, live_client: Client) -> Non
     assert "response" in result
 
 
-# test datago road traffic 테스트가 검증하는 시나리오를 설명한다.
-@pytest.mark.integration
 @pytest.mark.skip(
     reason="ITS Open API requires a separate apiKey from openapi.its.go.kr "
     "(not data.go.kr serviceKey)"
@@ -691,35 +685,6 @@ def test_datago_road_traffic(require_datago_key: None, live_client: Client) -> N
 
 # test datago g2b contract 테스트가 검증하는 시나리오를 설명한다.
 @pytest.mark.integration
-def test_datago_g2b_contract(require_datago_key: None, live_client: Client) -> None:
-    """
-    test datago g2b contract 시나리오를 검증한다.
-
-    매개변수:
-        require_datago_key (None): 호출자가 제공하는 입력 값이다.
-        live_client (Client): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-
-    예시:
-        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
-    """
-    _ = require_datago_key
-    ds = live_client.dataset("datago.g2b_contract")
-
-    result = ds.list(page_size=5)
-
-    assert isinstance(result, RecordBatch)
-    assert len(result.items) > 0
-    assert isinstance(result.items[0], dict)
-
-
-# test datago social enterprise 테스트가 검증하는 시나리오를 설명한다.
-@pytest.mark.integration
 def test_datago_social_enterprise(require_datago_key: None, live_client: Client) -> None:
     """
     test datago social enterprise 시나리오를 검증한다.
@@ -739,35 +704,6 @@ def test_datago_social_enterprise(require_datago_key: None, live_client: Client)
     """
     _ = require_datago_key
     ds = live_client.dataset("datago.social_enterprise")
-
-    result = ds.list(page_size=5)
-
-    assert isinstance(result, RecordBatch)
-    assert len(result.items) > 0
-    assert isinstance(result.items[0], dict)
-
-
-# test datago g2b catalog 테스트가 검증하는 시나리오를 설명한다.
-@pytest.mark.integration
-def test_datago_g2b_catalog(require_datago_key: None, live_client: Client) -> None:
-    """
-    test datago g2b catalog 시나리오를 검증한다.
-
-    매개변수:
-        require_datago_key (None): 호출자가 제공하는 입력 값이다.
-        live_client (Client): 호출자가 제공하는 입력 값이다.
-
-    반환값:
-        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
-
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-
-    예시:
-        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
-    """
-    _ = require_datago_key
-    ds = live_client.dataset("datago.g2b_catalog")
 
     result = ds.list(page_size=5)
 

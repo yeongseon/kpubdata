@@ -468,6 +468,10 @@ def check_payload_error(spec: SpecDefinition, payload: dict[str, object]) -> Non
     """에러 코드 경로를 검사하고 실패 코드면 예외를 발생시킨다(record·verify 공용)."""
     error = spec.response.error
     raw_code = _dot_get(payload, error.code_path)
+    # 폴백: 한국관광공사 KorService류는 에러를 envelope 밖 최상단 resultCode로
+    # 평면 반환한다(성공은 정상 envelope). 선언 경로에 없으면 최상단을 확인한다.
+    if raw_code is None and isinstance(payload.get("resultCode"), (str, int)):
+        raw_code = payload.get("resultCode")
     if isinstance(raw_code, str):
         code = raw_code
     elif isinstance(raw_code, int) and not isinstance(raw_code, bool):
@@ -483,6 +487,8 @@ def check_payload_error(spec: SpecDefinition, payload: dict[str, object]) -> Non
         return
 
     raw_message = _dot_get(payload, _message_path(error.code_path))
+    if not isinstance(raw_message, str) or not raw_message:
+        raw_message = payload.get("resultMsg")
     message = (
         raw_message if isinstance(raw_message, str) and raw_message else "Provider returned error"
     )
