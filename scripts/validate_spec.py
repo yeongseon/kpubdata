@@ -217,7 +217,12 @@ def main(argv: list[str] | None = None) -> int:
 
     report = validate_specs(args.specs_dir, args.schema)
     if args.spec:
-        report.results = [result for result in report.results if result.spec_id == args.spec]
+        # 매칭은 "provider.파일명" 전체 id 또는 파일명(stem) 둘 다 허용한다.
+        report.results = [
+            result
+            for result in report.results
+            if args.spec in (result.spec_id, f"{result.path.parent.name}.{result.spec_id}")
+        ]
         if not report.results:
             print(f"오류: spec을 찾을 수 없습니다: {args.spec}")
             return 1
