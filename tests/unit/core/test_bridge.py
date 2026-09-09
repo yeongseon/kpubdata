@@ -308,5 +308,7 @@ def test_client_catalogue_dataset_unaffected() -> None:
         kwargs = mock_request.call_args.kwargs
         params = kwargs["params"]
         # 어댑터 경로 증명: format 파라미터 값이 소문자 "json"(spec 실행기는 대문자).
-        format_values = {value for value in params.values() if value in {"json", "JSON", "xml", "XML"}}
+        format_values = {
+            value for value in params.values() if value in {"json", "JSON", "xml", "XML"}
+        }
         assert format_values == {"json"}
