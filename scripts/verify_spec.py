@@ -160,10 +160,7 @@ def run_verify(dataset_id: str | None = None) -> int:
     for spec in specs:
         result = DatasetVerifyResult(dataset_id=spec.id)
         result.steps.extend(_verify_fixtures(spec))
-        # 예제 실행 단계는 Phase 2.3 예제 규약 확정 후 활성화된다.
-        result.steps.append(
-            StepResult("examples 실행", passed=True, detail="대기: 예제 규약(#379 2.3)")
-        )
+        result.steps.append(_run_example_script(spec))
 
         status = "통과" if result.passed else "실패"
         print(f"[{status}] {spec.id}")

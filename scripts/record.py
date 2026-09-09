@@ -121,6 +121,15 @@ def record_dataset(
         shown = raw_path.relative_to(REPO_ROOT) if raw_path.is_relative_to(REPO_ROOT) else raw_path
         print(f"기록: {shown} ({len(items)}건, total={total})")
 
+    # spec에서 제거된 예제의 낡은 fixture 정리(도구 위생 — 수동 수정 아님)
+    declared = {example.name for example in spec.examples}
+    for stale in out_dir.glob("*.raw.json"):
+        stale_name = stale.name.removesuffix(".raw.json")
+        if stale_name not in declared:
+            for suffix in (".raw.json", ".meta.json", ".expected.json"):
+                (out_dir / f"{stale_name}{suffix}").unlink(missing_ok=True)
+            print(f"정리: 낡은 예제 fixture {stale_name}")
+
     return written
 
 

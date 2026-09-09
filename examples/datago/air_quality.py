@@ -1,9 +1,9 @@
 # auto-generated: docs-exclude
-"""datago.rh_rent 예제 — 자동 생성(배치 전환).
+"""datago.air_quality 예제 — 자동 생성(배치 전환).
 
 실행 모드:
 - ``KPUBDATA_MODE=replay`` — fixture 재생(키 불필요) / 미지정 — 실호출
-- 파라미터는 spec의 예제 ``seoul_gangnam``와 동일(replay 매칭 계약)
+- 파라미터는 spec의 예제 ``seoul``와 동일(replay 매칭 계약)
 - 필드 심화 검증은 후속 보강 대상 (배치 기준선: 구조·총건수 계약)
 """
 
@@ -15,19 +15,19 @@ from kpubdata import Client
 
 
 def main() -> None:
-    """datago.rh_rent 기본 조회를 실행한다."""
+    """datago.air_quality 기본 조회를 실행한다."""
     api_key = os.environ.get("KPUBDATA_DATAGO_API_KEY", "replay-mode")
     client = Client(provider_keys={"datago": api_key}, cache=False)
 
-    dataset = client.dataset("datago.rh_rent")
-    batch = dataset.list(LAWD_CD="11110", DEAL_YMD="202401", page=1, page_size=10)
+    dataset = client.dataset("datago.air_quality")
+    batch = dataset.list(sido="서울", page=1, page_size=10)
 
     # 구조 검증: envelope 계약(총건수 보고) + 레코드 형태
     assert batch.total_count is not None, "totalCount가 보고되어야 한다"
     assert isinstance(batch.items, list), "items는 리스트여야 한다"
     assert all(isinstance(item, dict) for item in batch.items), "레코드는 dict여야 한다"
 
-    print(f"datago.rh_rent: {len(batch.items)}건 / 전체 {batch.total_count}건")
+    print(f"datago.air_quality: {len(batch.items)}건 / 전체 {batch.total_count}건")
 
 
 if __name__ == "__main__":

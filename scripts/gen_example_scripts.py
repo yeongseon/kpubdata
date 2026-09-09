@@ -26,7 +26,7 @@ _TEMPLATE = '''# auto-generated: docs-exclude
 
 실행 모드:
 - ``KPUBDATA_MODE=replay`` — fixture 재생(키 불필요) / 미지정 — 실호출
-- 파라미터는 spec의 예제 ``default``와 동일(replay 매칭 계약)
+- 파라미터는 spec의 예제 ``{example_name}``와 동일(replay 매칭 계약)
 - 필드 심화 검증은 후속 보강 대상 (배치 기준선: 구조·총건수 계약)
 """
 
@@ -43,7 +43,7 @@ def main() -> None:
     client = Client(provider_keys={{"datago": api_key}}, cache=False)
 
     dataset = client.dataset("{dataset_id}")
-    batch = dataset.list(page=1, page_size=10)
+    batch = dataset.list({list_args})
 
     # 구조 검증: envelope 계약(총건수 보고) + 레코드 형태
     assert batch.total_count is not None, "totalCount가 보고되어야 한다"
@@ -64,15 +64,26 @@ def generate(provider: str) -> list[str]:
     for spec in discover_specs():
         if spec.provider != provider:
             continue
-        if not (FIXTURES_DIR / provider / spec.dataset_key / "default.meta.json").is_file():
+        fixture_dir = FIXTURES_DIR / provider / spec.dataset_key
+        if not fixture_dir.is_dir() or not list(fixture_dir.glob("*.meta.json")):
             continue
         out = EXAMPLES_DIR / provider / f"{spec.dataset_key}.py"
         if out.exists():
             continue
         out.parent.mkdir(parents=True, exist_ok=True)
+        example = spec.examples[0] if spec.examples else None
+        if example is None:
+            continue
+        call_parts = [f"{key}={value!r}" for key, value in example.params.items()]
+        if example.page is not None:
+            call_parts.append(f"page={example.page}")
+        if example.page_size is not None:
+            call_parts.append(f"page_size={example.page_size}")
         content = _TEMPLATE.format(
             dataset_id=spec.id,
             env_key="DATAGO",
+            example_name=example.name,
+            list_args=", ".join(call_parts),
         )
         out.write_text(content, encoding="utf-8")
         created.append(spec.id)

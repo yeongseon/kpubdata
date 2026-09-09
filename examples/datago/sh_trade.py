@@ -3,7 +3,7 @@
 
 실행 모드:
 - ``KPUBDATA_MODE=replay`` — fixture 재생(키 불필요) / 미지정 — 실호출
-- 파라미터는 spec의 예제 ``default``와 동일(replay 매칭 계약)
+- 파라미터는 spec의 예제 ``seoul_gangnam``와 동일(replay 매칭 계약)
 - 필드 심화 검증은 후속 보강 대상 (배치 기준선: 구조·총건수 계약)
 """
 
@@ -20,7 +20,7 @@ def main() -> None:
     client = Client(provider_keys={"datago": api_key}, cache=False)
 
     dataset = client.dataset("datago.sh_trade")
-    batch = dataset.list(page=1, page_size=10)
+    batch = dataset.list(LAWD_CD="11110", DEAL_YMD="202401", page=1, page_size=10)
 
     # 구조 검증: envelope 계약(총건수 보고) + 레코드 형태
     assert batch.total_count is not None, "totalCount가 보고되어야 한다"

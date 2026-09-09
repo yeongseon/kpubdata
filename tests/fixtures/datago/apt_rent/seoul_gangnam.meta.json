@@ -1,15 +1,17 @@
 {
  "dataset_id": "datago.apt_rent",
  "endpoint": "http://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent",
- "example": "default",
+ "example": "seoul_gangnam",
  "format": "json",
  "params": {
+  "DEAL_YMD": "202401",
+  "LAWD_CD": "11110",
   "numOfRows": "10",
   "pageNo": "1",
   "resultType": "json",
   "serviceKey": "[REDACTED]"
  },
- "recorded_at": "2026-09-09T09:01:48+00:00",
- "recorded_by": "batch-agent",
- "response_sha256": "d8fbdcda9328654289ad27ac21bdc0078fcda23ae7bc41b6f50987d091503b49"
+ "recorded_at": "2026-09-09T10:13:43+00:00",
+ "recorded_by": "ci",
+ "response_sha256": "b5478075a356e477be4f7c72bdb90b1ca37e568be8c58a55630aeff548d5ba6a"
 }
