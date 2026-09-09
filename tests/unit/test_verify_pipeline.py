@@ -11,6 +11,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
+
 import httpx
 import pytest
 
@@ -61,7 +62,6 @@ class FakeLiveTransport:
         provider: str | None = None,
         secret_values: tuple[str, ...] = (),
     ) -> object:
-        from kpubdata.core.spec import find_spec
 
         self.calls.append({"url": url, "params": dict(params or {})})
         # village_fcst의 xml 예제는 XML 응답을 흉내낸다.
