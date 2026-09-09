@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-09-09
+
+### 제거 (Breaking)
+- **폐기 서비스 데이터셋 141종 제거** (#412): localdata 136종, datago 5종(building_area·building_floor·building_recap_title·building_title·metro_path).
+  2026-09-09 본문 전수 프로브(`tests/fixtures/batch-reclass.json`)로 NO_OPENAPI_SERVICE 확정.
+  해당 catalogue 항목·fixture·테스트를 함께 제거했다. 활용신청 필요 94종은 유지(#409).
+
+### 추가
+- spec 기반 데이터셋 18종(골든 3 + air_station + ultra_srt_fcst + air_quality + ultra_srt_ncst + 부동산 6 + localdata 3 + airkorea_forecast + metro_fare) — `make verify` 4단계 기계 검증.
+- 대량 전환 도구: `gen_specs_from_catalogue.py`·`batch_record.py`·`gen_example_scripts.py`.
+
 ## [Unreleased]
 
 ### Fixed

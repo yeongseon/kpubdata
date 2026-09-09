@@ -366,102 +366,6 @@
     }
   },
   {
-    "dataset_key": "building_title",
-    "name": "건축물대장 표제부 (Building Title Info)",
-    "base_url": "http://apis.data.go.kr/1613000/BldRgstService_v2",
-    "default_operation": "getBrTitleInfo",
-    "representation": "api_json",
-    "service_key_param": "serviceKey",
-    "format_param": "_type",
-    "description": "MOLIT building registry title info from building ledger",
-    "tags": [
-      "real-estate",
-      "building",
-      "registry"
-    ],
-    "source_url": "https://www.data.go.kr",
-    "operations": [
-      "list",
-      "raw"
-    ],
-    "query_support": {
-      "pagination": "offset",
-      "max_page_size": 1000
-    }
-  },
-  {
-    "dataset_key": "building_recap_title",
-    "name": "건축물대장 총괄표제부 (Building Recap Title Info)",
-    "base_url": "http://apis.data.go.kr/1613000/BldRgstService_v2",
-    "default_operation": "getBrRecapTitleInfo",
-    "representation": "api_json",
-    "service_key_param": "serviceKey",
-    "format_param": "_type",
-    "description": "MOLIT building registry recap title info from building ledger",
-    "tags": [
-      "real-estate",
-      "building",
-      "registry"
-    ],
-    "source_url": "https://www.data.go.kr",
-    "operations": [
-      "list",
-      "raw"
-    ],
-    "query_support": {
-      "pagination": "offset",
-      "max_page_size": 1000
-    }
-  },
-  {
-    "dataset_key": "building_floor",
-    "name": "건축물대장 층별개요 (Building Floor Outline)",
-    "base_url": "http://apis.data.go.kr/1613000/BldRgstService_v2",
-    "default_operation": "getBrFlrOulnInfo",
-    "representation": "api_json",
-    "service_key_param": "serviceKey",
-    "format_param": "_type",
-    "description": "MOLIT building registry floor outline info from building ledger",
-    "tags": [
-      "real-estate",
-      "building",
-      "registry"
-    ],
-    "source_url": "https://www.data.go.kr",
-    "operations": [
-      "list",
-      "raw"
-    ],
-    "query_support": {
-      "pagination": "offset",
-      "max_page_size": 1000
-    }
-  },
-  {
-    "dataset_key": "building_area",
-    "name": "건축물대장 전유공용면적 (Building Area Info)",
-    "base_url": "http://apis.data.go.kr/1613000/BldRgstService_v2",
-    "default_operation": "getBrExposPubuseAreaInfo",
-    "representation": "api_json",
-    "service_key_param": "serviceKey",
-    "format_param": "_type",
-    "description": "MOLIT building registry exclusive/common area info from building ledger",
-    "tags": [
-      "real-estate",
-      "building",
-      "registry"
-    ],
-    "source_url": "https://www.data.go.kr",
-    "operations": [
-      "list",
-      "raw"
-    ],
-    "query_support": {
-      "pagination": "offset",
-      "max_page_size": 1000
-    }
-  },
-  {
     "dataset_key": "apt_trade",
     "name": "아파트매매 실거래자료 (Apartment Trade)",
     "base_url": "http://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev",
@@ -821,30 +725,6 @@
       "transportation",
       "subway",
       "fare"
-    ],
-    "source_url": "https://www.data.go.kr",
-    "operations": [
-      "list",
-      "raw"
-    ],
-    "query_support": {
-      "pagination": "offset",
-      "max_page_size": 1000
-    }
-  },
-  {
-    "dataset_key": "metro_path",
-    "name": "서울교통공사 최단경로 이동정보 (Seoul Metro Shortest Path)",
-    "base_url": "http://apis.data.go.kr/B553766/path",
-    "default_operation": "getShtrmPath",
-    "representation": "api_json",
-    "service_key_param": "serviceKey",
-    "format_param": "_type",
-    "description": "Seoul Metro shortest path between two subway stations",
-    "tags": [
-      "transportation",
-      "subway",
-      "route"
     ],
     "source_url": "https://www.data.go.kr",
     "operations": [
