@@ -51,14 +51,54 @@ def _gh(args: list[str]) -> str:
 
 
 def _failed_datasets_from_run(run_id: str) -> set[str]:
-    """실행 로그에서 실패한 데이터셋 id 집합을 추출한다."""
-    log = _gh(["run", "view", run_id, "--log"])
+    """실행의 junit 아티팩트에서 실패한 데이터셋 id 집합을 추출한다.
+
+    로그는 보존이 불안정해 아티팩트(smoke-*)를 1차 소스로 쓴다.
+    """
+    import io
+    import xml.etree.ElementTree as ET
+    import zipfile
+
+    listing = subprocess.run(
+        ["gh", "api", f"repos/{REPO}/actions/runs/{run_id}/artifacts", "-q", ".artifacts[].id"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
     found: set[str] = set()
-    for match in _TEST_RE.finditer(log):
-        provider = match.group("provider")
-        key = match.group("key")
-        # test_datago_village_fcst → provider=datago, key=village_fcst
-        found.add(f"{provider}.{key}")
+    for artifact_id in listing.stdout.split():
+        proc = subprocess.run(
+            [
+                "gh",
+                "api",
+                f"repos/{REPO}/actions/artifacts/{artifact_id}/zip",
+                "-H",
+                "Accept: application/vnd.github+json",
+            ],
+            check=False,
+            capture_output=True,
+        )
+        if proc.returncode != 0 or not proc.stdout:
+            continue
+        try:
+            with zipfile.ZipFile(io.BytesIO(proc.stdout)) as archive:
+                for name in archive.namelist():
+                    if not name.endswith(".xml"):
+                        continue
+                    root = ET.fromstring(archive.read(name))
+                    for case in root.iter("testcase"):
+                        has_failure = any(child.tag in ("failure", "error") for child in case)
+                        if not has_failure:
+                            continue
+                        match = _TEST_RE.search(
+                            f"FAILED {case.get('classname', '')}.{case.get('name', '')}"
+                        )
+                        if match is None:
+                            match = _TEST_RE.search(f"test_{case.get('name', '')}")
+                        if match:
+                            found.add(f"{match.group('provider')}.{match.group('key')}")
+        except (zipfile.BadZipFile, ET.ParseError):
+            continue
     return found
 
 
