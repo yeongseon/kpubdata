@@ -71,8 +71,52 @@ uv run ruff format --check .
 uv run mypy src
 uv run pytest
 uv run python -m build
-mkdocs build --strict
+uv run --extra docs mkdocs build --strict
+make verify   # spec 데이터셋: 스키마→fixture→replay→예제 4단계
 ```
+
+## 데이터셋 추가 절차 (spec 기반) — 에이전트 기본 경로
+
+> 데이터셋 추가는 코드 작성이 아니라 **spec YAML 작성**이다. 완성 여부는
+> `make verify DATASET=<id>` exit code로 기계 판정한다.
+
+### 절차 체크리스트
+
+1. [ ] 이슈의 data.go.kr URL에서 활용가이드를 확인한다 (또는 `docs/sources/` 캐시)
+2. [ ] 골든 예제 3종 중 가장 유사한 것을 복사해 `src/kpubdata/specs/{provider}/{dataset_key}.yaml` 작성
+   - 단순: `datago.hospital_info` / 페이지네이션: `datago.apt_trade` / XML: `datago.village_fcst`
+   - 계약: `src/kpubdata/specs/schema.json` (enum은 Phase 0 인벤토리 `docs/internal/adapter-inventory.md` 기반)
+3. [ ] `make record DATASET={provider}.{dataset_key}` — 실API로 fixture 3종(raw/meta/expected) 기록
+4. [ ] `examples/{provider}/{dataset_key}.py` 작성 — 파라미터는 spec examples[]와 동일(replay 매칭 계약), 의미 있는 assert ≥1
+5. [ ] `make verify DATASET={provider}.{dataset_key}` 통과할 때까지 반복 (4단계 전부 기계 판정)
+6. [ ] `SUPPORTED_DATA.md` 갱신 + 문서 예제 재생성 (`uv run python scripts/gen_docs_examples.py`)
+
+### 수정 허용 경로 (데이터셋 작업)
+
+`src/kpubdata/specs/`, `examples/`, `tests/fixtures/`, `docs/datasets/`, `SUPPORTED_DATA.md`
+
+### 수정 금지 경로 (데이터셋 작업)
+
+`src/kpubdata/core/` (executor·bridge·spec 로더), `tests/contract/`, `scripts/`, `Makefile`, `.github/`
+
+### 금지 행위
+
+- fixture 수동 작성·수정 (meta 해시 검증에서 반드시 걸린다 — `make record`로만 생성)
+- 테스트 skip, assert 약화 (`assert True` 등)
+- `status: broken`으로 검증 실패 회피
+- spec examples[]와 다른 파라미터로 예제 스크립트 작성 (replay 매칭 실패)
+
+### 막혔을 때
+
+같은 지점에서 3회 실패 시 `needs-human` 라벨 + 실패 원인 요약을 이슈에 남기고 중단한다.
+
+### 흔한 함정 (실제 발견 사례)
+
+- 아파트 실거래가(`RTMSDataSvc*`) 필드명은 **영문**(`dealAmount`, `aptNm`, `umdNm`) — 한글 필드 아님
+- 동네예보 2.0 카테고리는 `TMP`/`PCP` (구 버전의 `T1H`/`RN1` 아님)
+- 기상청 날짜 파라미터(`base_date`)는 최근 발표만 응답 — 오래되면 `make record`로 예제와 fixture를 함께 갱신
+- data.go.kr 계열 envelope 변형 4종(standard/gyeonggi/its_flat/odcloud) — `envelope_style` 참조
+- 커스텀 어댑터 대상(krx 등)은 이 절차가 아니라 아래 어댑터 작업 규칙을 따른다 (`docs/internal/custom-adapters.md`)
 
 ## 어댑터 작업 규칙
 
@@ -145,7 +189,8 @@ sequenceDiagram
 에이전트(Copilot, Cursor 등)를 사용하여 개발할 때 다음 규칙을 준수하세요.
 
 ### 좋은 프롬프트 예시
-- "`datago` 어댑터에 새로운 `Dataset`인 `air_quality`를 추가해줘. `PROVIDER_ADAPTER_CONTRACT.md`를 참고해서 구현하고, `tests/fixtures`에 응답 샘플도 추가해."
+- "`datago`에 신규 데이터셋 `air_quality`를 spec으로 추가해줘. 골든 예제 `hospital_info`를 참고해 `specs/datago/air_quality.yaml`을 작성하고 `make record` → `make verify`까지 통과시켜줘. (권장 경로 — AGENTS.md 데이터셋 추가 절차)"
+- "`datago` 어댑터에 새로운 `Dataset`인 `air_quality`를 추가해줘. `PROVIDER_ADAPTER_CONTRACT.md`를 참고해서 구현하고, `tests/fixtures`에 응답 샘플도 추가해." (커스텀 어댑터 경로)
 - "`RecordBatch` 모델에 `to_pandas()` 메서드를 추가하고 관련 유닛 테스트를 작성해줘."
 
 ### 에이전트 금지 사항
@@ -199,7 +244,11 @@ src/kpubdata/
     ├── semas/             # SEMAS Provider
     ├── seoul/             # 서울시 (서울열린데이터광장)
     │   └── datasets/      # 복잡한 Provider의 데이터셋 분리
-    └── sgis/              # SGIS (공간정보플랫폼)
+    ├── sgis/              # SGIS (공간정보플랫폼)
+    ├── kipris/            # 특허정보검색 (KIPRIS)
+    ├── korean/            # 표준국어대사전
+    ├── neis/              # 나이스(교육행정정보)
+    └── fds/               # 식품이력추적 (식약처)
 ```
 
 ```mermaid
