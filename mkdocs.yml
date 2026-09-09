@@ -53,6 +53,7 @@ nav:
   - 시작하기:
       - 빠른 시작: quickstart.md
       - CLI: cli.md
+      - 데이터셋 예제: dataset-examples.md
   - 가이드:
       - 캐싱: caching.md
       - 로깅: logging.md

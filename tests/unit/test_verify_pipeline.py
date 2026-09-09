@@ -277,3 +277,41 @@ def test_client_replay_mode_end_to_end(tmp_path: Path, monkeypatch: pytest.Monke
     )
     assert batch.items == [{"no": 1}, {"no": 2}]
     assert batch.total_count == 2
+
+
+# ----------------------------------------------------------------------
+# verify 4단계: 예제 스크립트 replay 실행 + gen_docs_examples
+# ----------------------------------------------------------------------
+
+
+def test_verify_step4_missing_example_script_fails(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """예제 스크립트가 없으면 4단계가 실패하고 규약을 안내한다."""
+    monkeypatch.setattr(verify_mod, "REPO_ROOT", tmp_path)
+    step = verify_mod._run_example_script(_spec("datago.apt_trade"))
+    assert not step.passed
+    assert "예제 스크립트 없음" in step.detail
+    assert "examples/README.md" in step.detail
+
+
+def test_gen_docs_examples_check_mode(tmp_path: Path) -> None:
+    """gen_docs_examples --check 는 드리프트를 잡아낸다."""
+    import importlib.util
+
+    script_path = SCRIPTS / "gen_docs_examples.py"
+    spec = importlib.util.spec_from_file_location("gen_docs", script_path)
+    assert spec is not None and spec.loader is not None
+    gen = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gen)
+
+    # 생성 → check 통과
+    monkeyped_out = tmp_path / "dataset-examples.md"
+    gen.OUTPUT_PATH = monkeyped_out
+    assert gen.main([]) == 0
+    assert monkeyped_out.is_file()
+    assert gen.main(["--check"]) == 0
+
+    # 드리프트 → check 실패
+    monkeyped_out.write_text("손으로 수정한 내용", encoding="utf-8")
+    assert gen.main(["--check"]) == 1

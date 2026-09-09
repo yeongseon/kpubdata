@@ -177,6 +177,37 @@ def run_verify(dataset_id: str | None = None) -> int:
     return 1 if failed_any else 0
 
 
+def _run_example_script(spec: SpecDefinition) -> StepResult:
+    """예제 스크립트를 replay 모드로 실행한다(검증 4단계)."""
+    import os
+    import subprocess
+
+    script = REPO_ROOT / "examples" / spec.provider / f"{spec.dataset_key}.py"
+    if not script.is_file():
+        return StepResult(
+            "examples 실행",
+            passed=False,
+            detail=(f"예제 스크립트 없음: {script} — examples/README.md 규약(#379 2.3)"),
+        )
+    env = {**os.environ, "KPUBDATA_MODE": "replay"}
+    proc = subprocess.run(
+        [sys.executable, str(script)],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=180,
+        env=env,
+    )
+    if proc.returncode != 0:
+        tail = (proc.stderr or proc.stdout).strip().splitlines()[-3:]
+        return StepResult(
+            "examples 실행",
+            passed=False,
+            detail="replay 실행 실패: " + " / ".join(tail),
+        )
+    return StepResult("examples 실행", passed=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI 진입점."""
     parser = argparse.ArgumentParser(description="spec 데이터셋 검증 (make verify)")
