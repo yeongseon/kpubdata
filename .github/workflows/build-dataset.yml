@@ -1,0 +1,109 @@
+# 에이전트 기반 데이터셋 빌드 (dataset-request/drift 라벨 → 무인 처리)
+#
+# 전제 조건 (활성화 체크리스트 — 미충족 시 조용히 스킵):
+#   1. 러너: 국내 self-hosted (labels: self-hosted, kr) — data.go.kr 실호출용
+#   2. Secrets: KPUBDATA_DATAGO_API_KEY, OPENCODE_API_KEY(LLM)
+#   3. opencode CLI 설치 (npm i -g opencode@latest)
+name: Build Dataset (agent)
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "처리할 dataset-request/drift 이슈 번호"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: build-dataset
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event.action == 'labeled' &&
+       (github.event.label.name == 'dataset-request' || github.event.label.name == 'drift'))
+    runs-on: [self-hosted, kr]
+    timeout-minutes: 30
+    env:
+      KPUBDATA_DATAGO_API_KEY: ${{ secrets.KPUBDATA_DATAGO_API_KEY }}
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+      ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
+    steps:
+      - name: Context
+        run: |
+          echo "issue=$ISSUE_NUMBER repo=$GITHUB_REPOSITORY"
+          command -v opencode >/dev/null || { echo "::error::opencode CLI 미설치 — 활성화 체크리스트 확인"; exit 1; }
+
+      - uses: actions/checkout@v5
+
+      - name: Resolve issue body
+        run: |
+          gh issue view "$ISSUE_NUMBER" --json title,body -q '.title + "\n\n" + .body' > /tmp/issue.md
+          head -5 /tmp/issue.md
+
+      - name: Run dataset-builder (or drift-fixer)
+        run: |
+          AGENT=dataset-builder
+          if gh issue view "$ISSUE_NUMBER" --json labels -q '.labels[].name' | grep -q '^drift$'; then
+            AGENT=drift-fixer
+          fi
+          echo "agent=$AGENT"
+          # --max-iterations: verify exit 0 또는 3회 실패 needs-human 중 먼저 오는 쪽
+          opencode run --agent "$AGENT" \
+            "이슈 #$ISSUE_NUMBER 를 처리하라. 이슈 본문: $(cat /tmp/issue.md)" \
+            || true  # 실패 요약은 아래 단계에서 이슈로 기록
+
+      - name: Verify (agent 자기 보고 불신)
+        run: |
+          DATASET=$(python3 - <<'EOF'
+          import re, pathlib
+          issue = pathlib.Path("/tmp/issue.md").read_text(encoding="utf-8")
+          m = re.search(r"datago\.[a-z0-9_]+", issue)
+          print(m.group(0) if m else "")
+          EOF
+          )
+          if [ -n "$DATASET" ] && [ -f "src/kpubdata/specs/$(echo "$DATASET" | cut -d. -f2 >/dev/null && echo "${DATASET#datago.}").yaml" ]; then
+            make verify DATASET="$DATASET"
+          else
+            make verify
+          fi
+
+      - name: PR or needs-human
+        run: |
+          DATASET=$(grep -oE "datago\.[a-z0-9_]+" /tmp/issue.md | head -1 || true)
+          BRANCH="agent/${DATASET:-issue-$ISSUE_NUMBER}"
+          if git diff --quiet && git status --porcelain | grep -q .; then :; fi
+          if [ -z "$(git status --porcelain)" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "에이전트가 변경을 만들지 못했습니다(자동) — needs-human" || true
+            gh issue edit "$ISSUE_NUMBER" --add-label needs-human || true
+            exit 1
+          fi
+          git config user.name "kpubdata-agent"
+          git config user.email "agent@kpubdata.local"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "feat: add dataset via agent procedure (issue #$ISSUE_NUMBER)"
+          git push origin "$BRANCH"
+          gh pr create --title "[agent] dataset from #$ISSUE_NUMBER" \
+            --body "에이전트 절차 산출물 — verify 통과 확인 후 사람 리뷰. Closes #$ISSUE_NUMBER" \
+            --label agent-generated || true
+
+      - name: Verifier review comment
+        if: success()
+        run: |
+          PR=$(gh pr list --head "agent/${DATASET:-issue-$ISSUE_NUMBER}" --json number -q '.[0].number' || true)
+          [ -n "$PR" ] && opencode run --agent dataset-verifier "PR #$PR 리뷰 — 체크리스트 실행 후 승인/반려 코멘트" || true
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "워크플로우 실패(자동) — [실행 로그]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" || true
+          gh issue edit "$ISSUE_NUMBER" --add-label needs-human || true
