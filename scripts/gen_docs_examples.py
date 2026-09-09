@@ -67,7 +67,8 @@ def main(argv: list[str] | None = None) -> int:
         current = OUTPUT_PATH.read_text(encoding="utf-8") if OUTPUT_PATH.is_file() else ""
         if current != content:
             print(
-                "드리프트: docs/dataset-examples.md 이(가) examples/ 와 불일치 — 재생성 후 커밋하세요."
+                "드리프트: docs/dataset-examples.md 이(가) examples/ 와 불일치 — "
+                "재생성 후 커밋하세요."
             )
             return 1
         print("일치: docs/dataset-examples.md 최신 상태")
