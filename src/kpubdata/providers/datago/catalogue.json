@@ -614,6 +614,9 @@
     "query_support": {
       "pagination": "offset",
       "max_page_size": 1000
+    },
+    "default_filters": {
+      "inqryDiv": "1"
     }
   },
   {

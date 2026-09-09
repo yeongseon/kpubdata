@@ -186,7 +186,7 @@ class DataGoAdapter:
             if key.lower() not in reserved:
                 value: object = raw_value
                 params[key] = str(value)
-
+        self._apply_default_filters(params, dataset)
         payload = self._request_and_decode(url, params, dataset.id)
         if is_odcloud:
             body, items = self._envelope_parser.parse_odcloud(payload, dataset)
@@ -353,6 +353,7 @@ class DataGoAdapter:
         for key, value in params.items():
             if key != service_key_param:
                 request_params[key] = str(value)
+        self._apply_default_filters(request_params, dataset)
 
         payload = self._request_and_decode(url, request_params, dataset.id)
         if self._is_odcloud(dataset):
@@ -388,6 +389,22 @@ class DataGoAdapter:
         if isinstance(selected_operation, str) and selected_operation:
             return f"{base_url_raw}/{selected_operation}"
         return base_url_raw
+
+    @staticmethod
+    def _apply_default_filters(params: dict[str, str], dataset: DatasetRef) -> dict[str, str]:
+        """카탈로그 default_filters 중 아직 채워지지 않은 키만 기본값으로 채운다.
+
+        Provider가 요구하는 필수 파라미터(예: 조달청 inqryDiv)를 사용자가 지정하지 않은 경우
+        카탈로그에 기록된 기본값으로 채운다. 이미 사용자 필터 등으로 채워진 키는 덮어쓰지 않는다.
+        """
+        default_filters_raw = dataset.raw_metadata.get("default_filters")
+        if not isinstance(default_filters_raw, Mapping):
+            return params
+        default_filters = cast(Mapping[str, object], default_filters_raw)
+        for key, value in default_filters.items():
+            if isinstance(key, str) and key not in params:
+                params[key] = str(value)
+        return params
 
     def _build_base_params(
         self,

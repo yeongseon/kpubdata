@@ -578,20 +578,27 @@ for item in result.items[:3]:
 
 ### g2b_catalog (나라장터 종합쇼핑몰 품목정보)
 
-조달청 종합쇼핑몰에 등록된 물품의 식별정보를 제공합니다. 품목명, 규격, 단가, 공급업체, 인증정보 등을 조회할 수 있습니다.
+조달청 종합쇼핑몰에 등록된 물품의 단가계약 정보를 제공합니다. 품목분류, 계약업체, 계약단가, 인증정보 등을 조회할 수 있습니다.
 
 - 제공 기관: 조달청
 - 데이터 ID: [15129471](https://www.data.go.kr/data/15129471/openapi.do)
-- 주요 파라미터: `prdctNm` (물품명), `bsnmNm` (업체명)
+- 주요 파라미터: `prdctClsfcNoNm` (품목명), `cntrctCorpNm` (계약업체명)
+- 필수 파라미터 `inqryDiv`는 카탈로그 `default_filters`가 자동으로 전송합니다 (사용자 필터로 재정의 가능)
 
 | 파라미터 | 필수 | 설명 | 예시 |
 |---|---|---|---|
-| prdctNm | 선택 | 물품명 | "펌프" |
-| bsnmNm | 선택 | 업체명 | "" |
+| inqryDiv | 필수 (자동 전송) | 조회구분 | "1" |
+| prdctClsfcNoNm | 선택 | 품목명 | "조립식철근콘크리트암거블록" |
+| prdctIdntNo | 선택 | 물품식별번호 | "23277843" |
+| cntrctCorpNm | 선택 | 계약업체명 | "삼화케익블럭" |
+| rgstDtBgnDt / rgstDtEndDt | 선택 | 등록일시 범위 (YYYYMMDDHHMI) | "202404010000" ~ "202404302359" |
 
 ```python
 ds = client.dataset("datago.g2b_catalog")
-raw = ds.call_raw("getShoppingMallPrdctInfoList", prdctNm="펌프", numOfRows="10")
+result = ds.list(page_size=5)  # inqryDiv=1 자동 전송
+for item in result.items[:3]:
+    print(item)
+# 응답 예시 필드: prdctClsfcNoNm (품목명), dtilPrdctClsfcNoNm (세부품명), cntrctCorpNm (계약업체명), cntrctPrceAmt (계약단가)
 ```
 
 ### subway_passengers (지하철역별 승하차 인원)
