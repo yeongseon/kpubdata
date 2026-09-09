@@ -11,6 +11,7 @@ on:
   schedule:
     - cron: "0 1 * * *" # 10:00 KST — 국내 API 새벽 점검 시간대 회피
   push:
+    branches: [main]
     paths:
       - ".github/workflows/smoke.yml"
 
@@ -62,3 +63,23 @@ jobs:
           print(f"smoke={'FAIL' if failed else 'PASS'}")
           EOF
           fi
+
+  drift-report:
+    name: 드리프트 리포트 (2회 연속 실패 → 이슈)
+    needs: datago-live
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Run drift report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install --quiet httpx
+          python3 scripts/report_drift.py --dry-run || true  # 첫 안정화까지 dry-run
