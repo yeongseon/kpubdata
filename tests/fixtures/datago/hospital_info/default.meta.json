@@ -1,0 +1,15 @@
+{
+ "dataset_id": "datago.hospital_info",
+ "endpoint": "http://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList",
+ "example": "default",
+ "format": "json",
+ "params": {
+  "_type": "json",
+  "numOfRows": "10",
+  "pageNo": "1",
+  "serviceKey": "[REDACTED]"
+ },
+ "recorded_at": "2026-09-09T04:45:15+00:00",
+ "recorded_by": "ci",
+ "response_sha256": "e20f4405a07f243c03f865962b6f889b38402bf0db9533582824fe7cecebb183"
+}

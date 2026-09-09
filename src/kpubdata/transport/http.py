@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import ssl
 import time
 from collections.abc import Callable, Mapping
@@ -212,6 +213,21 @@ class HttpTransport:
         if self._config.max_response_bytes is not None and self._config.max_response_bytes < 1:
             msg = "max_response_bytes must be >= 1 or None"
             raise ValueError(msg)
+
+        # replay 모드(#379): 환경 변수가 켜져 있으면 기록된 fixture로 응답을 대체한다.
+        # 실호출·캐시·재시도 전 최상단에 둔다 — 검증 파이프라인의 결정성 보장.
+        if os.environ.get("KPUBDATA_MODE") == "replay":
+            from kpubdata.transport.replay import replay_response
+
+            replayed = replay_response(
+                method,
+                url,
+                params=params,
+                dataset_id=dataset_id,
+                provider=provider,
+            )
+            if replayed is not None:
+                return replayed
 
         total_attempts = self._config.max_retries + 1
         # 메서드/URL/헤더 조합이 안전할 때만 캐시 키를 만들고 GET 응답을 재사용한다.

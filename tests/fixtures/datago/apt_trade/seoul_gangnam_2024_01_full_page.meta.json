@@ -1,0 +1,17 @@
+{
+ "dataset_id": "datago.apt_trade",
+ "endpoint": "http://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev",
+ "example": "seoul_gangnam_2024_01_full_page",
+ "format": "json",
+ "params": {
+  "DEAL_YMD": "202401",
+  "LAWD_CD": "11110",
+  "numOfRows": "1000",
+  "pageNo": "1",
+  "resultType": "json",
+  "serviceKey": "[REDACTED]"
+ },
+ "recorded_at": "2026-09-09T04:41:03+00:00",
+ "recorded_by": "ci",
+ "response_sha256": "239231a90c0264c136075a8587a743faa23846dd8c5dfd0aaf58c4b51713559a"
+}
