@@ -63,10 +63,7 @@ def _verify_fixtures(spec: SpecDefinition) -> list[StepResult]:
             StepResult(
                 "fixture 존재",
                 passed=False,
-                detail=(
-                    f"fixture 없음: {shown} — "
-                    f"`make record DATASET={spec.id}` 로 생성"
-                ),
+                detail=(f"fixture 없음: {shown} — `make record DATASET={spec.id}` 로 생성"),
             )
         )
         return results
