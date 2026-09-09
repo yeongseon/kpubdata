@@ -403,6 +403,22 @@ class SpecExecutor:
             raw=payload,
         )
 
+    def fetch(
+        self,
+        spec: SpecDefinition,
+        query: Query,
+        format_hint: str | None = None,
+    ) -> tuple[dict[str, str], dict[str, object]]:
+        """요청 파라미터와 디코딩된 원본 페이로드를 함께 반환한다(record용).
+
+        query와 달리 envelope 해석·정규화를 수행하지 않는다 — 기록 도구가
+        raw/expected를 각자 저장하기 위한 저수준 진입점이다.
+        """
+        self._require_supported_envelope(spec)
+        params = self.build_params(spec, query, format_hint=format_hint)
+        payload = self._request(spec, params)
+        return params, payload
+
     def request_raw(
         self,
         spec: SpecDefinition,
@@ -421,6 +437,77 @@ class SpecExecutor:
         if format_param is not None and format_param.name and format_value is not None:
             string_params.setdefault(format_param.name, format_value)
         return self._request(spec, string_params)
+
+
+def raise_for_code(spec: SpecDefinition, code: str, message: str) -> None:
+    """에러 코드를 표준 예외로 매핑한다(data.go.kr resultCode 표준 표)."""
+    if code in _AUTH_ERROR_CODES:
+        raise AuthError(message, provider=spec.provider, dataset_id=spec.id, provider_code=code)
+    if code == "22":
+        raise RateLimitError(
+            message, provider=spec.provider, dataset_id=spec.id, provider_code=code, retryable=False
+        )
+    if code == "10":
+        raise InvalidRequestError(
+            message, provider=spec.provider, dataset_id=spec.id, provider_code=code
+        )
+    if code == "12":
+        raise DatasetNotFoundError(
+            message, provider=spec.provider, dataset_id=spec.id, provider_code=code
+        )
+    if code in _SERVICE_UNAVAILABLE_CODES:
+        raise ServiceUnavailableError(
+            message, provider=spec.provider, dataset_id=spec.id, provider_code=code
+        )
+    raise ProviderResponseError(
+        message, provider=spec.provider, dataset_id=spec.id, provider_code=code
+    )
+
+
+def check_payload_error(spec: SpecDefinition, payload: dict[str, object]) -> None:
+    """에러 코드 경로를 검사하고 실패 코드면 예외를 발생시킨다(record·verify 공용)."""
+    error = spec.response.error
+    raw_code = _dot_get(payload, error.code_path)
+    if isinstance(raw_code, str):
+        code = raw_code
+    elif isinstance(raw_code, int) and not isinstance(raw_code, bool):
+        code = str(raw_code)
+    else:
+        msg = f"{spec.id}: 응답 envelope에서 에러 코드를 찾을 수 없습니다({error.code_path!r})."
+        raise ProviderResponseError(msg, provider=spec.provider, dataset_id=spec.id)
+
+    ok_strings = {str(value) for value in error.ok_values}
+    code_as_int = _to_int(code)
+    is_success = code in ok_strings or (code_as_int == 0)
+    if is_success:
+        return
+
+    raw_message = _dot_get(payload, _message_path(error.code_path))
+    message = (
+        raw_message if isinstance(raw_message, str) and raw_message else "Provider returned error"
+    )
+    raise_for_code(spec, code, message)
+
+
+def extract_items(spec: SpecDefinition, payload: dict[str, object]) -> list[dict[str, object]]:
+    """spec의 items_path 규칙으로 레코드 목록을 추출한다(record·verify 공용)."""
+    items_path = spec.response.items_path or ""
+    if "." in items_path:
+        container_path, leaf = items_path.rsplit(".", 1)
+    else:
+        container_path, leaf = "", items_path
+    container = _dot_get(payload, container_path) if container_path else payload
+    if container is None:
+        return []
+    value = container.get(leaf) if isinstance(container, dict) else None
+    return _normalize_item_list(value)
+
+
+def extract_total_count(spec: SpecDefinition, payload: dict[str, object]) -> int | None:
+    """spec의 total_count_path 규칙으로 총건수를 추출한다(없으면 None)."""
+    raw = _dot_get(payload, spec.response.total_count_path)
+    coerced = _to_int(raw)
+    return coerced if coerced else None
 
 
 def _message_path(code_path: str | None) -> str | None:
@@ -521,4 +608,12 @@ class SpecDatasetAdapter:
         return self._executor.request_raw(spec, params)
 
 
-__all__ = ["SpecDatasetAdapter", "SpecExecutor", "build_spec_dataset_ref"]
+__all__ = [
+    "SpecDatasetAdapter",
+    "SpecExecutor",
+    "build_spec_dataset_ref",
+    "check_payload_error",
+    "extract_items",
+    "extract_total_count",
+    "raise_for_code",
+]
