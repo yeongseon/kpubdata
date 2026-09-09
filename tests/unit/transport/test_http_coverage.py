@@ -189,25 +189,19 @@ def test_request_error_exhaustion_raises_transport_error() -> None:
 
 # test request unreachable state raises runtime error 테스트가 검증하는 시나리오를 설명한다.
 def test_request_unreachable_state_raises_runtime_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    """재시도 루프 리팩터(#414) 후 계약: identity 재시도는 시도 횟수를 소모하지 않는다.
+
+    max_retries=0(총 1회 시도)에서도 디코딩 실패 시 identity 재시도로 회복해야 한다.
+    루프 꼬리의 RuntimeError는 방어 코드로 남는다(도달 불가 — pragma no cover).
     """
-    test request unreachable state raises runtime error 시나리오를 검증한다.
+    from tests.unit.transport.test_identity_retry import FakeGzipBrokenClient
 
-    매개변수:
-        monkeypatch (pytest.MonkeyPatch): 호출자가 제공하는 입력 값이다.
+    client = FakeGzipBrokenClient()
+    transport = HttpTransport(TransportConfig(max_retries=0, cache=None))
+    object.__setattr__(transport, "_client", client)
 
-    반환값:
-        None: 계산 결과 또는 하위 호출의 반환값을 돌려준다.
+    response = transport.request("GET", "https://example.test/api")
 
-    예외:
-        구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
-
-    예시:
-        테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
-    """
-    import kpubdata.transport.http as http_module
-
-    transport = HttpTransport(TransportConfig(max_retries=0))
-    monkeypatch.setattr(http_module, "range", lambda *_args: [], raising=False)
-
-    with pytest.raises(RuntimeError, match="unreachable transport retry state"):
-        _ = transport.request("GET", "https://example.test")
+    assert response.content == b'{"ok": true}'
+    # 1번째 시도(기본 헤더) 실패 → identity 재시도가 시도 1회 안에서 이뤄졌다.
+    assert client.sent_accept_encodings == [None, "identity"]
