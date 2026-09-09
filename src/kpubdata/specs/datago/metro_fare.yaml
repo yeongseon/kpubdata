@@ -1,0 +1,52 @@
+# catalogue 일괄 변환 생성 (scripts/gen_specs_from_catalogue.py) — 수동 보강 가능
+id: datago.metro_fare
+provider: datago
+title: 서울교통공사 실시간 운임정보 (Seoul Metro Real-time Fare)
+description: Seoul Metro real-time fare information by station pair
+
+source:
+  url: https://www.data.go.kr
+
+endpoint:
+  base_url: http://apis.data.go.kr/B553766/fare2
+  operation: getRltmFare2
+  method: GET
+  format_param:
+    name: _type
+    values:
+      json: json
+      xml: xml
+
+auth:
+  type: query_param
+  param_name: serviceKey
+  provider_key: datago
+
+params: []
+
+response:
+  format: json
+  envelope: datago_standard
+  items_path: response.body.items.item
+  total_count_path: response.body.totalCount
+  error:
+    style: header_result_code
+    code_path: response.header.resultCode
+    ok_values: ["00", "000", 0]
+
+pagination:
+  type: page_no_rows
+  page_param: pageNo
+  size_param: numOfRows
+  max_size: 1000
+
+fields: []
+
+examples:
+  - name: default
+    description: 필터 없음 첫 페이지
+    params: {}
+    page: 1
+    page_size: 10
+
+status: active

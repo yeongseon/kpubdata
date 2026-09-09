@@ -1,0 +1,15 @@
+{
+ "dataset_id": "datago.metro_fare",
+ "endpoint": "http://apis.data.go.kr/B553766/fare2/getRltmFare2",
+ "example": "default",
+ "format": "json",
+ "params": {
+  "_type": "json",
+  "numOfRows": "10",
+  "pageNo": "1",
+  "serviceKey": "[REDACTED]"
+ },
+ "recorded_at": "2026-09-09T09:02:24+00:00",
+ "recorded_by": "batch-agent",
+ "response_sha256": "bed1a387a2e48ab4e59e8a04008009086394a3b80e04956322aa2a63641a339d"
+}

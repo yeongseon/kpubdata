@@ -1,0 +1,15 @@
+{
+ "dataset_id": "localdata.bakery",
+ "endpoint": "http://apis.data.go.kr/1741000/bakeries/info",
+ "example": "default",
+ "format": "json",
+ "params": {
+  "numOfRows": "10",
+  "pageNo": "1",
+  "serviceKey": "[REDACTED]",
+  "type": "json"
+ },
+ "recorded_at": "2026-09-09T08:59:35+00:00",
+ "recorded_by": "batch-agent",
+ "response_sha256": "d647259d942f4030452f829350d490673261eeec0b400c3786a07b7c897a2ab8"
+}
