@@ -1,7 +1,8 @@
 """활용가이드 문서 캐시 — data.go.kr 데이터셋 페이지를 텍스트로 저장한다.
 
 사용법:
-    uv run python scripts/fetch_guide.py --url "https://www.data.go.kr/data/15001241/openapi.do" --id datago.hospital_info
+    uv run python scripts/fetch_guide.py \
+        --url "https://www.data.go.kr/data/15001241/openapi.do" --id datago.hospital_info
 
 출력: ``docs/sources/{id}/guide.txt`` (+ ``url`` 파일). agent는 브라우징 대신
 이 캐시를 우선 읽는다(AGENTS.md 데이터셋 추가 절차 1단계).
