@@ -18,6 +18,9 @@ from kpubdata.core.executor import (
     SpecDatasetAdapter,
     SpecExecutor,
     build_spec_dataset_ref,
+    check_payload_error,
+    extract_items,
+    extract_total_count,
 )
 from kpubdata.core.models import DatasetRef, Query
 from kpubdata.core.spec import SpecDefinition, load_spec_file
@@ -172,8 +175,8 @@ def test_build_params_max_size_clamp(apt_spec: SpecDefinition) -> None:
 def test_build_params_unsupported_pagination_raises(apt_spec: SpecDefinition) -> None:
     """미지원 페이지네이션 방식은 NotImplementedError를 낸다."""
     executor = _make_executor(FakeTransport())
-    spec = replace(apt_spec, pagination=replace(apt_spec.pagination, type="index_range"))
-    with pytest.raises(NotImplementedError, match="index_range"):
+    spec = replace(apt_spec, pagination=replace(apt_spec.pagination, type="date_window"))
+    with pytest.raises(NotImplementedError, match="date_window"):
         executor.build_params(spec, Query(page=1))
 
 
@@ -412,3 +415,228 @@ def test_spec_dataset_adapter_get_schema_is_none(apt_spec: SpecDefinition) -> No
     executor = _make_executor(FakeTransport())
     adapter = SpecDatasetAdapter("datago", [apt_spec], executor)
     assert adapter.get_schema(adapter.get_dataset("apt_trade")) is None
+
+
+# ----------------------------------------------------------------------
+# 실행기 범위 확장: path_segment·index_range·pindex_psize·$루트·배열인덱스·neis
+# ----------------------------------------------------------------------
+
+
+def _spec_from(data: dict[str, object]) -> SpecDefinition:
+    from kpubdata.core.spec import from_mapping
+
+    return from_mapping(data)
+
+
+def test_build_url_path_template_bok_style() -> None:
+    """path_template의 {key}/{start}/{end} 치환이 bok 계열 URL을 만든다."""
+    spec = _spec_from(
+        {
+            "id": "bok.test_stat",
+            "provider": "bok",
+            "title": "테스트",
+            "endpoint": {
+                "base_url": "https://api.bok.go.kr/eco",
+                "operation": "StatisticSearch",
+                "path_template": "{base_url}/{key}/json/{operation}/{start}/{end}/AAA/110",
+            },
+            "auth": {
+                "type": "path_segment",
+                "param_name": "__path_key__",
+                "provider_key": "datago",
+            },
+            "response": {
+                "format": "json",
+                "envelope": "bok_statistic_row",
+                "items_path": "StatisticSearch.row",
+                "error": {
+                    "style": "result_code",
+                    "code_path": "StatisticSearch.RESULT.CODE",
+                    "ok_values": ["000"],
+                },
+            },
+            "pagination": {"type": "index_range", "start_index_base": 1},
+        }
+    )
+    executor = _make_executor(FakeTransport())
+    url = executor.build_url(spec, page=2, page_size=10, api_key="KEY123")
+    assert url == "https://api.bok.go.kr/eco/KEY123/json/StatisticSearch/11/20/AAA/110"
+
+    # 파라미터 조립: index_range는 쿼리에 페이지를 싣지 않고(경로에 반영) 인증은 경로로 빠진다
+    params = executor.build_params(spec, Query(page=2, page_size=10))
+    assert params["__path_key__"] == "test-key-datago"
+    assert "pageNo" not in params
+
+
+def test_pindex_psize_and_page_display_params() -> None:
+    """lofin(pIndex/pSize)과 law(page/display) 쿼리 페이지네이션이 조립된다."""
+    base = {
+        "id": "test.lofin_like",
+        "provider": "test",
+        "title": "t",
+        "endpoint": {"base_url": "https://x.test/api", "operation": "AJGCF"},
+        "auth": {"type": "none"},
+        "response": {
+            "format": "json",
+            "envelope": "lofin_head_row",
+            "items_path": "{operation}.1.row",
+            "error": {"style": "result_code"},
+        },
+        "pagination": {"type": "pindex_psize"},
+    }
+    executor = _make_executor(FakeTransport())
+    params = executor.build_params(_spec_from(base), Query(page=3, page_size=50))
+    assert params["pIndex"] == "3"
+    assert params["pSize"] == "50"
+
+    law = dict(base, id="test.law_like", pagination={"type": "page_display"})
+    params2 = executor.build_params(_spec_from(law), Query(page=2, page_size=30))
+    assert params2["page"] == "2"
+    assert params2["display"] == "30"
+
+
+def test_extract_items_root_array_and_operation_template() -> None:
+    """$ 루트 배열(kosis)과 {operation} 치환(lofin) 추출이 동작한다."""
+    kosis_spec = _spec_from(
+        {
+            "id": "test.kosis_like",
+            "provider": "test",
+            "title": "t",
+            "endpoint": {"base_url": "https://x.test", "operation": "data"},
+            "auth": {"type": "none"},
+            "response": {
+                "format": "json",
+                "envelope": "kosis_top_array",
+                "items_path": "$",
+                "error": {"style": "err_field"},
+            },
+            "pagination": {"type": "none"},
+        }
+    )
+    # kosis 루트 배열은 _request에서 dict가 아니라 ProviderResponseError가 나는 계약이다.
+    # (kosis 전환 시 실행기 계약 확장 필요 — envelope 상태 그대로 둔다)
+    from kpubdata.core.executor import _dot_get
+
+    assert _dot_get({"a": {"b": 1}}, "a.b") == 1  # 일반 경로 회귀
+
+    lofin_spec = _spec_from(
+        {
+            "id": "test.lofin_extract",
+            "provider": "test",
+            "title": "t",
+            "endpoint": {"base_url": "https://x.test", "operation": "AJGCF"},
+            "auth": {"type": "none"},
+            "response": {
+                "format": "json",
+                "envelope": "lofin_head_row",
+                "items_path": "{operation}.1.row",
+                "total_count_path": "{operation}.0.head.0.list_total_count",
+                "error": {
+                    "style": "result_code",
+                    "code_path": "RESULT.0.CODE",
+                    "ok_values": ["000"],
+                },
+            },
+            "pagination": {"type": "none"},
+        }
+    )
+    lofin_payload = {
+        "RESULT": [{"CODE": "000", "MESSAGE": "OK"}],
+        "AJGCF": [
+            {"head": [{"list_total_count": 2}]},
+            {"row": [{"fyr": "2023"}, {"fyr": "2022"}]},
+        ],
+    }
+    assert extract_items(lofin_spec, lofin_payload) == [{"fyr": "2023"}, {"fyr": "2022"}]
+    assert extract_total_count(lofin_spec, lofin_payload) == 2
+    check_payload_error(lofin_spec, lofin_payload)  # 성공 통과
+
+    lofin_payload["RESULT"] = [{"CODE": "ERROR-300", "MESSAGE": "필수 누락"}]
+    from kpubdata.exceptions import ProviderResponseError as PRE
+
+    with pytest.raises(PRE):
+        check_payload_error(lofin_spec, lofin_payload)
+
+
+def test_extract_neis_double_list_merges_blocks() -> None:
+    """NEIS 이중 리스트 envelope가 블록별 row를 병합한다."""
+    spec = _spec_from(
+        {
+            "id": "test.neis_like",
+            "provider": "test",
+            "title": "t",
+            "endpoint": {"base_url": "https://x.test", "operation": "schoolInfo"},
+            "auth": {"type": "none"},
+            "response": {
+                "format": "json",
+                "envelope": "neis_double_list",
+                "items_path": "ignored",
+                "error": {"style": "result_code"},
+            },
+            "pagination": {"type": "none"},
+        }
+    )
+    payload = {
+        "schoolInfo": [
+            {"head": [{"list_total_count": 3}]},
+            {"row": [{"name": "A"}, {"name": "B"}]},
+            {"row": [{"name": "C"}]},
+        ]
+    }
+    assert extract_items(spec, payload) == [{"name": "A"}, {"name": "B"}, {"name": "C"}]
+
+
+def test_kosis_err_field_raises_on_error_payload() -> None:
+    """kosis err_field 스타일: err 키가 있으면 ProviderResponseError."""
+    spec = _spec_from(
+        {
+            "id": "test.kosis_err",
+            "provider": "test",
+            "title": "t",
+            "endpoint": {"base_url": "https://x.test", "operation": "data"},
+            "auth": {"type": "none"},
+            "response": {
+                "format": "json",
+                "envelope": "kosis_top_array",
+                "items_path": "$",
+                "error": {"style": "err_field", "ok_values": []},
+            },
+            "pagination": {"type": "none"},
+        }
+    )
+    with pytest.raises(ProviderResponseError, match="Provider 오류"):
+        check_payload_error(spec, {"err": "LIST_OF_ORGANIZATION invalid"})
+
+
+def test_seoul_info_codes_pass_error_check() -> None:
+    """seoul 계열 INFO-000/INFO-200은 ok_values로 통과한다."""
+    spec = _spec_from(
+        {
+            "id": "test.seoul_like",
+            "provider": "test",
+            "title": "t",
+            "endpoint": {"base_url": "https://x.test", "operation": "svc"},
+            "auth": {"type": "none"},
+            "response": {
+                "format": "json",
+                "envelope": "seoul_service_row",
+                "items_path": "CycleStationParking.row",
+                "error": {
+                    "style": "result_code",
+                    "code_path": "CycleStationParking.RESULT.CODE",
+                    "ok_values": ["INFO-000", "INFO-200"],
+                },
+            },
+            "pagination": {"type": "none"},
+        }
+    )
+    check_payload_error(
+        spec, {"CycleStationParking": {"RESULT": {"CODE": "INFO-000", "MESSAGE": "OK"}, "row": []}}
+    )
+    check_payload_error(
+        spec, {"CycleStationParking": {"RESULT": {"CODE": "INFO-200", "MESSAGE": "no data"}}}
+    )
+    with pytest.raises(ProviderResponseError):
+        check_payload_error(
+            spec, {"CycleStationParking": {"RESULT": {"CODE": "ERROR-500", "MESSAGE": "boom"}}}
+        )

@@ -49,15 +49,34 @@ _FORBIDDEN_HINT = (
 )
 
 
-def _dot_get(payload: object, path: str | None) -> object | None:
-    """점 경로("response.body.totalCount")로 페이로드를 순회한다."""
-    if not path:
+def _resolve_path(path: str | None, spec: SpecDefinition | None = None) -> str | None:
+    """경로의 ``{operation}`` 플레이스홀더를 해당 데이터셋의 operation으로 치환한다."""
+    if path is None:
         return None
+    if spec is None:
+        return path
+    return path.replace("{operation}", spec.endpoint.operation)
+
+
+def _dot_get(payload: object, path: str | None) -> object | None:
+    """점 경로로 페이로드를 순회한다.
+
+    숫자 세그먼트는 배열 인덱스로 취급한다(예: ``AJGCF.0.head.0.list_total_count``).
+    특수 경로 ``$`` 는 루트 페이로드 자체를 반환한다(kosis 최상위 배열 등).
+    """
+    if path is None:
+        return None
+    if path == "$":
+        return payload
     current: object = payload
-    for segment in path.split("."):
-        if not isinstance(current, dict):
+    for raw_segment in path.split("."):
+        if isinstance(current, dict):
+            current = current.get(raw_segment)
+        elif isinstance(current, list) and raw_segment.lstrip("-").isdigit():
+            index = int(raw_segment)
+            current = current[index] if -len(current) <= index < len(current) else None
+        else:
             return None
-        current = current.get(segment)
         if current is None:
             return None
     return current
@@ -167,6 +186,15 @@ class SpecExecutor:
                 raise InvalidRequestError(msg, provider=spec.provider, dataset_id=spec.id)
             provider_key = spec.auth.provider_key or spec.provider
             params[spec.auth.param_name] = self._config.require_provider_key(provider_key)
+        elif spec.auth.type == "path_segment":
+            # 키는 URL 경로(path_template의 {key})로 싣는다 — 쿼리에서는 제거된다.
+            template = spec.endpoint.path_template or ""
+            if "{key}" not in template:
+                msg = f"{spec.id}: path_segment 인증은 path_template의 {{key}}가 필요합니다."
+                raise InvalidRequestError(msg, provider=spec.provider, dataset_id=spec.id)
+            params[spec.auth.param_name or "__path_key__"] = self._config.require_provider_key(
+                spec.auth.provider_key or spec.provider
+            )
         elif spec.auth.type != "none":
             msg = (
                 f"{spec.id}: auth.type={spec.auth.type!r}은(는) 아직 spec 실행기가 "
@@ -188,6 +216,24 @@ class SpecExecutor:
             size_param = spec.pagination.size_param or "numOfRows"
             params[page_param] = str(page)
             params[size_param] = str(page_size)
+        elif spec.pagination.type in {"pindex_psize", "page_display"}:
+            # lofin(pIndex/pSize, 1-기반)·law(page/display) — 쿼리 파라미터 방식
+            defaults: dict[str, tuple[str, str, int, int]] = {
+                "pindex_psize": ("pIndex", "pSize", 1, 100),
+                "page_display": ("page", "display", 1, 20),
+            }
+            default_page_p, default_size_p, default_page, default_size = defaults[
+                spec.pagination.type
+            ]
+            page_param = spec.pagination.page_param or default_page_p
+            size_param = spec.pagination.size_param or default_size_p
+            params[page_param] = str(query.page or default_page)
+            params[size_param] = str(query.page_size or default_size)
+        elif spec.pagination.type == "index_range":
+            # bok/seoul 계열 — start/end가 URL 경로에 들어간다(path_template {{start}}/{{end}}).
+            if not spec.endpoint.path_template:
+                msg = f"{spec.id}: index_range 페이지네이션은 path_template이 필요합니다."
+                raise InvalidRequestError(msg, provider=spec.provider, dataset_id=spec.id)
         elif spec.pagination.type != "none":
             msg = (
                 f"{spec.id}: pagination.type={spec.pagination.type!r}은(는) "
@@ -210,6 +256,33 @@ class SpecExecutor:
     # 전송·디코딩
     # ------------------------------------------------------------------
 
+    def build_url(
+        self,
+        spec: SpecDefinition,
+        page: int = 1,
+        page_size: int = _DEFAULT_PAGE_SIZE,
+        api_key: str = "",
+    ) -> str:
+        """spec 엔드포인트 URL을 조립한다.
+
+        ``endpoint.path_template``이 있으면 ``{key}``·``{operation}``·``{start}``·``{end}``
+        플레이스홀더를 치환한다(bok/seoul 계열의 경로 내 키·범위). 없으면
+        ``{base}/{operation}`` 기본 형태를 쓴다.
+        """
+        template = spec.endpoint.path_template
+        if template:
+            start_index = spec.pagination.start_index_base or 1
+            start = (page - 1) * page_size + start_index
+            end = start + page_size - 1
+            return template.format(
+                base_url=spec.endpoint.base_url.rstrip("/"),
+                key=api_key,
+                operation=spec.endpoint.operation,
+                start=start,
+                end=end,
+            )
+        return f"{spec.endpoint.base_url.rstrip('/')}/{spec.endpoint.operation.lstrip('/')}"
+
     def _request(self, spec: SpecDefinition, params: dict[str, str]) -> dict[str, object]:
         """spec 엔드포인트로 GET 요청을 보내고 디코딩된 dict를 반환한다.
 
@@ -217,7 +290,18 @@ class SpecExecutor:
             AuthError: 전송 계층 403의 경우(활용신청 힌트 포함).
             ProviderResponseError: 디코딩 결과가 dict가 아닌 경우.
         """
-        url = f"{spec.endpoint.base_url.rstrip('/')}/{spec.endpoint.operation.lstrip('/')}"
+        page_part = params.get(spec.pagination.page_param or "", "1")
+        size_part = params.get(spec.pagination.size_param or "", str(_DEFAULT_PAGE_SIZE))
+        url = self.build_url(
+            spec,
+            page=_to_int(page_part) or 1,
+            page_size=_to_int(size_part) or _DEFAULT_PAGE_SIZE,
+            api_key=params.get(spec.auth.param_name or "", "")
+            if spec.auth.type == "path_segment"
+            else "",
+        )
+        if spec.auth.type == "path_segment":
+            params = {k: v for k, v in params.items() if k != (spec.auth.param_name or "")}
         try:
             response = self._transport.request(
                 "GET",
@@ -467,7 +551,17 @@ def raise_for_code(spec: SpecDefinition, code: str, message: str) -> None:
 def check_payload_error(spec: SpecDefinition, payload: dict[str, object]) -> None:
     """에러 코드 경로를 검사하고 실패 코드면 예외를 발생시킨다(record·verify 공용)."""
     error = spec.response.error
-    raw_code = _dot_get(payload, error.code_path)
+    if error.style == "err_field":
+        # kosis류: 코드 체계가 없고 err 필드 존재 자체가 실패를 뜻한다.
+        err_raw = payload.get("err")
+        if isinstance(err_raw, (str, dict)):
+            raise ProviderResponseError(
+                f"{spec.id}: Provider 오류 응답: {str(err_raw)[:200]}",
+                provider=spec.provider,
+                dataset_id=spec.id,
+            )
+        return
+    raw_code = _dot_get(payload, _resolve_path(error.code_path, spec))
     # 폴백: 한국관광공사 KorService류는 에러를 envelope 밖 최상단 resultCode로
     # 평면 반환한다(성공은 정상 envelope). 선언 경로에 없으면 최상단을 확인한다.
     if raw_code is None and isinstance(payload.get("resultCode"), (str, int)):
@@ -486,9 +580,11 @@ def check_payload_error(spec: SpecDefinition, payload: dict[str, object]) -> Non
     if is_success:
         return
 
-    raw_message = _dot_get(payload, _message_path(error.code_path))
+    raw_message = _dot_get(payload, _resolve_path(_message_path(error.code_path), spec))
     if not isinstance(raw_message, str) or not raw_message:
         raw_message = payload.get("resultMsg")
+    if not isinstance(raw_message, str) or not raw_message:
+        raw_message = payload.get("errMsg")
     message = (
         raw_message if isinstance(raw_message, str) and raw_message else "Provider returned error"
     )
@@ -496,12 +592,21 @@ def check_payload_error(spec: SpecDefinition, payload: dict[str, object]) -> Non
 
 
 def extract_items(spec: SpecDefinition, payload: dict[str, object]) -> list[dict[str, object]]:
-    """spec의 items_path 규칙으로 레코드 목록을 추출한다(record·verify 공용)."""
-    items_path = spec.response.items_path or ""
-    if "." in items_path:
-        container_path, leaf = items_path.rsplit(".", 1)
+    """spec의 items_path 규칙으로 레코드 목록을 추출한다(record·verify 공용).
+
+    - ``{operation}`` 플레이스홀더 지원(lofin 계열: ``{operation}.1.row``)
+    - ``$`` 는 루트(kosis 최상위 배열)
+    - envelope ``neis_double_list`` 는 블록별 row를 병합한다
+    """
+    if spec.response.envelope == "neis_double_list":
+        return _extract_neis_rows(spec, payload)
+    resolved = _resolve_path(spec.response.items_path, spec) or ""
+    if resolved == "$":
+        return _normalize_item_list(payload)
+    if "." in resolved:
+        container_path, leaf = resolved.rsplit(".", 1)
     else:
-        container_path, leaf = "", items_path
+        container_path, leaf = "", resolved
     container = _dot_get(payload, container_path) if container_path else payload
     if container is None:
         return []
@@ -509,9 +614,27 @@ def extract_items(spec: SpecDefinition, payload: dict[str, object]) -> list[dict
     return _normalize_item_list(value)
 
 
+def _extract_neis_rows(spec: SpecDefinition, payload: dict[str, object]) -> list[dict[str, object]]:
+    """NEIS 이중 리스트 envelope: ``{operation}[].row`` 블록을 모두 병합한다."""
+    blocks = payload.get(spec.endpoint.operation)
+    rows: list[dict[str, object]] = []
+    if not isinstance(blocks, list):
+        return rows
+    for block in blocks:
+        if not isinstance(block, dict):
+            continue
+        row_value = block.get("row")
+        if isinstance(row_value, list):
+            rows.extend(item for item in row_value if isinstance(item, dict))
+        elif isinstance(row_value, dict):
+            rows.append(row_value)
+    return rows
+
+
 def extract_total_count(spec: SpecDefinition, payload: dict[str, object]) -> int | None:
     """spec의 total_count_path 규칙으로 총건수를 추출한다(없으면 None)."""
-    raw = _dot_get(payload, spec.response.total_count_path)
+    resolved = _resolve_path(spec.response.total_count_path, spec)
+    raw = _dot_get(payload, resolved)
     coerced = _to_int(raw)
     return coerced if coerced else None
 
