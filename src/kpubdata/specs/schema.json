@@ -5,7 +5,16 @@
   "description": "선언적 데이터셋 정의. Generic Executor가 이 문서만으로 조회를 수행한다. 축별 enum 값은 docs/internal/adapter-inventory.md(Phase 0 전수조사)에서 도출됐다.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "provider", "title", "endpoint", "auth", "response", "pagination", "status"],
+  "required": [
+    "id",
+    "provider",
+    "title",
+    "endpoint",
+    "auth",
+    "response",
+    "pagination",
+    "status"
+  ],
   "properties": {
     "id": {
       "type": "string",
@@ -30,44 +39,89 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "url": { "type": "string", "format": "uri" },
-        "doc_version": { "type": "string", "description": "활용가이드 문서 버전" },
-        "verified_at": { "type": "string", "format": "date" }
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "doc_version": {
+          "type": "string",
+          "description": "활용가이드 문서 버전"
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date"
+        }
       }
     },
     "endpoint": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["base_url", "operation", "method"],
+      "required": [
+        "base_url",
+        "operation",
+        "method"
+      ],
       "properties": {
-        "base_url": { "type": "string", "format": "uri" },
-        "operation": { "type": "string", "description": "연산(경로 세그먼트). 예: getRTMSDataSvcAptTradeDev" },
-        "method": { "enum": ["GET", "POST"] },
+        "base_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "operation": {
+          "type": "string",
+          "description": "연산(경로 세그먼트). 예: getRTMSDataSvcAptTradeDev"
+        },
+        "method": {
+          "enum": [
+            "GET",
+            "POST"
+          ]
+        },
         "format_param": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["name"],
+          "required": [
+            "name"
+          ],
           "description": "응답 포맷 선택 파라미터 (data.go.kr 계열의 dataType/_type/resultType 등)",
           "properties": {
-            "name": { "type": "string" },
+            "name": {
+              "type": "string"
+            },
             "values": {
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "json": { "type": "string" },
-                "xml": { "type": "string" }
+                "json": {
+                  "type": "string"
+                },
+                "xml": {
+                  "type": "string"
+                }
               }
             }
           }
+        },
+        "path_template": {
+          "type": "string",
+          "description": "전체 URL 템플릿(선택). {base_url}/{key}/{operation}/{start}/{end} 플레이스홀더 사용. 경로 세그먼트 인증·범위(bok/seoul 계열)에 필요하다."
         }
       }
     },
     "auth": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "properties": {
-        "type": { "enum": ["query_param", "path_segment", "oauth_exchange", "none"] },
+        "type": {
+          "enum": [
+            "query_param",
+            "path_segment",
+            "oauth_exchange",
+            "none"
+          ]
+        },
         "param_name": {
           "type": "string",
           "description": "type=query_param인 경우 키를 실을 파라미터명 (serviceKey, apiKey, KEY, key, OC, Key 등)"
@@ -84,24 +138,67 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "type"],
+        "required": [
+          "name",
+          "type"
+        ],
         "properties": {
-          "name": { "type": "string", "description": "Provider 원본 파라미터명" },
-          "alias": { "type": "string", "description": "라이브러리 노출명(생략 시 name과 동일)" },
-          "type": { "enum": ["string", "integer", "number", "date_yyyymmdd", "date_yyyymm"] },
-          "required": { "type": "boolean", "default": false },
-          "enum": { "type": "array", "items": { "type": "string" } },
-          "description": { "type": "string" },
-          "example": { "type": ["string", "integer", "number"] }
+          "name": {
+            "type": "string",
+            "description": "Provider 원본 파라미터명"
+          },
+          "alias": {
+            "type": "string",
+            "description": "라이브러리 노출명(생략 시 name과 동일)"
+          },
+          "type": {
+            "enum": [
+              "string",
+              "integer",
+              "number",
+              "date_yyyymmdd",
+              "date_yyyymm"
+            ]
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "enum": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "example": {
+            "type": [
+              "string",
+              "integer",
+              "number"
+            ]
+          }
         }
       }
     },
     "response": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["format", "envelope", "error"],
+      "required": [
+        "format",
+        "envelope",
+        "error"
+      ],
       "properties": {
-        "format": { "enum": ["json", "xml", "geojson"] },
+        "format": {
+          "enum": [
+            "json",
+            "xml",
+            "geojson"
+          ]
+        },
         "envelope": {
           "enum": [
             "datago_standard",
@@ -121,20 +218,41 @@
             "fds_row"
           ]
         },
-        "items_path": { "type": "string", "description": "루트부터 레코드 배열까지의 점 경로. 예: response.body.items.item" },
-        "total_count_path": { "type": "string" },
+        "items_path": {
+          "type": "string",
+          "description": "루트부터 레코드 배열까지의 점 경로. 예: response.body.items.item"
+        },
+        "total_count_path": {
+          "type": "string"
+        },
         "error": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["style"],
+          "required": [
+            "style"
+          ],
           "properties": {
             "style": {
-              "enum": ["header_result_code", "result_code", "status_code", "err_cd", "err_field", "http_status"]
+              "enum": [
+                "header_result_code",
+                "result_code",
+                "status_code",
+                "err_cd",
+                "err_field",
+                "http_status"
+              ]
             },
-            "code_path": { "type": "string" },
+            "code_path": {
+              "type": "string"
+            },
             "ok_values": {
               "type": "array",
-              "items": { "type": ["string", "integer"] },
+              "items": {
+                "type": [
+                  "string",
+                  "integer"
+                ]
+              },
               "description": "성공 코드. 예: [\"00\", \"000\", 0]"
             }
           }
@@ -144,15 +262,34 @@
     "pagination": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "properties": {
         "type": {
-          "enum": ["page_no_rows", "page_display", "pindex_psize", "index_range", "date_window", "none"]
+          "enum": [
+            "page_no_rows",
+            "page_display",
+            "pindex_psize",
+            "index_range",
+            "date_window",
+            "none"
+          ]
         },
-        "page_param": { "type": "string" },
-        "size_param": { "type": "string" },
-        "max_size": { "type": "integer", "minimum": 1 },
-        "start_index_base": { "type": "integer", "description": "index_range 계열의 시작 오프셋(보통 1)" }
+        "page_param": {
+          "type": "string"
+        },
+        "size_param": {
+          "type": "string"
+        },
+        "max_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start_index_base": {
+          "type": "integer",
+          "description": "index_range 계열의 시작 오프셋(보통 1)"
+        }
       }
     },
     "fields": {
@@ -161,17 +298,44 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "type"],
+        "required": [
+          "name",
+          "type"
+        ],
         "properties": {
-          "source_name": { "type": "string", "description": "원본 필드명. 생략 시 name과 동일" },
-          "name": { "type": "string", "description": "정규 필드명" },
-          "type": { "enum": ["string", "integer", "number", "boolean"] },
-          "unit": { "type": "string", "description": "예: 원, 천원" },
+          "source_name": {
+            "type": "string",
+            "description": "원본 필드명. 생략 시 name과 동일"
+          },
+          "name": {
+            "type": "string",
+            "description": "정규 필드명"
+          },
+          "type": {
+            "enum": [
+              "string",
+              "integer",
+              "number",
+              "boolean"
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "description": "예: 원, 천원"
+          },
           "transform": {
-            "enum": ["date_yyyymmdd", "date_yyyymm", "to_int", "to_float", "strip_comma"],
+            "enum": [
+              "date_yyyymmdd",
+              "date_yyyymm",
+              "to_int",
+              "to_float",
+              "strip_comma"
+            ],
             "description": "적용 순서: transform 단일 적용 후 타입 캐스팅"
           },
-          "description": { "type": "string" }
+          "description": {
+            "type": "string"
+          }
         }
       }
     },
@@ -181,21 +345,51 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
-          "name": { "type": "string", "description": "예제명. fixture 파일명으로도 사용" },
-          "description": { "type": "string" },
+          "name": {
+            "type": "string",
+            "description": "예제명. fixture 파일명으로도 사용"
+          },
+          "description": {
+            "type": "string"
+          },
           "params": {
             "type": "object",
             "description": "정규 Query 필터 값. 예: {LAWD_CD: \"11110\", DEAL_YMD: \"202508\"}"
           },
-          "page": { "type": "integer", "minimum": 1 },
-          "page_size": { "type": "integer", "minimum": 1 },
-          "format": { "enum": ["json", "xml"], "description": "응답 포맷 재정의(기본: response.format)" }
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "format": {
+            "enum": [
+              "json",
+              "xml"
+            ],
+            "description": "응답 포맷 재정의(기본: response.format)"
+          }
         }
       }
     },
-    "status": { "enum": ["active", "deprecated", "broken", "unstable"] },
-    "last_verified": { "type": "string", "format": "date", "description": "마지막 실API 검증일 (SUPPORTED_DATA.md와 연동)" }
+    "status": {
+      "enum": [
+        "active",
+        "deprecated",
+        "broken",
+        "unstable"
+      ]
+    },
+    "last_verified": {
+      "type": "string",
+      "format": "date",
+      "description": "마지막 실API 검증일 (SUPPORTED_DATA.md와 연동)"
+    }
   }
 }

@@ -77,6 +77,7 @@ class EndpointSpec:
     operation: str
     method: str = "GET"
     format_param: FormatParamSpec | None = None
+    path_template: str | None = None
 
 
 @dataclass(slots=True, frozen=True)
@@ -277,6 +278,7 @@ def from_mapping(data: dict[str, object]) -> SpecDefinition:
         problems.append("title은(는) 비어 있지 않은 문자열이어야 합니다.")
 
     endpoint_raw = _section(data, "endpoint")
+    path_template = _get_str(endpoint_raw, "path_template")
     base_url = _get_str(endpoint_raw, "base_url")
     if base_url is None:
         problems.append("endpoint.base_url은(는) 비어 있지 않은 문자열이어야 합니다.")
@@ -303,6 +305,7 @@ def from_mapping(data: dict[str, object]) -> SpecDefinition:
             operation=operation or "",
             method=method,
             format_param=format_param,
+            path_template=path_template,
         )
         if base_url and operation
         else None
