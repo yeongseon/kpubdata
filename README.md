@@ -11,28 +11,28 @@
 
 | spec 데이터셋 | 검증 |
 |---|---|
-| `datago.air_quality` | 실API - |
+| `datago.air_quality` | 실API 2026-09-09 |
 | `datago.air_station` | 실API 2026-09-09 |
-| `datago.airkorea_forecast` | 실API - |
-| `datago.apt_rent` | 실API - |
-| `datago.apt_trade` | 실API 2026-04-21 |
-| `datago.hospital_info` | 실API 2026-04-21 |
-| `datago.metro_fare` | 실API - |
-| `datago.offi_rent` | 실API - |
-| `datago.offi_trade` | 실API - |
-| `datago.rh_rent` | 실API - |
-| `datago.sh_rent` | 실API - |
-| `datago.sh_trade` | 실API - |
+| `datago.airkorea_forecast` | 실API 2026-09-09 |
+| `datago.apt_rent` | 실API 2026-09-09 |
+| `datago.apt_trade` | 실API 2026-09-10 |
+| `datago.hospital_info` | 실API 2026-09-09 |
+| `datago.metro_fare` | 실API 2026-09-09 |
+| `datago.offi_rent` | 실API 2026-09-09 |
+| `datago.offi_trade` | 실API 2026-09-09 |
+| `datago.rh_rent` | 실API 2026-09-09 |
+| `datago.sh_rent` | 실API 2026-09-09 |
+| `datago.sh_trade` | 실API 2026-09-09 |
 | `datago.tour_kor_area` | 실API 2026-09-10 |
 | `datago.tour_kor_festival` | 실API 2026-09-10 |
 | `datago.tour_kor_keyword` | 실API 2026-09-10 |
 | `datago.tour_kor_location` | 실API 2026-09-10 |
 | `datago.ultra_srt_fcst` | 실API 2026-09-09 |
-| `datago.ultra_srt_ncst` | 실API - |
-| `datago.village_fcst` | 실API 2026-04-21 |
-| `localdata.bakery` | 실API - |
-| `localdata.general_restaurant` | 실API - |
-| `localdata.rest_cafe` | 실API - |
+| `datago.ultra_srt_ncst` | 실API 2026-09-09 |
+| `datago.village_fcst` | 실API 2026-09-09 |
+| `localdata.bakery` | 실API 2026-09-09 |
+| `localdata.general_restaurant` | 실API 2026-09-09 |
+| `localdata.rest_cafe` | 실API 2026-09-09 |
 
 > 이 표는 `scripts/gen_readme_datasets.py`로 생성했다 — 직접 편집 금지.
 <!-- END: datasets -->
