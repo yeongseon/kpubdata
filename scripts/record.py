@@ -18,6 +18,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -120,6 +121,21 @@ def record_dataset(
         written.extend([raw_path, meta_path, expected_path])
         shown = raw_path.relative_to(REPO_ROOT) if raw_path.is_relative_to(REPO_ROOT) else raw_path
         print(f"기록: {shown} ({len(items)}건, total={total})")
+
+    # 기록 성공 → spec의 last_verified를 오늘로 동기화(검증일 신뢰성)
+    spec_path = (
+        REPO_ROOT / "src" / "kpubdata" / "specs" / spec.provider / f"{spec.dataset_key}.yaml"
+    )
+    if spec_path.is_file():
+        text = spec_path.read_text(encoding="utf-8")
+        today = datetime.now(tz=timezone.utc).date().isoformat()
+        if re.search(r"^last_verified:", text, re.MULTILINE):
+            text = re.sub(
+                r"^last_verified:.*$", f'last_verified: "{today}"', text, flags=re.MULTILINE
+            )
+        else:
+            text = text.replace("status: active", f'status: active\nlast_verified: "{today}"', 1)
+        spec_path.write_text(text, encoding="utf-8")
 
     # spec에서 제거된 예제의 낡은 fixture 정리(도구 위생 — 수동 수정 아님)
     declared = {example.name for example in spec.examples}
