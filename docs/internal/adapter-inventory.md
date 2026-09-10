@@ -49,7 +49,7 @@
 |---|---|---|---|---|---|---|---|---|
 | **datago** (50) | query `serviceKey` (데이터셋별 `service_key_param` override) | GET + query | json (xml 선택) | `response.body.items.item` (변형 4종 — 아래 표) | `response.body.totalCount` | `pageNo`+`numOfRows` (odcloud 계열은 `pagination_params`로 파라미터명 override) | `response.header.resultCode` — `"00"`/`"000"`/수치 0 성공, `30·31·20·32`→AuthError, `22`→RateLimit, `10`→InvalidRequest, `12`→NotFound, `01·02`→ServiceUnavailable (`envelope.py`) | HTTP 403 → 활용신청 안내 AuthError. `datago.generic` raw 비상구 별도 |
 | **localdata** (195) | query `serviceKey` (`require_provider_key("datago")` 공유) | GET + query | json | `response.body.items.item` | `response.body.totalCount` | `pageNo`+`numOfRows` | datago standard와 동일 계열 | datago와 동일 envelope/parser 구조 |
-| **semas** (17) | query `serviceKey` (datago 키 공유) | GET + query | json | `response.header.body.items.item` | `response.body.totalCount` | `pageNo`+`numOfRows` | datago standard 동일 계열 | 소상공인 상가정보 |
+| **semas** (17) | query `serviceKey` (datago 키 공유) | GET + query | json | `response.body.items(.item)` — **2026-09-10 정정**: header 하위가 아니라 표준 경로 | `response.body.totalCount` | `pageNo`+`numOfRows` | datago standard 동일 계열 | 소상공인 상가정보 |
 | **lofin** (6) | query `Key` (datago 키 공유) | GET + 어댑터 수동 querystring (`?Key=...&Type=json&pIndex=...`) | json | `payload[<api_code>][1].row` (배열 본문: [0]=head, [1]=rows) | head 내 `list_total_count` | `pIndex`+`pSize` | head의 `RESULT.CODE` (`"000"` 정상) | SSL 자동 조정 특기사항 |
 | **seoul** (7) | **path segment** (`{base}/{KEY}/json/{service}/{start}/{end}`) — `secret_values` 마스킹 | GET + path | json | `{서비스명}.row` (dataset별 `envelope_key`) | `list_total_count` | `index_range` (start/end를 URL 경로에, page_size ≤ 1000 강제) | `RESULT.CODE` — `INFO-000` 성공, `INFO-200` 빈 결과 (`seoul/envelope.py`) | `required_path_params` (예: stationName) |
 | **bok** (4) | **path segment** (`{base}/{키}/json/{op}/{start}/{end}/...`) | GET + path | json | `StatisticSearch.row` | `StatisticSearch.list_total_count` | `index_range` (start/end를 경로에) | `RESULT.CODE` 매핑 (`adapter.py` `_raise_for_result_code`) | `stat_code`/`item_code1` catalogue 기본값, 날짜 `YYYYMM` |
@@ -74,6 +74,10 @@
 근거: `src/kpubdata/providers/datago/envelope.py`, `datago/catalogue.json`
 
 ## 에러 → 예외 매핑 (공통, `src/kpubdata/exceptions.py`)
+
+> **2026-09-10 보충**: 한국관광공사 KorService2는 성공은 표준 envelope이지만
+> **에러를 envelope 밖 최상단 `{resultCode, resultMsg}`로 평면 반환**한다 —
+> 실행기 check_payload_error의 flat 폴백으로 처리된다(PR #422).
 
 모든 어댑터가 `provider_code`를 실어 다음 표준 예외로 매핑한다. Generic executor도 이 계층을 그대로 재사용한다.
 

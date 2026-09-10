@@ -45,6 +45,11 @@ jobs:
       - name: Validate dataset specs
         run: uv run python scripts/validate_spec.py
 
+      - name: Generated docs drift check
+        run: |
+          uv run python scripts/gen_docs_examples.py --check
+          uv run python scripts/gen_readme_datasets.py --check
+
   test:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest

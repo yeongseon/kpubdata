@@ -161,6 +161,7 @@ def run_verify(dataset_id: str | None = None) -> int:
         result = DatasetVerifyResult(dataset_id=spec.id)
         result.steps.extend(_verify_fixtures(spec))
         result.steps.append(_run_example_script(spec))
+        result.steps.append(_run_live_schema_diff(spec))
 
         status = "통과" if result.passed else "실패"
         print(f"[{status}] {spec.id}")
@@ -172,6 +173,56 @@ def run_verify(dataset_id: str | None = None) -> int:
     total = len(specs)
     print(f"검증 결과: {total}개 데이터셋, {'실패 있음' if failed_any else '전체 통과'}")
     return 1 if failed_any else 0
+
+
+def _run_live_schema_diff(spec: SpecDefinition) -> StepResult:
+    """LIVE=1 시 실호출 스키마 diff를 수행한다(값 변화는 무시, 구조만 비교)."""
+    import os
+
+    if os.environ.get("LIVE") != "1":
+        return StepResult("live 스키마 diff", passed=True, detail="건너뜀(LIVE=1 아님)")
+
+    from kpubdata.config import KPubDataConfig
+    from kpubdata.core.executor import SpecExecutor, check_payload_error, extract_items
+    from kpubdata.core.models import Query
+    from kpubdata.core.spec import ExampleSpec
+    from kpubdata.transport.http import HttpTransport
+
+    out_dir = FIXTURES_ROOT / spec.provider / spec.dataset_key
+    meta_paths = sorted(out_dir.glob("*.meta.json"))
+    if not meta_paths:
+        return StepResult("live 스키마 diff", passed=True, detail="fixture 없음 — 건너뜀")
+
+    meta = json.loads(meta_paths[0].read_text(encoding="utf-8"))
+    example_name = str(meta.get("example", "default"))
+    example = next(
+        (ex for ex in spec.examples if ex.name == example_name),
+        spec.examples[0] if spec.examples else ExampleSpec(name=example_name),
+    )
+    query = Query(
+        filters=dict(example.params),
+        page=example.page or 1,
+        page_size=example.page_size or 10,
+    )
+    executor = SpecExecutor(HttpTransport(), KPubDataConfig.from_env())
+    try:
+        params, payload = executor.fetch(spec, query, format_hint=example.format)
+        check_payload_error(spec, payload)
+        live_items = extract_items(spec, payload)
+    except Exception as exc:  # noqa: BLE001 — LIVE 검증은 실패를 결과로 수집
+        return StepResult("live 스키마 diff", passed=False, detail=f"실호출 실패: {str(exc)[:120]}")
+
+    expected = json.loads((out_dir / f"{example_name}.expected.json").read_text(encoding="utf-8"))
+    fixture_keys = (
+        {k for item in expected.get("items", []) for k in item} if expected.get("items") else set()
+    )
+    live_keys = {k for item in live_items for k in item} if live_items else set()
+    added = sorted(live_keys - fixture_keys)
+    removed = sorted(fixture_keys - live_keys)
+    if added or removed:
+        detail = f"스키마 diff — 추가: {added or '없음'} / 제거: {removed or '없음'}"
+        return StepResult("live 스키마 diff", passed=False, detail=detail)
+    return StepResult("live 스키마 diff", passed=True, detail=f"구조 일치({len(live_keys)}필드)")
 
 
 def _run_example_script(spec: SpecDefinition) -> StepResult:
