@@ -30,7 +30,7 @@ jobs:
     env:
       KPUBDATA_DATAGO_API_KEY: ${{ secrets.KPUBDATA_DATAGO_API_KEY }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: uv sync --frozen --extra dev
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v7
         with:
