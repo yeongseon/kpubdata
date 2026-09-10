@@ -497,22 +497,6 @@ def test_pindex_psize_and_page_display_params() -> None:
 
 def test_extract_items_root_array_and_operation_template() -> None:
     """$ 루트 배열(kosis)과 {operation} 치환(lofin) 추출이 동작한다."""
-    kosis_spec = _spec_from(
-        {
-            "id": "test.kosis_like",
-            "provider": "test",
-            "title": "t",
-            "endpoint": {"base_url": "https://x.test", "operation": "data"},
-            "auth": {"type": "none"},
-            "response": {
-                "format": "json",
-                "envelope": "kosis_top_array",
-                "items_path": "$",
-                "error": {"style": "err_field"},
-            },
-            "pagination": {"type": "none"},
-        }
-    )
     # kosis 루트 배열은 _request에서 dict가 아니라 ProviderResponseError가 나는 계약이다.
     # (kosis 전환 시 실행기 계약 확장 필요 — envelope 상태 그대로 둔다)
     from kpubdata.core.executor import _dot_get
