@@ -38,11 +38,14 @@ def build_section() -> str:
     spec_ids = sorted(spec.id for spec in specs)
     catalogue = _catalogue_counts()
 
+    catalogue_summary = ", ".join(
+        f"{provider} {count}" for provider, count in sorted(catalogue.items())
+    )
     lines = [
         BEGIN,
         "",
         f"- **spec 기반 데이터셋**: {len(spec_ids)}종 — `make verify` 4단계 기계 검증 통과",
-        f"- **catalogue 기반 데이터셋**: {sum(catalogue.values())}종 ({', '.join(f'{p} {n}' for p, n in sorted(catalogue.items()))})",
+        f"- **catalogue 기반 데이터셋**: {sum(catalogue.values())}종 ({catalogue_summary})",
         "",
         "| spec 데이터셋 | 검증 |",
         "|---|---|",
