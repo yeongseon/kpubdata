@@ -22,7 +22,7 @@
 
 | 상태 | 검증 | 실API 최종 검증일 | Provider | Dataset ID | 데이터셋명 | 인증 | 공식 문서 | 비고 |
 |---|---|---|---|---|---|---|---|---|
-| 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
+| 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `apt_trade` | 아파트매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) — **spec 단일원천 전환 완료**(catalogue 제거, #378 청소) | 국토교통부 제공 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `apt_rent` | 아파트 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `offi_trade` | 오피스텔 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `offi_rent` | 오피스텔 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
@@ -30,12 +30,12 @@
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `rh_rent` | 연립다세대 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `sh_trade` | 단독/다가구 매매 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `sh_rent` | 단독/다가구 전월세 실거래가 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 국토교통부 제공 |
-| 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
+| 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `village_fcst` | 단기예보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) — **spec 단일원천 전환 완료**(catalogue 제거, #378 청소) | 기상청 제공 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `ultra_srt_ncst` | 초단기실황 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 기상청 제공 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `ultra_srt_fcst` | 초단기예보 조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15084292](https://www.data.go.kr/data/15084292/openapi.do) | VilageFcstInfoService_2.0 / `getUltraSrtFcst` — spec 절차 (E2E #398), 초단기 카테고리 T1H/RN1 |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `air_quality` | 대기오염정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
 | 지원 | 실API 검증 | 2026-04-21 | 공공데이터포털 (`datago`) | `bus_arrival` | 경기도 버스도착정보 조회서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | 경기도 v2 endpoint (`getBusArrivalListv2`) + 자체 envelope (`msgHeader`/`msgBody`) |
-| 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) | |
+| 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `hospital_info` | 병원정보서비스 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr](https://www.data.go.kr) — **spec 단일원천 전환 완료**(catalogue 제거, #378 청소) | |
 | 지원 | 실API 검증 | 2026-09-09 | 공공데이터포털 (`datago`) | `air_station` | 측정소별 실시간 대기측정정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15000581](https://www.data.go.kr/data/15000581/openapi.do) | ArpltnInforInqireSvc / `getMsrstnAcctoRltmMesureDnsty` — **spec 기반 최초 데이터셋** (E2E #396), items 네이스트 배열 |
 | 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `dur_usjnt_taboo` | 의약품 안전사용서비스 DUR 병용금기 품목정보 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15059486](https://www.data.go.kr/data/15059486/openapi.do) | 식품의약품안전처 제공, 이용허락범위 제한 없음, DURPrdlstInfoService03 / `getUsjntTabooInfoList03`, [#92](https://github.com/yeongseon/kpubdata/issues/92) | — 활용신청 필요(2026-09-09 프로브 #409)
 | 지원 | 테스트 검증 | - | 공공데이터포털 (`datago`) | `dur_older_adult_caution` | 의약품 안전사용서비스 DUR 노인주의 정보조회 | [공공데이터포털](https://www.data.go.kr) 서비스키 | [data.go.kr/15059486](https://www.data.go.kr/data/15059486/openapi.do) | 식품의약품안전처 제공, 이용허락범위 제한 없음, DURPrdlstInfoService03 / `getOdsnAtentInfoList03`, [#92](https://github.com/yeongseon/kpubdata/issues/92) | — 활용신청 필요(2026-09-09 프로브 #409)
