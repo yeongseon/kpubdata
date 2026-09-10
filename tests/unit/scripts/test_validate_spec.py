@@ -152,7 +152,7 @@ def test_catalogue_coexistence_is_notice_only(module, tmp_path: Path) -> None:
     golden = REPO_ROOT / "src" / "kpubdata" / "specs" / "datago"
     report = module.validate_specs(golden, SCHEMA_PATH)
     assert report.ok
-    apt_result = next(r for r in report.results if r.spec_id == "apt_trade")
+    apt_result = next(r for r in report.results if r.spec_id == "air_quality")
     assert apt_result.passed
     assert any("공존" in notice for notice in apt_result.notices)
 

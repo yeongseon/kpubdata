@@ -194,7 +194,7 @@ def _build_adapter_with_transport(
         config=config,
         transport=cast(HttpTransport, cast(object, transport)),
     )
-    dataset = adapter.get_dataset("village_fcst")
+    dataset = adapter.get_dataset("metro_fare")
     return adapter, dataset, transport
 
 
@@ -323,9 +323,9 @@ class TestDataGoAdapterDiscovery:
         """
         adapter = DataGoAdapter()
 
-        dataset = adapter.get_dataset("village_fcst")
-        assert dataset.id == "datago.village_fcst"
-        assert dataset.dataset_key == "village_fcst"
+        dataset = adapter.get_dataset("metro_fare")
+        assert dataset.id == "datago.metro_fare"
+        assert dataset.dataset_key == "metro_fare"
 
     # test get dataset not found 테스트가 검증하는 시나리오를 설명한다.
     def test_get_dataset_not_found(self) -> None:
@@ -389,9 +389,9 @@ class TestDataGoAdapterDiscovery:
         """
         adapter = DataGoAdapter()
 
-        results = adapter.search_datasets("forecast")
+        results = adapter.search_datasets("fare")
         assert results
-        assert any(dataset.dataset_key == "village_fcst" for dataset in results)
+        assert any(dataset.dataset_key == "metro_fare" for dataset in results)
 
     # test search datasets no match 테스트가 검증하는 시나리오를 설명한다.
     def test_search_datasets_no_match(self) -> None:
@@ -430,8 +430,8 @@ class TestDataGoAdapterDiscovery:
         datasets = adapter.list_datasets()
         assert datasets
 
-        dataset = adapter.get_dataset("village_fcst")
-        assert dataset.id == "datago.village_fcst"
+        dataset = adapter.get_dataset("metro_fare")
+        assert dataset.id == "datago.metro_fare"
 
 
 class TestDataGoAdapterRealEstateDatasets:
@@ -933,7 +933,7 @@ class TestDataGoAdapterQueryRecords:
             config=KPubDataConfig(provider_keys={"datago": "test-key"}),
             transport=cast(HttpTransport, cast(object, ForbiddenTransport())),
         )
-        dataset = adapter.get_dataset("village_fcst")
+        dataset = adapter.get_dataset("metro_fare")
 
         with pytest.raises(AuthError) as excinfo:
             _ = adapter.query_records(dataset, Query())
@@ -1356,7 +1356,7 @@ class TestDataGoAdapterGetSchema:
             테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
         """
         adapter = DataGoAdapter()
-        dataset = adapter.get_dataset("village_fcst")
+        dataset = adapter.get_dataset("metro_fare")
         schema = adapter.get_schema(dataset)
         assert schema is None
 
