@@ -4,6 +4,39 @@
 
 공공데이터 포털의 수많은 [API](https://ko.wikipedia.org/wiki/API)(프로그램끼리 데이터를 주고받는 규칙)는 저마다 호출 방식도, 응답 형식도 제각각입니다. KPubData는 이러한 파편화된 인터페이스를 하나로 연결하여, 개발자가 일관된 방식으로 데이터를 탐색하고 수집할 수 있도록 돕습니다.
 
+<!-- BEGIN: datasets -->
+
+- **spec 기반 데이터셋**: 22종 — `make verify` 4단계 기계 검증 통과
+- **catalogue 기반 데이터셋**: 149종 (bok 4, datago 40, fds 1, kipris 1, korean 1, kosis 2, krx 3, law 3, localdata 59, lofin 6, neis 2, semas 17, seoul 7, sgis 3)
+
+| spec 데이터셋 | 검증 |
+|---|---|
+| `datago.air_quality` | 실API - |
+| `datago.air_station` | 실API 2026-09-09 |
+| `datago.airkorea_forecast` | 실API - |
+| `datago.apt_rent` | 실API - |
+| `datago.apt_trade` | 실API 2026-04-21 |
+| `datago.hospital_info` | 실API 2026-04-21 |
+| `datago.metro_fare` | 실API - |
+| `datago.offi_rent` | 실API - |
+| `datago.offi_trade` | 실API - |
+| `datago.rh_rent` | 실API - |
+| `datago.sh_rent` | 실API - |
+| `datago.sh_trade` | 실API - |
+| `datago.tour_kor_area` | 실API 2026-09-10 |
+| `datago.tour_kor_festival` | 실API 2026-09-10 |
+| `datago.tour_kor_keyword` | 실API 2026-09-10 |
+| `datago.tour_kor_location` | 실API 2026-09-10 |
+| `datago.ultra_srt_fcst` | 실API 2026-09-09 |
+| `datago.ultra_srt_ncst` | 실API - |
+| `datago.village_fcst` | 실API 2026-04-21 |
+| `localdata.bakery` | 실API - |
+| `localdata.general_restaurant` | 실API - |
+| `localdata.rest_cafe` | 실API - |
+
+> 이 표는 `scripts/gen_readme_datasets.py`로 생성했다 — 직접 편집 금지.
+<!-- END: datasets -->
+
 ## 이 프로젝트가 존재하는 이유
 
 한국의 공공데이터 [API](https://ko.wikipedia.org/wiki/API)(프로그램으로 데이터를 가져올 수 있는 창구)는 기관마다 다음과 같은 차이점이 있어 통합 관리가 어렵습니다.

@@ -1,0 +1,87 @@
+"""README 데이터셋 섹션 자동 생성 — specs + catalogue에서 요약 표를 만든다.
+
+사용법:
+    uv run python scripts/gen_readme_datasets.py           # 생성 (마커 구간 교체)
+    uv run python scripts/gen_readme_datasets.py --check   # 드리프트 검사(exit 1)
+
+README의 `<!-- BEGIN: datasets -->` ~ `<!-- END: datasets -->` 구간만 교체한다.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+from kpubdata.core.spec import discover_specs
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+README = REPO_ROOT / "README.md"
+BEGIN = "<!-- BEGIN: datasets -->"
+END = "<!-- END: datasets -->"
+
+
+def _catalogue_counts() -> dict[str, int]:
+    """catalogue 기반 Provider별 데이터셋 수."""
+    counts: dict[str, int] = {}
+    providers_dir = REPO_ROOT / "src" / "kpubdata" / "providers"
+    for catalogue in sorted(providers_dir.glob("*/catalogue.json")):
+        provider = catalogue.parent.name
+        counts[provider] = len(json.loads(catalogue.read_text(encoding="utf-8")))
+    return counts
+
+
+def build_section() -> str:
+    """데이터셋 요약 섹션 마크다운을 생성한다."""
+    specs = discover_specs()
+    spec_ids = sorted(spec.id for spec in specs)
+    catalogue = _catalogue_counts()
+
+    lines = [
+        BEGIN,
+        "",
+        f"- **spec 기반 데이터셋**: {len(spec_ids)}종 — `make verify` 4단계 기계 검증 통과",
+        f"- **catalogue 기반 데이터셋**: {sum(catalogue.values())}종 ({', '.join(f'{p} {n}' for p, n in sorted(catalogue.items()))})",
+        "",
+        "| spec 데이터셋 | 검증 |",
+        "|---|---|",
+    ]
+    spec_map = {spec.id: spec for spec in specs}
+    for dataset_id in spec_ids:
+        spec = spec_map[dataset_id]
+        verified = spec.last_verified.isoformat() if spec.last_verified else "-"
+        lines.append(f"| `{dataset_id}` | 실API {verified} |")
+    lines += [
+        "",
+        "> 이 표는 `scripts/gen_readme_datasets.py`로 생성했다 — 직접 편집 금지.",
+        END,
+    ]
+    return "\n".join(lines)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI 진입점 — 생성 또는 드리프트 검사."""
+    parser = argparse.ArgumentParser(description="README 데이터셋 섹션 생성")
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args(argv)
+
+    content = README.read_text(encoding="utf-8") if README.is_file() else ""
+    section = build_section()
+    if BEGIN not in content or END not in content:
+        print(f"오류: README에 {BEGIN}/{END} 마커가 없다 — 먼저 삽입해야 한다.")
+        return 1
+    current = content[content.index(BEGIN) : content.index(END) + len(END)]
+    if args.check:
+        if current != section:
+            print("드리프트: README 데이터셋 섹션이 소스와 불일치 — 재생성 후 커밋하세요.")
+            return 1
+        print("일치: README 데이터셋 섹션 최신")
+        return 0
+    README.write_text(content.replace(current, section), encoding="utf-8")
+    print("생성 완료")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
