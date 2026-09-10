@@ -52,7 +52,6 @@ def _supported_summary() -> dict[str, int]:
 def build_status() -> dict[str, object]:
     """현재 상태 스냅샷을 만든다."""
     specs = discover_specs()
-    today = date.today().isoformat()
     verified = [s for s in specs if s.last_verified]
     fresh = [
         s for s in verified if s.last_verified and s.last_verified.isoformat() >= _recent_cutoff()
@@ -95,7 +94,8 @@ def render_md(status: dict[str, object]) -> str:
         "",
         "## 요약",
         "",
-        f"- spec 데이터셋: **{spec['total']}종** (검증 {spec['verified']}종, 최근 90일 {spec['verified_recent_90d']}종)",  # type: ignore[index]
+        f"- spec 데이터셋: **{spec['total']}종** "
+        f"(검증 {spec['verified']}종, 최근 90일 {spec['verified_recent_90d']}종)",
         f"- catalogue 데이터셋: {sum(catalogue.values())}종"  # type: ignore[call-arg]
         + " ("
         + ", ".join(f"{p} {n}" for p, n in sorted(catalogue.items()))
@@ -131,9 +131,7 @@ def main(argv: list[str] | None = None) -> int:
         json_ok = STATUS_JSON.is_file() and STATUS_JSON.read_text(encoding="utf-8") == json_text
         md_ok = STATUS_MD.is_file() and STATUS_MD.read_text(encoding="utf-8") == md_text
         if not (json_ok and md_ok):
-            print(
-                "드리프트: 상태 페이지가 최신이 아님 — 재생성 후 커밋하세요 (generated_at 제외하고 비교 권장)."
-            )
+            print("드리프트: 상태 페이지가 최신이 아님 — 재생성 후 커밋하세요.")
             return 1
         print("일치: 상태 페이지 최신")
         return 0
