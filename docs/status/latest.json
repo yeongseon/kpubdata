@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-10T13:17:07+00:00",
+  "generated_at": "2026-09-11T11:52:19+00:00",
   "spec_datasets": {
     "total": 22,
     "verified": 22,
@@ -22,7 +22,7 @@
         "status": "active"
       },
       "datago.apt_trade": {
-        "last_verified": "2026-09-10",
+        "last_verified": "2026-09-11",
         "status": "active"
       },
       "datago.hospital_info": {
