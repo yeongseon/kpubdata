@@ -1,13 +1,10 @@
-# 한국관광공사 KorService2 — 2026-09 드리프트 수리(#414~#419): MobileOS/MobileApp 필수화·listYN 폐지
 id: datago.tour_kor_festival
 provider: datago
 title: 한국관광공사 행사정보
 description: 한국관광공사 TourAPI 2.0. 2026-09 기준 MobileOS·MobileApp이 필수이고 listYN은 폐지되었다.
-
 source:
   url: https://www.data.go.kr/data/15101578/openapi.do
-  verified_at: "2026-09-10"
-
+  verified_at: '2026-09-10'
 endpoint:
   base_url: http://apis.data.go.kr/B551011/KorService2
   operation: searchFestival2
@@ -17,34 +14,31 @@ endpoint:
     values:
       json: json
       xml: xml
-
 auth:
   type: query_param
   param_name: serviceKey
   provider_key: datago
-
 params:
-  - name: MobileOS
-    type: string
-    required: true
-    description: "OS 구분 (ETC 고정)"
-    example: "ETC"
-  - name: MobileApp
-    type: string
-    required: true
-    description: "응용프로그램명"
-    example: "kpubdata"
-  - name: eventStartDate
-    type: date_yyyymmdd
-    required: false
-    description: 행사 시작일
-    example: "20260101"
-  - name: eventEndDate
-    type: date_yyyymmdd
-    required: false
-    description: 행사 종료일
-    example: "20261231"
-
+- name: MobileOS
+  type: string
+  required: true
+  description: OS 구분 (ETC 고정)
+  example: ETC
+- name: MobileApp
+  type: string
+  required: true
+  description: 응용프로그램명
+  example: kpubdata
+- name: eventStartDate
+  type: date_yyyymmdd
+  required: false
+  description: 행사 시작일
+  example: '20260101'
+- name: eventEndDate
+  type: date_yyyymmdd
+  required: false
+  description: 행사 종료일
+  example: '20261231'
 response:
   format: json
   envelope: datago_standard
@@ -53,26 +47,101 @@ response:
   error:
     style: header_result_code
     code_path: response.header.resultCode
-    ok_values: ["00", "000", "0000", 0]
-
+    ok_values:
+    - '00'
+    - '000'
+    - '0000'
+    - 0
 pagination:
   type: page_no_rows
   page_param: pageNo
   size_param: numOfRows
   max_size: 1000
-
-fields: []
-
+fields:
+- name: addr1
+  type: string
+  description: 주소
+- name: addr2
+  type: string
+  description: 상세주소
+- name: areacode
+  type: string
+  description: 지역 코드
+- name: cat1
+  type: string
+  description: 대분류
+- name: cat2
+  type: string
+  description: 중분류
+- name: cat3
+  type: string
+  description: 소분류
+- name: contentid
+  type: integer
+  description: 콘텐츠 ID
+- name: contenttypeid
+  type: integer
+  description: 콘텐츠 타입 ID
+- name: cpyrhtDivCd
+  type: string
+- name: createdtime
+  type: integer
+  description: 등록일시
+- name: eventenddate
+  type: integer
+- name: eventstartdate
+  type: integer
+- name: festivaltype
+  type: string
+- name: firstimage
+  type: string
+  description: 대표 이미지
+- name: firstimage2
+  type: string
+- name: lDongRegnCd
+  type: integer
+- name: lDongSignguCd
+  type: integer
+- name: lclsSystm1
+  type: string
+- name: lclsSystm2
+  type: string
+- name: lclsSystm3
+  type: string
+- name: mapx
+  type: string
+  description: 경도
+- name: mapy
+  type: string
+  description: 위도
+- name: mlevel
+  type: string
+  description: 맵 레벨
+- name: modifiedtime
+  type: integer
+  description: 수정일시
+- name: progresstype
+  type: string
+- name: sigungucode
+  type: string
+  description: 시군구 코드
+- name: tel
+  type: string
+  description: 전화번호
+- name: title
+  type: string
+  description: 제목
+- name: zipcode
+  type: integer
 examples:
-  - name: year_2026
-    description: 2026년 전국 행사
-    params:
-      MobileOS: "ETC"
-      MobileApp: "kpubdata"
-      eventStartDate: "20260101"
-      eventEndDate: "20261231"
-    page: 1
-    page_size: 10
-
+- name: year_2026
+  description: 2026년 전국 행사
+  params:
+    MobileOS: ETC
+    MobileApp: kpubdata
+    eventStartDate: '20260101'
+    eventEndDate: '20261231'
+  page: 1
+  page_size: 10
 status: active
-last_verified: "2026-09-10"
+last_verified: '2026-09-10'

@@ -1,16 +1,10 @@
-# 골든 예제: 필수 필터 파라미터를 포함하는 데이터셋
-# 카테고리: 페이지네이션 예제
-# 참고: 이 spec은 필수 필터(LAWD_CD, DEAL_YMD)를 요구하는 부동산 실거래가 데이터셋입니다.
-
 id: datago.apt_trade
 provider: datago
 title: 아파트매매 실거래가
 description: 국토교통부에서 제공하는 아파트 매매 실거래 데이터입니다. 지역코드와 거래연월을 필수 조건으로 조회합니다.
-
 source:
   url: https://www.data.go.kr
-  verified_at: "2026-04-21"
-
+  verified_at: '2026-04-21'
 endpoint:
   base_url: http://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev
   operation: getRTMSDataSvcAptTradeDev
@@ -20,24 +14,21 @@ endpoint:
     values:
       json: json
       xml: xml
-
 auth:
   type: query_param
   param_name: serviceKey
   provider_key: datago
-
 params:
-  - name: LAWD_CD
-    type: string
-    required: true
-    description: 지역코드 (5자리)
-    example: "11110"
-  - name: DEAL_YMD
-    type: date_yyyymm
-    required: true
-    description: 거래연월 (YYYYMM 형식)
-    example: "202401"
-
+- name: LAWD_CD
+  type: string
+  required: true
+  description: 지역코드 (5자리)
+  example: '11110'
+- name: DEAL_YMD
+  type: date_yyyymm
+  required: true
+  description: 거래연월 (YYYYMM 형식)
+  example: '202401'
 response:
   format: json
   envelope: datago_standard
@@ -46,31 +37,112 @@ response:
   error:
     style: header_result_code
     code_path: response.header.resultCode
-    ok_values: ["00", "000", 0]
-
+    ok_values:
+    - '00'
+    - '000'
+    - 0
 pagination:
   type: page_no_rows
   page_param: pageNo
   size_param: numOfRows
   max_size: 1000
-
-fields: []
-
+fields:
+- name: aptDong
+  type: integer
+- name: aptNm
+  type: string
+  description: 아파트 이름
+- name: aptSeq
+  type: string
+- name: bonbun
+  type: integer
+  description: 본번
+- name: bubun
+  type: integer
+  description: 부번
+- name: buildYear
+  type: integer
+  description: 건축연도
+- name: buyerGbn
+  type: string
+  description: 매수자 구분
+- name: cdealDay
+  type: string
+  description: 해제사유 발생일
+- name: cdealType
+  type: string
+  description: 해제사유 발생일
+- name: dealAmount
+  type: integer
+  description: 거래금액(만원)
+- name: dealDay
+  type: integer
+  description: 거래일
+- name: dealMonth
+  type: integer
+  description: 거래월
+- name: dealYear
+  type: integer
+  description: 거래연도
+- name: dealingGbn
+  type: string
+- name: estateAgentSggNm
+  type: string
+  description: 중개사 소재지
+- name: excluUseAr
+  type: string
+  description: 전용면적
+- name: floor
+  type: integer
+  description: 층
+- name: jibun
+  type: integer
+  description: 지번
+- name: landCd
+  type: integer
+- name: landLeaseholdGbn
+  type: string
+- name: rgstDate
+  type: string
+  description: 등기일
+- name: roadNm
+  type: string
+- name: roadNmBonbun
+  type: integer
+- name: roadNmBubun
+  type: integer
+- name: roadNmCd
+  type: integer
+- name: roadNmSeq
+  type: integer
+- name: roadNmSggCd
+  type: integer
+- name: roadNmbCd
+  type: integer
+- name: sggCd
+  type: integer
+  description: 시군구 코드
+- name: slerGbn
+  type: string
+- name: umdCd
+  type: integer
+- name: umdNm
+  type: string
+  description: 법정동 이름
 examples:
-  - name: seoul_gangnam_2024_01
-    description: 서울 강남구 2024년 1월 아파트 매매 실거래가
-    params:
-      LAWD_CD: "11110"
-      DEAL_YMD: "202401"
-    page: 1
-    page_size: 100
-  - name: seoul_gangnam_2024_01_full_page
-    description: 서울 강남구 2024년 1월 매매가 (최대 행)
-    params:
-      LAWD_CD: "11110"
-      DEAL_YMD: "202401"
-    page: 1
-    page_size: 1000
-
+- name: seoul_gangnam_2024_01
+  description: 서울 강남구 2024년 1월 아파트 매매 실거래가
+  params:
+    LAWD_CD: '11110'
+    DEAL_YMD: '202401'
+  page: 1
+  page_size: 100
+- name: seoul_gangnam_2024_01_full_page
+  description: 서울 강남구 2024년 1월 매매가 (최대 행)
+  params:
+    LAWD_CD: '11110'
+    DEAL_YMD: '202401'
+  page: 1
+  page_size: 1000
 status: active
 last_verified: "2026-09-11"
