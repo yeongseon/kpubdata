@@ -1,12 +1,9 @@
-# catalogue 일괄 변환 생성 (scripts/gen_specs_from_catalogue.py) — 수동 보강 가능
 id: datago.ultra_srt_ncst
 provider: datago
 title: 초단기실황 조회서비스 (Ultra Short-term Nowcast)
 description: KMA ultra short-term observed weather conditions
-
 source:
   url: https://www.data.go.kr
-
 endpoint:
   base_url: http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0
   operation: getUltraSrtNcst
@@ -16,34 +13,31 @@ endpoint:
     values:
       json: json
       xml: xml
-
 auth:
   type: query_param
   param_name: serviceKey
   provider_key: datago
-
 params:
-  - name: base_date
-    type: date_yyyymmdd
-    required: true
-    description: "발표 날짜 (YYYYMMDD)"
-    example: "20260909"
-  - name: base_time
-    type: string
-    required: true
-    description: "발표 시각 (HHMM, 30분 간격). 예: 1500"
-    example: "1500"
-  - name: nx
-    type: integer
-    required: true
-    description: 예보지점 X 격자값
-    example: 55
-  - name: ny
-    type: integer
-    required: true
-    description: 예보지점 Y 격자값
-    example: 127
-
+- name: base_date
+  type: date_yyyymmdd
+  required: true
+  description: 발표 날짜 (YYYYMMDD)
+  example: '20260909'
+- name: base_time
+  type: string
+  required: true
+  description: '발표 시각 (HHMM, 30분 간격). 예: 1500'
+  example: '1500'
+- name: nx
+  type: integer
+  required: true
+  description: 예보지점 X 격자값
+  example: 55
+- name: ny
+  type: integer
+  required: true
+  description: 예보지점 Y 격자값
+  example: 127
 response:
   format: json
   envelope: datago_standard
@@ -52,26 +46,43 @@ response:
   error:
     style: header_result_code
     code_path: response.header.resultCode
-    ok_values: ["00", "000", 0]
-
+    ok_values:
+    - '00'
+    - '000'
+    - 0
 pagination:
   type: page_no_rows
   page_param: pageNo
   size_param: numOfRows
   max_size: 1000
-
-fields: []
-
+fields:
+- name: baseDate
+  type: integer
+  description: 발표 날짜
+- name: baseTime
+  type: integer
+  description: 발표 시각
+- name: category
+  type: string
+  description: 예보 구분
+- name: nx
+  type: integer
+  description: 격자 X
+- name: ny
+  type: integer
+  description: 격자 Y
+- name: obsrValue
+  type: integer
+  description: 관측 값
 examples:
-  - name: seoul_1500
-    description: 서울(55,127) 15:00 초단기실황
-    params:
-      base_date: "20260909"
-      base_time: "1500"
-      nx: 55
-      ny: 127
-    page: 1
-    page_size: 10
-
+- name: seoul_1500
+  description: 서울(55,127) 15:00 초단기실황
+  params:
+    base_date: '20260909'
+    base_time: '1500'
+    nx: 55
+    ny: 127
+  page: 1
+  page_size: 10
 status: active
-last_verified: "2026-09-09"
+last_verified: '2026-09-09'

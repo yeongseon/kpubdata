@@ -1,12 +1,9 @@
-# catalogue 일괄 변환 생성 (scripts/gen_specs_from_catalogue.py) — 수동 보강 가능
 id: datago.offi_rent
 provider: datago
 title: 오피스텔 전월세 실거래자료 (Officetel Rent)
 description: MOLIT officetel rent real transaction data
-
 source:
   url: https://www.data.go.kr
-
 endpoint:
   base_url: http://apis.data.go.kr/1613000/RTMSDataSvcOffiRent
   operation: getRTMSDataSvcOffiRent
@@ -16,24 +13,21 @@ endpoint:
     values:
       json: json
       xml: xml
-
 auth:
   type: query_param
   param_name: serviceKey
   provider_key: datago
-
 params:
-  - name: LAWD_CD
-    type: string
-    required: true
-    description: "지역코드 (5자리)"
-    example: "11110"
-  - name: DEAL_YMD
-    type: date_yyyymm
-    required: true
-    description: "거래연월 (YYYYMM)"
-    example: "202401"
-
+- name: LAWD_CD
+  type: string
+  required: true
+  description: 지역코드 (5자리)
+  example: '11110'
+- name: DEAL_YMD
+  type: date_yyyymm
+  required: true
+  description: 거래연월 (YYYYMM)
+  example: '202401'
 response:
   format: json
   envelope: datago_standard
@@ -42,24 +36,70 @@ response:
   error:
     style: header_result_code
     code_path: response.header.resultCode
-    ok_values: ["00", "000", 0]
-
+    ok_values:
+    - '00'
+    - '000'
+    - 0
 pagination:
   type: page_no_rows
   page_param: pageNo
   size_param: numOfRows
   max_size: 1000
-
-fields: []
-
+fields:
+- name: buildYear
+  type: integer
+  description: 건축연도
+- name: contractTerm
+  type: string
+  description: 계약기간
+- name: contractType
+  type: string
+  description: 계약구분
+- name: dealDay
+  type: integer
+  description: 거래일
+- name: dealMonth
+  type: integer
+  description: 거래월
+- name: dealYear
+  type: integer
+  description: 거래연도
+- name: deposit
+  type: integer
+- name: excluUseAr
+  type: string
+  description: 전용면적
+- name: floor
+  type: integer
+  description: 층
+- name: jibun
+  type: string
+  description: 지번
+- name: monthlyRent
+  type: integer
+- name: offiNm
+  type: string
+- name: preDeposit
+  type: string
+- name: preMonthlyRent
+  type: string
+- name: sggCd
+  type: integer
+  description: 시군구 코드
+- name: sggNm
+  type: string
+- name: umdNm
+  type: string
+  description: 법정동 이름
+- name: useRRRight
+  type: string
 examples:
-  - name: seoul_gangnam
-    description: 서울 강남구 2024-01
-    params:
-      LAWD_CD: "11110"
-      DEAL_YMD: "202401"
-    page: 1
-    page_size: 10
-
+- name: seoul_gangnam
+  description: 서울 강남구 2024-01
+  params:
+    LAWD_CD: '11110'
+    DEAL_YMD: '202401'
+  page: 1
+  page_size: 10
 status: active
-last_verified: "2026-09-09"
+last_verified: '2026-09-09'

@@ -1,12 +1,9 @@
-# catalogue 일괄 변환 생성 (scripts/gen_specs_from_catalogue.py) — 수동 보강 가능
 id: datago.air_quality
 provider: datago
 title: 대기오염정보 조회서비스 (Air Quality)
 description: AirKorea real-time particulate matter and atmospheric pollution
-
 source:
   url: https://www.data.go.kr
-
 endpoint:
   base_url: http://apis.data.go.kr/B552584/ArpltnInforInqireSvc
   operation: getCtprvnRltmMesureDnsty
@@ -16,20 +13,17 @@ endpoint:
     values:
       json: json
       xml: xml
-
 auth:
   type: query_param
   param_name: serviceKey
   provider_key: datago
-
 params:
-  - name: sidoName
-    alias: sido
-    type: string
-    required: true
-    description: "시도명. 예: 서울"
-    example: "서울"
-
+- name: sidoName
+  alias: sido
+  type: string
+  required: true
+  description: '시도명. 예: 서울'
+  example: 서울
 response:
   format: json
   envelope: datago_standard
@@ -38,23 +32,72 @@ response:
   error:
     style: header_result_code
     code_path: response.header.resultCode
-    ok_values: ["00", "000", 0]
-
+    ok_values:
+    - '00'
+    - '000'
+    - 0
 pagination:
   type: page_no_rows
   page_param: pageNo
   size_param: numOfRows
   max_size: 1000
-
-fields: []
-
+fields:
+- name: coFlag
+  type: string
+- name: coGrade
+  type: integer
+- name: coValue
+  type: string
+  description: CO 농도
+- name: dataTime
+  type: string
+  description: 측정 시각
+- name: khaiGrade
+  type: integer
+  description: 통합대기환경등급
+- name: khaiValue
+  type: integer
+  description: 통합대기환경지수
+- name: no2Flag
+  type: string
+- name: no2Grade
+  type: integer
+- name: no2Value
+  type: string
+  description: NO2 농도
+- name: o3Flag
+  type: string
+- name: o3Grade
+  type: integer
+- name: o3Value
+  type: string
+  description: O3 농도
+- name: pm10Flag
+  type: string
+- name: pm10Grade
+  type: integer
+- name: pm10Value
+  type: integer
+  description: PM10 농도
+- name: sidoName
+  type: string
+  description: 시도 이름
+- name: so2Flag
+  type: string
+- name: so2Grade
+  type: integer
+- name: so2Value
+  type: string
+  description: SO2 농도
+- name: stationName
+  type: string
+  description: 측정소 이름
 examples:
-  - name: seoul
-    description: 서울 전체 측정소 실시간 측정정보
-    params:
-      sido: 서울
-    page: 1
-    page_size: 10
-
+- name: seoul
+  description: 서울 전체 측정소 실시간 측정정보
+  params:
+    sido: 서울
+  page: 1
+  page_size: 10
 status: active
-last_verified: "2026-09-09"
+last_verified: '2026-09-09'

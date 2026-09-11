@@ -1,14 +1,11 @@
-# 측정소별 실시간 대기측정정보 (ArpltnInforInqireSvc / getMsrstnAcctoRltmMesureDnsty)
-# 계열 특이사항: items가 item 래퍼 없이 네이스트 배열로 온다 (items_path = response.body.items)
 id: datago.air_station
 provider: datago
 title: 측정소별 실시간 대기측정정보
-description: 한국환경공단 대기오염정보 서비스. 특정 측정소의 실시간/일평균 측정값(PM10, PM2.5, O3, NO2, CO, SO2, 통합대기지수)을 조회한다.
-
+description: 한국환경공단 대기오염정보 서비스. 특정 측정소의 실시간/일평균 측정값(PM10, PM2.5, O3, NO2, CO, SO2,
+  통합대기지수)을 조회한다.
 source:
   url: https://www.data.go.kr/data/15000581/openapi.do
-  verified_at: "2026-09-09"
-
+  verified_at: '2026-09-09'
 endpoint:
   base_url: http://apis.data.go.kr/B552584/ArpltnInforInqireSvc
   operation: getMsrstnAcctoRltmMesureDnsty
@@ -18,32 +15,32 @@ endpoint:
     values:
       json: json
       xml: xml
-
 auth:
   type: query_param
   param_name: serviceKey
   provider_key: datago
-
 params:
-  - name: stationName
-    alias: station
-    type: string
-    required: true
-    description: "측정소명. 예: 백령도, 강남구, 수내동"
-    example: "백령도"
-  - name: dataTerm
-    alias: term
-    type: string
-    required: true
-    enum: [daily, month, 3month]
-    description: "측정 기간"
-    example: "daily"
-  - name: ver
-    type: string
-    required: false
-    description: "버전 (1.3 권장)"
-    example: "1.3"
-
+- name: stationName
+  alias: station
+  type: string
+  required: true
+  description: '측정소명. 예: 백령도, 강남구, 수내동'
+  example: 백령도
+- name: dataTerm
+  alias: term
+  type: string
+  required: true
+  enum:
+  - daily
+  - month
+  - 3month
+  description: 측정 기간
+  example: daily
+- name: ver
+  type: string
+  required: false
+  description: 버전 (1.3 권장)
+  example: '1.3'
 response:
   format: json
   envelope: datago_standard
@@ -52,31 +49,74 @@ response:
   error:
     style: header_result_code
     code_path: response.header.resultCode
-    ok_values: ["00", "000", 0]
-
+    ok_values:
+    - '00'
+    - '000'
+    - 0
 pagination:
   type: page_no_rows
   page_param: pageNo
   size_param: numOfRows
   max_size: 1000
-
-fields: []
-
+fields:
+- name: coFlag
+  type: string
+- name: coGrade
+  type: integer
+- name: coValue
+  type: string
+  description: CO 농도
+- name: dataTime
+  type: string
+  description: 측정 시각
+- name: khaiGrade
+  type: integer
+  description: 통합대기환경등급
+- name: khaiValue
+  type: integer
+  description: 통합대기환경지수
+- name: no2Flag
+  type: string
+- name: no2Grade
+  type: integer
+- name: no2Value
+  type: string
+  description: NO2 농도
+- name: o3Flag
+  type: string
+- name: o3Grade
+  type: integer
+- name: o3Value
+  type: string
+  description: O3 농도
+- name: pm10Flag
+  type: string
+- name: pm10Grade
+  type: integer
+- name: pm10Value
+  type: integer
+  description: PM10 농도
+- name: so2Flag
+  type: string
+- name: so2Grade
+  type: integer
+- name: so2Value
+  type: string
+  description: SO2 농도
 examples:
-  - name: baengnyeong_daily
-    description: 백령도 측정소 일평균 최근 자료
-    params:
-      station: 백령도
-      term: daily
-    page: 1
-    page_size: 10
-  - name: gangnam_full_page
-    description: 강남구 측정소 일평균 100건
-    params:
-      station: 강남구
-      term: daily
-    page: 1
-    page_size: 100
-
+- name: baengnyeong_daily
+  description: 백령도 측정소 일평균 최근 자료
+  params:
+    station: 백령도
+    term: daily
+  page: 1
+  page_size: 10
+- name: gangnam_full_page
+  description: 강남구 측정소 일평균 100건
+  params:
+    station: 강남구
+    term: daily
+  page: 1
+  page_size: 100
 status: active
-last_verified: "2026-09-09"
+last_verified: '2026-09-09'

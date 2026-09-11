@@ -1,16 +1,10 @@
-# 골든 예제: XML 응답 형식을 지원하는 데이터셋
-# 카테고리: XML 응답 예제
-# 참고: 이 spec은 JSON과 XML 모두 지원하는 기상청 기상 데이터입니다.
-
 id: datago.village_fcst
 provider: datago
 title: 단기예보 조회서비스
 description: 기상청의 단기예보 데이터를 조회합니다. 기준일시, 격자좌표(nx, ny)를 필수 조건으로 하며 JSON/XML 형식 모두 지원합니다.
-
 source:
   url: https://www.data.go.kr
-  verified_at: "2026-04-21"
-
+  verified_at: '2026-04-21'
 endpoint:
   base_url: http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0
   operation: getVilageFcst
@@ -20,34 +14,31 @@ endpoint:
     values:
       json: JSON
       xml: XML
-
 auth:
   type: query_param
   param_name: serviceKey
   provider_key: datago
-
 params:
-  - name: base_date
-    type: date_yyyymmdd
-    required: true
-    description: 기준일 (YYYYMMDD 형식)
-    example: "20260908"
-  - name: base_time
-    type: string
-    required: true
-    description: "기준시간 (HHMM 형식, 예: 0500, 1100, 2300)"
-    example: "2300"
-  - name: nx
-    type: integer
-    required: true
-    description: 예보지점 X 격자값
-    example: 55
-  - name: ny
-    type: integer
-    required: true
-    description: 예보지점 Y 격자값
-    example: 127
-
+- name: base_date
+  type: date_yyyymmdd
+  required: true
+  description: 기준일 (YYYYMMDD 형식)
+  example: '20260908'
+- name: base_time
+  type: string
+  required: true
+  description: '기준시간 (HHMM 형식, 예: 0500, 1100, 2300)'
+  example: '2300'
+- name: nx
+  type: integer
+  required: true
+  description: 예보지점 X 격자값
+  example: 55
+- name: ny
+  type: integer
+  required: true
+  description: 예보지점 Y 격자값
+  example: 127
 response:
   format: json
   envelope: datago_standard
@@ -56,45 +47,68 @@ response:
   error:
     style: header_result_code
     code_path: response.header.resultCode
-    ok_values: ["00", "000", 0]
-
+    ok_values:
+    - '00'
+    - '000'
+    - 0
 pagination:
   type: page_no_rows
   page_param: pageNo
   size_param: numOfRows
   max_size: 1000
-
-fields: []
-
+fields:
+- name: baseDate
+  type: integer
+  description: 발표 날짜
+- name: baseTime
+  type: integer
+  description: 발표 시각
+- name: category
+  type: string
+  description: 예보 구분
+- name: fcstDate
+  type: integer
+  description: 예보 날짜
+- name: fcstTime
+  type: integer
+  description: 예보 시각
+- name: fcstValue
+  type: integer
+  description: 예보 값
+- name: nx
+  type: integer
+  description: 격자 X
+- name: ny
+  type: integer
+  description: 격자 Y
 examples:
-  - name: seoul_default
-    description: 서울 지역 기본 예보 조회 (JSON)
-    params:
-      base_date: "20260908"
-      base_time: "2300"
-      nx: 55
-      ny: 127
-    page: 1
-    page_size: 100
-  - name: seoul_evening
-    description: 서울 지역 저녁 시간대 예보 (JSON)
-    params:
-      base_date: "20260908"
-      base_time: "2300"
-      nx: 55
-      ny: 127
-    page: 1
-    page_size: 100
-  - name: xml_response
-    description: 서울 지역 예보 (XML 형식)
-    params:
-      base_date: "20260908"
-      base_time: "2300"
-      nx: 55
-      ny: 127
-    format: xml
-    page: 1
-    page_size: 100
-
+- name: seoul_default
+  description: 서울 지역 기본 예보 조회 (JSON)
+  params:
+    base_date: '20260908'
+    base_time: '2300'
+    nx: 55
+    ny: 127
+  page: 1
+  page_size: 100
+- name: seoul_evening
+  description: 서울 지역 저녁 시간대 예보 (JSON)
+  params:
+    base_date: '20260908'
+    base_time: '2300'
+    nx: 55
+    ny: 127
+  page: 1
+  page_size: 100
+- name: xml_response
+  description: 서울 지역 예보 (XML 형식)
+  params:
+    base_date: '20260908'
+    base_time: '2300'
+    nx: 55
+    ny: 127
+  format: xml
+  page: 1
+  page_size: 100
 status: active
-last_verified: "2026-09-09"
+last_verified: '2026-09-09'
