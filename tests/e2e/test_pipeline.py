@@ -47,7 +47,7 @@ class TestKpubdataPipelineE2E:
         assert len(page2.items) > 0
 
         # 4. raw 비상구
-        raw = dataset.call_raw("getHospBasisList", {})
+        raw = dataset.call_raw("getHospBasisList")
         assert isinstance(raw, dict)
 
     def test_apt_trade_filtered_query(self) -> None:
