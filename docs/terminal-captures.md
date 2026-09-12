@@ -4,7 +4,7 @@
 
 ## Python — 데이터 조회
 
-![Python으로 데이터 조회](assets/terminal/python_usage.png)
+![Python으로 데이터 조회](assets/terminal/python_usage.tif)
 
 ```python
 >>> from kpubdata import Client
@@ -26,7 +26,7 @@ datago.air_quality 대기오염정보 조회서비스 (Air Quality)
 
 ## Python — 오류 처리
 
-![오류 처리 예시](assets/terminal/error_handling.png)
+![오류 처리 예시](assets/terminal/error_handling.tif)
 
 ```python
 >>> from kpubdata import Client
@@ -42,7 +42,7 @@ DatasetNotFoundError: Dataset not found: datago.nonexistent
 
 ## CLI — 데이터셋 탐색
 
-![CLI 데이터셋 목록](assets/terminal/cli_datasets.png)
+![CLI 데이터셋 목록](assets/terminal/cli_datasets.tif)
 
 ```bash
 $ # 전체 데이터셋 목록 (Provider별)
@@ -76,7 +76,7 @@ $ kpubdata fetch datago.air_quality --param sidoName=서울 --format csv --outpu
 
 ## 검증 파이프라인 — `make verify`
 
-![make verify 실행 결과](assets/terminal/make_verify.png)
+![make verify 실행 결과](assets/terminal/make_verify.tif)
 
 ```bash
 $ # 데이터셋 4단계 검증 (스키마 → fixture → replay → 예제 실행)
@@ -103,7 +103,7 @@ $ make record DATASET=datago.air_quality
 
 ## Replay 모드 — API 키 없이 결정적 실행
 
-![Replay 모드 실행](assets/terminal/replay_mode.png)
+![Replay 모드 실행](assets/terminal/replay_mode.tif)
 
 ```bash
 $ # KPUBDATA_MODE=replay 환경변수로 fixture 재생
