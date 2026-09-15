@@ -1085,6 +1085,44 @@ def test_datago_g2b_catalog_default_filters_fill_required_param() -> None:
     assert second_params["inqryDiv"] == "2"
 
 
+def test_datago_g2b_catalog_default_filters_call_raw() -> None:
+    """call_raw 경로에서도 default_filters가 적용된다."""
+    transport = FixtureTransport(fixture_names=["success_g2b_catalog.json"])
+    config = KPubDataConfig(provider_keys={"datago": "test-key"})
+    adapter = DataGoAdapter(
+        config=config,
+        transport=cast(HttpTransport, cast(object, transport)),
+    )
+    dataset = adapter.get_dataset("g2b_catalog")
+
+    adapter.call_raw(dataset, next(iter(dataset.operations)), params={})
+
+    first_call = cast(dict[str, object], transport.calls[0])
+    first_params = cast(dict[str, object], first_call["params"])
+    assert first_params.get("inqryDiv") == "1"
+
+
+def test_datago_default_filters_case_insensitive_user_override() -> None:
+    """사용자가 다른 casing으로 필터를 주면 default가 중복 추가되지 않는다."""
+    transport = FixtureTransport(fixture_names=["success_g2b_catalog.json"])
+    config = KPubDataConfig(provider_keys={"datago": "test-key"})
+    adapter = DataGoAdapter(
+        config=config,
+        transport=cast(HttpTransport, cast(object, transport)),
+    )
+    dataset = adapter.get_dataset("g2b_catalog")
+
+    # 사용자가 "inqrydiv" (소문자)로 값을 줌
+    adapter.query_records(dataset, Query(filters={"inqrydiv": "3"}))
+
+    first_call = cast(dict[str, object], transport.calls[0])
+    first_params = cast(dict[str, object], first_call["params"])
+    # 사용자의 소문자 키가 유지되고 default "inqryDiv"가 중복 추가되지 않아야 함
+    assert first_params.get("inqrydiv") == "3"
+    assert "inqryDiv" not in first_params
+
+
+# test fixture dur age taboo parses 테스트가 검증하는 시나리오를 설명한다.
 def test_fixture_dur_age_taboo_parses() -> None:
     """
     test fixture dur age taboo parses 시나리오를 검증한다.
