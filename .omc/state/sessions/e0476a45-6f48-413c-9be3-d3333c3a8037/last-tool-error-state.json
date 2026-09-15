@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"# kpubdata PRs 순서대로 머지\\ngh pr merge 449 --merge --admin 2>&1 && echo \\\"449 merged\\\"\\ngh pr merge 421 --merge --admin 2>&1 && echo \\\"421 merged\\\"\\ngh pr merge 376 --merge --admin 2>&1 && ec...",
+  "error": "Exit code 1\n449 merged\nMessage: Pull Request has merge conflicts, Locations: [{Line:1 Column:58}]\nMessage: Pull Request has merge conflicts, Locations: [{Line:1 Column:58}]",
+  "timestamp": "2026-09-15T06:59:58.897Z",
+  "retry_count": 1
+}

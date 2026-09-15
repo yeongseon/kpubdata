@@ -401,8 +401,9 @@ class DataGoAdapter:
         if not isinstance(default_filters_raw, Mapping):
             return params
         default_filters = cast(Mapping[str, object], default_filters_raw)
+        existing_lower = {k.lower() for k in params}
         for key, value in default_filters.items():
-            if isinstance(key, str) and key not in params:
+            if isinstance(key, str) and key.lower() not in existing_lower:
                 params[key] = str(value)
         return params
 
