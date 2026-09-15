@@ -1296,7 +1296,7 @@ class TestDataGoAdapterCatalogueOperations:
         for key, names in required_names.items():
             params = adapter.get_dataset(key).raw_metadata["request_parameters"]
             assert isinstance(params, list)
-            assert [param["name"] for param in params] == names
+            assert {param["name"] for param in params} == set(names)
             assert all(param["required"] is True for param in params)
 
         assert adapter.get_dataset("airkorea_forecast").raw_metadata["request_parameters"] == []

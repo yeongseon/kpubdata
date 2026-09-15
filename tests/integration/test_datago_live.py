@@ -29,12 +29,16 @@ def _yesterday_kst_ymd() -> str:
 
 
 def _latest_mid_fcst_kst() -> str:
-    """KST 기준 최근 중기예보 06시 발표시각을 반환한다."""
+    """KST 기준 최근 중기예보 발표시각을 반환한다 (06시/18시, 반영 지연 1시간 고려)."""
     now = datetime.now(ZoneInfo("Asia/Seoul"))
-    publication_date = now.date()
-    if now.hour < 6:
-        publication_date -= timedelta(days=1)
-    return publication_date.strftime("%Y%m%d") + "0600"
+    # 중기예보는 06시, 18시에 발표. 반영 지연 ~1시간을 고려.
+    if now.hour >= 19:
+        return now.strftime("%Y%m%d") + "1800"
+    if now.hour >= 7:
+        return now.strftime("%Y%m%d") + "0600"
+    # 07시 이전이면 전날 18시 발표본 사용
+    yesterday = (now - timedelta(days=1)).strftime("%Y%m%d")
+    return yesterday + "1800"
 
 
 # test datago village fcst 테스트가 검증하는 시나리오를 설명한다.

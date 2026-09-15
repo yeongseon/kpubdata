@@ -1185,7 +1185,8 @@
       "max_page_size": 1000
     },
     "required_query_filters": [
-      "stationName"
+      "stationName",
+      "dataTerm"
     ],
     "request_parameters": [
       {"name": "stationName", "required": true, "description": "측정소 이름", "example": "종로구"},
@@ -1404,7 +1405,9 @@
     "required_query_filters": [
       "stnIds",
       "startDt",
-      "endDt"
+      "startHh",
+      "endDt",
+      "endHh"
     ],
     "fields": [
       {
