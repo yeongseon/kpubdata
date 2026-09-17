@@ -17,6 +17,7 @@ spec 시스템(#378)의 실행 계층이다. ``kpubdata.core.spec.SpecDefinition
 from __future__ import annotations
 
 import logging
+from types import MappingProxyType
 
 import httpx
 
@@ -690,6 +691,37 @@ def _message_path(code_path: str | None) -> str | None:
     return ".".join(segments)
 
 
+def _spec_request_parameters(spec: SpecDefinition) -> tuple[MappingProxyType[str, object], ...]:
+    """spec params를 catalogue ``request_parameters``와 같은 형태로 변환한다 (#375).
+
+    ``query_support.filterable_fields`` 는 "필터 가능한 이름"만 알려줄 뿐이라,
+    소비자(Builder/Studio)는 어떤 파라미터가 **필수**인지, 무슨 값을 넣어야 하는지
+    알 수 없었다. spec에는 그 정보가 이미 있으므로 그대로 노출한다.
+
+    catalogue 엔트리의 ``request_parameters``(#374)와 키 이름을 맞춰
+    소비자가 두 경로를 한 가지 형태로 읽을 수 있게 한다. ``name`` 은 호출 시
+    실제로 넘기는 이름(alias 우선)이고, 원 API 파라미터 이름은 ``api_name`` 으로
+    따로 싣는다 — 둘이 다를 때 사용자가 넘겨야 하는 쪽은 언제나 ``name`` 이다.
+    """
+    parameters: list[MappingProxyType[str, object]] = []
+    for param in spec.params:
+        entry: dict[str, object] = {
+            "name": param.exposed_name,
+            "required": param.required,
+            "type": param.type,
+        }
+        if param.alias:
+            entry["api_name"] = param.name
+        if param.description:
+            entry["description"] = param.description
+        if param.example is not None:
+            entry["example"] = param.example
+        if param.enum:
+            entry["enum"] = list(param.enum)
+        parameters.append(MappingProxyType(entry))
+    return tuple(parameters)
+
+
 def build_spec_dataset_ref(spec: SpecDefinition) -> DatasetRef:
     """SpecDefinition을 catalogue와 동일한 의미론의 DatasetRef로 변환한다."""
     paginated = spec.pagination.type in {"page_no_rows", "page_display", "pindex_psize"}
@@ -698,6 +730,13 @@ def build_spec_dataset_ref(spec: SpecDefinition) -> DatasetRef:
         filterable_fields=frozenset(param.exposed_name for param in spec.params),
         max_page_size=spec.pagination.max_size,
     )
+    raw_metadata: dict[str, object] = {}
+    request_parameters = _spec_request_parameters(spec)
+    if request_parameters:
+        raw_metadata["request_parameters"] = request_parameters
+    if spec.source is not None and spec.source.verified_at:
+        # 언제 기준의 명세인지 — 소비자가 메타데이터의 신선도를 판단할 수 있게 한다.
+        raw_metadata["verified_at"] = spec.source.verified_at
     return DatasetRef(
         id=spec.id,
         provider=spec.provider,
@@ -709,6 +748,7 @@ def build_spec_dataset_ref(spec: SpecDefinition) -> DatasetRef:
         description=spec.description,
         tags=(spec.provider, "spec"),
         source_url=spec.source.url if spec.source else None,
+        raw_metadata=MappingProxyType(raw_metadata),
     )
 
 
