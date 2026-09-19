@@ -128,24 +128,35 @@ def _apply_transform(value: object, transform: str) -> object:
     return value
 
 
-def _cast_field(value: object, field_type: str) -> object:
-    """선언된 타입으로 캐스팅한다(실패 시 원문을 보존한다)."""
+def _try_cast_field(value: object, field_type: str) -> tuple[bool, object]:
+    """선언된 타입으로 캐스팅을 시도하고 (성공 여부, 값)을 반환한다.
+
+    실패해도 원문을 함께 돌려준다 — 호출부가 컬럼 전체를 보고 적용 여부를 정한다
+    (``_normalize_fields`` 참조).
+    """
     if value is None:
-        return None
+        return True, None
     if field_type == "integer":
         coerced = _to_int(value)
-        return coerced if coerced is not None else value
+        return (True, coerced) if coerced is not None else (False, value)
     if field_type == "number":
         if isinstance(value, bool):
-            return value
+            return False, value
         if isinstance(value, (int, float)):
-            return value
+            return True, value
         if isinstance(value, str):
             try:
-                return float(value)
+                return True, float(value)
             except ValueError:
-                return value
-    return value
+                return False, value
+        return False, value
+    return True, value
+
+
+def _cast_field(value: object, field_type: str) -> object:
+    """선언된 타입으로 캐스팅한다(실패 시 원문을 보존한다)."""
+    _, coerced = _try_cast_field(value, field_type)
+    return coerced
 
 
 class SpecExecutor:
@@ -430,22 +441,53 @@ class SpecExecutor:
     def _normalize_fields(
         self, spec: SpecDefinition, items: list[dict[str, object]]
     ) -> list[dict[str, object]]:
-        """fields[] 선언이 있을 때만 rename·transform·캐스팅을 적용한다."""
+        """fields[] 선언이 있을 때만 rename·transform·캐스팅을 적용한다.
+
+        캐스팅은 **컬럼 단위로 전부 성공할 때만** 적용한다. 행마다 따로 판단하면
+        같은 컬럼에 캐스팅된 값과 원문이 섞여, 소비자가 표 형태로 다룰 때 타입이
+        깨진다 — 예컨대 실거래가의 ``aptDong`` 은 대부분 ``"105"`` 지만 일부 행에는
+        동 이름(``"현대뜨레비앙"``)이 들어와, 행 단위 캐스팅은 int와 str이 공존하는
+        컬럼을 만든다. 한 값이라도 캐스팅에 실패하면 그 컬럼은 원문 그대로 둔다 —
+        spec의 타입 선언이 실제 데이터와 어긋나더라도 downstream이 깨지지 않는다.
+        """
         if not spec.fields:
             return items
-        normalized: list[dict[str, object]] = []
+
+        # 1단계: rename과 transform만 적용한다(캐스팅은 컬럼 전체를 본 뒤에).
+        staged: list[dict[str, object]] = []
         for item in items:
             record: dict[str, object] = dict(item)
             for field in spec.fields:
                 source_name = field.source_name or field.name
                 if source_name not in record:
                     continue
-                value = _apply_transform(record[source_name], field.transform or "")
-                record[field.name] = _cast_field(value, field.type)
+                record[field.name] = _apply_transform(record[source_name], field.transform or "")
                 if source_name != field.name:
                     record.pop(source_name, None)
-            normalized.append(record)
-        return normalized
+            staged.append(record)
+
+        # 2단계: 컬럼 단위 캐스팅 — 전부 성공할 때만 반영한다.
+        for field in spec.fields:
+            casts: list[tuple[dict[str, object], object]] = []
+            castable = True
+            for record in staged:
+                if field.name not in record:
+                    continue
+                succeeded, coerced = _try_cast_field(record[field.name], field.type)
+                if not succeeded:
+                    castable = False
+                    break
+                casts.append((record, coerced))
+            if not castable:
+                logger.debug(
+                    "leaving column uncast: a value does not match the declared type",
+                    extra={"dataset_id": spec.id, "field": field.name, "type": field.type},
+                )
+                continue
+            for record, coerced in casts:
+                record[field.name] = coerced
+
+        return staged
 
     # ------------------------------------------------------------------
     # 공개 API

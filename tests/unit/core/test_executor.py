@@ -361,6 +361,71 @@ def test_query_fields_normalization() -> None:
     assert item["년"] == "2024"
 
 
+def _valid_full_batch(
+    records: list[dict[str, object]], field_type: str = "integer"
+) -> list[dict[str, object]]:
+    """valid_full spec으로 주어진 레코드를 정규화한 결과를 돌려준다."""
+    spec = load_spec_file(FIXTURES_DIR / "specs" / "valid_full.yaml")
+    spec = replace(spec, fields=(replace(spec.fields[0], type=field_type),))
+    payload = {
+        "response": {
+            "header": {"resultCode": "00"},
+            "body": {"items": {"item": records}, "totalCount": str(len(records))},
+        }
+    }
+    transport = FakeTransport([FakeResponse(json.dumps(payload).encode())])
+    executor = _make_executor(transport)
+    return list(executor.query(spec, _ref(spec), Query()).items)
+
+
+class TestColumnConsistentCasting:
+    """캐스팅은 컬럼 단위로 전부 성공할 때만 적용된다 (#452).
+
+    행마다 따로 캐스팅하면 같은 컬럼에 int와 str이 공존해, 표로 다루는 소비자
+    (kpubdata-builder Silver 등)가 그 컬럼을 거부한다.
+    """
+
+    def test_all_castable_column_is_cast(self) -> None:
+        items = _valid_full_batch([{"거래금액": "120,000"}, {"거래금액": "98,000"}])
+        assert [item["deal_amount"] for item in items] == [120000, 98000]
+
+    def test_one_uncastable_value_leaves_the_whole_column_alone(self) -> None:
+        # 실거래가 aptDong처럼 대부분 숫자인데 일부 행에 이름이 들어오는 실제 사례.
+        items = _valid_full_batch(
+            [{"거래금액": "120,000"}, {"거래금액": "협의"}, {"거래금액": "98,000"}]
+        )
+        values = [item["deal_amount"] for item in items]
+        assert values == ["120000", "협의", "98000"]
+        assert {type(value) for value in values} == {str}
+
+    def test_nulls_do_not_block_casting(self) -> None:
+        items = _valid_full_batch([{"거래금액": "120,000"}, {"거래금액": None}])
+        assert [item["deal_amount"] for item in items] == [120000, None]
+
+    def test_missing_field_does_not_block_casting(self) -> None:
+        items = _valid_full_batch([{"거래금액": "120,000"}, {"년": "2024"}])
+        assert items[0]["deal_amount"] == 120000
+        assert "deal_amount" not in items[1]
+
+    def test_rename_and_transform_still_apply_when_casting_is_skipped(self) -> None:
+        # 캐스팅을 포기해도 rename(거래금액→deal_amount)과 transform(strip_comma)은 유지된다.
+        items = _valid_full_batch([{"거래금액": "120,000"}, {"거래금액": "협의"}])
+        assert all("거래금액" not in item for item in items)
+        assert items[0]["deal_amount"] == "120000"
+
+    def test_number_column_is_cast_when_all_values_are_numeric(self) -> None:
+        items = _valid_full_batch([{"거래금액": "12.5"}, {"거래금액": "98"}], field_type="number")
+        assert [item["deal_amount"] for item in items] == [12.5, 98.0]
+
+    def test_number_column_is_left_raw_when_one_value_is_not_numeric(self) -> None:
+        items = _valid_full_batch([{"거래금액": "12.5"}, {"거래금액": "N/A"}], field_type="number")
+        assert [item["deal_amount"] for item in items] == ["12.5", "N/A"]
+
+    def test_boolean_does_not_count_as_a_number_cast(self) -> None:
+        items = _valid_full_batch([{"거래금액": True}, {"거래금액": "2"}], field_type="number")
+        assert [item["deal_amount"] for item in items] == [True, "2"]
+
+
 # ----------------------------------------------------------------------
 # 미지원 envelope / SpecDatasetAdapter
 # ----------------------------------------------------------------------
