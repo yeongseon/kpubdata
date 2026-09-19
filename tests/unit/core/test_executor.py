@@ -414,21 +414,15 @@ class TestColumnConsistentCasting:
         assert items[0]["deal_amount"] == "120000"
 
     def test_number_column_is_cast_when_all_values_are_numeric(self) -> None:
-        items = _valid_full_batch(
-            [{"거래금액": "12.5"}, {"거래금액": "98"}], field_type="number"
-        )
+        items = _valid_full_batch([{"거래금액": "12.5"}, {"거래금액": "98"}], field_type="number")
         assert [item["deal_amount"] for item in items] == [12.5, 98.0]
 
     def test_number_column_is_left_raw_when_one_value_is_not_numeric(self) -> None:
-        items = _valid_full_batch(
-            [{"거래금액": "12.5"}, {"거래금액": "N/A"}], field_type="number"
-        )
+        items = _valid_full_batch([{"거래금액": "12.5"}, {"거래금액": "N/A"}], field_type="number")
         assert [item["deal_amount"] for item in items] == ["12.5", "N/A"]
 
     def test_boolean_does_not_count_as_a_number_cast(self) -> None:
-        items = _valid_full_batch(
-            [{"거래금액": True}, {"거래금액": "2"}], field_type="number"
-        )
+        items = _valid_full_batch([{"거래금액": True}, {"거래금액": "2"}], field_type="number")
         assert [item["deal_amount"] for item in items] == [True, "2"]
 
 
