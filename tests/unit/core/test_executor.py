@@ -7,8 +7,10 @@ FakeTransport/FakeConfig는 실제 HttpTransport·KPubDataConfig의 해당 인�
 from __future__ import annotations
 
 import json
+from collections.abc import MutableMapping
 from dataclasses import replace
 from pathlib import Path
+from typing import cast
 
 import httpx
 import pytest
@@ -688,4 +690,69 @@ def test_seoul_info_codes_pass_error_check() -> None:
     with pytest.raises(ProviderResponseError):
         check_payload_error(
             spec, {"CycleStationParking": {"RESULT": {"CODE": "ERROR-500", "MESSAGE": "boom"}}}
+        )
+
+
+class TestSpecRequestParameterMetadata:
+    """spec params가 DatasetRef.raw_metadata로 노출되는지 (#375).
+
+    소비자(Builder/Studio)는 `query_support.filterable_fields`로 "필터 가능한 이름"만
+    알 수 있었고, 무엇이 필수인지·어떤 값을 넣어야 하는지는 알 수 없었다. spec에
+    이미 있는 정보를 catalogue `request_parameters`(#374)와 같은 형태로 노출한다.
+    """
+
+    def test_required_parameter_is_exposed_with_example(self) -> None:
+        ref = _ref(_golden_spec("apt_trade"))
+        parameters = ref.raw_metadata["request_parameters"]
+        assert isinstance(parameters, tuple)
+        by_name = {str(entry["name"]): entry for entry in parameters}
+
+        assert set(by_name) == {"LAWD_CD", "DEAL_YMD"}
+        lawd = by_name["LAWD_CD"]
+        assert lawd["required"] is True
+        assert lawd["example"] == "11110"
+        assert "지역코드" in str(lawd["description"])
+
+    def test_alias_is_reported_as_the_name_callers_pass(self) -> None:
+        # air_station의 sidoName은 alias가 `station`/`term`처럼 따로 있다 —
+        # 사용자가 넘겨야 하는 이름(alias)이 name, 원 API 이름은 api_name.
+        ref = _ref(_golden_spec("air_station"))
+        parameters = ref.raw_metadata["request_parameters"]
+        assert isinstance(parameters, tuple)
+        by_name = {str(entry["name"]): entry for entry in parameters}
+
+        assert "station" in by_name, sorted(by_name)
+        assert by_name["station"]["api_name"] == "stationName"
+        # alias가 없는 파라미터는 api_name을 싣지 않는다(중복 정보 제거).
+        assert "api_name" not in by_name["ver"]
+
+    def test_enum_values_are_exposed(self) -> None:
+        ref = _ref(_golden_spec("air_station"))
+        parameters = ref.raw_metadata["request_parameters"]
+        assert isinstance(parameters, tuple)
+        term = next(entry for entry in parameters if entry["name"] == "term")
+        assert term["enum"] == ["daily", "month", "3month"]
+
+    def test_metadata_is_immutable(self) -> None:
+        # raw_metadata는 공유 참조다 — 소비자가 바꿔도 다른 소비자에게 새지 않아야 한다.
+        ref = _ref(_golden_spec("apt_trade"))
+        parameters = ref.raw_metadata["request_parameters"]
+        assert isinstance(parameters, tuple)
+        with pytest.raises(TypeError):
+            cast(MutableMapping[str, object], parameters[0])["required"] = False
+
+    def test_verified_at_is_exposed_for_freshness(self) -> None:
+        spec = _golden_spec("apt_trade")
+        ref = _ref(spec)
+        assert spec.source is not None
+        assert ref.raw_metadata["verified_at"] == spec.source.verified_at
+
+    def test_filterable_fields_still_match_the_exposed_names(self) -> None:
+        # 기존 계약(query_support)과 신규 메타데이터가 서로 어긋나지 않아야 한다.
+        ref = _ref(_golden_spec("air_station"))
+        parameters = ref.raw_metadata["request_parameters"]
+        assert isinstance(parameters, tuple)
+        assert ref.query_support is not None
+        assert {str(entry["name"]) for entry in parameters} == set(
+            ref.query_support.filterable_fields
         )
