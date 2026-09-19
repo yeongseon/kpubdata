@@ -141,7 +141,7 @@ def _try_cast_field(value: object, field_type: str) -> tuple[bool, object]:
         return (True, coerced) if coerced is not None else (False, value)
     if field_type == "number":
         if isinstance(value, bool):
-            return True, value
+            return False, value
         if isinstance(value, (int, float)):
             return True, value
         if isinstance(value, str):

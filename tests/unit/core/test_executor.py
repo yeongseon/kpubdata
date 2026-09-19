@@ -361,9 +361,12 @@ def test_query_fields_normalization() -> None:
     assert item["년"] == "2024"
 
 
-def _valid_full_batch(records: list[dict[str, object]]) -> list[dict[str, object]]:
+def _valid_full_batch(
+    records: list[dict[str, object]], field_type: str = "integer"
+) -> list[dict[str, object]]:
     """valid_full spec으로 주어진 레코드를 정규화한 결과를 돌려준다."""
     spec = load_spec_file(FIXTURES_DIR / "specs" / "valid_full.yaml")
+    spec = replace(spec, fields=(replace(spec.fields[0], type=field_type),))
     payload = {
         "response": {
             "header": {"resultCode": "00"},
@@ -409,6 +412,24 @@ class TestColumnConsistentCasting:
         items = _valid_full_batch([{"거래금액": "120,000"}, {"거래금액": "협의"}])
         assert all("거래금액" not in item for item in items)
         assert items[0]["deal_amount"] == "120000"
+
+    def test_number_column_is_cast_when_all_values_are_numeric(self) -> None:
+        items = _valid_full_batch(
+            [{"거래금액": "12.5"}, {"거래금액": "98"}], field_type="number"
+        )
+        assert [item["deal_amount"] for item in items] == [12.5, 98.0]
+
+    def test_number_column_is_left_raw_when_one_value_is_not_numeric(self) -> None:
+        items = _valid_full_batch(
+            [{"거래금액": "12.5"}, {"거래금액": "N/A"}], field_type="number"
+        )
+        assert [item["deal_amount"] for item in items] == ["12.5", "N/A"]
+
+    def test_boolean_does_not_count_as_a_number_cast(self) -> None:
+        items = _valid_full_batch(
+            [{"거래금액": True}, {"거래금액": "2"}], field_type="number"
+        )
+        assert [item["deal_amount"] for item in items] == [True, "2"]
 
 
 # ----------------------------------------------------------------------
