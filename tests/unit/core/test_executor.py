@@ -7,8 +7,10 @@ FakeTransport/FakeConfig는 실제 HttpTransport·KPubDataConfig의 해당 인�
 from __future__ import annotations
 
 import json
+from collections.abc import MutableMapping
 from dataclasses import replace
 from pathlib import Path
+from typing import cast
 
 import httpx
 import pytest
@@ -737,7 +739,7 @@ class TestSpecRequestParameterMetadata:
         parameters = ref.raw_metadata["request_parameters"]
         assert isinstance(parameters, tuple)
         with pytest.raises(TypeError):
-            parameters[0]["required"] = False  # type: ignore[index]
+            cast(MutableMapping[str, object], parameters[0])["required"] = False
 
     def test_verified_at_is_exposed_for_freshness(self) -> None:
         spec = _golden_spec("apt_trade")
