@@ -92,6 +92,6 @@ warn_unused_configs = true
 mypy_path = ["src"]
 
 [tool.pytest.ini_options]
-addopts = "-ra -m 'not integration'"
+addopts = "-ra --cov=kpubdata --cov-fail-under=89 -m 'not integration'"
 markers = ["integration: real API integration tests (require API keys)"]
 testpaths = ["tests"]
