@@ -85,7 +85,7 @@ jobs:
 
       - name: Comment PR with changed datasets
         if: steps.changed.outputs.specs != ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           SPEC_FILES: ${{ steps.changed.outputs.specs }}
         with:
