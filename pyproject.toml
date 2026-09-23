@@ -68,7 +68,7 @@ dev = [
 ]
 docs = [
   "mkdocs-material>=9.5,<10",
-  "pymdown-extensions>=10,<12",
+  "pymdown-extensions>=10,<13",
 ]
 
 [tool.hatch.build.targets.wheel]
