@@ -1102,6 +1102,25 @@ def test_datago_g2b_catalog_default_filters_call_raw() -> None:
     assert first_params.get("inqryDiv") == "1"
 
 
+def test_datago_g2b_catalog_call_raw_user_override() -> None:
+    """call_raw에서 사용자가 inqryDiv를 지정하면 default_filters보다 우선한다."""
+    transport = FixtureTransport(fixture_names=["success_g2b_catalog.json"])
+    config = KPubDataConfig(provider_keys={"datago": "test-key"})
+    adapter = DataGoAdapter(
+        config=config,
+        transport=cast(HttpTransport, cast(object, transport)),
+    )
+    dataset = adapter.get_dataset("g2b_catalog")
+
+    adapter.call_raw(
+        dataset, next(iter(dataset.operations)), params={"inqryDiv": "2"}
+    )
+
+    first_call = cast(dict[str, object], transport.calls[0])
+    first_params = cast(dict[str, object], first_call["params"])
+    assert first_params["inqryDiv"] == "2"
+
+
 def test_datago_default_filters_case_insensitive_user_override() -> None:
     """사용자가 다른 casing으로 필터를 주면 default가 중복 추가되지 않는다."""
     transport = FixtureTransport(fixture_names=["success_g2b_catalog.json"])
