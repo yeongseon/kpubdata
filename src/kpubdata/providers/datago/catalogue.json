@@ -509,6 +509,27 @@
     }
   },
   {
+    "dataset_key": "g2b_catalog",
+    "name": "나라장터 종합쇼핑몰 품목정보 (G2B Shopping Mall Product Catalog)",
+    "base_url": "https://apis.data.go.kr/1230000/at/ShoppingMallPrdctInfoService",
+    "default_operation": "getShoppingMallPrdctInfoList",
+    "representation": "api_json",
+    "service_key_param": "serviceKey",
+    "format_param": "type",
+    "description": "G2B comprehensive shopping mall product identification information",
+    "operations": [
+      "list",
+      "raw"
+    ],
+    "query_support": {
+      "pagination": "offset",
+      "max_page_size": 1000
+    },
+    "default_filters": {
+      "inqryDiv": "1"
+    }
+  },
+  {
     "dataset_key": "tour_kor_area",
     "name": "한국관광공사 지역기반 관광정보 (TourAPI Area-Based List)",
     "base_url": "http://apis.data.go.kr/B551011/KorService2",
