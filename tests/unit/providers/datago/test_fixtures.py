@@ -1112,9 +1112,7 @@ def test_datago_g2b_catalog_call_raw_user_override() -> None:
     )
     dataset = adapter.get_dataset("g2b_catalog")
 
-    adapter.call_raw(
-        dataset, next(iter(dataset.operations)), params={"inqryDiv": "2"}
-    )
+    adapter.call_raw(dataset, next(iter(dataset.operations)), params={"inqryDiv": "2"})
 
     first_call = cast(dict[str, object], transport.calls[0])
     first_params = cast(dict[str, object], first_call["params"])
