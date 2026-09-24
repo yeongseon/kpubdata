@@ -481,15 +481,10 @@ def test_query_records_passes_the_path_key_as_a_secret_value() -> None:
     원문을 transport에 넘겨야 로그와 예외 메시지의 URL에서 값이 치환된다 —
     그러지 않으면 전송 오류 하나가 API 키를 평문으로 흘린다.
     """
-    payload = {
-        "StatisticSearch": {
-            "list_total_count": 1,
-            "row": [{"TIME": "20260101", "DATA_VALUE": "3.5"}],
-        }
-    }
+    payload = _success_payload(items=[{"id": 1}], total_count=1)
     adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
 
-    adapter.query_records(dataset, Query(page_size=1))
+    adapter.query_records(dataset, Query(page_size=1, start_date="202401", end_date="202403"))
 
     call = transport.calls[0]
     assert call.get("secret_values") == ("test-key",)
@@ -497,14 +492,9 @@ def test_query_records_passes_the_path_key_as_a_secret_value() -> None:
 
 def test_the_bok_request_url_still_carries_the_key_in_its_path() -> None:
     # secret_values가 필요한 이유를 고정한다 — 키는 실제로 경로에 있다.
-    payload = {
-        "StatisticSearch": {
-            "list_total_count": 1,
-            "row": [{"TIME": "20260101", "DATA_VALUE": "3.5"}],
-        }
-    }
+    payload = _success_payload(items=[{"id": 1}], total_count=1)
     adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
 
-    adapter.query_records(dataset, Query(page_size=1))
+    adapter.query_records(dataset, Query(page_size=1, start_date="202401", end_date="202403"))
 
     assert "/test-key/" in str(transport.calls[0]["url"])
