@@ -21,9 +21,11 @@ import importlib
 import logging
 from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime
-from typing import Protocol, cast
+from types import ModuleType
+from typing import TYPE_CHECKING, Protocol, cast
 
-import pandas as pd
+if TYPE_CHECKING:
+    import pandas as pd
 
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
@@ -37,6 +39,33 @@ from kpubdata.providers._common import build_schema_from_metadata, load_catalogu
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.provider.krx")
+
+_pandas_module: ModuleType | None = None
+
+
+def _pandas() -> ModuleType:
+    """pandas 를 필요한 순간에만 import 한다.
+
+    pandas 는 optional extra 인데 이 모듈이 최상단에서 import 하고 있었다. krx 는
+    인증이 필요 없어서 provider manifest 에 항상 실려 있고, ``client.datasets.list()``
+    와 ``kpubdata datasets list`` 는 provider 를 지정하지 않으면 등록된 어댑터를
+    전부 materialize 한다. 그래서 ``pip install kpubdata`` 만 한 환경에서는 krx 를
+    쓸 생각이 없어도 그 두 호출이 ImportError 로 죽었다. CI 는 늘 ``--extra dev``
+    로 돌아서 드러나지 않았다.
+
+    pykrx 는 이미 이런 식으로 지연 import 하고 있었다 — pandas 만 예외였다.
+    """
+    global _pandas_module
+    if _pandas_module is None:
+        try:
+            _pandas_module = importlib.import_module("pandas")
+        except ImportError as exc:
+            raise ConfigError(
+                "krx provider requires pandas. Install it with: pip install 'kpubdata[krx]'",
+                provider="krx",
+            ) from exc
+    return _pandas_module
+
 
 _INVESTOR_LABELS: tuple[tuple[str, str], ...] = (
     ("개인", "개인"),
@@ -261,7 +290,7 @@ class KrxAdapter:
         except Exception:
             fallback = getattr(stock, "get_index_ohlcv_by_date", None)
             if callable(fallback):
-                typed_fallback = cast(Callable[..., pd.DataFrame], fallback)
+                typed_fallback = cast("Callable[..., pd.DataFrame]", fallback)
                 return typed_fallback(start_date, end_date, ticker, name_display=False)
             raise
 
@@ -276,7 +305,7 @@ class KrxAdapter:
         sell_frame = stock.get_market_trading_value_by_date(start_date, end_date, market, on="매도")
 
         if buy_frame.empty or sell_frame.empty:
-            return pd.DataFrame()
+            return _pandas().DataFrame()
 
         return self._combine_investor_frames(buy_frame, sell_frame)
 
@@ -301,7 +330,7 @@ class KrxAdapter:
         frame = self._fetch_market_valuation_by_day(stock, start_date, end_date, market)
 
         if frame.empty:
-            return pd.DataFrame()
+            return _pandas().DataFrame()
 
         if self._has_columns(frame, "PER", "PBR", "DIV", "EPS", "BPS"):
             return self._aggregate_market_valuation_frame(frame)
@@ -326,7 +355,9 @@ class KrxAdapter:
         """
         rows: list[dict[str, object]] = []
         total_days = len(
-            pd.date_range(start=pd.Timestamp(start_date), end=pd.Timestamp(end_date), freq="D")
+            _pandas().date_range(
+                start=_pandas().Timestamp(start_date), end=_pandas().Timestamp(end_date), freq="D"
+            )
         )
         if total_days > 90:  # noqa: PLR2004
             logger.warning(
@@ -335,8 +366,8 @@ class KrxAdapter:
                 total_days,
                 extra={"provider": "krx", "dataset_id": "krx.market_valuation"},
             )
-        for day in pd.date_range(
-            start=pd.Timestamp(start_date), end=pd.Timestamp(end_date), freq="D"
+        for day in _pandas().date_range(
+            start=_pandas().Timestamp(start_date), end=_pandas().Timestamp(end_date), freq="D"
         ):
             day_string = day.strftime("%Y%m%d")
             frame = stock.get_market_fundamental_by_ticker(day_string, market=market)
@@ -356,8 +387,8 @@ class KrxAdapter:
                 }
             )
         if not rows:
-            return pd.DataFrame()
-        frame = pd.DataFrame(rows)
+            return _pandas().DataFrame()
+        frame = _pandas().DataFrame(rows)
         return frame.set_index("date")
 
     def _combine_investor_frames(
@@ -385,12 +416,12 @@ class KrxAdapter:
                     }
                 )
         if not rows:
-            return pd.DataFrame()
-        return pd.DataFrame(rows)
+            return _pandas().DataFrame()
+        return _pandas().DataFrame(rows)
 
     def _aggregate_market_valuation_frame(self, frame: pd.DataFrame) -> pd.DataFrame:
         """market valuation frame을 집계해 반환한다."""
-        if isinstance(frame.index, pd.DatetimeIndex):
+        if isinstance(frame.index, _pandas().DatetimeIndex):
             return frame
         if "date" in frame.columns:
             return frame.set_index("date")
@@ -557,7 +588,7 @@ class KrxAdapter:
 
     def _to_python_value(self, value: object) -> object:
         """python value 형태로 변환한다."""
-        if isinstance(value, pd.Timestamp):
+        if isinstance(value, _pandas().Timestamp):
             return value.strftime("%Y-%m-%d")
         return value
 
@@ -580,7 +611,7 @@ class KrxAdapter:
             if len(value) == 8 and value.isdigit():
                 return datetime.strptime(value, "%Y%m%d").strftime("%Y-%m-%d")
             return value
-        if isinstance(value, pd.Timestamp):
+        if isinstance(value, _pandas().Timestamp):
             return value.strftime("%Y-%m-%d")
         raise ProviderResponseError(f"Invalid KRX date value: {value!r}", provider="krx")
 
