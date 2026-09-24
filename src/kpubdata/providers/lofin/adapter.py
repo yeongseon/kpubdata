@@ -30,12 +30,26 @@ logger = logging.getLogger("kpubdata.provider.lofin")
 def _lofin_ssl_context() -> ssl.SSLContext:
     """LOFIN 서버와 호환되는 SSL 컨텍스트를 생성한다.
 
-    LOFIN 서버(www.lofin365.go.kr)는 TLSv1.2와 AES256-SHA256을 사용하며,
-    OpenSSL 3.x에서는 완화된 보안 수준이 필요하다.
+    인증서 검증을 켜 둔다. 예전에는 ``check_hostname = False`` 와
+    ``verify_mode = CERT_NONE`` 으로 검증을 통째로 껐다 — 이 요청에는 API 키가
+    함께 나가므로, 중간자가 인증서를 갈아끼우면 키까지 그대로 가져간다.
+    README 는 그것을 "SSL 설정 자동 조정" 이라고만 적어 두었다.
+
+    실제로 필요했던 건 cipher 완화뿐이다. 2026-09-25 에 www.lofin365.go.kr 로
+    직접 확인한 결과는 이렇다::
+
+        기본 컨텍스트(전체 검증)        OK  TLSv1.3  TLS_AES_256_GCM_SHA384
+        검증 ON + SECLEVEL=1            OK  TLSv1.3  TLS_AES_256_GCM_SHA384
+        발급자 CN = Sectigo Public Server Authentication CA OV R36
+        subject   = lofin365.go.kr
+
+    공개 CA 가 발급한 정상 인증서이고 TLSv1.3 로 붙는다 — 검증을 끌 이유가
+    애초에 없었고 지금은 더욱 없다. ``SECLEVEL=1`` 은 남겨 둔다. 서버가
+    TLSv1.2 와 AES256-SHA256 만 제시하던 시절이 이 함수가 생긴 이유이므로,
+    일부 노드가 아직 그렇더라도 붙을 수 있게 한다 — cipher 하한을 낮추는 것과
+    상대가 누구인지 확인하지 않는 것은 전혀 다른 문제다.
     """
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
     ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
     return ctx
 
