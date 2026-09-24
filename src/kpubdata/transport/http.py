@@ -37,6 +37,10 @@ _SENSITIVE_PARAM_KEYS = {
     "secret",
     "password",
     "key",
+    # law(국가법령정보)는 API 키를 "OC" 파라미터로 보낸다 — 이름만 봐서는
+    # credential로 보이지 않아 마스킹 목록에서 빠져 있었고, 예외 메시지에
+    # 담긴 URL에 키가 평문으로 남았다.
+    "oc",
 }
 _DEFAULT_MAX_RESPONSE_BYTES = 50 * 1024 * 1024
 

@@ -472,3 +472,39 @@ def test_raise_for_result_raises_auth_error_on_auth_message() -> None:
         adapter._raise_for_result(
             {"RESULT": {"CODE": "ERROR", "MESSAGE": "인증키가 유효하지 않습니다."}}, dataset.id
         )
+
+
+def test_query_records_passes_the_path_key_as_a_secret_value() -> None:
+    """bok은 API 키를 URL 경로 세그먼트로 싣는다 (#354).
+
+    쿼리 파라미터 이름 기반 마스킹은 경로에 박힌 키를 가리지 못한다. 실제 키
+    원문을 transport에 넘겨야 로그와 예외 메시지의 URL에서 값이 치환된다 —
+    그러지 않으면 전송 오류 하나가 API 키를 평문으로 흘린다.
+    """
+    payload = {
+        "StatisticSearch": {
+            "list_total_count": 1,
+            "row": [{"TIME": "20260101", "DATA_VALUE": "3.5"}],
+        }
+    }
+    adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
+
+    adapter.query_records(dataset, Query(page_size=1))
+
+    call = transport.calls[0]
+    assert call.get("secret_values") == ("test-key",)
+
+
+def test_the_bok_request_url_still_carries_the_key_in_its_path() -> None:
+    # secret_values가 필요한 이유를 고정한다 — 키는 실제로 경로에 있다.
+    payload = {
+        "StatisticSearch": {
+            "list_total_count": 1,
+            "row": [{"TIME": "20260101", "DATA_VALUE": "3.5"}],
+        }
+    }
+    adapter, dataset, transport = _build_adapter_with_transport([FakeResponse(payload)])
+
+    adapter.query_records(dataset, Query(page_size=1))
+
+    assert "/test-key/" in str(transport.calls[0]["url"])

@@ -351,7 +351,15 @@ class BokAdapter:
         예외:
             ParseError: 응답 파싱 실패 또는 응답이 JSON object가 아닐 때.
         """
-        response = self._transport.request("GET", url, dataset_id=dataset_id, provider="bok")
+        # bok은 API 키를 URL 경로 세그먼트로 싣는다 — transport가 로그/예외 URL에서
+        # 그 값을 가릴 수 있도록 실제 키 원문을 넘긴다(seoul/fds와 같은 계약).
+        response = self._transport.request(
+            "GET",
+            url,
+            dataset_id=dataset_id,
+            provider="bok",
+            secret_values=(self._require_api_key(),),
+        )
 
         try:
             decoded_obj: object = decode_json(response.content)
