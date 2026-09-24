@@ -23,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - spec 로더가 `_parse_date`/`_parse_params`/`_parse_license` 의 검증 오류를 버리던 것 수정 (#476). `last_verified: "2026-13-45"` 가 조용히 `None` 이 되지 않는다. **동작 변경**: 잘못된 `license` 필드가 이제 spec 로드를 실패시킨다.
 - `Retry-After` 힌트에 상한을 둔다 — `TransportConfig.max_retry_delay`(기본 60s) (#477). 상한을 넘으면 기다리지 않고 retryable `RateLimitError` 로 즉시 반환한다.
 - data.go.kr 게이트웨이 거부(`OpenAPI_ServiceResponse/cmmMsgHeader`)를 "Malformed response envelope" 가 아니라 원인대로 보고 (#478, datago 어댑터 경로).
+- spec 우선 실행 경로(`core/executor.py`)도 게이트웨이 거부를 인식한다. #478 은 datago 어댑터만 고쳐서, spec 을 타는 20여 종은 여전히 "응답 envelope에서 에러 코드를 찾을 수 없습니다" 로 실패했다.
+- sgis 의 `accessToken`/`consumer_key`/`consumer_secret` 을 마스킹 목록에 추가. 목록이 부분 문자열이 아니라 정확한 이름을 보므로 `consumer_key` 는 `key` 를 포함해도 걸리지 않았다.
+- 종단 HTTP 상태 오류에 `status_code` 를 실어 보낸다. URL 마스킹 시 예외 체인을 끊기 때문에 원래 응답이 함께 사라져, 호출자가 401 과 503 을 메시지 문자열로만 구분할 수 있었다. 재시도를 소진한 429 는 `RateLimitError` 로 올린다.
+- 응답 캐시를 임시 파일 + `os.replace` 로 원자적으로 쓴다. 중간에 끊긴 파일이 완성된 엔트리로 읽혀 TTL 만료까지 깨진 값이 반복됐다.
+
+### Removed
+
+- 저장소에 커밋돼 있던 `.omx/` 에이전트 도구 로그·상태 파일 10개 삭제, `.gitignore` 에 추가.
 
 ### Added
 
