@@ -756,3 +756,74 @@ class TestSpecRequestParameterMetadata:
         assert {str(entry["name"]) for entry in parameters} == set(
             ref.query_support.filterable_fields
         )
+
+
+class TestSpecExecutorRecognisesGatewayRejections:
+    """spec 우선 경로도 게이트웨이 거부를 원인대로 보고한다.
+
+    #478 은 datago **어댑터** 에만 이 분기를 넣었다. spec 을 타는 20여 종은
+    여전히 "응답 envelope에서 에러 코드를 찾을 수 없습니다" 로 실패했다 —
+    사용자가 고칠 수 있는 문제(키 미등록, 한도 초과)가 파싱 오류로 보였다.
+    """
+
+    @staticmethod
+    def _spec() -> SpecDefinition:
+        return _spec_from(
+            {
+                "id": "datago.gateway_probe",
+                "provider": "datago",
+                "title": "게이트웨이 거부 확인",
+                "endpoint": {"base_url": "https://apis.data.go.kr/svc", "operation": "getList"},
+                "auth": {"type": "query_key", "param_name": "serviceKey"},
+                "response": {
+                    "format": "json",
+                    "envelope": "datago_standard",
+                    "items_path": "response.body.items.item",
+                    "error": {"style": "result_code", "code_path": "response.header.resultCode"},
+                },
+                "pagination": {"type": "page", "page_param": "pageNo", "size_param": "numOfRows"},
+            }
+        )
+
+    @staticmethod
+    def _gateway(code: str, *, auth_msg: str | None = None) -> dict[str, object]:
+        header: dict[str, object] = {"errMsg": "SERVICE ERROR", "returnReasonCode": code}
+        if auth_msg is not None:
+            header["returnAuthMsg"] = auth_msg
+        return {"OpenAPI_ServiceResponse": {"cmmMsgHeader": header}}
+
+    def test_an_unregistered_key_is_an_auth_error(self) -> None:
+        from kpubdata.core.executor import check_payload_error
+        from kpubdata.exceptions import AuthError
+
+        with pytest.raises(AuthError) as exc:
+            check_payload_error(
+                self._spec(), self._gateway("30", auth_msg="SERVICE_KEY_IS_NOT_REGISTERED_ERROR")
+            )
+
+        assert exc.value.provider_code == "30"
+        assert "SERVICE_KEY_IS_NOT_REGISTERED_ERROR" in str(exc.value)
+
+    def test_an_exhausted_quota_is_a_rate_limit_error(self) -> None:
+        from kpubdata.core.executor import check_payload_error
+        from kpubdata.exceptions import RateLimitError
+
+        with pytest.raises(RateLimitError) as exc:
+            check_payload_error(self._spec(), self._gateway("22"))
+
+        assert exc.value.provider_code == "22"
+
+    def test_it_is_not_reported_as_a_missing_error_code(self) -> None:
+        # 회귀 방지: 예전 메시지는 "에러 코드를 찾을 수 없습니다" 였다.
+        from kpubdata.core.executor import check_payload_error
+        from kpubdata.exceptions import AuthError
+
+        with pytest.raises(AuthError) as exc:
+            check_payload_error(self._spec(), self._gateway("30"))
+
+        assert "찾을 수 없습니다" not in str(exc.value)
+
+    def test_a_normal_envelope_is_untouched(self) -> None:
+        from kpubdata.core.executor import check_payload_error
+
+        check_payload_error(self._spec(), {"response": {"header": {"resultCode": "00"}}})

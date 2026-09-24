@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 from types import MappingProxyType
+from typing import cast
 
 import httpx
 
@@ -158,6 +159,41 @@ def _cast_field(value: object, field_type: str) -> object:
     """선언된 타입으로 캐스팅한다(실패 시 원문을 보존한다)."""
     _, coerced = _try_cast_field(value, field_type)
     return coerced
+
+
+#: data.go.kr 게이트웨이가 서비스 대신 답할 때 쓰는 봉투. 요청이 서비스에 닿기
+#: 전에 거부되면 ``<response>`` 대신 이 모양이 온다 — 등록되지 않은 키, 만료된
+#: 활용신청, 허용되지 않은 IP, 일일 한도 초과.
+_GATEWAY_ENVELOPE_KEY = "OpenAPI_ServiceResponse"
+_GATEWAY_HEADER_KEY = "cmmMsgHeader"
+
+
+def _gateway_rejection(payload: dict[str, object]) -> tuple[str, str] | None:
+    """게이트웨이 거부면 ``(code, message)``, 아니면 None.
+
+    ``returnReasonCode`` 는 서비스 envelope 의 ``resultCode`` 와 같은 어휘를 쓰므로
+    같은 매핑에 넘길 수 있다. #478 이 datago **어댑터** 에만 이 분기를 넣었는데,
+    spec 우선 경로를 타는 20여 종은 여전히 "응답 envelope에서 에러 코드를 찾을 수
+    없습니다" 로 실패했다 — 고칠 수 있는 문제가 파싱 오류로 보였다.
+    """
+    gateway = payload.get(_GATEWAY_ENVELOPE_KEY)
+    if not isinstance(gateway, dict):
+        return None
+    header = cast(dict[str, object], gateway).get(_GATEWAY_HEADER_KEY)
+    if not isinstance(header, dict):
+        return None
+    header_dict = cast(dict[str, object], header)
+    raw_code = header_dict.get("returnReasonCode")
+    if raw_code is None:
+        return None
+    for key in ("returnAuthMsg", "errMsg"):
+        value = header_dict.get(key)
+        if isinstance(value, str) and value.strip():
+            return str(raw_code).strip(), value.strip()
+    return (
+        str(raw_code).strip(),
+        f"data.go.kr gateway rejected the request (returnReasonCode={raw_code})",
+    )
 
 
 class SpecExecutor:
@@ -391,6 +427,10 @@ class SpecExecutor:
     def _check_error(self, spec: SpecDefinition, payload: dict[str, object]) -> None:
         """에러 코드 경로를 검사하고 실패 코드면 예외를 발생시킨다."""
         error = spec.response.error
+        gateway = _gateway_rejection(payload)
+        if gateway is not None:
+            # 게이트웨이가 서비스 대신 답했다. code_path 를 찾아봐야 없다.
+            self._raise_for_code(spec, gateway[0], gateway[1])
         raw_code = _dot_get(payload, error.code_path)
         if isinstance(raw_code, str):
             code = raw_code
@@ -594,6 +634,11 @@ def raise_for_code(spec: SpecDefinition, code: str, message: str) -> None:
 def check_payload_error(spec: SpecDefinition, payload: dict[str, object]) -> None:
     """에러 코드 경로를 검사하고 실패 코드면 예외를 발생시킨다(record·verify 공용)."""
     error = spec.response.error
+    # 게이트웨이가 서비스 대신 답했으면 선언된 code_path 를 찾아봐야 없다.
+    # builder 의 verify 와 record 가 이 함수를 쓰므로 여기도 같이 본다.
+    gateway = _gateway_rejection(payload)
+    if gateway is not None:
+        raise_for_code(spec, gateway[0], gateway[1])
     if error.style == "err_field":
         # kosis류: 코드 체계가 없고 err 필드 존재 자체가 실패를 뜻한다.
         err_raw = payload.get("err")
