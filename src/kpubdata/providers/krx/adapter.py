@@ -27,6 +27,20 @@ from typing import TYPE_CHECKING, Protocol, cast
 if TYPE_CHECKING:
     import pandas as pd
 
+    class _PandasModule(ModuleType):
+        """이 어댑터가 pandas 에서 실제로 쓰는 것들.
+
+        지연 import 를 ``ModuleType`` 으로만 받으면 모든 접근이 ``Any`` 가 되어
+        ``--strict`` 아래에서 타입이 통째로 사라진다. 필요한 네 가지만 적어 두면
+        타입도 유지되고, 이 모듈이 pandas 에 무엇을 기대하는지도 드러난다.
+        """
+
+        DataFrame: type[pd.DataFrame]
+        Timestamp: type[pd.Timestamp]
+        DatetimeIndex: type[pd.DatetimeIndex]
+        date_range: Callable[..., pd.DatetimeIndex]
+
+
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.exceptions import (
@@ -40,10 +54,10 @@ from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.provider.krx")
 
-_pandas_module: ModuleType | None = None
+_pandas_module: _PandasModule | None = None
 
 
-def _pandas() -> ModuleType:
+def _pandas() -> _PandasModule:
     """pandas 를 필요한 순간에만 import 한다.
 
     pandas 는 optional extra 인데 이 모듈이 최상단에서 import 하고 있었다. krx 는
@@ -58,7 +72,7 @@ def _pandas() -> ModuleType:
     global _pandas_module
     if _pandas_module is None:
         try:
-            _pandas_module = importlib.import_module("pandas")
+            _pandas_module = cast("_PandasModule", importlib.import_module("pandas"))
         except ImportError as exc:
             raise ConfigError(
                 "krx provider requires pandas. Install it with: pip install 'kpubdata[krx]'",
