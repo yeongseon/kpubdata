@@ -104,8 +104,14 @@ def test_from_mapping_license_parsed() -> None:
     assert spec.license.note == "자유이용"
 
 
-def test_from_mapping_license_bad_type_drops_value() -> None:
-    """license 필드의 잘못된 타입은 None으로 처리된다."""
+def test_from_mapping_license_bad_type_is_rejected() -> None:
+    """license 필드의 잘못된 타입은 spec 로드를 실패시킨다.
+
+    예전에는 문제를 기록만 하고 값 자리에 None을 넣었는데, 그 기록이
+    ``if problems: raise`` 를 지난 뒤에 만들어져 통째로 버려졌다. 선언이 틀렸다는
+    사실이 "선언하지 않음"과 구분되지 않으면, 재배포 가능성 판단이 조용히
+    바뀐다.
+    """
     data: dict[str, object] = {
         "id": "test.lic2",
         "provider": "test",
@@ -124,11 +130,10 @@ def test_from_mapping_license_bad_type_drops_value() -> None:
             "commercial_use": "true",  # 문자열 — bool이어야 함
         },
     }
-    spec = from_mapping(data)
-    assert spec.license is not None
-    assert spec.license.type == "공공누리_1유형"
-    # 잘못된 타입("true" 문자열)은 None으로 처리됨
-    assert spec.license.commercial_use is None
+    with pytest.raises(InvalidRequestError) as exc:
+        from_mapping(data)
+
+    assert "license.commercial_use" in str(exc.value)
 
 
 def test_from_mapping_license_none_when_absent() -> None:
@@ -230,3 +235,54 @@ def test_spec_index_and_find_spec_lookup() -> None:
     assert by_bare is not None and by_bare.id == "datago.village_fcst"
 
     assert find_spec("no.such_dataset") is None
+
+
+def _base_spec_data(**overrides: object) -> dict[str, object]:
+    data: dict[str, object] = {
+        "id": "test.dates",
+        "provider": "test",
+        "title": "날짜 검증",
+        "endpoint": {"base_url": "https://example.test/api", "operation": "op", "method": "GET"},
+        "auth": {"type": "none"},
+        "response": {
+            "format": "json",
+            "envelope": "datago_standard",
+            "error": {"style": "http_status"},
+        },
+        "pagination": {"type": "none"},
+        "status": "active",
+    }
+    data.update(overrides)
+    return data
+
+
+def test_invalid_last_verified_is_rejected_not_silently_dropped() -> None:
+    """``2026-13-45`` 같은 값이 조용히 None이 되면 안 된다.
+
+    검증일이 없는 spec과 검증일을 잘못 적은 spec이 구별되지 않으면,
+    SUPPORTED_DATA의 "실API 검증" 주장이 근거 없이 통과한다.
+    """
+    with pytest.raises(InvalidRequestError) as exc:
+        from_mapping(_base_spec_data(last_verified="2026-13-45"))
+
+    assert "last_verified" in str(exc.value)
+
+
+def test_invalid_source_verified_at_is_rejected() -> None:
+    with pytest.raises(InvalidRequestError) as exc:
+        from_mapping(_base_spec_data(source={"verified_at": "not-a-date"}))
+
+    assert "source.verified_at" in str(exc.value)
+
+
+def test_a_valid_last_verified_still_parses() -> None:
+    spec = from_mapping(_base_spec_data(last_verified="2026-09-24"))
+
+    assert spec.last_verified is not None
+    assert spec.last_verified.isoformat() == "2026-09-24"
+
+
+def test_absent_dates_stay_none() -> None:
+    spec = from_mapping(_base_spec_data())
+
+    assert spec.last_verified is None

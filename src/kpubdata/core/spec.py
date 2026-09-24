@@ -450,16 +450,26 @@ def from_mapping(data: dict[str, object]) -> SpecDefinition:
         if id_prefix != provider:
             problems.append(f"id 접두사({id_prefix})가 provider 필드({provider})와 불일치합니다.")
 
+    source_raw = _section(data, "source")
+    fields_list = data.get("fields")
+    examples_list = data.get("examples")
+
+    # 이 세 파서는 problems 에 기록만 하고 값 자리에는 None 을 돌려준다. 예전에는
+    # 아래 SpecDefinition 생성자 인자 안에서 호출돼 `if problems: raise` 를 이미
+    # 지나친 뒤였고, 그래서 기록된 문제가 통째로 버려졌다 — `last_verified:
+    # "2026-13-45"` 같은 값이 아무 말 없이 None 이 되어, 검증한 적 없는 spec 이
+    # "검증일 없음"과 구분되지 않았다. 판정 전에 먼저 부른다.
+    source_verified_at = _parse_date(source_raw.get("verified_at"), problems, "source.verified_at")
+    params_parsed = _parse_params(data.get("params"), problems)
+    last_verified = _parse_date(data.get("last_verified"), problems, "last_verified")
+    license_parsed = _parse_license(data.get("license"), problems)
+
     if problems:
         raise InvalidRequestError(
             "데이터셋 spec 구조 검증 실패: " + " | ".join(problems),
             provider=provider,
             dataset_id=spec_id,
         )
-
-    source_raw = _section(data, "source")
-    fields_list = data.get("fields")
-    examples_list = data.get("examples")
 
     fields_parsed: list[FieldSpec] = []
     if isinstance(fields_list, list):
@@ -540,13 +550,13 @@ def from_mapping(data: dict[str, object]) -> SpecDefinition:
         source=SourceRef(
             url=_get_str(source_raw, "url"),
             doc_version=_get_str(source_raw, "doc_version"),
-            verified_at=_parse_date(source_raw.get("verified_at"), problems, "source.verified_at"),
+            verified_at=source_verified_at,
         ),
-        params=_parse_params(data.get("params"), problems),
+        params=params_parsed,
         fields=tuple(fields_parsed),
         examples=tuple(examples_parsed),
-        last_verified=_parse_date(data.get("last_verified"), problems, "last_verified"),
-        license=_parse_license(data.get("license"), problems),
+        last_verified=last_verified,
+        license=license_parsed,
         raw_metadata=dict(data),
     )
 
