@@ -8,8 +8,6 @@ from collections.abc import Mapping, Sequence
 from typing import cast
 from urllib.parse import urlparse
 
-import httpx
-
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.models import (
     DatasetRef,
@@ -509,9 +507,14 @@ class DataGoAdapter:
 
     @staticmethod
     def _is_http_403(exc: TransportError) -> bool:
-        """TransportError의 원인이 HTTP 403 응답인지 확인한다."""
-        cause = exc.__cause__
-        return isinstance(cause, httpx.HTTPStatusError) and cause.response.status_code == 403
+        """TransportError가 HTTP 403 응답에서 나온 것인지 확인한다.
+
+        ``__cause__`` 가 아니라 ``status_code`` 를 본다. transport 는 요청에
+        credential 이 실려 있으면 예외 체인을 끊는데(끊지 않으면 httpx 메시지에
+        담긴 최종 URL로 키가 샌다), datago 는 키를 ``params`` 로 보내므로 이
+        판정이 체인에 의존하면 마스킹이 켜지는 순간 403 힌트가 사라진다.
+        """
+        return exc.status_code == 403
 
     @staticmethod
     def _load_default_catalogue() -> tuple[DatasetRef, ...]:

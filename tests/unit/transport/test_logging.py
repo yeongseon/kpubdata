@@ -569,3 +569,123 @@ def test_mask_url_redacts_the_sgis_oauth_parameters() -> None:
     for secret in ("real-key", "real-secret", "real-token"):
         assert secret not in masked
     assert masked.count("[REDACTED]") == 3
+
+
+class TestKeysPassedAsParamsAreAlsoMasked:
+    """키를 ``params=`` 로 넘기는 경로의 예외 체인.
+
+    체인을 끊을지 말지를 ``_mask_url(url) != url`` 하나로 판정했다. 그래서 키가
+    URL 문자열에 박혀 있을 때만 끊겼고, ``params=`` 로 넘길 때는 URL이 그대로라
+    체인이 유지됐다 — httpx 는 예외 메시지에 params 를 합친 **최종** URL을 넣으
+    므로, 그 메시지가 ``__cause__`` 를 타고 traceback 에 그대로 남았다.
+
+    그런데 키를 params 로 보내는 것이 오히려 다수다 — datago·localdata·semas·
+    sgis 와 spec executor 가 전부 그렇다. 기존 테스트가 전부 URL 문자열 쪽만
+    확인해서 드러나지 않았다.
+    """
+
+    _SECRET = "SUPERSECRETKEY"
+    _URL = "https://apis.data.go.kr/service/rest/data"
+
+    def _forbidden(self) -> httpx.Response:
+        request = httpx.Request("GET", self._URL, params={"serviceKey": self._SECRET, "page": "1"})
+        return httpx.Response(status_code=403, request=request)
+
+    def test_the_chain_is_broken_when_the_key_travels_in_params(self) -> None:
+        transport = HttpTransport(TransportConfig(max_retries=0))
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=self._forbidden()),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request(
+                "GET", self._URL, params={"serviceKey": self._SECRET, "page": "1"}
+            )
+
+        assert excinfo.value.__cause__ is None
+        assert excinfo.value.__suppress_context__ is True
+
+    def test_the_key_appears_nowhere_in_the_rendered_traceback(self) -> None:
+        """``__cause__`` 가 None 인 것만으로는 부족하다 — 실제 출력에 없어야 한다."""
+        import traceback
+
+        transport = HttpTransport(TransportConfig(max_retries=0))
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=self._forbidden()),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request(
+                "GET", self._URL, params={"serviceKey": self._SECRET, "page": "1"}
+            )
+
+        rendered = "".join(
+            traceback.format_exception(
+                type(excinfo.value), excinfo.value, excinfo.value.__traceback__
+            )
+        )
+        assert self._SECRET not in rendered
+
+    def test_the_status_code_survives_the_broken_chain(self) -> None:
+        """체인을 끊으면 원래 응답도 함께 사라진다 — 상태 코드는 예외가 직접 들어야 한다.
+
+        datago 의 403 안내와 spec executor 의 AuthError 가 이 값을 본다.
+        """
+        transport = HttpTransport(TransportConfig(max_retries=0))
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=self._forbidden()),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request(
+                "GET", self._URL, params={"serviceKey": self._SECRET, "page": "1"}
+            )
+
+        assert excinfo.value.status_code == 403
+
+    def test_a_request_without_any_credential_keeps_its_chain(self) -> None:
+        """자격이 없는 요청까지 체인을 끊으면 디버깅만 어려워진다."""
+        transport = HttpTransport(TransportConfig(max_retries=0))
+        request = httpx.Request("GET", self._URL, params={"page": "1"})
+        response = httpx.Response(status_code=403, request=request)
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request("GET", self._URL, params={"page": "1"})
+
+        assert isinstance(excinfo.value.__cause__, httpx.HTTPStatusError)
+
+    def test_a_credential_header_also_breaks_the_chain(self) -> None:
+        """Authorization 헤더로 인증하는 provider 도 같은 보호를 받아야 한다."""
+        transport = HttpTransport(TransportConfig(max_retries=0))
+        request = httpx.Request("GET", self._URL)
+        response = httpx.Response(status_code=403, request=request)
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request(
+                "GET", self._URL, headers={"Authorization": f"Bearer {self._SECRET}"}
+            )
+
+        assert excinfo.value.__cause__ is None
+
+
+class TestForbiddenDetectionDoesNotDependOnTheChain:
+    """403 판정이 ``__cause__`` 에 의존하면 마스킹과 서로를 무효화한다.
+
+    datago 는 키를 params 로 보내므로, 체인을 끊는 순간 ``__cause__`` 기반
+    판정은 아무것도 찾지 못한다 — 사용자는 키 등록 안내 대신 일반 오류를 본다.
+    """
+
+    def test_datago_reads_the_status_code(self) -> None:
+        from kpubdata.providers.datago.adapter import DataGoAdapter
+
+        chained = TransportError("forbidden", provider="datago", status_code=403)
+
+        assert DataGoAdapter._is_http_403(chained) is True
+        assert DataGoAdapter._is_http_403(TransportError("boom", status_code=503)) is False
+        assert DataGoAdapter._is_http_403(TransportError("boom")) is False

@@ -20,8 +20,6 @@ import logging
 from types import MappingProxyType
 from typing import cast
 
-import httpx
-
 from kpubdata.config import KPubDataConfig
 from kpubdata.core.capability import Operation, PaginationMode, QuerySupport
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
@@ -359,8 +357,10 @@ class SpecExecutor:
                 provider=spec.provider,
             )
         except TransportError as exc:
-            cause = exc.__cause__
-            if isinstance(cause, httpx.HTTPStatusError) and cause.response.status_code == 403:
+            # ``exc.status_code`` 로 본다. ``__cause__`` 를 보던 시절에는 키가
+            # 섞인 요청에서 transport 가 체인을 끊으면(그래야 한다) 403 판정이
+            # 통째로 사라졌다 — 키 마스킹과 403 힌트가 서로를 무효화했다.
+            if exc.status_code == 403:
                 raise AuthError(
                     _FORBIDDEN_HINT,
                     provider=spec.provider,
