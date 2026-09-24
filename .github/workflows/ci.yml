@@ -147,6 +147,32 @@ jobs:
       - name: Run tests
         run: uv run pytest -ra
 
+  coverage:
+    # 커버리지 게이트 (#456). 지금 도달한 수준이 조용히 내려가지 않게 잠근다.
+    # 하한은 pyproject 의 [tool.coverage.report] fail_under 한 곳에서만 관리한다.
+    # 테스트 매트릭스(4개)에 --cov 를 얹지 않고 이 잡 하나만 계측한다 — 얻는 정보는
+    # 같은데 비용만 4배이기 때문이다.
+    name: Coverage Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run tests with coverage
+        run: uv run pytest -ra --cov --cov-report=term-missing
+
   build:
     name: Build Package
     runs-on: ubuntu-latest
