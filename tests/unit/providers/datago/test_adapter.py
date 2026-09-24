@@ -11,7 +11,6 @@ import logging
 from types import MappingProxyType
 from typing import Protocol, cast
 
-import httpx
 import pytest
 
 from kpubdata.config import KPubDataConfig
@@ -890,13 +889,6 @@ class TestDataGoAdapterQueryRecords:
         예시:
             테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
         """
-        request = httpx.Request("GET", "https://apis.data.go.kr/test")
-        response = httpx.Response(403, request=request)
-        status_error = httpx.HTTPStatusError(
-            "Client error '403 Forbidden' for url 'https://apis.data.go.kr/test'",
-            request=request,
-            response=response,
-        )
 
         class ForbiddenTransport:
             """
@@ -925,9 +917,14 @@ class TestDataGoAdapterQueryRecords:
                     구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
                 """
                 del method, url, kwargs
+                # 실제 transport 와 같은 모양으로 만든다 — ``status_code`` 를
+                # 싣고 체인은 끊는다. datago 는 키를 params 로 보내므로 실제
+                # 경로에서는 언제나 ``from None`` 이다.
                 raise TransportError(
-                    "HTTP status error 403 for GET https://apis.data.go.kr/test"
-                ) from status_error
+                    "HTTP status error 403 for GET https://apis.data.go.kr/test",
+                    provider="datago",
+                    status_code=403,
+                ) from None
 
         adapter = DataGoAdapter(
             config=KPubDataConfig(provider_keys={"datago": "test-key"}),
