@@ -327,3 +327,31 @@ def test_client_applies_lofin_ssl_context() -> None:
     raise AssertionError(
         "HttpTransport.with_requirements was never called with ssl_context_factory"
     )
+
+
+class TestLofinVerifiesCertificates:
+    """lofin 컨텍스트가 인증서 검증을 끄지 않는지 고정한다.
+
+    ``check_hostname = False`` + ``CERT_NONE`` 이었다. 이 요청에는 API 키가 함께
+    나가므로, 중간자가 인증서를 갈아끼우면 응답을 조작하는 데서 끝나지 않고 키를
+    가져간다. 실제로 필요했던 건 cipher 완화뿐이었다.
+    """
+
+    def test_hostname_checking_stays_on(self) -> None:
+        import ssl
+
+        from kpubdata.providers.lofin.adapter import _lofin_ssl_context
+
+        ctx = _lofin_ssl_context()
+
+        assert ctx.check_hostname is True
+        assert ctx.verify_mode is ssl.CERT_REQUIRED
+
+    def test_the_cipher_relaxation_is_still_there(self) -> None:
+        """이게 이 커스텀 컨텍스트가 존재하는 이유다 — 없애면 원래 문제가 돌아온다."""
+        from kpubdata.providers.lofin.adapter import _lofin_ssl_context
+
+        ciphers = {entry["name"] for entry in _lofin_ssl_context().get_ciphers()}
+
+        # SECLEVEL=1 에서만 협상 대상에 남는 구형 cipher.
+        assert "AES256-SHA256" in ciphers
