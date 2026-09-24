@@ -415,9 +415,7 @@ class HttpTransport:
                     # status_code 를 실어 보낸다. 마스킹 때문에 예외 체인을 끊는
                     # 경우(from None) 원래 응답이 함께 사라져, 호출자가 401 과
                     # 503 을 구분할 방법이 메시지 문자열밖에 없었다.
-                    error_type = (
-                        RateLimitError if status_code == 429 else TransportError
-                    )
+                    error_type = RateLimitError if status_code == 429 else TransportError
                     raise error_type(
                         f"HTTP status error {status_code} for {method} {log_url}",
                         provider=provider,
