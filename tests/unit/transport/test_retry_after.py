@@ -13,7 +13,7 @@ from unittest.mock import patch
 import httpx
 import pytest
 
-from kpubdata.exceptions import TransportError
+from kpubdata.exceptions import RateLimitError, TransportError
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
 
@@ -246,3 +246,74 @@ def test_non_retryable_status_does_not_retry_even_with_retry_after() -> None:
 
     assert request_mock.call_count == 1
     sleep_mock.assert_not_called()
+
+
+def test_retry_after_beyond_the_cap_raises_instead_of_sleeping() -> None:
+    """상한을 넘는 ``Retry-After``는 대기가 아니라 즉시 반환이다.
+
+    상한이 없던 시절에는 서버가 ``Retry-After: 3600``을 주면 라이브러리가
+    호출자의 스레드를 한 시간 붙잡고 잤다. 그것은 재시도가 아니라 정지다 —
+    "지금은 쓸 수 없다"는 신호이지 "여기서 잠들라"는 지시가 아니다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=1, max_retry_delay=60.0))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
+        patch("kpubdata.transport.http.time.sleep") as sleep_mock,
+    ):
+        request_mock.side_effect = [_response(429, retry_after="3600"), _response(200)]
+
+        with pytest.raises(RateLimitError) as exc:
+            transport.request("GET", "https://example.test/resource")
+
+    sleep_mock.assert_not_called()
+    assert request_mock.call_count == 1
+    assert exc.value.retryable is True
+    assert exc.value.detail == {"retry_after": 3600.0, "max_retry_delay": 60.0}
+
+
+def test_retry_after_within_the_cap_still_sleeps() -> None:
+    transport = HttpTransport(TransportConfig(max_retries=1, max_retry_delay=60.0))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
+        patch("kpubdata.transport.http.time.sleep") as sleep_mock,
+    ):
+        request_mock.side_effect = [_response(429, retry_after="30"), _response(200)]
+
+        response = transport.request("GET", "https://example.test/resource")
+
+    assert response.status_code == 200
+    sleep_mock.assert_called_once_with(30.0)
+
+
+def test_the_cap_does_not_touch_exponential_backoff() -> None:
+    # 상한은 서버 힌트에만 적용된다 — 힌트가 없으면 기존 백오프 그대로다.
+    transport = HttpTransport(
+        TransportConfig(max_retries=1, retry_backoff_factor=0.5, max_retry_delay=0.1)
+    )
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
+        patch("kpubdata.transport.http.time.sleep") as sleep_mock,
+    ):
+        request_mock.side_effect = [_response(503), _response(200)]
+
+        response = transport.request("GET", "https://example.test/resource")
+
+    assert response.status_code == 200
+    sleep_mock.assert_called_once_with(0.5)
+
+
+def test_the_cap_is_configurable() -> None:
+    transport = HttpTransport(TransportConfig(max_retries=1, max_retry_delay=7200.0))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
+        patch("kpubdata.transport.http.time.sleep") as sleep_mock,
+    ):
+        request_mock.side_effect = [_response(429, retry_after="3600"), _response(200)]
+
+        assert transport.request("GET", "https://example.test/resource").status_code == 200
+
+    sleep_mock.assert_called_once_with(3600.0)

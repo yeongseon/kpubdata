@@ -23,7 +23,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 import httpx
 from typing_extensions import override
 
-from kpubdata.exceptions import TransportError, TransportTimeoutError
+from kpubdata.exceptions import RateLimitError, TransportError, TransportTimeoutError
 from kpubdata.transport.cache import ResponseCache, make_cache_key
 
 logger = logging.getLogger("kpubdata.transport")
@@ -54,6 +54,11 @@ class TransportConfig:
     cache: ResponseCache | None = None
     cache_ttl_seconds: int = 86400
     max_response_bytes: int | None = _DEFAULT_MAX_RESPONSE_BYTES
+    #: ``Retry-After`` 힌트를 그대로 따를 최대 초. 서버가 이보다 긴 대기를
+    #: 요구하면 기다리지 않고 RateLimitError로 즉시 되돌려, 호출자가 언제
+    #: 다시 시도할지 스스로 정하게 한다. 상한이 없던 시절에는 서버가 3600을
+    #: 주면 라이브러리가 스레드를 한 시간 붙잡고 잤다.
+    max_retry_delay: float = 60.0
 
 
 @dataclass(frozen=True)
@@ -425,6 +430,21 @@ class HttpTransport:
             delay: float
             if retry_delay is not None:
                 # 서버가 Retry-After를 주면 지수 백오프보다 서버 힌트를 우선한다.
+                # 다만 무한정 따르지는 않는다 — 상한을 넘는 힌트는 "지금은 쓸 수
+                # 없다"는 신호이지 "여기서 잠들라"는 지시가 아니다. 기다리는 대신
+                # retryable한 RateLimitError로 즉시 돌려주어, 호출자가 재시도
+                # 시점을 스스로 정할 수 있게 한다.
+                max_delay = self._config.max_retry_delay
+                if max_delay is not None and retry_delay > max_delay:
+                    raise RateLimitError(
+                        f"server asked to retry after {retry_delay:.0f}s, "
+                        f"beyond the {max_delay:.0f}s cap: {method} {log_url}",
+                        provider=provider,
+                        dataset_id=dataset_id,
+                        status_code=status_code,
+                        retryable=True,
+                        detail={"retry_after": retry_delay, "max_retry_delay": max_delay},
+                    )
                 delay = retry_delay
             else:
                 delay = cast(float, self._config.retry_backoff_factor * (2 ** (attempt - 1)))
