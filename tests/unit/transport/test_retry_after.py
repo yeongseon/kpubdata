@@ -317,3 +317,39 @@ def test_the_cap_is_configurable() -> None:
         assert transport.request("GET", "https://example.test/resource").status_code == 200
 
     sleep_mock.assert_called_once_with(3600.0)
+
+
+def test_a_terminal_status_error_carries_its_status_code() -> None:
+    """마스킹으로 예외 체인을 끊으면 원래 응답이 함께 사라진다.
+
+    status_code 를 싣지 않으면 호출자가 401 과 503 을 구분할 방법이 메시지
+    문자열밖에 없다.
+    """
+    transport = HttpTransport(TransportConfig(max_retries=1))
+
+    with patch("kpubdata.transport.http.httpx.Client.send") as request_mock:
+        request_mock.side_effect = [_response(401)]
+
+        with pytest.raises(TransportError) as exc:
+            transport.request("GET", "https://example.test/resource")
+
+    assert exc.value.status_code == 401
+
+
+def test_an_exhausted_429_is_a_rate_limit_error() -> None:
+    # 429 를 일반 TransportError 로 올리면 호출자가 한도 초과를 다른 전송 실패와
+    # 구분할 수 없다.
+    from kpubdata.exceptions import RateLimitError
+
+    transport = HttpTransport(TransportConfig(max_retries=1))
+
+    with (
+        patch("kpubdata.transport.http.httpx.Client.send") as request_mock,
+        patch("kpubdata.transport.http.time.sleep"),
+    ):
+        request_mock.side_effect = [_response(429), _response(429)]
+
+        with pytest.raises(RateLimitError) as exc:
+            transport.request("GET", "https://example.test/resource")
+
+    assert exc.value.status_code == 429

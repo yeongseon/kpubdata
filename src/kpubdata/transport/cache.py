@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import base64
+import contextlib
 import hashlib
 import json
 import logging
 import os
+import tempfile
 import time
 from collections.abc import Mapping
 from pathlib import Path
@@ -88,10 +90,17 @@ class ResponseCache:
                 "ttl_seconds": ttl_seconds,
                 "body_b64": base64.b64encode(value).decode("ascii"),
             }
-            _ = payload_path.write_text(
-                json.dumps(payload, separators=(",", ":")),
-                encoding="utf-8",
-            )
+            # 임시 파일에 쓰고 교체한다. 직접 쓰면 중간에 끊긴 파일이 완성된
+            # 캐시 엔트리로 읽히고, 그 뒤로는 만료될 때까지 계속 깨진 값이 나온다.
+            fd, tmp_name = tempfile.mkstemp(dir=payload_path.parent, suffix=".tmp")
+            try:
+                with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                    handle.write(json.dumps(payload, separators=(",", ":")))
+                os.replace(tmp_name, payload_path)
+            except BaseException:
+                with contextlib.suppress(OSError):
+                    os.unlink(tmp_name)
+                raise
         except Exception as exc:
             logger.debug(
                 "transport cache write failed",

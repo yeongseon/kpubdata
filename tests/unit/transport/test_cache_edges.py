@@ -10,6 +10,7 @@ from __future__ import annotations
 import base64
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -294,3 +295,24 @@ def test_empty_xdg_cache_home_falls_back_to_home(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setenv("XDG_CACHE_HOME", "")
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: Path("/home/probe")))
     assert ResponseCache().base_dir == Path("/home/probe/.cache/kpubdata/responses")
+
+
+def test_a_cache_entry_is_written_atomically(tmp_path: Path) -> None:
+    """중간에 끊긴 파일이 완성된 엔트리로 읽히면 만료까지 깨진 값이 나온다."""
+    import os
+
+    from kpubdata.transport.cache import ResponseCache
+
+    cache = ResponseCache(tmp_path)
+    seen: list[tuple[str, str]] = []
+    real_replace = os.replace
+
+    def _record(src: object, dst: object) -> None:
+        seen.append((str(src), str(dst)))
+        real_replace(src, dst)  # type: ignore[arg-type]
+
+    with patch("kpubdata.transport.cache.os.replace", _record):
+        cache.set("k", b"body", ttl_seconds=60)
+
+    assert seen and seen[0][0].endswith(".tmp")
+    assert cache.get("k") == b"body"
