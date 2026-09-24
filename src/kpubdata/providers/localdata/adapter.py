@@ -201,7 +201,7 @@ class LocaldataAdapter:
 
         selected_operation = operation or dataset.raw_metadata.get("default_operation")
         if isinstance(selected_operation, str) and selected_operation:
-            return f"{base_url_raw}/{selected_operation}"
+            return f"{base_url_raw.rstrip('/')}/{selected_operation}"
         return base_url_raw
 
     def _build_base_params(self, dataset: DatasetRef) -> dict[str, str]:
@@ -292,13 +292,20 @@ class LocaldataAdapter:
             "localdata result",
             extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
         )
-        if not _is_success_code(result_code):
-            self._raise_for_result_code(result_code, result_msg, dataset_id)
-
         body_obj = response_dict.get("body")
         body_dict: dict[str, object] = (
             cast(dict[str, object], body_obj) if isinstance(body_obj, dict) else {}
         )
+
+        # data.go.kr 의 "03"(NODATA_ERROR)은 정상 응답이다 — 조건에 맞는 데이터가
+        # 없다는 뜻이지 호출이 실패한 것이 아니다. 이 분기가 없으면 필터를 걸어
+        # 조회했는데 결과가 없는 흔한 경우가 예외로 올라온다. semas 는 처음부터
+        # 이렇게 처리했고 localdata 만 빠져 있었다 (#470).
+        if result_code == "03":
+            return body_dict, []
+        if not _is_success_code(result_code):
+            self._raise_for_result_code(result_code, result_msg, dataset_id)
+
         items = self._normalize_items(body_dict.get("items"))
         return body_dict, items
 
@@ -337,7 +344,9 @@ class LocaldataAdapter:
                 ]
             if isinstance(item_value, dict):
                 return [cast(dict[str, object], item_value)]
-            return []
+            # "item" 키가 없는 dict 는 래핑 없이 온 단건이다. []로 떨어뜨리면
+            # 같은 모양의 응답이 provider 에 따라 0건과 1건으로 갈린다 (#470).
+            return [cast(dict[str, object], items_wrapper)]
 
         if isinstance(items_wrapper, list):
             normalized_items = cast(list[object], items_wrapper)
