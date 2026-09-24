@@ -12,7 +12,6 @@ from dataclasses import replace
 from pathlib import Path
 from typing import cast
 
-import httpx
 import pytest
 
 from kpubdata.config import KPubDataConfig
@@ -305,14 +304,40 @@ def test_query_missing_result_code_raises(apt_spec: SpecDefinition) -> None:
 
 
 def test_query_http_403_maps_to_auth_error(apt_spec: SpecDefinition) -> None:
-    """전송 계층 403(httpx 원인 체인)은 활용신청 힌트 AuthError가 된다."""
-    request = httpx.Request("GET", "https://apis.data.go.kr/x")
-    response = httpx.Response(status_code=403, request=request)
-    cause = httpx.HTTPStatusError("403", request=request, response=response)
-    transport_error = TransportError("forbidden", provider="datago")
-    transport_error.__cause__ = cause
+    """전송 계층 403은 활용신청 힌트 AuthError가 된다.
+
+    실제 transport 가 그렇게 하듯 ``status_code`` 를 실어 준다. 예전에는 이
+    fake 가 ``__cause__`` 만 채웠는데, transport 는 요청에 credential 이 실려
+    있으면 예외 체인을 끊는다 — spec executor 는 키를 params 로 보내므로 항상
+    끊긴다. 체인이 있다고 전제한 fake 가 실제 경로와 달랐다.
+    """
+    transport_error = TransportError("forbidden", provider="datago", status_code=403)
     executor = _make_executor(FakeTransport(error=transport_error))
     with pytest.raises(AuthError, match="활용"):
+        executor.query(apt_spec, _ref(apt_spec), Query())
+
+
+def test_query_http_403_maps_to_auth_error_even_without_an_exception_chain(
+    apt_spec: SpecDefinition,
+) -> None:
+    """체인이 끊긴 상태가 실제 경로다 — 그래도 403 힌트가 나와야 한다."""
+    transport_error = TransportError("forbidden", provider="datago", status_code=403)
+    assert transport_error.__cause__ is None
+
+    executor = _make_executor(FakeTransport(error=transport_error))
+
+    with pytest.raises(AuthError, match="활용"):
+        executor.query(apt_spec, _ref(apt_spec), Query())
+
+
+def test_a_non_403_transport_error_is_not_turned_into_an_auth_error(
+    apt_spec: SpecDefinition,
+) -> None:
+    executor = _make_executor(
+        FakeTransport(error=TransportError("boom", provider="datago", status_code=503))
+    )
+
+    with pytest.raises(TransportError):
         executor.query(apt_spec, _ref(apt_spec), Query())
 
 

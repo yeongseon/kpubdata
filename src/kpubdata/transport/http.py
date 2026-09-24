@@ -252,10 +252,21 @@ class HttpTransport:
         # 경로 세그먼트에 실제 값으로 키를 싣는 Provider(seoul 등)를 위해
         # 어댑터가 secret 값을 넘겨줄 수 있다(#354) — 값 기반 치환이라 휴리스틱이 없다.
         log_url = _mask_url(url, secret_values=secret_values)
-        # 마스킹이 실제로 적용된 경우 원본 httpx 예외를 __cause__에 남기면
-        # 예외 체인(traceback/에러 트래커)을 통해 민감 URL이 새어나갈 수 있으므로
-        # 예외 체이닝을 끊는다. 마스킹이 없는 경우 디버깅 편의를 위해 체인을 유지한다.
-        url_masked = log_url != url
+        # 원본 httpx 예외를 __cause__에 남기면 예외 체인(traceback/에러 트래커)을
+        # 통해 민감 URL이 새어나간다. httpx는 예외 메시지에 **최종** URL을 넣는데,
+        # 그 URL은 params를 합쳐서 만들어진다.
+        #
+        # 예전에는 ``log_url != url`` 로만 판정했다. 그래서 키를 URL 문자열에 박아
+        # 넘기는 경우만 막혔고, ``params=`` 로 넘기는 경우는 URL이 바뀌지 않아
+        # 체인이 그대로 유지됐다 — datago·localdata·semas·sgis와 spec executor가
+        # 전부 그 방식이다. 즉 실제로 키를 쓰는 거의 모든 경로에서 마스킹이
+        # 적용되지 않았다. #475/#484의 마스킹 작업도 테스트도 URL 문자열 쪽만 봤다.
+        credential_in_request = (
+            log_url != url
+            or bool(secret_values)
+            or _contains_sensitive_params(params)
+            or _contains_sensitive_headers(headers)
+        )
         if cache_key is not None and self._cache is not None:
             cached_body = self._cache.get(cache_key)
             if cached_body is not None:
@@ -380,7 +391,7 @@ class HttpTransport:
                 if attempt >= total_attempts:
                     raise TransportTimeoutError(
                         f"Request timed out after {attempt} attempts: {method} {log_url}"
-                    ) from (None if url_masked else exc)
+                    ) from (None if credential_in_request else exc)
 
             except httpx.DecodingError as exc:
                 if not identity_retry_used:
@@ -397,7 +408,7 @@ class HttpTransport:
                     continue
                 raise TransportError(
                     f"Response decoding failed after identity retry: {method} {log_url}"
-                ) from (None if url_masked else exc)
+                ) from (None if credential_in_request else exc)
 
             except httpx.HTTPStatusError as exc:
                 status_code = exc.response.status_code
@@ -421,7 +432,7 @@ class HttpTransport:
                         provider=provider,
                         dataset_id=dataset_id,
                         status_code=status_code,
-                    ) from (None if url_masked else exc)
+                    ) from (None if credential_in_request else exc)
 
                 retry_after = cast(str | None, exc.response.headers.get("Retry-After"))
                 if retry_after is not None:
@@ -441,7 +452,7 @@ class HttpTransport:
                 if attempt >= total_attempts:
                     raise TransportError(
                         f"Request failed after {attempt} attempts: {method} {log_url}"
-                    ) from (None if url_masked else exc)
+                    ) from (None if credential_in_request else exc)
 
             delay: float
             if retry_delay is not None:
@@ -640,6 +651,17 @@ def _contains_sensitive_headers(headers: dict[str, str] | None) -> bool:
     if headers is None:
         return False
     return any(key.casefold() in _SENSITIVE_PARAM_KEYS for key in headers)
+
+
+def _contains_sensitive_params(params: dict[str, str] | None) -> bool:
+    """query parameter에 민감한 키가 포함되어 있는지 확인한다.
+
+    URL 문자열이 아니라 ``params`` 에 실려 있어도 httpx는 최종 URL에 합쳐서
+    예외 메시지에 담는다 — 그래서 URL만 보는 판정으로는 부족하다.
+    """
+    if params is None:
+        return False
+    return any(key.casefold() in _SENSITIVE_PARAM_KEYS for key in params)
 
 
 def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:
