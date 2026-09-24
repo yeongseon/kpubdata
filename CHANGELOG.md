@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- localdata 가 `resultCode "03"`(NODATA)을 예외로 올리던 것을 semas 와 같이 빈 결과로 처리 (#470). 필터를 걸어 조회했는데 결과가 없는 흔한 경우가 한쪽 provider 에서만 오류였다.
+- localdata/semas 의 `_normalize_items` 가 빈 래퍼(`{"items": {}}`)와 XML `<items><item/></items>` 를 1건으로 승격하던 **유령 행** 제거 (#482 회귀). datago 본가 동작에 맞춘다.
+- localdata 의 `base_url` 끝 슬래시 미처리로 `//` 가 생기던 것 수정 (#470).
+- `datago.g2b_catalog` 의 필수 파라미터 `inqryDiv` 자동 전송 (#414). 사용자 필터가 우선하며 키 대소문자를 구분하지 않는다.
+- HTTP 전송 계층 로그/예외 메시지에서 API 키가 포함된 query parameter가 `[REDACTED]`로 마스킹되도록 수정 (#260)
+- Canonical Query validation now prevents invalid canonical query values from reaching provider adapters (#264)
+- `Dataset.list()` now validates canonical query parameters (`page`, `page_size`, `cursor`, `start_date`, `end_date`, `fields`, `sort`) before adapter invocation
+- Canonical keys are now routed by name (not by type) to prevent bypass via type mismatch (e.g., `dataset.list(page="1")` now raises `InvalidRequestError` instead of falling through to filters)
+- Date fields now reject empty strings and whitespace-only values
+- All query validation errors now raise `InvalidRequestError` instead of generic `TypeError`/`ValueError`
+- bok 어댑터가 URL 경로에 실은 API 키를 `secret_values` 로 전달해 로그·예외에서 마스킹 (#475). law 의 `OC` 파라미터를 마스킹 목록에 추가.
+- spec 로더가 `_parse_date`/`_parse_params`/`_parse_license` 의 검증 오류를 버리던 것 수정 (#476). `last_verified: "2026-13-45"` 가 조용히 `None` 이 되지 않는다. **동작 변경**: 잘못된 `license` 필드가 이제 spec 로드를 실패시킨다.
+- `Retry-After` 힌트에 상한을 둔다 — `TransportConfig.max_retry_delay`(기본 60s) (#477). 상한을 넘으면 기다리지 않고 retryable `RateLimitError` 로 즉시 반환한다.
+- data.go.kr 게이트웨이 거부(`OpenAPI_ServiceResponse/cmmMsgHeader`)를 "Malformed response envelope" 가 아니라 원인대로 보고 (#478, datago 어댑터 경로).
+
+### Added
+
+- spec 기반 데이터셋 18종 → 23종.
+- datago 카탈로그 메타데이터 보강 (#376): `request_parameters`, `application`, ASOS 계열 `fixed_query_params`, HTTPS endpoint. `required_query_filters` 와 `request_parameters` 의 필수 표시가 어긋나지 않도록 테스트로 고정.
+
+### Changed
+
+- Query validation now performs type checking and basic value validation at Query creation time
+- Empty cursor strings (`""`) are now rejected as invalid
+
 ## [0.6.0] — 2026-09-09
 
 ### 제거 (Breaking)
@@ -16,21 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - spec 기반 데이터셋 18종(골든 3 + air_station + ultra_srt_fcst + air_quality + ultra_srt_ncst + 부동산 6 + localdata 3 + airkorea_forecast + metro_fare) — `make verify` 4단계 기계 검증.
 - 대량 전환 도구: `gen_specs_from_catalogue.py`·`batch_record.py`·`gen_example_scripts.py`.
 
-## [Unreleased]
-
-### Fixed
-
-- HTTP 전송 계층 로그/예외 메시지에서 API 키가 포함된 query parameter가 `[REDACTED]`로 마스킹되도록 수정 (#260)
-- Canonical Query validation now prevents invalid canonical query values from reaching provider adapters (#264)
-- `Dataset.list()` now validates canonical query parameters (`page`, `page_size`, `cursor`, `start_date`, `end_date`, `fields`, `sort`) before adapter invocation
-- Canonical keys are now routed by name (not by type) to prevent bypass via type mismatch (e.g., `dataset.list(page="1")` now raises `InvalidRequestError` instead of falling through to filters)
-- Date fields now reject empty strings and whitespace-only values
-- All query validation errors now raise `InvalidRequestError` instead of generic `TypeError`/`ValueError`
-
-### Changed
-
-- Query validation now performs type checking and basic value validation at Query creation time
-- Empty cursor strings (`""`) are now rejected as invalid
 
 ## [0.5.0] - 2026-04-28
 

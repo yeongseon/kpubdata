@@ -495,24 +495,40 @@ def test_no_data_result_code_is_an_empty_result_not_an_error(cls: Any, provider:
 
 
 @pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
-def test_a_wrapper_without_an_item_key_is_one_record(cls: Any, provider: str) -> None:
-    """``item`` 키가 없는 dict 는 래핑 없이 온 단건이다.
-
-    한쪽이 ``[]``, 다른 쪽이 ``[wrapper]`` 를 돌려주면 같은 모양의 응답이
-    provider 에 따라 0건과 1건으로 갈린다.
-    """
-    adapter = _adapter(cls, _FakeResponse(_envelope("00", items={"bizNm": "테스트"})))
-    dataset = _ref(provider, base_url="https://api.test/svc", default_operation="getList")
-
-    batch = adapter.query_records(dataset, Query())
-
-    assert batch.items == [{"bizNm": "테스트"}]
-
-
-@pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
 def test_a_trailing_slash_in_base_url_does_not_double(cls: Any, provider: str) -> None:
     """카탈로그에 끝 슬래시가 들어오는 날 드러나는 종류의 차이였다."""
     adapter = _adapter(cls)
     dataset = _ref(provider, base_url="https://api.test/svc/", default_operation="getList")
 
     assert adapter._build_request_url(dataset) == "https://api.test/svc/getList"
+
+
+@pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
+def test_an_empty_items_wrapper_is_zero_records(cls: Any, provider: str) -> None:
+    """``{"items": {}}`` 는 0건이다.
+
+    #470 이 "``item`` 키가 없는 dict 는 단건" 규칙을 넣으면서 빈 래퍼까지
+    승격시켰다 — **유령 1행** 이 생겼다. datago 본가는 처음부터 ``[]`` 였다.
+    """
+    adapter = _adapter(cls, _FakeResponse(_envelope("00", items={})))
+    dataset = _ref(provider, base_url="https://api.test/svc", default_operation="getList")
+
+    assert adapter.query_records(dataset, Query()).items == []
+
+
+@pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
+def test_an_empty_xml_item_element_is_zero_records(cls: Any, provider: str) -> None:
+    """XML ``<items><item/></items>`` 는 ``{"item": None}`` 으로 디코딩된다."""
+    adapter = _adapter(cls, _FakeResponse(_envelope("00", items={"item": None})))
+    dataset = _ref(provider, base_url="https://api.test/svc", default_operation="getList")
+
+    assert adapter.query_records(dataset, Query()).items == []
+
+
+@pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
+def test_an_unwrapped_single_record_is_still_one_record(cls: Any, provider: str) -> None:
+    # #470 이 고치려던 것은 그대로 유지한다.
+    adapter = _adapter(cls, _FakeResponse(_envelope("00", items={"bizNm": "테스트"})))
+    dataset = _ref(provider, base_url="https://api.test/svc", default_operation="getList")
+
+    assert adapter.query_records(dataset, Query()).items == [{"bizNm": "테스트"}]

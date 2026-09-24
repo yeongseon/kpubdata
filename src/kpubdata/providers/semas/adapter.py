@@ -344,6 +344,13 @@ class SemasAdapter:
                 ]
             if isinstance(item_value, dict):
                 return [cast(dict[str, object], item_value)]
+            if "item" in items_wrapper or not items_wrapper:
+                # ``item`` 키가 있는데 list 도 dict 도 아니면 비어 있다는 뜻이다
+                # (XML ``<items><item/></items>`` 는 ``{"item": None}`` 이 된다).
+                # 빈 dict 도 마찬가지다. 이 둘을 단건으로 승격하면 **유령 1행** 이
+                # 생긴다.
+                return []
+            # 그 밖의 비어 있지 않은 dict 는 래핑 없이 온 단건이다.
             return [cast(dict[str, object], items_wrapper)]
 
         if isinstance(items_wrapper, list):
