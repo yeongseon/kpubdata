@@ -18,7 +18,7 @@ from typing import Any, cast
 import pytest
 
 from kpubdata.config import KPubDataConfig
-from kpubdata.core.models import DatasetRef
+from kpubdata.core.models import DatasetRef, Query
 from kpubdata.core.representation import Representation
 from kpubdata.exceptions import (
     AuthError,
@@ -470,3 +470,49 @@ def test_call_raw_propagates_an_error_envelope(cls: Any, provider: str) -> None:
 
     with pytest.raises(AuthError):
         adapter.call_raw(dataset, "getList", {})
+
+
+# --- 갈라져 있던 세 지점 (#470) -------------------------------------------
+#
+# PR #457 이 이 파일로 공통 계약을 걸었지만, 이미 갈라진 세 곳은 덮지 않았다.
+# 여기에 넣어 두 어댑터가 다시 갈라지면 즉시 드러나게 한다.
+
+
+@pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
+def test_no_data_result_code_is_an_empty_result_not_an_error(cls: Any, provider: str) -> None:
+    """``03``(NODATA_ERROR)은 정상 응답이다.
+
+    조건에 맞는 데이터가 없다는 뜻이지 호출이 실패한 것이 아니다. localdata 만
+    이 분기가 없어서, 필터를 걸어 조회했는데 결과가 없는 흔한 경우가 예외로
+    올라왔다.
+    """
+    adapter = _adapter(cls, _FakeResponse(_envelope("03", msg="데이터없음")))
+    dataset = _ref(provider, base_url="https://api.test/svc", default_operation="getList")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert batch.items == []
+
+
+@pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
+def test_a_wrapper_without_an_item_key_is_one_record(cls: Any, provider: str) -> None:
+    """``item`` 키가 없는 dict 는 래핑 없이 온 단건이다.
+
+    한쪽이 ``[]``, 다른 쪽이 ``[wrapper]`` 를 돌려주면 같은 모양의 응답이
+    provider 에 따라 0건과 1건으로 갈린다.
+    """
+    adapter = _adapter(cls, _FakeResponse(_envelope("00", items={"bizNm": "테스트"})))
+    dataset = _ref(provider, base_url="https://api.test/svc", default_operation="getList")
+
+    batch = adapter.query_records(dataset, Query())
+
+    assert batch.items == [{"bizNm": "테스트"}]
+
+
+@pytest.mark.parametrize(("cls", "provider"), _ADAPTERS)
+def test_a_trailing_slash_in_base_url_does_not_double(cls: Any, provider: str) -> None:
+    """카탈로그에 끝 슬래시가 들어오는 날 드러나는 종류의 차이였다."""
+    adapter = _adapter(cls)
+    dataset = _ref(provider, base_url="https://api.test/svc/", default_operation="getList")
+
+    assert adapter._build_request_url(dataset) == "https://api.test/svc/getList"
