@@ -1488,3 +1488,64 @@ class TestDataGoAdapterGetSchema:
         adapter = DataGoAdapter(catalogue=[custom_dataset])
         schema = adapter.get_schema(custom_dataset)
         assert schema is None
+
+
+class TestDataGoGatewayErrors:
+    """게이트웨이가 서비스 대신 응답한 경우를 원인 그대로 올린다.
+
+    요청이 서비스에 닿기 전에 거부되면 data.go.kr은 ``<response>`` 대신
+    ``OpenAPI_ServiceResponse/cmmMsgHeader``를 돌려준다. 이 모양을 몰랐을 때는
+    ``response``가 없다는 이유로 "Malformed response envelope" 파싱 오류가 났고,
+    실제 원인(키가 등록되지 않았다, 호출 한도를 넘었다)은 사라졌다 — 사용자는
+    고칠 수 있는 문제를 서버 결함으로 오해하게 된다.
+    """
+
+    def test_unregistered_service_key_raises_auth_error(
+        self, configured_adapter: AdapterFactory
+    ) -> None:
+        adapter, dataset, _ = configured_adapter(
+            ["error_gateway_key_not_registered.xml"], content_type="text/xml"
+        )
+
+        with pytest.raises(AuthError) as exc:
+            adapter.query_records(dataset, Query())
+
+        assert "SERVICE_KEY_IS_NOT_REGISTERED_ERROR" in str(exc.value)
+        assert exc.value.provider_code == "30"
+
+    def test_quota_exceeded_raises_rate_limit_error(
+        self, configured_adapter: AdapterFactory
+    ) -> None:
+        from kpubdata.exceptions import RateLimitError
+
+        adapter, dataset, _ = configured_adapter(
+            ["error_gateway_quota_exceeded.xml"], content_type="text/xml"
+        )
+
+        with pytest.raises(RateLimitError) as exc:
+            adapter.query_records(dataset, Query())
+
+        assert exc.value.provider_code == "22"
+
+    def test_unregistered_ip_raises_auth_error(self, configured_adapter: AdapterFactory) -> None:
+        adapter, dataset, _ = configured_adapter(
+            ["error_gateway_unregistered_ip.xml"], content_type="text/xml"
+        )
+
+        with pytest.raises(AuthError) as exc:
+            adapter.query_records(dataset, Query())
+
+        assert exc.value.provider_code == "32"
+
+    def test_a_gateway_error_is_not_reported_as_a_malformed_envelope(
+        self, configured_adapter: AdapterFactory
+    ) -> None:
+        # 회귀 방지: 예전 동작은 "Malformed response envelope: missing response"였다.
+        adapter, dataset, _ = configured_adapter(
+            ["error_gateway_key_not_registered.xml"], content_type="text/xml"
+        )
+
+        with pytest.raises(AuthError) as exc:
+            adapter.query_records(dataset, Query())
+
+        assert "Malformed response envelope" not in str(exc.value)

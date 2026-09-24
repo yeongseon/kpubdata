@@ -44,6 +44,8 @@ class DataGoEnvelopeParser:
         if envelope_style == "its_flat":
             return self._validate_its_flat_envelope(payload, dataset_id)
 
+        self._raise_for_gateway_error(payload, dataset_id)
+
         response_obj = payload.get("response")
         if not isinstance(response_obj, dict):
             logger.debug(
@@ -189,6 +191,42 @@ class DataGoEnvelopeParser:
         if len(list_values) == 1:
             return list_values[0]
         return body_dict
+
+    def _raise_for_gateway_error(self, payload: dict[str, object], dataset_id: str) -> None:
+        """게이트웨이가 서비스 대신 응답했으면 그 이유를 그대로 올린다.
+
+        data.go.kr은 요청이 서비스에 닿기 전에 거부되면 ``<response>`` 대신
+        ``OpenAPI_ServiceResponse/cmmMsgHeader``를 돌려준다 — 등록되지 않은 키,
+        만료된 활용신청, 허용되지 않은 IP, 일일 호출 한도 초과 같은 것들이다.
+        이 모양을 몰랐을 때는 ``response``가 없다는 이유로 "Malformed response
+        envelope"라는 파싱 오류가 났고, 실제 원인(내 키가 등록되지 않았다)은
+        사라졌다. ``returnReasonCode``는 서비스 envelope의 ``resultCode``와 같은
+        어휘를 쓰므로, 같은 매핑에 그대로 넘긴다.
+        """
+        gateway = payload.get("OpenAPI_ServiceResponse")
+        if not isinstance(gateway, dict):
+            return
+        header = cast(dict[str, object], gateway).get("cmmMsgHeader")
+        if not isinstance(header, dict):
+            return
+        header_dict = cast(dict[str, object], header)
+
+        code_raw = header_dict.get("returnReasonCode")
+        if code_raw is None:
+            return
+        code = str(code_raw).strip()
+
+        # 사람이 읽을 수 있는 이유를 우선한다: returnAuthMsg가 가장 구체적이고,
+        # 없으면 errMsg로 내려간다.
+        for key in ("returnAuthMsg", "errMsg"):
+            value = header_dict.get(key)
+            if isinstance(value, str) and value.strip():
+                msg = value.strip()
+                break
+        else:
+            msg = f"data.go.kr gateway rejected the request (returnReasonCode={code})"
+
+        self._raise_for_result_code(code, msg, dataset_id)
 
     def _raise_for_result_code(self, code: str, msg: str, dataset_id: str) -> NoReturn:
         extra = {"dataset_id": dataset_id, "result_code": code, "result_msg": msg}
