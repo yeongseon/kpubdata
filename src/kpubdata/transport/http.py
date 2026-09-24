@@ -41,6 +41,11 @@ _SENSITIVE_PARAM_KEYS = {
     # credential로 보이지 않아 마스킹 목록에서 빠져 있었고, 예외 메시지에
     # 담긴 URL에 키가 평문으로 남았다.
     "oc",
+    # sgis(통계지리정보)는 OAuth 스타일 이름을 쓴다. "key"/"secret" 부분 문자열
+    # 매칭이 아니라 정확한 이름 목록이므로 각각 등재해야 한다.
+    "accesstoken",
+    "consumer_key",
+    "consumer_secret",
 }
 _DEFAULT_MAX_RESPONSE_BYTES = 50 * 1024 * 1024
 
@@ -407,8 +412,17 @@ class HttpTransport:
                     },
                 )
                 if not _is_retryable_status(status_code) or attempt >= total_attempts:
-                    raise TransportError(
-                        f"HTTP status error {status_code} for {method} {log_url}"
+                    # status_code 를 실어 보낸다. 마스킹 때문에 예외 체인을 끊는
+                    # 경우(from None) 원래 응답이 함께 사라져, 호출자가 401 과
+                    # 503 을 구분할 방법이 메시지 문자열밖에 없었다.
+                    error_type = (
+                        RateLimitError if status_code == 429 else TransportError
+                    )
+                    raise error_type(
+                        f"HTTP status error {status_code} for {method} {log_url}",
+                        provider=provider,
+                        dataset_id=dataset_id,
+                        status_code=status_code,
                     ) from (None if url_masked else exc)
 
                 retry_after = cast(str | None, exc.response.headers.get("Retry-After"))

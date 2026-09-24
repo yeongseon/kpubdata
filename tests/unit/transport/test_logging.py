@@ -551,3 +551,21 @@ def test_mask_url_redacts_the_oc_parameter_case_insensitively() -> None:
     mask_url = cast(Callable[[str], str], http_module._mask_url)
 
     assert "real-law-key" not in mask_url("https://law.test/x?oc=real-law-key")
+
+
+def test_mask_url_redacts_the_sgis_oauth_parameters() -> None:
+    """sgis(통계지리정보)는 OAuth 스타일 이름을 쓴다.
+
+    목록은 부분 문자열 매칭이 아니라 정확한 이름이므로 각각 등재해야 한다 —
+    ``consumer_key`` 는 ``key`` 를 포함하지만 걸리지 않았다.
+    """
+    mask_url = cast(Callable[[str], str], http_module._mask_url)
+
+    masked = mask_url(
+        "https://sgisapi.kostat.go.kr/OpenAPI3/auth/authentication.json"
+        "?consumer_key=real-key&consumer_secret=real-secret&accessToken=real-token"
+    )
+
+    for secret in ("real-key", "real-secret", "real-token"):
+        assert secret not in masked
+    assert masked.count("[REDACTED]") == 3
