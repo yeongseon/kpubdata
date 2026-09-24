@@ -530,3 +530,24 @@ class TestPathSegmentSecretMasking:
         _ = adapter.query_records(dataset, Query(page_size=5))
 
         assert captured.get("secret_values") == ("SEOUL-SECRET-42",)
+
+
+def test_mask_url_redacts_the_law_oc_key_parameter() -> None:
+    """law(국가법령정보)는 API 키를 ``OC`` 파라미터로 보낸다.
+
+    이름만 봐서는 credential로 보이지 않아 마스킹 목록에서 빠져 있었고, 예외
+    메시지에 담긴 URL에 키가 평문으로 남았다.
+    """
+    mask_url = cast(Callable[[str], str], http_module._mask_url)
+
+    masked = mask_url("https://www.law.go.kr/DRF/lawSearch.do?OC=real-law-key&target=law")
+
+    assert "real-law-key" not in masked
+    assert "OC=[REDACTED]" in masked
+    assert "target=law" in masked
+
+
+def test_mask_url_redacts_the_oc_parameter_case_insensitively() -> None:
+    mask_url = cast(Callable[[str], str], http_module._mask_url)
+
+    assert "real-law-key" not in mask_url("https://law.test/x?oc=real-law-key")
