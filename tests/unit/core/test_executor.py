@@ -774,14 +774,18 @@ class TestSpecExecutorRecognisesGatewayRejections:
                 "provider": "datago",
                 "title": "게이트웨이 거부 확인",
                 "endpoint": {"base_url": "https://apis.data.go.kr/svc", "operation": "getList"},
-                "auth": {"type": "query_key", "param_name": "serviceKey"},
+                "auth": {"type": "query_param", "param_name": "serviceKey"},
                 "response": {
                     "format": "json",
                     "envelope": "datago_standard",
                     "items_path": "response.body.items.item",
                     "error": {"style": "result_code", "code_path": "response.header.resultCode"},
                 },
-                "pagination": {"type": "page", "page_param": "pageNo", "size_param": "numOfRows"},
+                "pagination": {
+                    "type": "page_no_rows",
+                    "page_param": "pageNo",
+                    "size_param": "numOfRows",
+                },
             }
         )
 
