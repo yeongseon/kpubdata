@@ -42,6 +42,85 @@ jobs:
       - name: Mypy
         run: uv run mypy src
 
+      - name: Validate dataset specs
+        run: uv run python scripts/validate_spec.py
+
+      - name: Contract replay verify
+        run: make verify
+
+      - name: Generated docs drift check
+        run: |
+          uv run python scripts/gen_docs_examples.py --check
+          uv run python scripts/gen_readme_datasets.py --check
+
+  spec-changes:
+    name: Spec Change Summary
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed specs
+        id: changed
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'src/kpubdata/specs/**/*.yaml' | sort)
+          if [ -z "$CHANGED" ]; then
+            echo "specs=" >> "$GITHUB_OUTPUT"
+            echo "No spec files changed."
+          else
+            echo "specs<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$CHANGED" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "Changed specs:"
+            echo "$CHANGED"
+          fi
+
+      - name: Comment PR with changed datasets
+        if: steps.changed.outputs.specs != ''
+        uses: actions/github-script@v9
+        env:
+          SPEC_FILES: ${{ steps.changed.outputs.specs }}
+        with:
+          script: |
+            const marker = '<!-- spec-change-summary -->';
+            const specs = process.env.SPEC_FILES;
+            const datasets = specs.trim().split('\n').map(f => {
+              const m = f.match(/specs\/(\w+)\/(\w+)\.yaml$/);
+              return m ? `\`${m[1]}.${m[2]}\`` : f;
+            });
+            const body = `${marker}\n### Spec datasets changed in this PR\n\n${datasets.map(d => `- ${d}`).join('\n')}\n\n_Verify these datasets pass \`make verify\` before merging._`;
+
+            // Update existing comment or create new one (idempotent)
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
   test:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -67,6 +146,32 @@ jobs:
 
       - name: Run tests
         run: uv run pytest -ra
+
+  coverage:
+    # 커버리지 게이트 (#456). 지금 도달한 수준이 조용히 내려가지 않게 잠근다.
+    # 하한은 pyproject 의 [tool.coverage.report] fail_under 한 곳에서만 관리한다.
+    # 테스트 매트릭스(4개)에 --cov 를 얹지 않고 이 잡 하나만 계측한다 — 얻는 정보는
+    # 같은데 비용만 4배이기 때문이다.
+    name: Coverage Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run tests with coverage
+        run: uv run pytest -ra --cov --cov-report=term-missing
 
   build:
     name: Build Package

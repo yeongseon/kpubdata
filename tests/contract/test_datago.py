@@ -187,7 +187,7 @@ class TestDataGoAdapterContract(ProviderAdapterContract):
         예외:
             구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
         """
-        return "village_fcst"
+        return "metro_fare"
 
     @pytest.fixture()
     def invalid_dataset_key(self) -> str:
@@ -216,7 +216,7 @@ class TestDataGoAdapterContract(ProviderAdapterContract):
         예외:
             구현체 내부 또는 하위 의존성에서 발생한 예외를 그대로 전파할 수 있다.
         """
-        return adapter.get_dataset("village_fcst")
+        return adapter.get_dataset("metro_fare")
 
     @pytest.fixture()
     def sample_query(self) -> Query:

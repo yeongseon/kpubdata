@@ -1,0 +1,69 @@
+{
+ "items": [
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "PTY",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "0"
+  },
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "REH",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "43"
+  },
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "RN1",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "0"
+  },
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "T1H",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "26"
+  },
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "UUU",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "-2.6"
+  },
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "VEC",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "55"
+  },
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "VVV",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "-1.8"
+  },
+  {
+   "baseDate": "20260909",
+   "baseTime": "1500",
+   "category": "WSD",
+   "nx": 55,
+   "ny": 127,
+   "obsrValue": "3.3"
+  }
+ ],
+ "total_count": 8
+}

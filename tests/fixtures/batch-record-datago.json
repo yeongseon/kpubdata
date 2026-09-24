@@ -1,0 +1,159 @@
+{
+ "ok": [
+  "datago.air_station",
+  "datago.airkorea_forecast",
+  "datago.apt_rent",
+  "datago.apt_trade",
+  "datago.hospital_info",
+  "datago.metro_fare",
+  "datago.offi_rent",
+  "datago.offi_trade",
+  "datago.rh_rent",
+  "datago.sh_rent",
+  "datago.sh_trade",
+  "datago.ultra_srt_fcst",
+  "datago.village_fcst"
+ ],
+ "failed": [
+  [
+   "datago.agri_price",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.air_quality",
+   "ProviderResponseError: NO_MANDATORY_REQUEST_PARAMETERS_ERROR"
+  ],
+  [
+   "datago.airkorea_station_realtime",
+   "ProviderResponseError: NO_MANDATORY_REQUEST_PARAMETERS_ERROR"
+  ],
+  [
+   "datago.asos_daily",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.asos_hourly",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.bond_price",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.building_area",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1613000/BldRgstService_v2/getBrExposPubuseAreaInfo"
+  ],
+  [
+   "datago.building_floor",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1613000/BldRgstService_v2/getBrFlrOulnInfo"
+  ],
+  [
+   "datago.building_recap_title",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1613000/BldRgstService_v2/getBrRecapTitleInfo"
+  ],
+  [
+   "datago.building_title",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/1613000/BldRgstService_v2/getBrTitleInfo"
+  ],
+  [
+   "datago.culture_facility",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_age_taboo",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_dosage_caution",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_efficacy_duplication",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_er_tablet_split_caution",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_medication_period_caution",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_older_adult_caution",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_pregnancy_taboo",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_product_info",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.dur_usjnt_taboo",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.g2b_catalog",
+   "ProviderResponseError: datago.g2b_catalog: 응답 envelope에서 에러 코드를 찾을 수 없습니다('response.header.resultCode')."
+  ],
+  [
+   "datago.g2b_contract",
+   "ProviderResponseError: datago.g2b_contract: 응답 envelope에서 에러 코드를 찾을 수 없습니다('response.header.resultCode')."
+  ],
+  [
+   "datago.metro_path",
+   "TransportError: HTTP status error 400 for GET http://apis.data.go.kr/B553766/path/getShtrmPath"
+  ],
+  [
+   "datago.mid_fcst",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.mid_land_fcst",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.mid_sea_fcst",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.mid_ta",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.rh_trade",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.sports_facility",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.subway_passengers",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "datago.tour_kor_area",
+   "TransportError: Request failed after 1 attempts: GET http://apis.data.go.kr/B551011/KorService2/areaBasedList2"
+  ],
+  [
+   "datago.tour_kor_festival",
+   "TransportError: Request failed after 1 attempts: GET http://apis.data.go.kr/B551011/KorService2/searchFestival2"
+  ],
+  [
+   "datago.tour_kor_keyword",
+   "TransportError: Request failed after 1 attempts: GET http://apis.data.go.kr/B551011/KorService2/searchKeyword2"
+  ],
+  [
+   "datago.tour_kor_location",
+   "TransportError: Request failed after 1 attempts: GET http://apis.data.go.kr/B551011/KorService2/locationBasedList2"
+  ],
+  [
+   "datago.ultra_srt_ncst",
+   "ServiceUnavailableError: APPLICATION_ERROR"
+  ]
+ ]
+}

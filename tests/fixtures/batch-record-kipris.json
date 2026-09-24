@@ -1,0 +1,9 @@
+{
+ "ok": [],
+ "failed": [
+  [
+   "kipris.patent_family",
+   "TransportError: HTTP status error 503 for GET http://kipo-api.kipi.or.kr/openapi/service/patFamInfoSearchService/getAppNoPatFamInfoSearc"
+  ]
+ ]
+}

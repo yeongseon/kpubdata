@@ -194,7 +194,7 @@ def _build_adapter_with_transport(
         config=config,
         transport=cast(HttpTransport, cast(object, transport)),
     )
-    dataset = adapter.get_dataset("village_fcst")
+    dataset = adapter.get_dataset("metro_fare")
     return adapter, dataset, transport
 
 
@@ -323,9 +323,9 @@ class TestDataGoAdapterDiscovery:
         """
         adapter = DataGoAdapter()
 
-        dataset = adapter.get_dataset("village_fcst")
-        assert dataset.id == "datago.village_fcst"
-        assert dataset.dataset_key == "village_fcst"
+        dataset = adapter.get_dataset("metro_fare")
+        assert dataset.id == "datago.metro_fare"
+        assert dataset.dataset_key == "metro_fare"
 
     # test get dataset not found 테스트가 검증하는 시나리오를 설명한다.
     def test_get_dataset_not_found(self) -> None:
@@ -389,9 +389,9 @@ class TestDataGoAdapterDiscovery:
         """
         adapter = DataGoAdapter()
 
-        results = adapter.search_datasets("forecast")
+        results = adapter.search_datasets("fare")
         assert results
-        assert any(dataset.dataset_key == "village_fcst" for dataset in results)
+        assert any(dataset.dataset_key == "metro_fare" for dataset in results)
 
     # test search datasets no match 테스트가 검증하는 시나리오를 설명한다.
     def test_search_datasets_no_match(self) -> None:
@@ -430,8 +430,8 @@ class TestDataGoAdapterDiscovery:
         datasets = adapter.list_datasets()
         assert datasets
 
-        dataset = adapter.get_dataset("village_fcst")
-        assert dataset.id == "datago.village_fcst"
+        dataset = adapter.get_dataset("metro_fare")
+        assert dataset.id == "datago.metro_fare"
 
 
 class TestDataGoAdapterRealEstateDatasets:
@@ -933,7 +933,7 @@ class TestDataGoAdapterQueryRecords:
             config=KPubDataConfig(provider_keys={"datago": "test-key"}),
             transport=cast(HttpTransport, cast(object, ForbiddenTransport())),
         )
-        dataset = adapter.get_dataset("village_fcst")
+        dataset = adapter.get_dataset("metro_fare")
 
         with pytest.raises(AuthError) as excinfo:
             _ = adapter.query_records(dataset, Query())
@@ -1278,7 +1278,9 @@ class TestDataGoAdapterCatalogueOperations:
         """공식 교차검증으로 확정한 endpoint·입력·활용신청 metadata를 보존한다."""
         adapter = DataGoAdapter()
 
-        for key in ("village_fcst", "ultra_srt_ncst"):
+        # village_fcst was retired from the catalogue on main; ultra_srt_ncst is
+        # the surviving dataset on that endpoint.
+        for key in ("ultra_srt_ncst",):
             assert adapter.get_dataset(key).raw_metadata["base_url"] == (
                 "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0"
             )
@@ -1309,6 +1311,38 @@ class TestDataGoAdapterCatalogueOperations:
             "required": True,
             "url": "https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15057210",
         }
+
+    def test_required_query_filters_match_the_documented_request_parameters(self) -> None:
+        """두 요청 계약이 같은 필수 파라미터를 말한다.
+
+        `request_parameters`에 `required: true`로 문서화하면서
+        `required_query_filters`를 그대로 두면, 기존 필드를 읽는 metadata 소비자는
+        새로 문서화된 필수 파라미터 없이 요청을 계속 만들게 된다.
+        """
+        import json
+        from pathlib import Path
+
+        catalogue_path = (
+            Path(__file__).parents[4]
+            / "src"
+            / "kpubdata"
+            / "providers"
+            / "datago"
+            / "catalogue.json"
+        )
+        catalogue = json.loads(catalogue_path.read_text(encoding="utf-8"))
+
+        desynced = {}
+        for entry in catalogue:
+            params = entry.get("request_parameters")
+            if params is None:
+                continue
+            documented = sorted(p["name"] for p in params if p.get("required"))
+            declared = sorted(entry.get("required_query_filters") or [])
+            if documented != declared:
+                desynced[entry["dataset_key"]] = (declared, documented)
+
+        assert not desynced, f"required_query_filters out of sync: {desynced}"
 
 
 class TestDataGoAdapterXml:
@@ -1444,7 +1478,7 @@ class TestDataGoAdapterGetSchema:
             테스트 이름이 설명하는 기대 동작이 회귀 없이 유지되는지 확인한다.
         """
         adapter = DataGoAdapter()
-        dataset = adapter.get_dataset("village_fcst")
+        dataset = adapter.get_dataset("metro_fare")
         schema = adapter.get_schema(dataset)
         assert schema is None
 

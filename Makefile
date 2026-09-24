@@ -1,0 +1,62 @@
+# KPubData 개발 명령 — 품질 게이트(AGENTS.md) + spec 검증 파이프라인(#379)
+#
+# 자주 쓰는 대상:
+#   make test                  # 단위·계약(replay) 테스트 — integration 제외(기본 addopts)
+#   make verify                # 전체 spec: 스키마 검증 + fixture 무결성 + replay 계약
+#   make verify DATASET=datago.apt_trade   # 단일 데이터셋
+#   make record DATASET=datago.apt_trade   # spec examples 실호출 fixture 기록 (API 키 필요)
+#   make quality               # AGENTS.md 품질 게이트 전체
+
+DATASET ?=
+
+.PHONY: help test lint typecheck format format-check build docs quality \
+        record verify verify-all list-datasets replay-test
+
+help:
+	@grep -E "^#   make [a-z-]+" Makefile | sed 's/^#   //' | sed 's/  \+/ — /'
+
+test:
+	uv run pytest
+
+lint:
+	uv run ruff check .
+	uv run ruff format --check .
+
+typecheck:
+	uv run mypy src
+
+format:
+	uv run ruff format .
+	uv run ruff check --fix .
+
+build:
+	uv run python -m build
+
+docs:
+	uv run --extra docs mkdocs build --strict
+
+quality: lint typecheck test build docs
+	@echo "품질 게이트 전체 통과"
+
+# --- spec 검증 파이프라인 (#379) ---------------------------------------------
+
+list-datasets:
+	uv run python scripts/record.py --list
+
+record:
+	@if [ -z "$(DATASET)" ]; then echo "사용법: make record DATASET=datago.apt_trade (목록: make list-datasets)"; exit 2; fi
+	uv run python scripts/record.py $(DATASET)
+
+verify:
+	@if [ -n "$(DATASET)" ]; then \
+		uv run python scripts/verify_spec.py --dataset $(DATASET); \
+	else \
+		uv run python scripts/verify_spec.py; \
+	fi
+
+verify-all: verify
+
+# replay 모드 검증: spec 파이프라인 테스트를 재생 모드로 통과시킨다.
+# (전역 replay는 자체 mock을 쓰는 기존 테스트와 무관하지 않으므로 범위를 좁힌다)
+replay-test:
+	KPUBDATA_MODE=replay uv run pytest tests/unit/test_verify_pipeline.py tests/unit/core

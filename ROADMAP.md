@@ -1,6 +1,7 @@
 # Roadmap — KPubData
 
 > kpubdata는 **한국 공공데이터 접근 코어 프레임워크**에 집중합니다.
+> 목표는 대한민국에서 가장 많이 쓰이는 공공데이터 **50~100개를 production-grade로 접근할 수 있는 표준 레이어**를 제공하는 것입니다.
 > MCP, HTTP API 등 서비스 레이어는 본체에 포함하지 않으며, 필요 시 별도 레포(`kpubdata-mcp` 등)로 분리합니다.
 
 ## 개발 3축
@@ -66,6 +67,7 @@ Provider expansion.
 ## v1.0 criteria
 
 - public API feels stable
+- **production-grade spec 데이터셋 50개 이상** (`make verify` 4단계 기계 검증 + 실API 검증 통과)
 - adapter contract proven across multiple provider families (7+ providers)
 - plugin discovery로 외부 provider 패키지 등록 가능
 - docs/examples sufficient for external users
@@ -95,7 +97,8 @@ Provider expansion.
 | [API_SPEC.md](./API_SPEC.md) | 파이썬 API 명세 |
 
 ### KPubData Product Family
-| 저장소 | 문서 | 설명 |
+| 저장소 | 역할 | 문서 |
 | :--- | :--- | :--- |
-| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | [ROADMAP.md](https://github.com/yeongseon/kpubdata-builder/blob/main/ROADMAP.md) | Builder 로드맵 |
-| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | [ROADMAP.md](https://github.com/yeongseon/kpubdata-studio/blob/main/ROADMAP.md) | Studio 로드맵 |
+| [kpubdata](https://github.com/yeongseon/kpubdata) | **Access** — 데이터 접근 프레임워크 | 이 문서 |
+| [kpubdata-builder](https://github.com/yeongseon/kpubdata-builder) | **Generation** — 데이터셋 생성/검증/퍼블리싱 | [ROADMAP.md](https://github.com/yeongseon/kpubdata-builder/blob/main/ROADMAP.md) |
+| [kpubdata-studio](https://github.com/yeongseon/kpubdata-studio) | **Experience** — 빌드 작성/실행 시각적 인터페이스 | [ROADMAP.md](https://github.com/yeongseon/kpubdata-studio/blob/main/ROADMAP.md) |

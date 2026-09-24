@@ -1,0 +1,15 @@
+{
+ "dataset_id": "localdata.general_restaurant",
+ "endpoint": "http://apis.data.go.kr/1741000/general_restaurants/info",
+ "example": "default",
+ "format": "json",
+ "params": {
+  "numOfRows": "10",
+  "pageNo": "1",
+  "serviceKey": "[REDACTED]",
+  "type": "json"
+ },
+ "recorded_at": "2026-09-09T09:00:14+00:00",
+ "recorded_by": "batch-agent",
+ "response_sha256": "b08b7940e9bbf9ba7e663f8313d0a1d1f661f1382af64f468aa8ea9095f0547b"
+}

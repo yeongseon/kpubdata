@@ -1,0 +1,19 @@
+{
+ "dataset_id": "datago.tour_kor_area",
+ "endpoint": "http://apis.data.go.kr/B551011/KorService2/areaBasedList2",
+ "example": "seoul_restaurants",
+ "format": "json",
+ "params": {
+  "MobileApp": "kpubdata",
+  "MobileOS": "ETC",
+  "_type": "json",
+  "areaCode": "1",
+  "contentTypeId": "39",
+  "numOfRows": "10",
+  "pageNo": "1",
+  "serviceKey": "[REDACTED]"
+ },
+ "recorded_at": "2026-09-09T22:40:53+00:00",
+ "recorded_by": "ci",
+ "response_sha256": "7fc0d888c008c1ade9c39bf9444df68e0b361c91b821e41dd2849ef8f60ae91d"
+}

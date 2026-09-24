@@ -309,3 +309,16 @@ def test_client_iter_authenticated_providers_excludes_krx_and_includes_bok() -> 
 
     assert "krx" not in provider_names
     assert "bok" in provider_names
+
+
+def test_krx_datasets_contain_license_note() -> None:
+    """KRX 데이터셋의 raw_metadata에 license_note가 보존된다."""
+    client = Client()
+
+    for ds_id in ("krx.kospi_index", "krx.investor_flow", "krx.market_valuation"):
+        ds_ref = next(d for d in client.datasets.list(provider="krx") if d.id == ds_id)
+        note = ds_ref.raw_metadata.get("license_note")
+        assert note is not None, f"{ds_id}에 license_note가 없습니다"
+        assert "KRX" in note or "재배포" in note, (
+            f"{ds_id}의 license_note가 경고를 포함하지 않습니다"
+        )

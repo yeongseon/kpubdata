@@ -1,0 +1,15 @@
+{
+ "dataset_id": "datago.airkorea_forecast",
+ "endpoint": "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMinuDustFrcstDspth",
+ "example": "default",
+ "format": "json",
+ "params": {
+  "numOfRows": "10",
+  "pageNo": "1",
+  "returnType": "json",
+  "serviceKey": "[REDACTED]"
+ },
+ "recorded_at": "2026-09-09T09:01:47+00:00",
+ "recorded_by": "batch-agent",
+ "response_sha256": "5dd85b7b132ced8b2713f12347fa16338072744a2f97448cc549d6957e314274"
+}

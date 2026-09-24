@@ -1,0 +1,73 @@
+{
+ "ok": [],
+ "failed": [
+  [
+   "semas.store_area",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_building",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_date",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_dong",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_one",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_pnu",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_polygon",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_radius",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_rect",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.store_upjong",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.upjong_large",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.upjong_middle",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.upjong_small",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.zone_admi",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.zone_one",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.zone_radius",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ],
+  [
+   "semas.zone_rect",
+   "AuthError: Provider returned 403. This usually means the specific API has not been activated (활용신청) for your key. Check the dataset"
+  ]
+ ]
+}

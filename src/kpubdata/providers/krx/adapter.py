@@ -1,7 +1,18 @@
-"""KPubData Python 모듈.
+"""KRX (한국거래소) 데이터 Provider 어댑터.
 
-이 파일은 ``src/kpubdata/providers/krx/adapter.py`` 경로의 구현을 담는다.
-주요 클래스와 함수는 공개 API, 전송 계층, Provider 어댑터 중 하나의 역할을 담당한다.
+이 어댑터는 pykrx 라이브러리를 통해 KRX 시장 데이터에 접근합니다.
+
+.. warning:: 라이선스 주의
+
+   KRX 데이터는 일반 공공 OpenAPI와 다른 이용 조건이 적용됩니다.
+
+   - KRX 시세 정보의 제3자 제공·재배포는 KRX와 별도 계약이 필요할 수 있습니다.
+   - 상업적 목적의 KRX 데이터 활용 시 KRX 정보데이터시스템
+     (https://data.krx.co.kr/) 이용약관을 반드시 확인하세요.
+   - KPubData는 pykrx를 통해 데이터에 접근하는 SDK 역할만 수행하며,
+     데이터의 재배포 권한을 부여하지 않습니다.
+
+   이 어댑터는 개인 학습·연구·분석 용도를 전제로 제공됩니다.
 """
 
 from __future__ import annotations

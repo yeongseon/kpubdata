@@ -1,0 +1,9 @@
+{
+  "active": false,
+  "reinforcement_count": 1,
+  "iteration": 3,
+  "last_turn_at": "2026-09-19T04:03:04.004Z",
+  "run_outcome": "finish",
+  "lifecycle_outcome": "finished",
+  "completed_at": "2026-09-19T04:10:59.775Z"
+}

@@ -1,0 +1,107 @@
+id: datago.ocean_buoy
+provider: datago
+title: 해양관측부이 최신 관측데이터 (Ocean Buoy Recent Observations)
+description: 국립해양조사원 해양관측부이(32해역)의 수온·염분·기온·기압·풍향·풍속·유향·유속·파고 최신 관측값
+source:
+  url: https://www.data.go.kr/data/15155516/openapi.do
+endpoint:
+  base_url: http://apis.data.go.kr/1192136/twRecent
+  operation: GetTWRecentApiService
+  method: GET
+  format_param:
+    name: type
+    values:
+      json: json
+      xml: xml
+auth:
+  type: query_param
+  param_name: serviceKey
+  provider_key: datago
+params:
+- name: obsCode
+  type: string
+  required: true
+  description: '관측소 코드. 예: TW_0089'
+  example: TW_0089
+- name: reqDate
+  type: date_yyyymmdd
+  required: false
+  description: 요청 날짜 (YYYYMMDD). 생략 시 최신 데이터
+  example: '20260914'
+- name: min
+  type: integer
+  required: false
+  description: 시간 간격(분). 기본 1, 최대 60
+  example: 10
+response:
+  format: json
+  envelope: datago_standard
+  items_path: response.body.items.item
+  total_count_path: response.body.totalCount
+  error:
+    style: header_result_code
+    code_path: response.header.resultCode
+    ok_values:
+    - '00'
+    - '000'
+    - 0
+pagination:
+  type: page_no_rows
+  page_param: pageNo
+  size_param: numOfRows
+  max_size: 300
+fields:
+- name: obsvtrNm
+  type: string
+  description: 관측소 이름
+- name: lot
+  type: number
+  description: 경도
+- name: lat
+  type: number
+  description: 위도
+- name: obsrvnDt
+  type: string
+  description: 관측 일시
+- name: wndrct
+  type: number
+  description: 풍향 (도)
+- name: wspd
+  type: number
+  description: 풍속 (m/s)
+- name: maxMmntWspd
+  type: number
+  description: 최대 순간 풍속 (m/s)
+- name: artmp
+  type: number
+  description: 기온 (°C)
+- name: atmpr
+  type: number
+  description: 기압 (hPa)
+- name: wvhgt
+  type: number
+  description: 파고 (m)
+- name: wvpd
+  type: number
+  description: 파주기 (초)
+- name: crdir
+  type: number
+  description: 유향 (도)
+- name: crsp
+  type: number
+  description: 유속 (cm/s)
+- name: wtem
+  type: number
+  description: 수온 (°C)
+- name: slnty
+  type: number
+  description: 염분 (PSU)
+examples:
+- name: buoy_0089
+  description: TW_0089 부이 최신 관측데이터
+  params:
+    obsCode: TW_0089
+  page: 1
+  page_size: 10
+status: unstable
+# 활용신청 승인 후 fixture 생성 + 실API 검증 → active 전환 예정

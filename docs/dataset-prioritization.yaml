@@ -1,0 +1,394 @@
+# Dataset Prioritization Framework
+#
+# 각 데이터셋을 4가지 기준으로 1~5점 평가하여 우선순위를 결정한다.
+# 총점(합산, 4~20) 기준으로 Top 50을 production-grade spec으로 전환한다.
+# 합산을 사용하는 이유: 곱셈 모델은 단일 기준 1점이 전체를 0에 가깝게 만들어
+# 불균형하게 작용한다. 합산은 해석이 직관적이고 기준 간 가중치 조정이 용이하다.
+#
+# 기준:
+#   Demand    - 실제 앱/분석/AI에서 자주 쓰이는가 (1=드묾, 5=매우 빈번)
+#   Pain      - 원 API 사용성이 나쁜가, KPubData 부가가치 (1=쉬움, 5=매우 어려움)
+#   Openness  - 상업적 이용·재배포 조건 (1=제한적, 5=자유이용)
+#   Stability - API 안정성·지속적 관리 여부 (1=불안정, 5=매우 안정)
+#
+# status:
+#   spec      - spec 기반 검증 완료
+#   catalogue - catalogue 등록만 됨
+#   planned   - 미등록, 추가 예정
+
+# ──────────────────────────────────────────────
+# 부동산 (Real Estate)
+# ──────────────────────────────────────────────
+- id: datago.apt_trade
+  category: 부동산
+  title: 아파트 매매 실거래가
+  demand: 5
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 19
+  status: spec
+
+- id: datago.apt_rent
+  category: 부동산
+  title: 아파트 전월세 실거래가
+  demand: 5
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 19
+  status: spec
+
+- id: datago.offi_trade
+  category: 부동산
+  title: 오피스텔 매매 실거래가
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 18
+  status: spec
+
+- id: datago.offi_rent
+  category: 부동산
+  title: 오피스텔 전월세 실거래가
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 18
+  status: spec
+
+- id: datago.sh_trade
+  category: 부동산
+  title: 단독/다가구 매매 실거래가
+  demand: 3
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 17
+  status: spec
+
+- id: datago.sh_rent
+  category: 부동산
+  title: 단독/다가구 전월세 실거래가
+  demand: 3
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 17
+  status: spec
+
+- id: datago.rh_rent
+  category: 부동산
+  title: 연립다세대 전월세 실거래가
+  demand: 3
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 17
+  status: spec
+
+# ──────────────────────────────────────────────
+# 기상 (Weather)
+# ──────────────────────────────────────────────
+- id: datago.village_fcst
+  category: 기상
+  title: 동네예보
+  demand: 5
+  pain: 5
+  openness: 5
+  stability: 5
+  total: 20
+  status: spec
+
+- id: datago.ultra_srt_ncst
+  category: 기상
+  title: 초단기실황
+  demand: 5
+  pain: 5
+  openness: 5
+  stability: 5
+  total: 20
+  status: spec
+
+- id: datago.ultra_srt_fcst
+  category: 기상
+  title: 초단기예보
+  demand: 4
+  pain: 5
+  openness: 5
+  stability: 5
+  total: 19
+  status: spec
+
+# ──────────────────────────────────────────────
+# 환경 (Environment)
+# ──────────────────────────────────────────────
+- id: datago.air_quality
+  category: 환경
+  title: 대기오염 실시간 측정정보
+  demand: 5
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 19
+  status: spec
+
+- id: datago.air_station
+  category: 환경
+  title: 측정소 정보
+  demand: 3
+  pain: 3
+  openness: 5
+  stability: 5
+  total: 16
+  status: spec
+
+- id: datago.airkorea_forecast
+  category: 환경
+  title: 대기질 예보
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 18
+  status: spec
+
+# ──────────────────────────────────────────────
+# 관광 (Tourism)
+# ──────────────────────────────────────────────
+- id: datago.tour_kor_area
+  category: 관광
+  title: 지역기반 관광정보
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 17
+  status: spec
+
+- id: datago.tour_kor_festival
+  category: 관광
+  title: 행사/축제 정보
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 17
+  status: spec
+
+- id: datago.tour_kor_keyword
+  category: 관광
+  title: 키워드 관광정보 검색
+  demand: 3
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 16
+  status: spec
+
+- id: datago.tour_kor_location
+  category: 관광
+  title: 위치기반 관광정보
+  demand: 3
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 16
+  status: spec
+
+# ──────────────────────────────────────────────
+# 의료 (Healthcare)
+# ──────────────────────────────────────────────
+- id: datago.hospital_info
+  category: 의료
+  title: 병원 정보
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 18
+  status: spec
+
+# ──────────────────────────────────────────────
+# 교통 (Transportation)
+# ──────────────────────────────────────────────
+- id: datago.metro_fare
+  category: 교통
+  title: 지하철 요금 정보
+  demand: 3
+  pain: 3
+  openness: 5
+  stability: 5
+  total: 16
+  status: spec
+
+# ──────────────────────────────────────────────
+# 상권 (Commercial Districts)
+# ──────────────────────────────────────────────
+- id: localdata.general_restaurant
+  category: 상권
+  title: 일반음식점
+  demand: 5
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 18
+  status: spec
+
+- id: localdata.rest_cafe
+  category: 상권
+  title: 휴게음식점/카페
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 17
+  status: spec
+
+- id: localdata.bakery
+  category: 상권
+  title: 제과점
+  demand: 3
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 16
+  status: spec
+
+# ──────────────────────────────────────────────
+# 거시경제 (Macro Economy) — catalogue only
+# ──────────────────────────────────────────────
+- id: bok.base_rate
+  category: 거시경제
+  title: 한국은행 기준금리
+  demand: 5
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 19
+  status: catalogue
+
+- id: bok.usd_krw
+  category: 거시경제
+  title: 원/달러 환율
+  demand: 5
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 19
+  status: catalogue
+
+- id: kosis.population_migration
+  category: 거시경제
+  title: 인구이동 통계
+  demand: 4
+  pain: 3
+  openness: 5
+  stability: 5
+  total: 17
+  status: catalogue
+
+# ──────────────────────────────────────────────
+# 법률 (Law) — catalogue only
+# ──────────────────────────────────────────────
+- id: law.law_search
+  category: 법률
+  title: 법령 검색
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 17
+  status: catalogue
+
+# ──────────────────────────────────────────────
+# 지리 (Geography) — catalogue only
+# ──────────────────────────────────────────────
+- id: sgis.boundary.sido
+  category: 지리
+  title: 시도 행정구역 경계
+  demand: 4
+  pain: 3
+  openness: 5
+  stability: 5
+  total: 17
+  status: catalogue
+
+# ──────────────────────────────────────────────
+# 금융시장 (Financial Markets) — catalogue, 라이선스 주의
+# ──────────────────────────────────────────────
+- id: krx.kospi_index
+  category: 금융시장
+  title: 코스피 지수
+  demand: 5
+  pain: 3
+  openness: 2
+  stability: 4
+  total: 14
+  status: catalogue
+  note: 제3자 제공·재배포 제한, 상업적 이용 시 KRX 별도 계약 필요 (라이선스 검토 중 — #440)
+
+# ──────────────────────────────────────────────
+# 추가 예정 (Planned) — 높은 우선순위
+# ──────────────────────────────────────────────
+- id: datago.building_register
+  category: 부동산
+  title: 건축물대장
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 18
+  status: planned
+
+- id: datago.bus_arrival
+  category: 교통
+  title: 버스 도착 정보
+  demand: 5
+  pain: 5
+  openness: 5
+  stability: 4
+  total: 19
+  status: catalogue
+
+- id: datago.mid_fcst
+  category: 기상
+  title: 중기예보
+  demand: 4
+  pain: 5
+  openness: 5
+  stability: 5
+  total: 19
+  status: catalogue
+
+- id: datago.pharmacy_info
+  category: 의료
+  title: 약국 정보
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 5
+  total: 18
+  status: planned
+
+- id: datago.school_meal
+  category: 교육
+  title: 학교 급식식단
+  demand: 4
+  pain: 4
+  openness: 5
+  stability: 4
+  total: 17
+  status: planned
+
+- id: datago.road_traffic
+  category: 교통
+  title: 실시간 도로교통정보
+  demand: 4
+  pain: 5
+  openness: 5
+  stability: 4
+  total: 18
+  status: catalogue
