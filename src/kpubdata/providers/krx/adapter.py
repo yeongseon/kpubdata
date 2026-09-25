@@ -54,6 +54,9 @@ from kpubdata.transport.http import HttpTransport, TransportConfig
 
 logger = logging.getLogger("kpubdata.provider.krx")
 
+#: krx 가 지원하는 raw 작업. pykrx 래퍼라 데이터셋별 목록 조회 하나뿐이다.
+_RAW_OPERATIONS = frozenset({"list"})
+
 _pandas_module: _PandasModule | None = None
 
 
@@ -228,8 +231,21 @@ class KrxAdapter:
         return build_schema_from_metadata(dataset)
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
-        """call raw과 관련된 값을 계산하거나 조회한다."""
-        _ = operation
+        """정규화 없이 원시 레코드를 반환한다. ``operation`` 은 ``"list"`` 뿐이다.
+
+        예전에는 ``_ = operation`` 으로 인자를 버렸다. 그래서 어떤 이름을 넘기든
+        같은 결과가 돌아왔고, 호출자는 자기가 요청한 작업이 수행됐다고 믿었다 —
+        오타든 다른 provider 의 operation 이름이든 조용히 통과했다. krx 는
+        pykrx 를 감싸기만 하므로 이름 붙은 raw 작업이 실제로 하나뿐이고,
+        그렇다면 그 사실을 말해 주는 편이 맞다.
+        """
+        if operation and operation not in _RAW_OPERATIONS:
+            raise InvalidRequestError(
+                f"krx has no raw operation {operation!r}; "
+                f"supported: {', '.join(sorted(_RAW_OPERATIONS))}",
+                provider="krx",
+                dataset_id=dataset.id,
+            )
         resolved_dataset = self.get_dataset(dataset.dataset_key)
         frame = self._dispatch_dataframe(
             resolved_dataset,

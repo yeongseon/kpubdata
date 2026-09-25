@@ -1543,3 +1543,36 @@ def test_adapter_construction_does_not_import_pykrx(monkeypatch: pytest.MonkeyPa
     _ = KrxAdapter(config=KPubDataConfig())
 
     assert "pykrx" not in sys.modules
+
+
+class TestCallRawRejectsUnknownOperations:
+    """``_ = operation`` 으로 인자를 버리면 오타가 조용히 통과한다.
+
+    호출자는 자기가 요청한 작업이 수행됐다고 믿지만, 실제로는 항상 같은 목록
+    조회가 돌아왔다. krx 는 pykrx 래퍼라 raw 작업이 하나뿐이니, 그 사실을
+    말해 주는 편이 맞다.
+    """
+
+    def test_an_unknown_operation_is_rejected(self) -> None:
+        adapter = KrxAdapter()
+        dataset = adapter.get_dataset("kospi_index")
+
+        with pytest.raises(InvalidRequestError, match="no raw operation"):
+            _ = adapter.call_raw(dataset, "detail", {})
+
+    def test_the_error_names_what_is_supported(self) -> None:
+        adapter = KrxAdapter()
+        dataset = adapter.get_dataset("kospi_index")
+
+        with pytest.raises(InvalidRequestError, match="list"):
+            _ = adapter.call_raw(dataset, "typo", {})
+
+    def test_an_empty_operation_is_still_accepted(self) -> None:
+        """이름을 생략한 호출은 예전과 같이 목록 조회로 동작한다."""
+        adapter = KrxAdapter()
+        dataset = adapter.get_dataset("kospi_index")
+        _set_pykrx(adapter, get_index_ohlcv=lambda *_args: _kospi_index_frame())
+
+        payload = adapter.call_raw(dataset, "", {"start_date": "20240102", "end_date": "20240108"})
+
+        assert isinstance(payload, list)
