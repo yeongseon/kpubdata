@@ -165,3 +165,59 @@ class TestRetryableComesFromTheStatusCode:
         from kpubdata.exceptions import TransportError
 
         assert TransportError("x", status_code=403, retryable=True).retryable is True
+
+
+class TestTheCachePreservesContentType:
+    """캐시 히트가 캐시 미스와 같은 결과를 내야 한다 (#480 두 번째 결함).
+
+    캐시가 본문 바이트만 저장해서, 히트하면 Content-Type 이 사라지고 타입 추론이
+    다시 돌았다. XML 응답이 JSON 으로 디코딩되는 경로가 그렇게 생겼다 — 같은
+    요청이 캐시 여부에 따라 다른 답을 내는 상태였다.
+    """
+
+    _XML = b"<response><header><resultCode>00</resultCode></header><body><items/></body></response>"
+
+    def _transport(self, tmp_path: Path) -> HttpTransport:
+        return HttpTransport(TransportConfig(max_retries=0), cache=ResponseCache(tmp_path))
+
+    def _xml_send(self) -> Any:
+        def _send(self: object, request: httpx.Request, **_kwargs: Any) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=TestTheCachePreservesContentType._XML,
+                headers={"content-type": "text/xml; charset=utf-8"},
+                request=request,
+            )
+
+        return _send
+
+    def test_xml_is_still_xml_on_a_cache_hit(self, tmp_path: Path) -> None:
+        from kpubdata.transport.decode import detect_content_type
+
+        transport = self._transport(tmp_path)
+
+        with patch("kpubdata.transport.http.httpx.Client.send", self._xml_send()):
+            miss = transport.request("GET", "https://x/y", params={"q": "1"})
+            hit = transport.request("GET", "https://x/y", params={"q": "1"})
+
+        assert detect_content_type(miss) == "xml"
+        assert detect_content_type(hit) == detect_content_type(miss)
+
+    def test_an_entry_without_a_stored_type_still_reads(self, tmp_path: Path) -> None:
+        """예전 캐시 엔트리에는 content_type 키가 없다 — 지우지 말고 예전대로 읽는다."""
+        import base64
+        import json
+        import time
+
+        cache = ResponseCache(tmp_path)
+        cache.set("legacy", b"body", 3600, "text/xml")
+        # content_type 키를 지워 예전 포맷으로 되돌린다.
+        path = next(p for p in tmp_path.rglob("*") if p.is_file())
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        del payload["content_type"]
+        payload["created_at"] = time.time()
+        path.write_text(json.dumps(payload), encoding="utf-8")
+
+        stored = cache.get("legacy")
+
+        assert stored == (base64.b64decode(payload["body_b64"]), "")

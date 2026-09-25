@@ -67,7 +67,7 @@ def test_response_cache_roundtrip(tmp_path: Path) -> None:
 
     cache.set("abc", b"payload", ttl_seconds=60)
 
-    assert cache.get("abc") == b"payload"
+    assert cache.get("abc") == (b"payload", "")
 
 
 # test response cache expiry 테스트가 검증하는 시나리오를 설명한다.

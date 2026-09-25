@@ -43,7 +43,7 @@ def test_entry_is_served_before_its_ttl(tmp_path: Path, monkeypatch: pytest.Monk
     _ = _write_raw(cache, "k", _entry(created_at=1_000.0, ttl=60.0))
 
     monkeypatch.setattr("kpubdata.transport.cache.time.time", lambda: 1_059.0)
-    assert cache.get("k") == b"cached"
+    assert cache.get("k") == (b"cached", "")
 
 
 def test_entry_expires_exactly_at_its_ttl(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -140,7 +140,7 @@ def test_clear_expired_keeps_live_entries(tmp_path: Path, monkeypatch: pytest.Mo
     cache.clear_expired()
 
     assert cache.get("stale") is None
-    assert cache.get("fresh") == b"new"
+    assert cache.get("fresh") == (b"new", "")
 
 
 def test_clear_expired_drops_malformed_entries(tmp_path: Path) -> None:
@@ -315,4 +315,4 @@ def test_a_cache_entry_is_written_atomically(tmp_path: Path) -> None:
         cache.set("k", b"body", ttl_seconds=60)
 
     assert seen and seen[0][0].endswith(".tmp")
-    assert cache.get("k") == b"body"
+    assert cache.get("k") == (b"body", "")

@@ -25,6 +25,10 @@ class _CachePayload(TypedDict, total=False):
     created_at: float
     ttl_seconds: float
     body_b64: str
+    #: 저장 당시의 Content-Type. 예전에는 본문만 저장해서, 캐시 히트에서는 타입
+    #: 추론이 다시 돌았고 XML 응답이 JSON 으로 디코딩되는 경로가 생겼다 — 같은
+    #: 요청이 캐시 여부에 따라 다른 결과를 냈다.
+    content_type: str
 
 
 _REDACTED_VALUE = "[REDACTED]"
@@ -42,8 +46,14 @@ class ResponseCache:
         """캐시 파일을 저장하는 기본 디렉터리를 반환한다."""
         return self._base_dir
 
-    def get(self, key: str) -> bytes | None:
-        """캐시 엔트리를 읽고 유효하면 원시 바이트 본문을 반환한다."""
+    def get(self, key: str) -> tuple[bytes, str] | None:
+        """캐시 엔트리를 읽고 유효하면 ``(본문, content_type)`` 을 반환한다.
+
+        content_type 을 함께 돌려주는 것이 요점이다. 본문만 돌려주던 시절에는
+        캐시 히트에서 타입 추론이 다시 돌아 XML 이 JSON 으로 디코딩될 수 있었다.
+        content_type 키가 없는 **예전 엔트리**는 빈 문자열을 준다 — 그 경우
+        호출자는 예전처럼 추론하면 된다(하위 호환).
+        """
         payload_path = self._payload_path(key)
         try:
             if not payload_path.exists():
@@ -59,7 +69,11 @@ class ResponseCache:
             if body_b64 is None:
                 self._delete_entry(key)
                 return None
-            return base64.b64decode(body_b64.encode("ascii"))
+            stored_type = payload.get("content_type")
+            return (
+                base64.b64decode(body_b64.encode("ascii")),
+                stored_type if isinstance(stored_type, str) else "",
+            )
         except Exception as exc:
             logger.debug(
                 "transport cache read failed",
@@ -71,8 +85,8 @@ class ResponseCache:
             )
             return None
 
-    def set(self, key: str, value: bytes, ttl_seconds: int) -> None:
-        """응답 바이트와 TTL을 캐시 파일로 저장한다."""
+    def set(self, key: str, value: bytes, ttl_seconds: int, content_type: str = "") -> None:
+        """응답 바이트·TTL·Content-Type 을 캐시 파일로 저장한다."""
         payload_path = self._payload_path(key)
         try:
             payload_path.parent.mkdir(parents=True, exist_ok=True)
@@ -80,6 +94,7 @@ class ResponseCache:
                 "created_at": time.time(),
                 "ttl_seconds": ttl_seconds,
                 "body_b64": base64.b64encode(value).decode("ascii"),
+                "content_type": content_type,
             }
             # 임시 파일에 쓰고 교체한다. 직접 쓰면 중간에 끊긴 파일이 완성된
             # 캐시 엔트리로 읽히고, 그 뒤로는 만료될 때까지 계속 깨진 값이 나온다.
