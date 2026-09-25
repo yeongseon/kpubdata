@@ -63,6 +63,11 @@ class SgisAuthClient:
             "GET",
             _AUTH_ENDPOINT,
             params={"consumer_key": consumer_key, "consumer_secret": consumer_secret},
+            # 응답 본문이 곧 access token 이다. 캐시에 넣으면 토큰이 ~/.cache 에
+            # 평문으로 남고, force_refresh 가 그 캐시를 다시 읽어 만료된 토큰을
+            # 그대로 돌려준다 — 갱신이 되지 않는다. 토큰 캐싱은 이 클래스가
+            # 메모리에서 만료 시각과 함께 직접 한다.
+            no_store=True,
         )
 
         decoded = decode_json(response.content)

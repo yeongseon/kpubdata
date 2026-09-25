@@ -49,6 +49,25 @@ class ConfigError(PublicDataError):
     """KPubData 설정이 잘못되었거나 불완전할 때 발생한다."""
 
 
+#: 다시 보낼 가치가 있는 4xx. 나머지 4xx 는 같은 답이 돌아온다.
+_RETRYABLE_CLIENT_STATUSES = frozenset({408, 425, 429})
+
+
+def _status_is_retryable(status_code: object) -> bool:
+    """이 상태 코드의 실패를 재시도해도 되는지.
+
+    판정은 ``transport.http._is_retryable_status`` 의 재시도 정책과 같은 뜻이되,
+    거기에 없는 408·425 까지 포함한다 — transport 는 그 둘을 재시도하지 않지만,
+    호출자에게 "다시 시도해도 된다" 고 알려 주는 것은 옳다.
+    """
+    if not isinstance(status_code, int) or isinstance(status_code, bool):
+        # 상태 코드가 없는 실패는 전송 계층 자체의 실패다(연결/타임아웃).
+        return True
+    if status_code in _RETRYABLE_CLIENT_STATUSES:
+        return True
+    return status_code >= 500
+
+
 class AuthError(PublicDataError):
     """인증 또는 권한 부여 실패 시 발생한다."""
 
@@ -57,9 +76,18 @@ class TransportError(PublicDataError):
     """네트워크 및 전송 계층 실패 시 발생한다."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        """기본적으로 재시도 가능한 전송 오류를 초기화한다."""
+        """전송 오류를 초기화한다. 기본 ``retryable`` 은 상태 코드에서 나온다.
 
-        kwargs.setdefault("retryable", True)
+        예전에는 무조건 ``True`` 였다. 그래서 400·401·403·404 처럼 다시 보내도
+        같은 답이 오는 실패까지 "재시도 가능" 으로 표시됐고, 그 값을 믿는
+        호출자(kpubdata-builder 의 Bronze fetch)는 잘못된 키나 잘못된 요청을
+        재시도 예산만큼 반복했다.
+
+        상태 코드를 모르면(연결 실패·타임아웃 등 전송 계층 자체의 실패) 예전처럼
+        재시도 가능으로 둔다 — 그쪽은 실제로 다시 시도할 가치가 있다.
+        """
+        status_code = kwargs.get("status_code")
+        kwargs.setdefault("retryable", _status_is_retryable(status_code))
         super().__init__(message, **kwargs)
 
 
