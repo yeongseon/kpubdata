@@ -25,7 +25,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from kpubdata.config import KPubDataConfig
-from kpubdata.core.models import Query
+from kpubdata.core.models import DatasetRef, Query
 from kpubdata.core.spec import SpecDefinition, discover_specs, find_spec
 from kpubdata.exceptions import (
     AuthError,
@@ -144,9 +144,10 @@ def probe_dataset(
     )
 
 
-def _ref_for(spec: SpecDefinition) -> object:
+def _ref_for(spec: SpecDefinition) -> DatasetRef:
     """executor 가 요구하는 최소 DatasetRef."""
-    from kpubdata.core.models import DatasetRef, Representation
+    from kpubdata.core.models import DatasetRef
+    from kpubdata.core.representation import Representation
 
     return DatasetRef(
         id=spec.id,
