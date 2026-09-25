@@ -202,6 +202,38 @@ jobs:
           name: dist
           path: dist/
 
+  base-install:
+    name: Base install (no extras)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [quality]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      # 모든 다른 잡이 --extra dev 로 설치한다. dev 는 pandas 와
+      # typing_extensions 를 끌어오므로, "optional 이라고 선언했지만 실제로는
+      # 필수"인 의존성이 CI 어디에도 걸리지 않았다. krx 어댑터의 pandas 와
+      # typing_extensions 가 각각 그렇게 배포까지 나갔다.
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install the package with no extras
+        run: pip install .
+
+      - name: The package imports
+        run: python -c "import kpubdata; print(kpubdata.__version__)"
+
+      - name: The CLI runs and the catalog materializes every provider
+        working-directory: ${{ runner.temp }}
+        run: |
+          python -c "from kpubdata import Client; print(len(Client().datasets.list()), 'datasets')"
+          kpubdata datasets list > /dev/null
+
   docs:
     name: Docs Build
     runs-on: ubuntu-latest

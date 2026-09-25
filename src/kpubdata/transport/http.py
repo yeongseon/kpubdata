@@ -21,32 +21,14 @@ from typing import cast
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import httpx
-from typing_extensions import override
 
 from kpubdata.exceptions import RateLimitError, TransportError, TransportTimeoutError
+from kpubdata.transport._sensitive import SENSITIVE_PARAM_KEYS
 from kpubdata.transport.cache import ResponseCache, make_cache_key
 
+from .._typing import override
+
 logger = logging.getLogger("kpubdata.transport")
-_SENSITIVE_PARAM_KEYS = {
-    "servicekey",
-    "service_key",
-    "api_key",
-    "apikey",
-    "token",
-    "authorization",
-    "secret",
-    "password",
-    "key",
-    # law(국가법령정보)는 API 키를 "OC" 파라미터로 보낸다 — 이름만 봐서는
-    # credential로 보이지 않아 마스킹 목록에서 빠져 있었고, 예외 메시지에
-    # 담긴 URL에 키가 평문으로 남았다.
-    "oc",
-    # sgis(통계지리정보)는 OAuth 스타일 이름을 쓴다. "key"/"secret" 부분 문자열
-    # 매칭이 아니라 정확한 이름 목록이므로 각각 등재해야 한다.
-    "accesstoken",
-    "consumer_key",
-    "consumer_secret",
-}
 _DEFAULT_MAX_RESPONSE_BYTES = 50 * 1024 * 1024
 
 
@@ -197,6 +179,49 @@ class HttpTransport:
         return self._cache_ttl_seconds
 
     def request(
+        self,
+        method: str,
+        url: str,
+        *,
+        params: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+        content: bytes | None = None,
+        json_body: object = None,
+        dataset_id: str | None = None,
+        provider: str | None = None,
+        secret_values: tuple[str, ...] = (),
+    ) -> httpx.Response:
+        """HTTP 요청을 실행한다. 자격이 실린 요청의 예외 체인은 여기서 끊는다.
+
+        ``raise ... from None`` 은 ``__suppress_context__`` 만 True 로 만들고
+        ``__context__`` 에는 원본 httpx 예외를 그대로 남긴다. 표준 traceback 출력과
+        Sentry 는 그 플래그를 존중하므로 대개는 보이지 않지만,
+        ``exc.__context__.request.url`` 을 직접 읽는 로거에는 키가 그대로 보인다.
+
+        ``__context__`` 는 raise 시점에 다시 채워지므로 raise 앞에서 지워도 소용이
+        없다. 그래서 예외가 이 경계를 빠져나갈 때 한 번만 벗겨낸다 — bare ``raise``
+        는 지금 처리 중인 예외를 그대로 다시 던지므로 ``__context__`` 를 덮어쓰지
+        않는다.
+        """
+        try:
+            return self._request(
+                method,
+                url,
+                params=params,
+                headers=headers,
+                content=content,
+                json_body=json_body,
+                dataset_id=dataset_id,
+                provider=provider,
+                secret_values=secret_values,
+            )
+        except TransportError as exc:
+            if getattr(exc, "_credential_in_request", False):
+                exc.__context__ = None
+                exc.__suppress_context__ = True
+            raise
+
+    def _request(
         self,
         method: str,
         url: str,
@@ -389,9 +414,11 @@ class HttpTransport:
                     },
                 )
                 if attempt >= total_attempts:
-                    raise TransportTimeoutError(
+                    timeout_error = TransportTimeoutError(
                         f"Request timed out after {attempt} attempts: {method} {log_url}"
-                    ) from (None if credential_in_request else exc)
+                    )
+                    _mark_credential_bearing(timeout_error, credential_in_request)
+                    raise timeout_error from (None if credential_in_request else exc)
 
             except httpx.DecodingError as exc:
                 if not identity_retry_used:
@@ -406,9 +433,11 @@ class HttpTransport:
                         extra={"method": method, "url": log_url, **request_context},
                     )
                     continue
-                raise TransportError(
+                decoding_error = TransportError(
                     f"Response decoding failed after identity retry: {method} {log_url}"
-                ) from (None if credential_in_request else exc)
+                )
+                _mark_credential_bearing(decoding_error, credential_in_request)
+                raise decoding_error from (None if credential_in_request else exc)
 
             except httpx.HTTPStatusError as exc:
                 status_code = exc.response.status_code
@@ -427,12 +456,14 @@ class HttpTransport:
                     # 경우(from None) 원래 응답이 함께 사라져, 호출자가 401 과
                     # 503 을 구분할 방법이 메시지 문자열밖에 없었다.
                     error_type = RateLimitError if status_code == 429 else TransportError
-                    raise error_type(
+                    status_error = error_type(
                         f"HTTP status error {status_code} for {method} {log_url}",
                         provider=provider,
                         dataset_id=dataset_id,
                         status_code=status_code,
-                    ) from (None if credential_in_request else exc)
+                    )
+                    _mark_credential_bearing(status_error, credential_in_request)
+                    raise status_error from (None if credential_in_request else exc)
 
                 retry_after = cast(str | None, exc.response.headers.get("Retry-After"))
                 if retry_after is not None:
@@ -450,9 +481,11 @@ class HttpTransport:
                     },
                 )
                 if attempt >= total_attempts:
-                    raise TransportError(
+                    request_error = TransportError(
                         f"Request failed after {attempt} attempts: {method} {log_url}"
-                    ) from (None if credential_in_request else exc)
+                    )
+                    _mark_credential_bearing(request_error, credential_in_request)
+                    raise request_error from (None if credential_in_request else exc)
 
             delay: float
             if retry_delay is not None:
@@ -589,7 +622,7 @@ def _sanitize_params(params: dict[str, str] | None) -> dict[str, str]:
 
     sanitized: dict[str, str] = {}
     for key, value in params.items():
-        if key.casefold() in _SENSITIVE_PARAM_KEYS:
+        if key.casefold() in SENSITIVE_PARAM_KEYS:
             sanitized[key] = "[REDACTED]"
         else:
             sanitized[key] = str(value)
@@ -625,7 +658,7 @@ def _mask_url(url: str, *, secret_values: tuple[str, ...] = ()) -> str:
 
     query_items = parse_qsl(parts.query, keep_blank_values=True)
     masked_items = [
-        (key, "[REDACTED]" if key.casefold() in _SENSITIVE_PARAM_KEYS else value)
+        (key, "[REDACTED]" if key.casefold() in SENSITIVE_PARAM_KEYS else value)
         for key, value in query_items
     ]
     if masked_items == query_items:
@@ -650,7 +683,17 @@ def _contains_sensitive_headers(headers: dict[str, str] | None) -> bool:
     """헤더에 민감한 키가 포함되어 있는지 확인한다."""
     if headers is None:
         return False
-    return any(key.casefold() in _SENSITIVE_PARAM_KEYS for key in headers)
+    return any(key.casefold() in SENSITIVE_PARAM_KEYS for key in headers)
+
+
+def _mark_credential_bearing(error: Exception, credential_in_request: bool) -> None:
+    """이 예외가 credential 이 실린 요청에서 나왔다고 표시한다.
+
+    ``HttpTransport.request`` 가 경계에서 이 표시를 보고 ``__context__`` 를
+    벗겨낸다. raise 시점에는 지울 수 없어서(다시 채워진다) 표시만 남긴다.
+    """
+    if credential_in_request:
+        error._credential_in_request = True  # type: ignore[attr-defined]
 
 
 def _contains_sensitive_params(params: dict[str, str] | None) -> bool:
@@ -661,7 +704,7 @@ def _contains_sensitive_params(params: dict[str, str] | None) -> bool:
     """
     if params is None:
         return False
-    return any(key.casefold() in _SENSITIVE_PARAM_KEYS for key in params)
+    return any(key.casefold() in SENSITIVE_PARAM_KEYS for key in params)
 
 
 def _response_preview(response: httpx.Response, max_chars: int = 500) -> str:

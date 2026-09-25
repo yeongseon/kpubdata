@@ -24,12 +24,10 @@ from pathlib import Path
 import httpx
 
 from kpubdata.exceptions import InvalidRequestError
+from kpubdata.transport._sensitive import SENSITIVE_PARAM_KEYS
 
 _DEFAULT_ROOT = Path("tests") / "fixtures"
-# 인증 계열 파라미터는 값이 환경마다 달라 매칭에서 제외한다.
-_SENSITIVE_PARAM_KEYS = frozenset(
-    {"servicekey", "service_key", "apikey", "api_key", "key", "token", "secret", "oc"}
-)
+# 인증 계열 파라미터는 값이 환경마다 달라 매칭에서 제외한다 — 목록은 _sensitive 가 정본이다.
 
 _IndexEntry = tuple[str, str, str, Path]
 
@@ -58,7 +56,7 @@ def _signature(params: dict[str, str] | None) -> dict[str, str]:
     return {
         key.lower(): value
         for key, value in (params or {}).items()
-        if key.lower() not in _SENSITIVE_PARAM_KEYS
+        if key.lower() not in SENSITIVE_PARAM_KEYS
     }
 
 
