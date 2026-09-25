@@ -34,6 +34,8 @@ from kpubdata.providers._common import build_schema_from_metadata, coerce_int, l
 from kpubdata.transport.decode import decode_json, decode_xml, detect_content_type
 from kpubdata.transport.http import HttpTransport, TransportConfig
 
+#: 모듈 기본 logger. 인스턴스는 ``self._logger`` 로 provider 별 logger 를 쓴다 —
+#: 운영자가 ``kpubdata.provider.localdata`` 로 필터하던 것을 깨지 않기 위해서다.
 logger = logging.getLogger("kpubdata.provider.datago_family")
 
 
@@ -66,6 +68,10 @@ class DataGoFamilyAdapter:
         catalogue: Sequence[DatasetRef] | None = None,
     ) -> None:
         """인스턴스가 사용할 내부 상태를 초기화한다."""
+        # provider 별 logger. 공용 구현이지만 로그는 provider 단위로 남아야 한다.
+        self._logger = logging.getLogger(f"kpubdata.provider.{self.provider_name}")
+        #: 로그 메시지에 쓰는 표시 이름 ("Localdata", "Semas").
+        self._label = self.provider_name.capitalize()
         self._config: KPubDataConfig = config or KPubDataConfig()
         transport_config = TransportConfig(
             timeout=self._config.timeout,
@@ -103,8 +109,8 @@ class DataGoFamilyAdapter:
         if dataset is not None:
             return dataset
 
-        logger.debug(
-            "Localdata dataset not found",
+        self._logger.debug(
+            f"{self._label} dataset not found",
             extra={
                 "dataset_id": f"{self.provider_name}.{dataset_key}",
                 "provider": self.provider_name,
@@ -120,7 +126,7 @@ class DataGoFamilyAdapter:
         """records을 수행한다."""
         page = query.page or 1
         page_size = query.page_size or 100
-        logger.debug(
+        self._logger.debug(
             f"{self.provider_name} query_records",
             extra={
                 "dataset_id": dataset.id,
@@ -154,8 +160,8 @@ class DataGoFamilyAdapter:
             computed_next = None
 
         if not items:
-            logger.debug(
-                "Localdata envelope: zero items",
+            self._logger.debug(
+                f"{self._label} envelope: zero items",
                 extra={
                     "dataset_id": dataset.id,
                     "page": page,
@@ -178,7 +184,7 @@ class DataGoFamilyAdapter:
 
     def call_raw(self, dataset: DatasetRef, operation: str, params: dict[str, object]) -> object:
         """call raw과 관련된 값을 계산하거나 조회한다."""
-        logger.debug(
+        self._logger.debug(
             f"{self.provider_name} call_raw",
             extra={
                 "dataset_id": dataset.id,
@@ -212,8 +218,8 @@ class DataGoFamilyAdapter:
         """요청 URL을 구성해 반환한다."""
         base_url_raw = dataset.raw_metadata.get("base_url")
         if not isinstance(base_url_raw, str) or not base_url_raw:
-            logger.debug(
-                "Localdata dataset metadata missing base_url",
+            self._logger.debug(
+                f"{self._label} dataset metadata missing base_url",
                 extra={"dataset_id": dataset.id},
             )
             raise ProviderResponseError(
@@ -265,7 +271,9 @@ class DataGoFamilyAdapter:
                 decoded = decode_json(response.content)
         except ParseError as exc:
             exc.provider = self.provider_name
-            logger.debug("Localdata response parsing failed", extra={"dataset_id": dataset_id})
+            self._logger.debug(
+                f"{self._label} response parsing failed", extra={"dataset_id": dataset_id}
+            )
             raise
         except ImportError as exc:
             raise ParseError(
@@ -275,7 +283,9 @@ class DataGoFamilyAdapter:
         if isinstance(decoded, dict):
             return cast(dict[str, object], decoded)
 
-        logger.debug("Localdata decoded payload invalid type", extra={"dataset_id": dataset_id})
+        self._logger.debug(
+            f"{self._label} decoded payload invalid type", extra={"dataset_id": dataset_id}
+        )
         raise ParseError("Decoded payload is not an object", provider=self.provider_name)
 
     def _validate_envelope(
@@ -313,7 +323,7 @@ class DataGoFamilyAdapter:
         result_msg = (
             result_msg_raw if isinstance(result_msg_raw, str) else "Provider returned error"
         )
-        logger.debug(
+        self._logger.debug(
             f"{self.provider_name} result",
             extra={"result_code": result_code, "result_msg": result_msg, "dataset_id": dataset_id},
         )

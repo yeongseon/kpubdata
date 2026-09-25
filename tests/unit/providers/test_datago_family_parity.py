@@ -89,3 +89,32 @@ class TestItemNormalisationMatches:
         self, adapter_cls: type[Any], wrapper: object, expected: list[dict[str, object]]
     ) -> None:
         assert adapter_cls()._normalize_items(wrapper) == expected
+
+
+class TestLoggingStaysPerProvider:
+    """공용 구현이어도 로그는 provider 단위로 남아야 한다.
+
+    운영자는 ``kpubdata.provider.localdata`` 로 필터한다. base 를 뽑아내면서
+    logger 하나를 공유하면 그 필터가 조용히 비어 버린다.
+    """
+
+    @pytest.mark.parametrize("adapter_cls", _ADAPTERS)
+    def test_the_logger_is_named_after_the_provider(self, adapter_cls: type[Any]) -> None:
+        adapter = adapter_cls()
+
+        assert adapter._logger.name == f"kpubdata.provider.{adapter_cls.provider_name}"
+
+    @pytest.mark.parametrize("adapter_cls", _ADAPTERS)
+    def test_messages_name_the_provider(
+        self, adapter_cls: type[Any], caplog: pytest.LogCaptureFixture
+    ) -> None:
+        import logging
+
+        adapter = adapter_cls()
+        caplog.set_level(logging.DEBUG, logger=f"kpubdata.provider.{adapter_cls.provider_name}")
+
+        with pytest.raises(Exception):  # noqa: B017 - 로그만 확인한다
+            _ = adapter.get_dataset("does-not-exist")
+
+        expected = f"{adapter_cls.provider_name.capitalize()} dataset not found"
+        assert any(record.getMessage() == expected for record in caplog.records)
