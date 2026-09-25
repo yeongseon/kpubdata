@@ -23,6 +23,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 import httpx
 
 from kpubdata.exceptions import RateLimitError, TransportError, TransportTimeoutError
+from kpubdata.transport._envelope import is_upstream_error_envelope
 from kpubdata.transport._sensitive import SENSITIVE_PARAM_KEYS
 from kpubdata.transport.cache import ResponseCache, make_cache_key
 
@@ -190,6 +191,7 @@ class HttpTransport:
         dataset_id: str | None = None,
         provider: str | None = None,
         secret_values: tuple[str, ...] = (),
+        no_store: bool = False,
     ) -> httpx.Response:
         """HTTP 요청을 실행한다. 자격이 실린 요청의 예외 체인은 여기서 끊는다.
 
@@ -214,6 +216,7 @@ class HttpTransport:
                 dataset_id=dataset_id,
                 provider=provider,
                 secret_values=secret_values,
+                no_store=no_store,
             )
         except TransportError as exc:
             if getattr(exc, "_credential_in_request", False):
@@ -233,6 +236,7 @@ class HttpTransport:
         dataset_id: str | None = None,
         provider: str | None = None,
         secret_values: tuple[str, ...] = (),
+        no_store: bool = False,
     ) -> httpx.Response:
         """재시도 로직과 함께 HTTP 요청을 실행한다.
 
@@ -270,7 +274,15 @@ class HttpTransport:
 
         total_attempts = self._config.max_retries + 1
         # 메서드/URL/헤더 조합이 안전할 때만 캐시 키를 만들고 GET 응답을 재사용한다.
-        cache_key = self._make_cache_key(method=method, url=url, params=params, headers=headers)
+        # ``no_store`` 는 응답 자체가 credential 인 요청을 위한 것이다 (sgis 토큰).
+        # 캐시에 넣으면 토큰이 ~/.cache 에 평문으로 남고, 그보다 나쁘게는
+        # force_refresh 가 그 캐시를 다시 읽어 **옛 토큰을 돌려준다** —
+        # 갱신이라는 이름의 no-op 이 된다.
+        cache_key = (
+            None
+            if no_store
+            else self._make_cache_key(method=method, url=url, params=params, headers=headers)
+        )
         request_context = _request_context(dataset_id=dataset_id, provider=provider)
         # 로그/예외에는 API 키가 query parameter로 포함될 수 있는 원본 URL 대신
         # 민감 파라미터를 가린 URL만 사용한다.
@@ -386,11 +398,29 @@ class HttpTransport:
                         },
                     )
 
-                if (
+                # 200 이라고 다 캐시하지 않는다. 한국 공공 API 다수는 실패를
+                # 상태 코드가 아니라 본문 envelope 으로 알린다 — 한도 초과(22),
+                # 미등록 키(30), 게이트웨이 거부가 모두 200 으로 온다. 상태만
+                # 보던 시절에는 일시적인 한도 초과가 24시간 장애로 굳었고, 그
+                # 캐시가 builder 의 Bronze fetch 로 전파돼 스케줄 빌드가 빈
+                # 데이터를 "성공" 으로 게시할 수 있었다.
+                cacheable = (
                     cache_key is not None
                     and self._cache is not None
                     and 200 <= response.status_code < 300
+                )
+                if cacheable and is_upstream_error_envelope(
+                    response.content,
+                    cast(str, response.headers.get("content-type", "")),
                 ):
+                    logger.debug(
+                        "not caching an upstream error envelope",
+                        extra={"url": log_url, **request_context},
+                    )
+                    cacheable = False
+                # 두 조건은 cacheable 이 이미 보장하지만, 타입 검사기가
+                # boolean 을 통해 좁히지는 못하므로 여기서 다시 적는다.
+                if cacheable and self._cache is not None and cache_key is not None:
                     self._cache.set(cache_key, response.content, self._cache_ttl_seconds)
                     logger.debug(
                         "transport cache miss; stored",
