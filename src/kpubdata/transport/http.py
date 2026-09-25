@@ -305,8 +305,9 @@ class HttpTransport:
             or _contains_sensitive_headers(headers)
         )
         if cache_key is not None and self._cache is not None:
-            cached_body = self._cache.get(cache_key)
-            if cached_body is not None:
+            cached = self._cache.get(cache_key)
+            if cached is not None:
+                cached_body, cached_type = cached
                 logger.debug(
                     "transport cache hit",
                     extra={
@@ -315,9 +316,15 @@ class HttpTransport:
                         **request_context,
                     },
                 )
+                # 저장 당시의 Content-Type 을 그대로 복원한다. 없이 돌려주던
+                # 시절에는 캐시 히트에서 타입 추론이 다시 돌아 XML 응답이 JSON
+                # 으로 디코딩될 수 있었다 — 같은 요청이 캐시 여부에 따라 다른
+                # 결과를 냈다. 예전 엔트리(타입 미저장)는 빈 문자열이므로 헤더를
+                # 붙이지 않고 예전 동작 그대로 둔다.
                 return httpx.Response(
                     status_code=200,
                     content=cached_body,
+                    headers={"content-type": cached_type} if cached_type else None,
                     request=httpx.Request(method.upper(), url, params=params, headers=headers),
                 )
 
@@ -421,7 +428,12 @@ class HttpTransport:
                 # 두 조건은 cacheable 이 이미 보장하지만, 타입 검사기가
                 # boolean 을 통해 좁히지는 못하므로 여기서 다시 적는다.
                 if cacheable and self._cache is not None and cache_key is not None:
-                    self._cache.set(cache_key, response.content, self._cache_ttl_seconds)
+                    self._cache.set(
+                        cache_key,
+                        response.content,
+                        self._cache_ttl_seconds,
+                        cast(str, response.headers.get("content-type", "")),
+                    )
                     logger.debug(
                         "transport cache miss; stored",
                         extra={
