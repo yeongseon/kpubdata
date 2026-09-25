@@ -315,3 +315,72 @@ def test_gen_docs_examples_check_mode(tmp_path: Path) -> None:
     # 드리프트 → check 실패
     monkeyped_out.write_text("손으로 수정한 내용", encoding="utf-8")
     assert gen.main(["--check"]) == 1
+
+
+def test_record_with_a_fake_transport_does_not_touch_repository_specs(tmp_path: Path) -> None:
+    """가짜 transport 로 기록해도 저장소 spec 의 last_verified 는 그대로여야 한다.
+
+    ``fixtures_root`` 만 인자였고 spec 경로는 REPO_ROOT 로 고정이라, 이 테스트
+    파일을 실행하는 것만으로 ``src/kpubdata/specs/datago/apt_trade.yaml`` 의
+    ``last_verified`` 가 오늘로 바뀌었다.
+
+    그 값은 SUPPORTED_DATA.md·docs/status.md·README 표의 "실API 최종 검증일"
+    원천이고 "90일 초과 시 재검증" 규칙이 여기 걸려 있다 — 테스트가 갱신하면
+    그 규칙이 성립하지 않는다.
+    """
+    repo_spec = Path(record_mod.SPEC_ROOT) / "datago" / "apt_trade.yaml"
+    before = repo_spec.read_text(encoding="utf-8")
+
+    _ = record_mod.record_dataset(
+        "datago.apt_trade",
+        fixtures_root=tmp_path,
+        config=FakeLiveConfig(),
+        transport=FakeLiveTransport(),  # type: ignore[arg-type]
+        recorded_by="agent-test",
+    )
+
+    assert repo_spec.read_text(encoding="utf-8") == before
+
+
+def test_spec_root_redirects_the_last_verified_write(tmp_path: Path) -> None:
+    """``spec_root`` 를 넘기면 그쪽만 본다 — 저장소 경로는 건드리지 않는다."""
+    spec_root = tmp_path / "specs"
+    (spec_root / "datago").mkdir(parents=True)
+    target = spec_root / "datago" / "apt_trade.yaml"
+    target.write_text('status: active\nlast_verified: "2020-01-01"\n', encoding="utf-8")
+    repo_spec = Path(record_mod.SPEC_ROOT) / "datago" / "apt_trade.yaml"
+    before = repo_spec.read_text(encoding="utf-8")
+
+    _ = record_mod.record_dataset(
+        "datago.apt_trade",
+        fixtures_root=tmp_path / "fixtures",
+        spec_root=spec_root,
+        config=FakeLiveConfig(),
+        transport=FakeLiveTransport(),  # type: ignore[arg-type]
+        recorded_by="agent-test",
+    )
+
+    assert repo_spec.read_text(encoding="utf-8") == before
+
+
+def test_a_live_transport_still_updates_last_verified(tmp_path: Path) -> None:
+    """실호출 경로의 기능은 그대로여야 한다 — 검증일 갱신이 사라지면 안 된다."""
+    from kpubdata.transport.http import HttpTransport
+
+    live = HttpTransport()
+    live.request = FakeLiveTransport().request  # type: ignore[method-assign]
+    spec_root = tmp_path / "specs"
+    (spec_root / "datago").mkdir(parents=True)
+    target = spec_root / "datago" / "apt_trade.yaml"
+    target.write_text('status: active\nlast_verified: "2020-01-01"\n', encoding="utf-8")
+
+    _ = record_mod.record_dataset(
+        "datago.apt_trade",
+        fixtures_root=tmp_path / "fixtures",
+        spec_root=spec_root,
+        config=FakeLiveConfig(),
+        transport=live,
+        recorded_by="live",
+    )
+
+    assert '"2020-01-01"' not in target.read_text(encoding="utf-8")

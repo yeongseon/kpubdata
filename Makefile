@@ -53,6 +53,14 @@ verify:
 	else \
 		uv run python scripts/verify_spec.py; \
 	fi
+	@# verify 는 읽기만 해야 한다. 소스를 고쳤다면 도구가 잘못된 것이다 —
+	@# record.py 가 fixtures_root 와 무관하게 spec 의 last_verified 를 덮어쓴
+	@# 적이 있고(#497), 그때는 아무도 알아채지 못했다.
+	@if [ -n "$$(git status --porcelain -- src/ 2>/dev/null)" ]; then \
+		echo "error: verify 가 소스를 수정했습니다 — 도구 결함입니다 (#497 참고)"; \
+		git status --short -- src/; \
+		exit 1; \
+	fi
 
 verify-all: verify
 

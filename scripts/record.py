@@ -38,6 +38,9 @@ from kpubdata.transport.http import HttpTransport
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FIXTURES_ROOT = REPO_ROOT / "tests" / "fixtures"
+#: spec 파일의 정본 위치. ``record_dataset`` 이 ``last_verified`` 를 갱신하는 대상이다.
+#: 인자로 받는 이유는 테스트가 저장소 소스를 건드리지 않게 하기 위해서다.
+SPEC_ROOT = REPO_ROOT / "src" / "kpubdata" / "specs"
 _DEFAULT_PAGE_SIZE = 10
 
 
@@ -46,10 +49,21 @@ def _canon(obj: object) -> str:
     return json.dumps(obj, ensure_ascii=False, sort_keys=True, indent=1) + "\n"
 
 
+def _is_live_transport(transport: object) -> bool:
+    """이 transport 가 실제로 네트워크를 쓰는지.
+
+    가짜 transport 를 주입한 호출(단위 테스트)은 실호출이 아니므로 검증일을
+    갱신하지 않는다. 실제 ``HttpTransport`` 를 명시적으로 주입한 호출은 실호출이
+    맞으므로 갱신한다 — 판정 기준은 "주입 여부" 가 아니라 "무엇을 주입했는가" 다.
+    """
+    return isinstance(transport, HttpTransport)
+
+
 def record_dataset(
     dataset_id: str,
     *,
     fixtures_root: Path = FIXTURES_ROOT,
+    spec_root: Path = SPEC_ROOT,
     config: KPubDataConfig | None = None,
     transport: HttpTransport | None = None,
     recorded_by: str | None = None,
@@ -122,11 +136,18 @@ def record_dataset(
         shown = raw_path.relative_to(REPO_ROOT) if raw_path.is_relative_to(REPO_ROOT) else raw_path
         print(f"기록: {shown} ({len(items)}건, total={total})")
 
-    # 기록 성공 → spec의 last_verified를 오늘로 동기화(검증일 신뢰성)
-    spec_path = (
-        REPO_ROOT / "src" / "kpubdata" / "specs" / spec.provider / f"{spec.dataset_key}.yaml"
-    )
-    if spec_path.is_file():
+    # 기록 성공 → spec의 last_verified를 오늘로 동기화(검증일 신뢰성).
+    #
+    # 두 가지를 확인한 뒤에만 쓴다.
+    #
+    # 1) 경로: ``spec_root`` 를 쓴다. 예전에는 ``fixtures_root`` 를 tmp 로 넘겨도
+    #    spec 경로만 REPO_ROOT 로 고정돼서, 단위 테스트가 저장소 소스를 고쳤다.
+    # 2) 실호출 여부: 가짜 transport 로 돌린 기록은 "실API 최종 검증일" 이 아니다.
+    #    ``last_verified`` 는 SUPPORTED_DATA.md·docs/status.md·README 표의 원천이고
+    #    "90일 초과 시 재검증" 규칙이 여기 걸려 있다 — 테스트가 갱신하면 그 규칙이
+    #    성립하지 않는다.
+    spec_path = spec_root / spec.provider / f"{spec.dataset_key}.yaml"
+    if _is_live_transport(resolved_transport) and spec_path.is_file():
         text = spec_path.read_text(encoding="utf-8")
         today = datetime.now(tz=timezone.utc).date().isoformat()
         if re.search(r"^last_verified:", text, re.MULTILINE):
