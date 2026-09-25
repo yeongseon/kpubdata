@@ -64,11 +64,36 @@ class KPubDataConfig:
 
         return None
 
-    def require_provider_key(self, provider: str) -> str:
-        """get_provider_key와 같지만 키가 없으면 ConfigError를 발생시킨다."""
+    def require_provider_key(self, provider: str, *, fallback_to: str | None = None) -> str:
+        """get_provider_key와 같지만 키가 없으면 ConfigError를 발생시킨다.
+
+        ``fallback_to`` 는 여러 provider 가 **같은 발급처의 키 하나**를 쓰는 경우를
+        위한 것이다 — localdata·semas 는 datago 와 동일한 data.go.kr 서비스 키를
+        쓴다. 그래서 두 어댑터가 곧바로 ``require_provider_key("datago")`` 를
+        불렀는데, 그러면 README 가 안내하는 ``provider_keys={"localdata": ...}`` 나
+        ``KPUBDATA_LOCALDATA_API_KEY`` 가 **조용히 무시된다.** 문서 그대로 따라 한
+        사용자는 ConfigError 를 봤다.
+
+        이제 자기 이름을 먼저 보고, 없으면 공유 키로 내려간다. 두 방식 모두 동작
+        하므로 문서와 코드가 어긋나지 않는다.
+        """
         key = self.get_provider_key(provider)
         if key is not None:
             return key
+        if fallback_to is not None:
+            shared = self.get_provider_key(fallback_to)
+            if shared is not None:
+                return shared
+            logger.debug(
+                "Missing provider API key",
+                extra={"provider": provider, "fallback": fallback_to},
+            )
+            raise ConfigError(
+                f"Missing provider API key for {provider!r}. "
+                f"{provider} uses the same data.go.kr service key as {fallback_to!r}, "
+                f"so either KPUBDATA_{provider.upper()}_API_KEY or "
+                f"KPUBDATA_{fallback_to.upper()}_API_KEY works."
+            )
         logger.debug("Missing provider API key", extra={"provider": provider})
         raise ConfigError(f"Missing provider API key for '{provider}'")
 

@@ -187,7 +187,10 @@ class SemasAdapter:
         localdata · semas · lofin 어댓터는 모두 data.go.kr 인증 시스템을 공유하며
         단일 provider_key("datago")로 관리하는 것이 의도된 설계다.
         """
-        return self._config.require_provider_key("datago")
+        # 자기 이름을 먼저 본다. semas 는 data.go.kr 서비스라 datago 와 같은 키를
+        # 쓰지만, 곧바로 "datago" 를 요구하면 README 가 안내하는
+        # KPUBDATA_SEMAS_API_KEY 가 조용히 무시된다.
+        return self._config.require_provider_key("semas", fallback_to="datago")
 
     def _build_request_url(self, dataset: DatasetRef, operation: str | None = None) -> str:
         """요청 URL을 구성해 반환한다."""
