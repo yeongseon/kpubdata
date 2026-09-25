@@ -82,7 +82,9 @@ make verify   # spec 데이터셋: 스키마→fixture→replay→예제 4단계
 
 ### 절차 체크리스트
 
-1. [ ] 이슈의 data.go.kr URL에서 활용가이드를 확인한다 (또는 `docs/sources/` 캐시)
+1. [ ] 이슈의 data.go.kr URL에서 활용가이드를 확인한다
+   (`scripts/fetch_guide.py` 를 돌렸다면 `docs/sources/{dataset}/guide.txt` 캐시를 먼저 본다 —
+   이 디렉터리는 **생성물이라 저장소에 없다.** 없으면 URL 을 직접 읽는다)
 2. [ ] 골든 예제 3종 중 가장 유사한 것을 복사해 `src/kpubdata/specs/{provider}/{dataset_key}.yaml` 작성
    - 단순: `datago.hospital_info` / 페이지네이션: `datago.apt_trade` / XML: `datago.village_fcst`
    - 계약: `src/kpubdata/specs/schema.json` (enum은 Phase 0 인벤토리 `docs/internal/adapter-inventory.md` 기반)
@@ -93,7 +95,7 @@ make verify   # spec 데이터셋: 스키마→fixture→replay→예제 4단계
 
 ### 수정 허용 경로 (데이터셋 작업)
 
-`src/kpubdata/specs/`, `examples/`, `tests/fixtures/`, `docs/datasets/`, `SUPPORTED_DATA.md`
+`src/kpubdata/specs/`, `examples/`, `tests/fixtures/`, `SUPPORTED_DATA.md`
 
 ### 수정 금지 경로 (데이터셋 작업)
 

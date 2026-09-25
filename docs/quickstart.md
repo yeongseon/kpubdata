@@ -26,6 +26,12 @@ python -c "import kpubdata; print('설치 성공!')"
 
 ## 3단계: API 키 발급
 가장 쉬운 한국은행(BOK) API부터 시작합니다.
+
+> BOK 로 시작하는 이유는 **활용신청이 없기 때문**입니다. data.go.kr 계열(datago 등)은
+> 회원가입 뒤 API 마다 활용신청을 하고 승인을 기다려야 해서, 첫 실행까지 시간이 걸립니다.
+> README·AGENTS 의 예제와 spec 파이프라인은 datago 기준이므로, 여기서 감을 잡은 뒤
+> 그쪽으로 넘어가면 됩니다.
+
 1. https://ecos.bok.or.kr/api/ 접속
 2. "인증키 신청" 클릭
 3. 본인인증 후 회원가입
