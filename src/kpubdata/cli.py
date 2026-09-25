@@ -131,6 +131,15 @@ def _build_parser() -> argparse.ArgumentParser:
     _ = raw_parser.add_argument("-p", "--param", action="append", default=[], metavar="KEY=VALUE")
     _ = raw_parser.add_argument("--output", help="Write output to a file")
 
+    probe_parser = subparsers.add_parser(
+        "probe", help="Classify dataset reachability and list datasets awaiting 활용신청"
+    )
+    _ = probe_parser.add_argument("--provider", help="Probe only this provider")
+    _ = probe_parser.add_argument("--dataset", help="Probe only this dataset id")
+    _ = probe_parser.add_argument(
+        "--report-apply", action="store_true", help="Print the 활용신청 checklist"
+    )
+
     scaffold_parser = subparsers.add_parser(
         "scaffold", help="Generate skeleton files for a new provider adapter"
     )
@@ -193,6 +202,11 @@ def _run_command(args: argparse.Namespace) -> int:
     if command == "scaffold":
         return _handle_scaffold_command(args)
 
+    # probe 는 자체 fast-fail transport 를 만든다(timeout 15s·재시도 0) — 공용
+    # client 를 쓰면 캐시와 재시도가 끼어들어 "지금 이 키로 닿는가" 를 못 본다.
+    if command == "probe":
+        return _handle_probe_command(args)
+
     provider_keys = _parse_assignments(provider_key_values, flag_name="--provider-key")
     client = _create_client(cache_enabled=cache_enabled, provider_keys=provider_keys)
     try:
@@ -205,6 +219,32 @@ def _run_command(args: argparse.Namespace) -> int:
         raise InvalidRequestError(f"Unknown command: {command}")
     finally:
         client.close()
+
+
+def _handle_probe_command(args: argparse.Namespace) -> int:
+    """``kpubdata probe`` — 도달성 분류와 활용신청 체크리스트 (#499)."""
+    from kpubdata._probe import probe_all, render_apply_report, summarize, write_report
+
+    results = probe_all(
+        provider=getattr(args, "provider", None),
+        dataset_id=getattr(args, "dataset", None),
+    )
+    if not results:
+        print("프로브 대상이 없습니다.", file=sys.stderr)
+        return 1
+
+    write_report(results)
+    counts = summarize(results)
+    print(
+        "프로브 "
+        + str(len(results))
+        + "종: "
+        + ", ".join(f"{name}={count}" for name, count in sorted(counts.items()))
+    )
+    if getattr(args, "report_apply", False):
+        print()
+        print(render_apply_report(results))
+    return 0
 
 
 def _create_client(*, cache_enabled: bool, provider_keys: dict[str, str]) -> Client:
