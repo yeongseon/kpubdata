@@ -6,8 +6,6 @@ import logging
 import os
 from typing import cast
 
-from typing_extensions import override
-
 from kpubdata.bootstrap import register_builtin_providers
 from kpubdata.catalog import Catalog
 from kpubdata.config import KPubDataConfig
@@ -17,6 +15,8 @@ from kpubdata.exceptions import ConfigError
 from kpubdata.registry import ProviderRegistry
 from kpubdata.transport.cache import ResponseCache
 from kpubdata.transport.http import HttpTransport, TransportConfig
+
+from ._typing import override
 
 logger = logging.getLogger("kpubdata.client")
 

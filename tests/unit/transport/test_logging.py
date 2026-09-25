@@ -689,3 +689,102 @@ class TestForbiddenDetectionDoesNotDependOnTheChain:
         assert DataGoAdapter._is_http_403(chained) is True
         assert DataGoAdapter._is_http_403(TransportError("boom", status_code=503)) is False
         assert DataGoAdapter._is_http_403(TransportError("boom")) is False
+
+
+class TestTheExceptionChainIsFullyDetached:
+    """``from None`` 은 ``__suppress_context__`` 만 세운다.
+
+    ``__context__`` 에는 원본 httpx 예외가 그대로 남고, 그 메시지에는 params 를
+    합친 최종 URL — 즉 키 — 이 들어 있다. 표준 traceback 출력과 Sentry 는 그
+    플래그를 존중하지만, ``exc.__context__.request.url`` 을 직접 읽는 로거에는
+    보인다.
+    """
+
+    _SECRET = "SUPERSECRETKEY"
+    _URL = "https://apis.data.go.kr/service/rest/data"
+
+    def _forbidden(self) -> httpx.Response:
+        request = httpx.Request("GET", self._URL, params={"serviceKey": self._SECRET, "page": "1"})
+        return httpx.Response(status_code=403, request=request)
+
+    def test_context_is_cleared_not_just_suppressed(self) -> None:
+        transport = HttpTransport(TransportConfig(max_retries=0))
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=self._forbidden()),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request(
+                "GET", self._URL, params={"serviceKey": self._SECRET, "page": "1"}
+            )
+
+        assert excinfo.value.__cause__ is None
+        assert excinfo.value.__context__ is None, (
+            "__suppress_context__ 만으로는 부족하다 — 체인을 직접 읽는 쪽에 키가 보인다"
+        )
+
+    def test_the_key_is_unreachable_through_the_whole_chain(self) -> None:
+        """예외에서 출발해 닿을 수 있는 모든 곳에 키가 없어야 한다."""
+        transport = HttpTransport(TransportConfig(max_retries=0))
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=self._forbidden()),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request(
+                "GET", self._URL, params={"serviceKey": self._SECRET, "page": "1"}
+            )
+
+        reachable: list[str] = []
+        node: BaseException | None = excinfo.value
+        seen: set[int] = set()
+        while node is not None and id(node) not in seen:
+            seen.add(id(node))
+            reachable.append(str(node))
+            request = getattr(node, "request", None)
+            if request is not None:
+                reachable.append(str(request.url))
+            node = node.__cause__ or node.__context__
+
+        assert self._SECRET not in "".join(reachable)
+
+    def test_a_request_without_a_credential_keeps_its_context(self) -> None:
+        """자격이 없는 요청까지 체인을 끊으면 디버깅만 어려워진다."""
+        transport = HttpTransport(TransportConfig(max_retries=0))
+        response = httpx.Response(
+            status_code=403, request=httpx.Request("GET", self._URL, params={"page": "1"})
+        )
+
+        with (
+            patch("kpubdata.transport.http.httpx.Client.send", return_value=response),
+            pytest.raises(TransportError) as excinfo,
+        ):
+            _ = transport.request("GET", self._URL, params={"page": "1"})
+
+        assert isinstance(excinfo.value.__cause__, httpx.HTTPStatusError)
+
+
+class TestOneSensitiveNameList:
+    """목록이 세 벌이면 반드시 어긋난다 — 실제로 어긋났다.
+
+    ``cache.py`` 에 sgis 의 ``consumer_secret`` 이 빠져 있었고, 목록에 없는
+    이름은 지문이 아니라 원문 그대로 캐시 키 재료가 된다.
+    """
+
+    def test_every_module_reads_the_same_object(self) -> None:
+        from kpubdata.transport import cache as cache_module
+        from kpubdata.transport import replay as replay_module
+        from kpubdata.transport._sensitive import SENSITIVE_PARAM_KEYS
+
+        assert http_module.SENSITIVE_PARAM_KEYS is SENSITIVE_PARAM_KEYS
+        assert cache_module.SENSITIVE_PARAM_KEYS is SENSITIVE_PARAM_KEYS
+        assert replay_module.SENSITIVE_PARAM_KEYS is SENSITIVE_PARAM_KEYS
+
+    def test_the_sgis_secret_is_fingerprinted_in_cache_keys(self) -> None:
+        from kpubdata.transport.cache import make_cache_key
+
+        mine = make_cache_key("GET", "https://x/y", {"consumer_secret": "MINE", "q": "1"}, {})
+        yours = make_cache_key("GET", "https://x/y", {"consumer_secret": "YOURS", "q": "1"}, {})
+
+        assert "MINE" not in mine, "원문이 캐시 키 재료로 들어가면 안 된다"
+        assert mine != yours, "자격이 다르면 캐시 엔트리도 달라야 한다"

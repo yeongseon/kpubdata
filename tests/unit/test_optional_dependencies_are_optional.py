@@ -18,7 +18,10 @@ from typing import Any
 
 import pytest
 
-_OPTIONAL_MODULES = ("pandas", "pykrx")
+# typing_extensions 도 optional 이다 — 의존성 marker 가 python_version < '3.12'
+# 라서 3.12 이상에서 새로 설치하면 없다. 네 모듈이 이걸 조건 없이 import 하던
+# 시절에는 ``import kpubdata`` 자체가 ImportError 로 죽었다.
+_OPTIONAL_MODULES = ("pandas", "pykrx", "typing_extensions")
 
 
 @pytest.fixture()
@@ -77,3 +80,25 @@ class TestPandasIsReallyOptional:
 
         with pytest.raises(exceptions.ConfigError, match=r"kpubdata\[krx\]"):
             module._pandas()
+
+
+class TestTypingExtensionsIsReallyOptional:
+    """3.12 이상 새 설치에는 typing_extensions 가 없다.
+
+    ``override`` 는 3.12, ``dataclass_transform`` 은 3.11 부터 stdlib 이라
+    marker 하나로는 맞출 수 없다. ``kpubdata._typing`` 이 버전별로 갈라 준다.
+    """
+
+    def test_importing_the_package_works(self, without_optional_extras: None) -> None:
+        client_module = importlib.import_module("kpubdata.client")
+
+        assert client_module.Client is not None
+
+    def test_every_module_that_needed_it_imports(self, without_optional_extras: None) -> None:
+        for name in (
+            "kpubdata.client",
+            "kpubdata.transport.http",
+            "kpubdata.core.dataset",
+            "kpubdata.core.capability",
+        ):
+            assert importlib.import_module(name) is not None

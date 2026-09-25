@@ -6,12 +6,12 @@ import logging
 from collections.abc import Generator, Mapping
 from typing import cast
 
-from typing_extensions import override
-
 from kpubdata.core.capability import Operation
 from kpubdata.core.models import DatasetRef, Query, RecordBatch, SchemaDescriptor
 from kpubdata.core.protocol import ProviderAdapter
 from kpubdata.exceptions import InvalidRequestError, UnsupportedCapabilityError
+
+from .._typing import override
 
 logger = logging.getLogger("kpubdata.dataset")
 

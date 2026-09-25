@@ -14,6 +14,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TypedDict, cast
 
+from kpubdata.transport._sensitive import SENSITIVE_PARAM_KEYS
+
 logger = logging.getLogger("kpubdata.transport")
 
 
@@ -26,17 +28,6 @@ class _CachePayload(TypedDict, total=False):
 
 
 _REDACTED_VALUE = "[REDACTED]"
-_SENSITIVE_CACHE_KEY_NAMES = {
-    "servicekey",
-    "service_key",
-    "api_key",
-    "apikey",
-    "token",
-    "authorization",
-    "secret",
-    "password",
-    "key",
-}
 
 
 class ResponseCache:
@@ -208,7 +199,7 @@ def _normalize_mapping(values: Mapping[str, object] | None) -> list[tuple[str, s
     normalized_items: list[tuple[str, str]] = []
     for key, value in values.items():
         text = str(value)
-        if key.casefold() in _SENSITIVE_CACHE_KEY_NAMES:
+        if key.casefold() in SENSITIVE_PARAM_KEYS:
             normalized_value = _credential_fingerprint(text)
         else:
             normalized_value = text

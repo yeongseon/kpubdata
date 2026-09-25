@@ -7,7 +7,7 @@ from dataclasses import dataclass as _stdlib_dataclass
 from enum import Enum
 from typing import TypeVar
 
-from typing_extensions import dataclass_transform
+from .._typing import dataclass_transform
 
 _T = TypeVar("_T")
 
