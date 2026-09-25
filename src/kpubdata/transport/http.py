@@ -418,8 +418,9 @@ class HttpTransport:
                         extra={"url": log_url, **request_context},
                     )
                     cacheable = False
-                if cacheable:
-                    assert cache_key is not None  # noqa: S101 - cacheable 이 보장한다
+                # 두 조건은 cacheable 이 이미 보장하지만, 타입 검사기가
+                # boolean 을 통해 좁히지는 못하므로 여기서 다시 적는다.
+                if cacheable and self._cache is not None and cache_key is not None:
                     self._cache.set(cache_key, response.content, self._cache_ttl_seconds)
                     logger.debug(
                         "transport cache miss; stored",
