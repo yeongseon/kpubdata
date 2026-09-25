@@ -18,10 +18,13 @@ from typing import Any
 
 import pytest
 
-# typing_extensions 도 optional 이다 — 의존성 marker 가 python_version < '3.12'
-# 라서 3.12 이상에서 새로 설치하면 없다. 네 모듈이 이걸 조건 없이 import 하던
-# 시절에는 ``import kpubdata`` 자체가 ImportError 로 죽었다.
-_OPTIONAL_MODULES = ("pandas", "pykrx", "typing_extensions")
+_OPTIONAL_MODULES = ("pandas", "pykrx")
+
+# typing_extensions 는 **3.12 이상에서만** optional 이다. marker 가
+# ``python_version < '3.12'`` 라서 3.11 이하에는 실제로 설치되고, 그 버전에서는
+# stdlib 에 ``override`` 가 없으므로 차단하면 당연히 실패한다 — 그건 결함이
+# 아니라 선언된 의존성이다. 3.12 이상에서만 없어도 되는지 검사한다.
+_TYPING_EXTENSIONS_IS_OPTIONAL = sys.version_info >= (3, 12)
 
 
 @pytest.fixture()
@@ -29,16 +32,20 @@ def without_optional_extras() -> Iterator[None]:
     """optional extra 가 설치되지 않은 환경을 흉내낸다."""
     real_import = builtins.__import__
 
+    blocked_roots = set(_OPTIONAL_MODULES)
+    if _TYPING_EXTENSIONS_IS_OPTIONAL:
+        blocked_roots.add("typing_extensions")
+
     def _blocked(name: str, *args: Any, **kwargs: Any) -> ModuleType:
         root = name.split(".", 1)[0]
-        if root in _OPTIONAL_MODULES:
+        if root in blocked_roots:
             raise ImportError(f"No module named {root!r}")
         return real_import(name, *args, **kwargs)
 
     saved = {
         key: value
         for key, value in sys.modules.items()
-        if key.split(".", 1)[0] in {*_OPTIONAL_MODULES, "kpubdata"}
+        if key.split(".", 1)[0] in {*blocked_roots, "kpubdata"}
     }
     for key in list(saved):
         del sys.modules[key]
@@ -82,6 +89,10 @@ class TestPandasIsReallyOptional:
             module._pandas()
 
 
+@pytest.mark.skipif(
+    not _TYPING_EXTENSIONS_IS_OPTIONAL,
+    reason="3.11 이하에서는 typing_extensions 가 선언된 의존성이라 차단하면 당연히 실패한다",
+)
 class TestTypingExtensionsIsReallyOptional:
     """3.12 이상 새 설치에는 typing_extensions 가 없다.
 
