@@ -397,77 +397,34 @@ class SpecExecutor:
             raise NotImplementedError(msg)
 
     def _raise_for_code(self, spec: SpecDefinition, code: str, message: str) -> None:
-        """에러 코드를 표준 예외로 매핑한다(data.go.kr resultCode 표준 표)."""
-        if code in _AUTH_ERROR_CODES:
-            raise AuthError(message, provider=spec.provider, dataset_id=spec.id, provider_code=code)
-        if code == "22":
-            raise RateLimitError(
-                message,
-                provider=spec.provider,
-                dataset_id=spec.id,
-                provider_code=code,
-                retryable=False,
-            )
-        if code == "10":
-            raise InvalidRequestError(
-                message, provider=spec.provider, dataset_id=spec.id, provider_code=code
-            )
-        if code == "12":
-            raise DatasetNotFoundError(
-                message, provider=spec.provider, dataset_id=spec.id, provider_code=code
-            )
-        if code in _SERVICE_UNAVAILABLE_CODES:
-            raise ServiceUnavailableError(
-                message, provider=spec.provider, dataset_id=spec.id, provider_code=code
-            )
-        raise ProviderResponseError(
-            message, provider=spec.provider, dataset_id=spec.id, provider_code=code
-        )
+        """모듈 함수에 위임한다 — 같은 규칙이 두 벌 있으면 반드시 갈라진다."""
+        raise_for_code(spec, code, message)
 
     def _check_error(self, spec: SpecDefinition, payload: dict[str, object]) -> None:
-        """에러 코드 경로를 검사하고 실패 코드면 예외를 발생시킨다."""
-        error = spec.response.error
-        gateway = _gateway_rejection(payload)
-        if gateway is not None:
-            # 게이트웨이가 서비스 대신 답했다. code_path 를 찾아봐야 없다.
-            self._raise_for_code(spec, gateway[0], gateway[1])
-        raw_code = _dot_get(payload, error.code_path)
-        if isinstance(raw_code, str):
-            code = raw_code
-        elif isinstance(raw_code, int) and not isinstance(raw_code, bool):
-            code = str(raw_code)
-        else:
-            msg = f"{spec.id}: 응답 envelope에서 에러 코드를 찾을 수 없습니다({error.code_path!r})."
-            raise ProviderResponseError(msg, provider=spec.provider, dataset_id=spec.id)
+        """모듈 함수에 위임한다.
 
-        ok_strings = {str(value) for value in error.ok_values}
-        code_as_int = _to_int(code)
-        is_success = code in ok_strings or (code_as_int == 0)
-        if is_success:
-            return
+        예전에는 같은 판정을 여기서 따로 구현했고, 그 사본에는 모듈 쪽에만
+        추가된 네 가지가 빠져 있었다 — ``err_field`` style(kosis), code_path 의
+        ``{operation}`` 치환(lofin 계열), KorService 류의 최상단 ``resultCode``
+        폴백, ``resultMsg``/``errMsg`` 메시지 폴백.
 
-        raw_message = _dot_get(payload, _message_path(error.code_path))
-        message = (
-            raw_message
-            if isinstance(raw_message, str) and raw_message
-            else "Provider returned error"
-        )
-        self._raise_for_code(spec, code, message)
+        그 결과 ``make verify`` 는 모듈 함수를 쓰고 실제 실행은 이 메서드를 써서,
+        **verify 통과가 실행 경로를 검증한다는 보장이 없었다.** kosis 처럼
+        code 체계가 없는 provider 는 성공 응답에도 "에러 코드를 찾을 수
+        없습니다" 로 실패했다.
+        """
+        check_payload_error(spec, payload)
 
     def _extract_items(
         self, spec: SpecDefinition, payload: dict[str, object]
     ) -> list[dict[str, object]]:
-        """items_path 규칙으로 레코드 목록을 추출한다."""
-        items_path = spec.response.items_path or ""
-        if "." in items_path:
-            container_path, leaf = items_path.rsplit(".", 1)
-        else:
-            container_path, leaf = "", items_path
-        container = _dot_get(payload, container_path) if container_path else payload
-        if container is None:
-            return []
-        value = container.get(leaf) if isinstance(container, dict) else None
-        return _normalize_item_list(value)
+        """모듈 함수에 위임한다.
+
+        사본에는 ``neis_double_list`` envelope, ``{operation}`` 치환, 루트를
+        가리키는 ``$``(kosis 최상위 배열)가 모두 빠져 있었다 — 그 provider 들은
+        verify 를 통과하면서 실행 시에는 빈 목록을 돌려줬다.
+        """
+        return extract_items(spec, payload)
 
     def _extract_total_count(self, spec: SpecDefinition, payload: dict[str, object]) -> int | None:
         """total_count_path 규칙으로 총건수를 추출한다(없으면 None)."""
