@@ -9,7 +9,8 @@ description: kpubdata 데이터셋 추가·수리 표준 절차 (spec → make r
 
 완성 여부는 `make verify DATASET={provider}.{dataset_key}` exit code로 기계 판정한다.
 
-1. 이슈의 data.go.kr URL에서 활용가이드 확인 (`docs/sources/{dataset}/` 캐시 우선)
+1. 이슈의 data.go.kr URL에서 활용가이드 확인
+   (`docs/sources/{dataset}/` 는 `scripts/fetch_guide.py` 생성물이라 저장소에 없다 — 있으면 우선, 없으면 URL 직접)
 2. 골든 예제 복사 → `src/kpubdata/specs/{provider}/{dataset_key}.yaml`
    - 단순 `datago.hospital_info` / 페이지네이션 `datago.apt_trade` / XML `datago.village_fcst`
    - 계약 `src/kpubdata/specs/schema.json`, 검증 `uv run python scripts/validate_spec.py`
@@ -26,7 +27,7 @@ description: kpubdata 데이터셋 추가·수리 표준 절차 (spec → make r
 
 ## 공통 규칙
 
-- 수정 허용: `src/kpubdata/specs/`, `examples/`, `tests/fixtures/`(record로만), `docs/datasets/`, `docs/sources/`, `SUPPORTED_DATA.md`
+- 수정 허용: `src/kpubdata/specs/`, `examples/`, `tests/fixtures/`(record로만), `docs/sources/`(생성물), `SUPPORTED_DATA.md`
 - 수정 금지: `src/kpubdata/core/`, `src/kpubdata/providers/`, `tests/contract/`, `tests/unit/`, `scripts/`, `Makefile`, `.github/`
 - 금지: fixture 수동 작성, 테스트 skip, assert 약화, `status: broken` 회피
 - 3회 실패 → `needs-human` + 원인 요약 후 중단

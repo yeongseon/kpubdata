@@ -137,7 +137,7 @@ flowchart TD
 
 **이 파일을 복사해서 새로운 어댑터를 만들기 시작하는 것을 추천합니다!**
 
-## 6. Minimal protocol (Original)
+## 6. Minimal protocol
 
 ```python
 from typing import Protocol
@@ -167,7 +167,7 @@ classDiagram
     }
 ```
 
-## 4. 페이지네이션 반환 규약 (Pagination Return Contract)
+## 7. 페이지네이션 반환 규약 (Pagination Return Contract)
 
 어댑터는 `query_records` 결과로 반환되는 `RecordBatch`에 다음 페이지 정보를 포함해야 합니다.
 
@@ -175,20 +175,20 @@ classDiagram
 - **우선순위**: `list_all()`은 `next_cursor`가 존재할 경우 이를 우선적으로 사용하며, 없을 경우 `next_page`를 사용합니다.
 - **권장 방식**: 가급적 `total_count` 기반의 정밀한 계산 방식을 선호합니다. 하지만 전체 개수 정보를 알 수 없는 경우 `len(items) == page_size` 휴리스틱을 사용하는 것도 허용됩니다.
 
-## 5. Operation and query-support rules
+## 8. Operation and query-support rules
 
 - declare only operations the adapter truly supports in `DatasetRef.operations`
 - describe pagination, filter, sort, time-range, and page-size support in `DatasetRef.query_support`
 - if an operation is unavailable, raise `UnsupportedCapabilityError`
 - do not silently emulate unsupported semantics unless documented
 
-## 5. Raw rules
+## 9. Raw rules
 
 - every adapter must expose a raw path
 - raw paths may be inconvenient; they must still be available
 - raw payloads should not be lossy-normalized
 
-## 6. Discovery rules
+## 10. Discovery rules
 
 Adapters may support discovery via:
 
@@ -198,7 +198,7 @@ Adapters may support discovery via:
 
 At minimum, the adapter must surface enough metadata to populate `DatasetRef`.
 
-## 7. Parse and normalization rules
+## 11. Parse and normalization rules
 
 Normalize only the common envelope and broadly reusable metadata.
 
@@ -207,7 +207,7 @@ Do not destroy provider-native fields. Prefer one of these approaches:
 - preserve raw payload at `RecordBatch.raw`
 - preserve unmapped fields in item-level metadata
 
-## 8. Testing requirements
+## 12. Testing requirements
 
 Every adapter must include:
 
@@ -222,7 +222,7 @@ graph LR
     FT[피스처 테스트 Fixture Tests] --> RESP[실제 API 응답 처리 검증]
 ```
 
-## 9. When to extend the core instead of the adapter
+## 13. When to extend the core instead of the adapter
 
 Only extend the core when:
 
@@ -232,7 +232,7 @@ Only extend the core when:
 
 Otherwise, keep the complexity local to the adapter.
 
-## 10. Example adapter development checklist
+## 14. Example adapter development checklist
 
 1. define provider config and auth requirements
 2. define dataset ids and metadata
